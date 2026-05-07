@@ -1,3 +1,4 @@
+import { Capacitor } from '@capacitor/core';
 import { getDbConnection } from '../sqlite/connection';
 import { logger } from '@/core/telemetry/logger';
 

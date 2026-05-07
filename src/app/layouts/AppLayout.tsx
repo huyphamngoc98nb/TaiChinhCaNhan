@@ -1,5 +1,5 @@
 import { Outlet, NavLink } from 'react-router-dom';
-import { Home, List, PlusCircle, Settings } from 'lucide-react';
+import { Home, List, PlusCircle, Settings, BarChart3 } from 'lucide-react';
 import './AppLayout.css';
 
 export function AppLayout() {
@@ -25,6 +25,10 @@ export function AppLayout() {
         <NavLink to="/settings" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
           <Settings size={24} />
           <span>Settings</span>
+        </NavLink>
+        <NavLink to="/reports" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
+          <BarChart3 size={24} />
+          <span>Reports</span>
         </NavLink>
       </nav>
     </div>

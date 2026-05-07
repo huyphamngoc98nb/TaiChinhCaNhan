@@ -1,3 +1,4 @@
+import { Capacitor } from '@capacitor/core';
 import { ITransactionRepository } from '../repositories/transaction.repository';
 import { SQLiteWalletRepository } from '../../wallets/repositories/sqlite-wallet.repository';
 import { getDbConnection, DB_NAME } from '@/core/db/sqlite/connection';

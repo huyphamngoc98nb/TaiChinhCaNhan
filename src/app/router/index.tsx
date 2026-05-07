@@ -1,4 +1,5 @@
 import { createBrowserRouter } from 'react-router-dom';
+import { ReportsPage } from '@/modules/reports/pages/ReportsPage';
 import { MainLayout } from '../layouts/MainLayout';
 import { ROUTES } from '@/shared/constants/routes';
 import { DashboardPage } from '@/modules/transactions/pages/DashboardPage';
@@ -17,6 +18,7 @@ export const router = createBrowserRouter([
       { path: ROUTES.TRANSACTIONS_NEW, element: <AddTransactionPage /> },
       { path: ROUTES.TRANSACTIONS_EDIT, element: <EditTransactionPage /> },
       { path: ROUTES.SETTINGS, element: <SettingsPage /> },
+      { path: ROUTES.REPORTS, element: <ReportsPage /> },
     ],
   },
 ]);

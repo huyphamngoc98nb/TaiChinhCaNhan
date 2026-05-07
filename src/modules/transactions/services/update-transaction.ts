@@ -1,3 +1,4 @@
+import { Capacitor } from '@capacitor/core';
 import { UpdateTransactionInput } from '../domain/transaction.model';
 import { validateUpdateTransaction } from '../domain/transaction.schema';
 import { ITransactionRepository } from '../repositories/transaction.repository';
