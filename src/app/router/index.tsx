@@ -7,6 +7,8 @@ import { TransactionsPage } from '@/modules/transactions/pages/TransactionsPage'
 import { AddTransactionPage } from '@/modules/transactions/pages/AddTransactionPage';
 import { EditTransactionPage } from '@/modules/transactions/pages/EditTransactionPage';
 import { SettingsPage } from '@/modules/settings/pages/SettingsPage';
+import { BudgetSettingsPage } from '@/modules/budgets/pages/BudgetSettingsPage';
+import { RecurringBillsPage } from '@/modules/recurring-bills/pages/RecurringBillsPage';
 
 export const router = createBrowserRouter([
   {
@@ -19,6 +21,8 @@ export const router = createBrowserRouter([
       { path: ROUTES.TRANSACTIONS_EDIT, element: <EditTransactionPage /> },
       { path: ROUTES.SETTINGS, element: <SettingsPage /> },
       { path: ROUTES.REPORTS, element: <ReportsPage /> },
+      { path: '/budgets', element: <BudgetSettingsPage /> },
+      { path: ROUTES.RECURRING_BILLS, element: <RecurringBillsPage /> },
     ],
   },
 ]);

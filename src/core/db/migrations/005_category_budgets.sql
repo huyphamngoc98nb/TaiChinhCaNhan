@@ -1,0 +1,2 @@
+ALTER TABLE categories ADD COLUMN budget_amount REAL DEFAULT NULL;
+ALTER TABLE categories ADD COLUMN budget_period TEXT DEFAULT NULL;

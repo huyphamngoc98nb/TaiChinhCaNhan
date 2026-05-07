@@ -1,9 +1,12 @@
 import { Outlet, NavLink } from 'react-router-dom';
-import { Home, List, PlusCircle, Settings, BarChart3 } from 'lucide-react';
+import { Home, List, PlusCircle, Settings, BarChart3, PiggyBank, Repeat } from 'lucide-react';
 import { ROUTES } from '@/shared/constants/routes';
+import { useLanguage } from '@/shared/context/LanguageContext';
 import './MainLayout.css';
 
 export function MainLayout() {
+  const { t } = useLanguage();
+
   return (
     <div className="app-container">
       <main className="main-content">
@@ -13,23 +16,31 @@ export function MainLayout() {
       <nav className="bottom-nav">
         <NavLink to={ROUTES.HOME} className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`} end>
           <Home size={24} />
-          <span>Home</span>
+          <span>{t('navigation.home')}</span>
         </NavLink>
         <NavLink to={ROUTES.TRANSACTIONS} className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`} end>
           <List size={24} />
-          <span>History</span>
+          <span>{t('navigation.history')}</span>
         </NavLink>
         <NavLink to={ROUTES.TRANSACTIONS_NEW} className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
           <PlusCircle size={24} />
-          <span>Add</span>
+          <span>{t('navigation.add')}</span>
         </NavLink>
         <NavLink to={ROUTES.REPORTS} className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
           <BarChart3 size={24} />
-          <span>Reports</span>
+          <span>{t('navigation.reports')}</span>
+        </NavLink>
+        <NavLink to="/budgets" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
+          <PiggyBank size={24} />
+          <span>{t('navigation.budgets')}</span>
+        </NavLink>
+        <NavLink to={ROUTES.RECURRING_BILLS} className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
+          <Repeat size={24} />
+          <span>{t('navigation.bills')}</span>
         </NavLink>
         <NavLink to={ROUTES.SETTINGS} className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
           <Settings size={24} />
-          <span>Settings</span>
+          <span>{t('navigation.settings')}</span>
         </NavLink>
       </nav>
     </div>

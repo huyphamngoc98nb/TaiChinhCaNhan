@@ -6,12 +6,16 @@ import initSql from './001_init.sql?raw';
 import indexesSql from './002_indexes.sql?raw';
 import softDeleteSql from './003_transactions_soft_delete.sql?raw';
 import receiptPathSql from './004_transactions_receipt_path.sql?raw';
+import categoryBudgetsSql from './005_category_budgets.sql?raw';
+import recurringBillsReminderSql from './006_recurring_bills_reminder.sql?raw';
 
 const MIGRATIONS = [
   { version: 1, name: '001_init', sql: initSql },
   { version: 2, name: '002_indexes', sql: indexesSql },
   { version: 3, name: '003_transactions_soft_delete', sql: softDeleteSql },
   { version: 4, name: '004_transactions_receipt_path', sql: receiptPathSql },
+  { version: 5, name: '005_category_budgets', sql: categoryBudgetsSql },
+  { version: 6, name: '006_recurring_bills_reminder', sql: recurringBillsReminderSql },
 ];
 
 export async function runMigrations() {

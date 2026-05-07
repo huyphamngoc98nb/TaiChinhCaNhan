@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { CreateTransactionInput, UpdateTransactionInput, Transaction } from '../domain/transaction.model';
 import { getDbConnection } from '@/core/db/sqlite/connection';
 import { createTransactionUseCase, updateTransactionUseCase } from '@/core/di/transactions.di';
+import { useToast } from '@/shared/components/Toast/ToastContext';
 
 export function useTransactionForm(existing?: Transaction) {
   const [formData, setFormData] = useState<Partial<CreateTransactionInput>>(() => {
@@ -42,6 +43,7 @@ export function useTransactionForm(existing?: Transaction) {
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [options, setOptions] = useState<{ wallets: any[], categories: any[] }>({ wallets: [], categories: [] });
+  const toast = useToast();
 
   // Save draft to localStorage
   useEffect(() => {
@@ -79,13 +81,17 @@ export function useTransactionForm(existing?: Transaction) {
     try {
       if (existing) {
         await updateTransactionUseCase.execute(existing.id, formData as UpdateTransactionInput, receiptBase64);
+        toast.success('Transaction updated successfully');
       } else {
         await createTransactionUseCase.execute(formData as CreateTransactionInput, receiptBase64);
         localStorage.removeItem('transaction_draft'); // Clear draft on success
+        toast.success('Transaction added successfully');
       }
       return true;
     } catch (e: any) {
-      setError(e.errors ? e.errors.join(', ') : e.message);
+      const msg = e.errors ? e.errors.join(', ') : e.message;
+      setError(msg);
+      toast.error(msg);
       return false;
     } finally {
       setSubmitting(false);
