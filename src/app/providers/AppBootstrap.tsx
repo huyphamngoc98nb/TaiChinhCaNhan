@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { ReactNode, useState, useEffect } from 'react';
 import { LoadingScreen } from '@/shared/components/LoadingScreen';
 import { ErrorScreen } from '@/shared/components/ErrorScreen';
 import { logger } from '@/core/telemetry/logger';
@@ -7,7 +7,7 @@ import { runMigrations } from '@/core/db/migrations/migration-runner';
 import { seedDefaultData } from '@/core/db/seed/default-categories';
 
 interface AppBootstrapProps {
-  children: React.ReactNode;
+  children: ReactNode;
 }
 
 export function AppBootstrap({ children }: AppBootstrapProps) {
@@ -16,8 +16,12 @@ export function AppBootstrap({ children }: AppBootstrapProps) {
 
   useEffect(() => {
     let isMounted = true;
+    let isInitializing = false;
 
     async function initializeApp() {
+      if (isInitializing) return;
+      isInitializing = true;
+
       try {
         logger.info('AppBootstrap: Starting database initialization...');
         
@@ -30,6 +34,8 @@ export function AppBootstrap({ children }: AppBootstrapProps) {
       } catch (err) {
         logger.error('AppBootstrap: Initialization failed', err);
         if (isMounted) setError(err instanceof Error ? err : new Error(String(err)));
+      } finally {
+        isInitializing = false;
       }
     }
 

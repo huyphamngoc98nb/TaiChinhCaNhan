@@ -1,9 +1,10 @@
+import { ReactNode } from 'react';
 
 interface EmptyStateProps {
   title: string;
-  description: string;
-  icon?: React.ReactNode;
-  action?: React.ReactNode;
+  description?: string;
+  icon?: ReactNode;
+  action?: ReactNode;
 }
 
 export function EmptyState({ title, description, icon, action }: EmptyStateProps) {
