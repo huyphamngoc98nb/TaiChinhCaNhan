@@ -1,5 +1,5 @@
 import { UpdateTransactionInput } from '../domain/transaction.model';
-import { validateUpdateTransaction } from '../domain/transaction.schema';
+import { validateUpdateTransaction, TransactionValidationError } from '../domain/transaction.schema';
 import { ITransactionRepository } from '../repositories/transaction.repository';
 import { SQLiteWalletRepository } from '../../wallets/repositories/sqlite-wallet.repository';
 import { DB_NAME } from '@/core/db/sqlite/connection';
@@ -22,24 +22,36 @@ export class UpdateTransactionUseCase {
     const wallet = await this.walletRepository.getById(oldTransaction.wallet_id);
     if (!wallet) throw new Error('Wallet not found');
 
+    const finalType = input.type ?? oldTransaction.type;
+    const finalAmount = input.amount ?? oldTransaction.amount;
+
+    // BUG-4 fix: tính net delta rồi kiểm tra balance không âm trước khi write
+    // delta dương = nhận tiền vào wallet, âm = mất tiền khỏi wallet
+    let delta = 0;
+
+    // 1. Revert ảnh hưởng cũ
+    if (oldTransaction.type === 'income') delta -= oldTransaction.amount;
+    else if (oldTransaction.type === 'expense' || oldTransaction.type === 'transfer')
+      delta += oldTransaction.amount;
+
+    // 2. Áp dụng ảnh hưởng mới
+    if (finalType === 'income') delta += finalAmount;
+    else if (finalType === 'expense' || finalType === 'transfer') delta -= finalAmount;
+
+    // 3. Kiểm tra số dư sau khi áp delta: phải >= 0
+    const projectedBalance = wallet.balance + delta;
+    if (projectedBalance < 0) {
+      throw new TransactionValidationError([
+        `Insufficient balance: current ${wallet.balance}, required additional ${Math.abs(delta)}`,
+      ]);
+    }
+
     let newSavedReceiptPath: string | undefined;
     if (newReceiptBase64) {
       newSavedReceiptPath = await ReceiptStorageService.saveReceipt(newReceiptBase64);
     }
 
     const now = Date.now();
-
-    // Compute net balance delta:
-    // 1. Revert old effect
-    let delta = 0;
-    if (oldTransaction.type === 'income') delta -= oldTransaction.amount;
-    else if (oldTransaction.type === 'expense') delta += oldTransaction.amount;
-
-    // 2. Apply new effect
-    const finalType = input.type ?? oldTransaction.type;
-    const finalAmount = input.amount ?? oldTransaction.amount;
-    if (finalType === 'income') delta += finalAmount;
-    else if (finalType === 'expense') delta -= finalAmount;
 
     // Resolve the final receipt_path that will be stored
     // Priority: new base64-saved path > explicit input.receipt_path > keep old
@@ -68,9 +80,13 @@ export class UpdateTransactionUseCase {
         await sqlite.saveToStore(DB_NAME);
       }
 
-      // Bug #6 fix: delete old receipt whenever receipt path actually changes,
-      // regardless of whether the new path came from base64 upload or direct path.
-      if (updated && finalReceiptPath && oldTransaction.receipt_path && finalReceiptPath !== oldTransaction.receipt_path) {
+      // Bug #6 fix: delete old receipt whenever receipt path actually changes
+      if (
+        updated &&
+        finalReceiptPath &&
+        oldTransaction.receipt_path &&
+        finalReceiptPath !== oldTransaction.receipt_path
+      ) {
         await ReceiptStorageService.deleteReceipt(oldTransaction.receipt_path);
       }
 

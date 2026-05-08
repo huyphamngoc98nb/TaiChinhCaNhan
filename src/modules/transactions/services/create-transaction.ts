@@ -18,9 +18,14 @@ export class CreateTransactionUseCase {
     const wallet = await this.walletRepository.getById(input.wallet_id);
     if (!wallet) throw new Error('Wallet not found');
 
-    // Bug #4 fix: prevent negative balance for expense transactions
-    if (input.type === 'expense' && wallet.balance < input.amount) {
-      throw new TransactionValidationError([`Insufficient balance: available ${wallet.balance}, required ${input.amount}`]);
+    // BUG-3 fix: kiểm tra số dư cho cả expense và transfer (cả 2 đều trừ số dư source wallet)
+    if (
+      (input.type === 'expense' || input.type === 'transfer') &&
+      wallet.balance < input.amount
+    ) {
+      throw new TransactionValidationError([
+        `Insufficient balance: available ${wallet.balance}, required ${input.amount}`,
+      ]);
     }
 
     let savedReceiptPath: string | undefined;
@@ -32,9 +37,12 @@ export class CreateTransactionUseCase {
     const id = crypto.randomUUID();
 
     // Calculate balance delta atomically
+    // - income:   +amount từ wallet
+    // - expense:  -amount từ wallet
+    // - transfer: -amount từ source wallet (to_wallet sẽ được xử lý riêng)
     let delta = 0;
     if (input.type === 'income') delta = input.amount;
-    else if (input.type === 'expense') delta = -input.amount;
+    else if (input.type === 'expense' || input.type === 'transfer') delta = -input.amount;
 
     try {
       const transaction = await runInTransaction(async () => {
@@ -48,6 +56,11 @@ export class CreateTransactionUseCase {
 
         // Atomic delta update — no race condition
         await this.walletRepository.updateBalanceDelta(input.wallet_id, delta, now);
+
+        // Nếu là transfer, cộng số dư vào to_wallet
+        if (input.type === 'transfer' && input.to_wallet_id) {
+          await this.walletRepository.updateBalanceDelta(input.to_wallet_id, input.amount, now);
+        }
 
         return tx;
       });
