@@ -39,7 +39,7 @@ export function BudgetSettingsPage() {
 
   if (isLoading && categories.length === 0) {
     return (
-      <div className="min-h-screen bg-[#F5F7FA] px-4 pt-10 pb-20 space-y-4">
+      <div className="bg-[#F5F7FA] min-h-full px-4 pt-10 pb-20 space-y-4">
         <div className="h-10 bg-gray-200 rounded w-1/3 animate-pulse" />
         <div className="flex space-x-2 mt-4">
           {[1, 2, 3].map(i => <div key={i} className="flex-1 h-20 bg-gray-200 rounded-[12px] animate-pulse" />)}
@@ -56,7 +56,7 @@ export function BudgetSettingsPage() {
   // Section 5: Empty Onboarding
   if (!isLoading && categories.length === 0) {
     return (
-      <div className="min-h-screen bg-[#F5F7FA] flex flex-col items-center justify-center p-8 text-center space-y-6">
+      <div className="bg-[#F5F7FA] min-h-full flex flex-col items-center justify-center p-8 text-center space-y-6">
         <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center text-gray-500">
           <Wallet size={48} />
         </div>
@@ -77,7 +77,7 @@ export function BudgetSettingsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#F5F7FA]" style={{ padding: '0 16px', paddingBottom: '80px' }}>
+    <div className="bg-[#F5F7FA] min-h-full" style={{ padding: '0 16px' }}>
       {/* Section 1: PageHeader */}
       <header className="pt-10 pb-2 flex items-center justify-between">
         <div className="flex flex-col">

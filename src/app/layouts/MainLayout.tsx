@@ -26,17 +26,9 @@ export function MainLayout() {
           <PlusCircle size={24} />
           <span>{t('navigation.add')}</span>
         </NavLink>
-        <NavLink to={ROUTES.REPORTS} className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
-          <BarChart3 size={24} />
-          <span>{t('navigation.reports')}</span>
-        </NavLink>
         <NavLink to="/budgets" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
           <PiggyBank size={24} />
           <span>{t('navigation.budgets')}</span>
-        </NavLink>
-        <NavLink to={ROUTES.RECURRING_BILLS} className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
-          <Repeat size={24} />
-          <span>{t('navigation.bills')}</span>
         </NavLink>
         <NavLink to={ROUTES.SETTINGS} className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
           <Settings size={24} />
