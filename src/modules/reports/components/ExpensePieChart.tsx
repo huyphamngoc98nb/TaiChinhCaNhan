@@ -1,6 +1,7 @@
 import React from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 import { CategorySummary } from '../domain/report.model';
+import { useLanguage } from '@/shared/context/LanguageContext';
 
 interface Props {
   data: CategorySummary[];
@@ -9,23 +10,29 @@ interface Props {
 const COLORS = ['#ef4444', '#f97316', '#f59e0b', '#84cc16', '#06b6d4', '#3b82f6', '#8b5cf6', '#d946ef'];
 
 export const ExpensePieChart: React.FC<Props> = ({ data }) => {
+  const { t, language } = useLanguage();
+  const locale = language === 'vi' ? 'vi-VN' : 'en-US';
+  const currency = language === 'vi' ? 'VND' : 'USD';
+
+  const fmtTooltip = (value: any) =>
+    new Intl.NumberFormat(locale, { style: 'currency', currency, maximumFractionDigits: language === 'vi' ? 0 : 2 }).format(Number(value || 0));
+
   if (!data || data.length === 0) {
     return (
       <div className="bg-white p-4 rounded-lg shadow h-80 flex items-center justify-center border border-gray-100">
-        <div className="text-gray-400">No expense data in this period.</div>
+        <div className="text-gray-400">{t('reports.no_expense_data')}</div>
       </div>
     );
   }
 
-  // Format data for Recharts
   const chartData = data.map(d => ({
     name: d.category_name,
-    value: d.amount
+    value: d.amount,
   }));
 
   return (
     <div className="bg-white p-4 rounded-lg shadow h-80 mb-6 border border-gray-100" style={{ minHeight: '320px' }}>
-      <h3 className="text-lg font-semibold mb-2 text-gray-800">Expense by Category</h3>
+      <h3 className="text-lg font-semibold mb-2 text-gray-800">{t('reports.expense_by_category')}</h3>
       <ResponsiveContainer width="100%" height={250}>
         <PieChart>
           <Pie
@@ -41,7 +48,7 @@ export const ExpensePieChart: React.FC<Props> = ({ data }) => {
               <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
             ))}
           </Pie>
-          <Tooltip formatter={(value: any) => `$${Number(value || 0).toFixed(2)}`} />
+          <Tooltip formatter={fmtTooltip} />
           <Legend />
         </PieChart>
       </ResponsiveContainer>
