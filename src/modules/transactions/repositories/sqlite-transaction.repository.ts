@@ -32,7 +32,6 @@ export class SQLiteTransactionRepository implements ITransactionRepository {
     if (data.transaction_date !== undefined) { sets.push('transaction_date = ?'); values.push(data.transaction_date); }
     
     sets.push('updated_at = ?'); values.push(data.updated_at);
-    
     values.push(id);
 
     const sql = `UPDATE transactions SET ${sets.join(', ')} WHERE id = ?`;
@@ -48,10 +47,32 @@ export class SQLiteTransactionRepository implements ITransactionRepository {
     return (res.changes?.changes ?? 0) > 0;
   }
 
+  /**
+   * Bug #5 fix: filter deleted_at IS NULL so soft-deleted records
+   * are never returned to business logic as if they were active.
+   */
   async getById(id: string): Promise<Transaction | null> {
     const db = await getDbConnection();
     const sql = `
-      SELECT id, wallet_id, category_id, type, amount, note, receipt_path, transaction_date, created_at, updated_at, deleted_at 
+      SELECT id, wallet_id, category_id, type, amount, note, receipt_path,
+             transaction_date, created_at, updated_at, deleted_at 
+      FROM transactions 
+      WHERE id = ? AND deleted_at IS NULL
+    `;
+    const { values } = await db.query(sql, [id]);
+    if (!values || values.length === 0) return null;
+    return mapToTransaction(values[0]);
+  }
+
+  /**
+   * Fetch a record regardless of deleted_at — used internally
+   * (e.g. idempotency check in DeleteTransactionUseCase).
+   */
+  async getByIdIncludeDeleted(id: string): Promise<Transaction | null> {
+    const db = await getDbConnection();
+    const sql = `
+      SELECT id, wallet_id, category_id, type, amount, note, receipt_path,
+             transaction_date, created_at, updated_at, deleted_at 
       FROM transactions 
       WHERE id = ?
     `;
