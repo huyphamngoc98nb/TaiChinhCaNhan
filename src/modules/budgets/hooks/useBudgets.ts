@@ -1,49 +1,62 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { CategoryBudget, BudgetProgress } from '../domain/budget.model';
 import { SQLiteBudgetRepository } from '../repositories/sqlite-budget.repository';
 import { GetBudgetSettingsUseCase } from '../services/get-budget-settings';
-import { UpsertCategoryBudgetUseCase } from '../services/upsert-category-budget';
 import { ListBudgetAlertsUseCase } from '../services/list-budget-alerts';
 
 export function useBudgets() {
   const [categories, setCategories] = useState<CategoryBudget[]>([]);
-  const [alerts, setAlerts] = useState<BudgetProgress[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [allProgress, setAllProgress] = useState<BudgetProgress[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const repository = new SQLiteBudgetRepository();
-  const getSettingsUseCase = new GetBudgetSettingsUseCase(repository);
-  const upsertUseCase = new UpsertCategoryBudgetUseCase(repository);
-  const listAlertsUseCase = new ListBudgetAlertsUseCase(repository);
+  const repository = useMemo(() => new SQLiteBudgetRepository(), []);
+  const getSettingsUseCase = useMemo(() => new GetBudgetSettingsUseCase(repository), [repository]);
+  const listAlertsUseCase = useMemo(() => new ListBudgetAlertsUseCase(repository), [repository]);
 
   const load = useCallback(async () => {
-    setLoading(true);
+    setIsLoading(true);
     try {
-      const cats = await getSettingsUseCase.execute();
+      const [cats, progress] = await Promise.all([
+        getSettingsUseCase.execute(),
+        listAlertsUseCase.execute()
+      ]);
       setCategories(cats);
-      
-      const alrts = await listAlertsUseCase.execute();
-      setAlerts(alrts);
+      setAllProgress(progress);
+      setError(null);
     } catch (e: any) {
       setError(e.message || 'Failed to load budgets');
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
-  }, []);
+  }, [getSettingsUseCase, listAlertsUseCase]);
 
   useEffect(() => {
     load();
   }, [load]);
 
-  const updateBudget = async (categoryId: string, amount: number | null, period: 'weekly' | 'monthly' | null) => {
-    try {
-      await upsertUseCase.execute(categoryId, amount, period);
-      await load();
-    } catch (e: any) {
-      setError(e.message || 'Failed to update budget');
-      throw e;
-    }
-  };
+  const summaryStats = useMemo(() => {
+    const stats = { healthy: 0, warning: 0, over: 0 };
+    allProgress.forEach(p => {
+      if (p.status === 'exceeded') stats.over++;
+      else if (p.status === 'warning') stats.warning++;
+      else stats.healthy++;
+    });
+    return stats;
+  }, [allProgress]);
 
-  return { categories, alerts, loading, error, updateBudget, refresh: load };
+  const alerts = useMemo(() => 
+    allProgress.filter(p => p.status === 'warning' || p.status === 'exceeded'),
+    [allProgress]
+  );
+
+  return { 
+    categories, 
+    allProgress,
+    summaryStats,
+    alerts,
+    isLoading, 
+    error, 
+    refresh: load 
+  };
 }

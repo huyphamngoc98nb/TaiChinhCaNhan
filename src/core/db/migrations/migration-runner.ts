@@ -10,6 +10,8 @@ import categoryBudgetsSql from './005_category_budgets.sql?raw';
 import recurringBillsReminderSql from './006_recurring_bills_reminder.sql?raw';
 import transferWalletSql from './007_transactions_transfer_wallet.sql?raw';
 import balanceTriggersSql from './008_wallet_balance_triggers.sql?raw';
+import rbDeleteFixSql from './009_recurring_bills_delete_fix.sql?raw';
+
 
 
 const MIGRATIONS = [
@@ -21,6 +23,7 @@ const MIGRATIONS = [
   { version: 6, name: '006_recurring_bills_reminder', sql: recurringBillsReminderSql },
   { version: 7, name: '007_transactions_transfer_wallet', sql: transferWalletSql },
   { version: 8, name: '008_wallet_balance_triggers', sql: balanceTriggersSql },
+  { version: 9, name: '009_recurring_bills_delete_fix', sql: rbDeleteFixSql },
 ];
 
 export async function runMigrations() {

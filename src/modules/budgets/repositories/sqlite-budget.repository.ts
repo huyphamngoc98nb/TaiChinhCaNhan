@@ -6,7 +6,7 @@ export class SQLiteBudgetRepository implements IBudgetRepository {
   async getAllCategoryBudgets(): Promise<CategoryBudget[]> {
     const db = await getDbConnection();
     const sql = `
-      SELECT id as category_id, name as category_name, type, budget_amount, budget_period
+      SELECT id as category_id, name as category_name, type, icon, color, budget_amount, budget_period
       FROM categories
       WHERE type = 'expense'
     `;
@@ -17,7 +17,7 @@ export class SQLiteBudgetRepository implements IBudgetRepository {
   async getCategoryBudget(categoryId: string): Promise<CategoryBudget | null> {
     const db = await getDbConnection();
     const sql = `
-      SELECT id as category_id, name as category_name, type, budget_amount, budget_period
+      SELECT id as category_id, name as category_name, type, icon, color, budget_amount, budget_period
       FROM categories
       WHERE id = ? AND type = 'expense'
     `;

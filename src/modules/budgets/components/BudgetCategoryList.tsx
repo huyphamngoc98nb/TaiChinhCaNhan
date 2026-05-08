@@ -1,47 +1,41 @@
-import { useState } from 'react';
-import { CategoryBudget } from '../domain/budget.model';
-import { BudgetEditForm } from './BudgetEditForm';
+import { CategoryBudget, BudgetProgress } from '../domain/budget.model';
+import { BudgetCategoryItem } from './BudgetCategoryItem';
+import { EmptyBudgetPrompt } from './EmptyBudgetPrompt';
 
 interface Props {
   categories: CategoryBudget[];
-  onUpdateBudget: (id: string, amount: number | null, period: 'weekly' | 'monthly' | null) => Promise<void>;
+  allProgress: BudgetProgress[];
+  onItemClick: (category: CategoryBudget) => void;
 }
 
-export function BudgetCategoryList({ categories, onUpdateBudget }: Props) {
-  const [editingId, setEditingId] = useState<string | null>(null);
+export function BudgetCategoryList({ categories, allProgress, onItemClick }: Props) {
+  const budgetsSetCount = categories.filter(c => c.budget_amount !== null).length;
+  const anyBudgetSet = budgetsSetCount > 0;
 
   return (
     <div className="space-y-4">
-      {categories.map(category => (
-        <div key={category.category_id} className="bg-white p-4 rounded-lg shadow border border-gray-100">
-          <div className="flex justify-between items-center">
-            <div>
-              <h4 className="font-semibold text-gray-800">{category.category_name}</h4>
-              <p className="text-sm text-gray-500">
-                {category.budget_amount ? `$${category.budget_amount.toFixed(2)} / ${category.budget_period}` : 'No budget set'}
-              </p>
-            </div>
-            {editingId !== category.category_id && (
-              <button
-                onClick={() => setEditingId(category.category_id)}
-                className="text-indigo-600 hover:text-indigo-800 text-sm font-medium"
-              >
-                {category.budget_amount ? 'Edit' : 'Set Budget'}
-              </button>
-            )}
-          </div>
-          {editingId === category.category_id && (
-            <BudgetEditForm
-              category={category}
-              onSave={async (id, amount, period) => {
-                await onUpdateBudget(id, amount, period);
-                setEditingId(null);
-              }}
-              onCancel={() => setEditingId(null)}
+      <div className="flex items-center justify-between mb-2">
+        <h3 className="text-[16px] font-semibold text-gray-900">Categories</h3>
+        <p className="text-[12px] text-gray-500 uppercase">
+          {budgetsSetCount} / {categories.length} budgets set
+        </p>
+      </div>
+
+      {!anyBudgetSet && <EmptyBudgetPrompt />}
+
+      <div className="space-y-3">
+        {categories.map(category => {
+          const progress = allProgress.find(p => p.budget.category_id === category.category_id);
+          return (
+            <BudgetCategoryItem 
+              key={category.category_id}
+              category={category} 
+              progress={progress}
+              onClick={() => onItemClick(category)}
             />
-          )}
-        </div>
-      ))}
+          );
+        })}
+      </div>
     </div>
   );
 }

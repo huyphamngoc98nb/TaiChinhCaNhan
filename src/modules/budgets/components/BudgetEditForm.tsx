@@ -1,87 +1,130 @@
-import { useState } from 'react';
-import { CategoryBudget } from '../domain/budget.model';
+import { X } from 'lucide-react';
+import { CategoryBudget, BudgetPeriod } from '../domain/budget.model';
 
 interface Props {
   category: CategoryBudget;
-  onSave: (id: string, amount: number | null, period: 'weekly' | 'monthly' | null) => Promise<void>;
-  onCancel: () => void;
+  amount: string;
+  setAmount: (val: string) => void;
+  period: BudgetPeriod;
+  setPeriod: (val: BudgetPeriod) => void;
+  onSave: () => Promise<void>;
+  onRemove: () => Promise<void>;
+  onClose: () => void;
+  isSaving: boolean;
+  error: string | null;
 }
 
-export function BudgetEditForm({ category, onSave, onCancel }: Props) {
-  const [amount, setAmount] = useState<string>(category.budget_amount ? category.budget_amount.toString() : '');
-  const [period, setPeriod] = useState<'weekly' | 'monthly'>(category.budget_period || 'monthly');
-  const [isSaving, setIsSaving] = useState(false);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSaving(true);
-    try {
-      const parsedAmount = amount ? parseFloat(amount) : null;
-      const finalPeriod = parsedAmount ? period : null;
-      await onSave(category.category_id, parsedAmount, finalPeriod);
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
-  const handleRemove = async () => {
-    setIsSaving(true);
-    try {
-      await onSave(category.category_id, null, null);
-    } finally {
-      setIsSaving(false);
-    }
-  }
-
+export function BudgetEditForm({ 
+  category, 
+  amount, 
+  setAmount, 
+  period, 
+  setPeriod, 
+  onSave, 
+  onRemove, 
+  onClose,
+  isSaving,
+  error 
+}: Props) {
   return (
-    <form onSubmit={handleSubmit} className="bg-gray-50 p-4 rounded-lg border border-gray-200 mt-2">
-      <div className="flex flex-col space-y-3">
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Amount</label>
-          <input
-            type="number"
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
-            placeholder="No budget"
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border"
-          />
+    <div className="flex flex-col h-full">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center space-x-3">
+          <div 
+            className="w-8 h-8 rounded-full flex items-center justify-center text-lg"
+            style={{ backgroundColor: `${category.color}26`, color: category.color }}
+          >
+            {category.icon || '💰'}
+          </div>
+          <h4 className="text-[18px] font-semibold text-gray-900">{category.category_name}</h4>
         </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Period</label>
-          <select
-            value={period}
-            onChange={(e) => setPeriod(e.target.value as 'weekly' | 'monthly')}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border"
-          >
-            <option value="weekly">Weekly</option>
-            <option value="monthly">Monthly</option>
-          </select>
-        </div>
-        <div className="flex space-x-2 pt-2">
-          <button
-            type="submit"
-            disabled={isSaving}
-            className="bg-indigo-600 text-white px-3 py-1.5 rounded-md text-sm hover:bg-indigo-700 disabled:opacity-50"
-          >
-            Save
-          </button>
-          <button
-            type="button"
-            onClick={handleRemove}
-            disabled={isSaving}
-            className="bg-red-100 text-red-700 px-3 py-1.5 rounded-md text-sm hover:bg-red-200 disabled:opacity-50"
-          >
-            Remove Budget
-          </button>
-          <button
-            type="button"
-            onClick={onCancel}
-            className="bg-gray-200 text-gray-800 px-3 py-1.5 rounded-md text-sm hover:bg-gray-300"
-          >
-            Cancel
-          </button>
-        </div>
+        <button 
+          onClick={onClose}
+          className="w-11 h-11 flex items-center justify-center text-gray-400 bg-gray-100 rounded-full active:bg-gray-200 transition-colors"
+        >
+          <X size={20} />
+        </button>
       </div>
-    </form>
+
+      {/* Form Body */}
+      <div className="flex-1 space-y-6">
+        {/* Period Toggle */}
+        <div className="space-y-2">
+          <p className="text-[13px] font-semibold text-gray-900">Budget period</p>
+          <div className="flex bg-gray-100 p-1 rounded-[10px] h-11 w-full">
+            <button
+              onClick={() => setPeriod('monthly')}
+              className={`flex-1 flex items-center justify-center rounded-[8px] text-[13px] font-semibold transition-all ${
+                period === 'monthly' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'
+              }`}
+            >
+              Monthly
+            </button>
+            <button
+              onClick={() => setPeriod('weekly')}
+              className={`flex-1 flex items-center justify-center rounded-[8px] text-[13px] font-semibold transition-all ${
+                period === 'weekly' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'
+              }`}
+            >
+              Weekly
+            </button>
+          </div>
+        </div>
+
+        {/* Amount Input */}
+        <div className="space-y-2">
+          <p className="text-[13px] font-semibold text-gray-900">Amount</p>
+          <div className={`flex items-center h-[52px] bg-gray-50 border rounded-[12px] px-4 transition-all ${
+            error ? 'border-red-500' : 'border-gray-200 focus-within:border-indigo-500'
+          }`}>
+            <span className="text-[14px] font-semibold text-gray-400 mr-2">VND</span>
+            <input
+              type="number"
+              inputMode="numeric"
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+              className="flex-1 bg-transparent text-[20px] font-bold text-gray-900 outline-none tabular-nums"
+              placeholder="0"
+              autoFocus
+            />
+          </div>
+          {error ? (
+            <p className="text-[12px] text-red-500 font-medium ml-1">{error}</p>
+          ) : (
+            <p className="text-[12px] text-gray-400 ml-1 italic">
+              e.g. 3,000,000 per {period === 'monthly' ? 'month' : 'week'}
+            </p>
+          )}
+        </div>
+
+        {/* Remove Link */}
+        {category.budget_amount !== null && (
+          <button
+            onClick={() => {
+              if (window.confirm('Remove this budget limit?')) {
+                onRemove();
+              }
+            }}
+            className="text-[13px] text-red-500 font-semibold h-11 flex items-center px-1"
+          >
+            Remove budget limit
+          </button>
+        )}
+      </div>
+
+      {/* Footer */}
+      <div className="mt-8 pt-4 border-t border-gray-100">
+        <button
+          onClick={onSave}
+          disabled={isSaving}
+          className={`w-full h-[52px] rounded-[12px] bg-indigo-500 text-white text-[15px] font-semibold transition-all active:scale-[0.98] ${
+            isSaving ? 'opacity-40' : 'shadow-lg shadow-indigo-500/20'
+          }`}
+        >
+          {isSaving ? 'Saving...' : 'Save Budget'}
+        </button>
+      </div>
+    </div>
   );
 }
