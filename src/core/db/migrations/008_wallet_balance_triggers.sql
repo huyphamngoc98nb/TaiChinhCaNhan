@@ -1,13 +1,17 @@
--- Migration 008: Transfer constraint triggers
--- NOTE: The balance-sync triggers (trg_wallets_balance_after_insert/update/delete)
--- have been intentionally REMOVED. Balance is managed atomically in the
--- service layer via updateBalanceDelta() (see PR #5).
--- Keeping the triggers alongside service-layer updates would cause double-update.
+-- Migration 008: One-time balance sync only.
+-- All triggers originally planned here have been removed:
 --
--- Each trigger is a separate statement and must remain separated;
--- the migration runner executes them individually.
+--  * trg_wallets_balance_after_insert/update/delete
+--    Removed: balance is managed atomically in the service layer.
+--    Having both causes double-update.
+--
+--  * trg_transactions_transfer_check_ins/upd
+--    Removed: @capacitor-community/sqlite on Android cannot execute
+--    CREATE TRIGGER...BEGIN...END blocks reliably (incomplete input error).
+--    Equivalent validation is enforced in transaction.schema.ts.
+--
+-- This file now contains only a plain UPDATE (safe on all platforms).
 
--- 1. Initial balance sync (one-time, idempotent)
 UPDATE wallets SET balance = (
   SELECT
     COALESCE(SUM(CASE WHEN type = 'income' THEN amount ELSE 0 END), 0) -
@@ -20,29 +24,3 @@ UPDATE wallets SET balance = (
   FROM transactions
   WHERE to_wallet_id = wallets.id AND type = 'transfer' AND deleted_at IS NULL
 );
-
--- 2. Enforce transfer constraint on INSERT
-CREATE TRIGGER IF NOT EXISTS trg_transactions_transfer_check_ins
-BEFORE INSERT ON transactions
-FOR EACH ROW
-BEGIN
-  SELECT CASE
-    WHEN NEW.type = 'transfer' AND NEW.to_wallet_id IS NULL THEN
-      RAISE(ABORT, 'to_wallet_id is required for transfer transactions')
-    WHEN NEW.type != 'transfer' AND NEW.to_wallet_id IS NOT NULL THEN
-      RAISE(ABORT, 'to_wallet_id must be NULL for non-transfer transactions')
-  END;
-END;
-
--- 3. Enforce transfer constraint on UPDATE
-CREATE TRIGGER IF NOT EXISTS trg_transactions_transfer_check_upd
-BEFORE UPDATE ON transactions
-FOR EACH ROW
-BEGIN
-  SELECT CASE
-    WHEN NEW.type = 'transfer' AND NEW.to_wallet_id IS NULL THEN
-      RAISE(ABORT, 'to_wallet_id is required for transfer transactions')
-    WHEN NEW.type != 'transfer' AND NEW.to_wallet_id IS NOT NULL THEN
-      RAISE(ABORT, 'to_wallet_id must be NULL for non-transfer transactions')
-  END;
-END;
