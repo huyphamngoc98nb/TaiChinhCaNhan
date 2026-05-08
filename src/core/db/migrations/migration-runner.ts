@@ -37,18 +37,28 @@ export async function runMigrations() {
     if (migration.version > currentVersion) {
       logger.info(`Running migration: ${migration.name}`);
       const isWeb = Capacitor.getPlatform() === 'web';
-      if (!isWeb) await db.beginTransaction();
+      let transactionStarted = false;
+      if (!isWeb) {
+        const { result: isActive } = await db.isTransactionActive();
+        if (!isActive) {
+          await db.beginTransaction();
+          transactionStarted = true;
+        }
+      }
       try {
-        await db.execute(migration.sql);
+        // Pass false to execute() to prevent it from starting its own transaction,
+        // as we are managing it manually with begin/commitTransaction.
+        await db.execute(migration.sql, false);
         const executedAt = Date.now();
         await db.run(
           'INSERT INTO migrations (version, name, executed_at) VALUES (?, ?, ?)',
-          [migration.version, migration.name, executedAt]
+          [migration.version, migration.name, executedAt],
+          false // don't start a transaction
         );
-        if (!isWeb) await db.commitTransaction();
+        if (transactionStarted) await db.commitTransaction();
         logger.info(`Migration ${migration.name} completed.`);
       } catch (err) {
-        if (!isWeb) {
+        if (transactionStarted) {
           try {
             await db.rollbackTransaction();
           } catch (rollbackErr) {

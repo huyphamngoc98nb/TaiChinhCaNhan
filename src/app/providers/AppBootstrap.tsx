@@ -10,32 +10,37 @@ interface AppBootstrapProps {
   children: ReactNode;
 }
 
+let globalInitPromise: Promise<void> | null = null;
+
 export function AppBootstrap({ children }: AppBootstrapProps) {
   const [isReady, setIsReady] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
     let isMounted = true;
-    let isInitializing = false;
 
     async function initializeApp() {
-      if (isInitializing) return;
-      isInitializing = true;
+      if (globalInitPromise) {
+        await globalInitPromise;
+        if (isMounted) setIsReady(true);
+        return;
+      }
 
-      try {
+      globalInitPromise = (async () => {
         logger.info('AppBootstrap: Starting database initialization...');
-        
         await initDatabaseConnection();
         await runMigrations();
         await seedDefaultData();
-        
         logger.info('AppBootstrap: Initialization complete.');
+      })();
+
+      try {
+        await globalInitPromise;
         if (isMounted) setIsReady(true);
       } catch (err) {
         logger.error('AppBootstrap: Initialization failed', err);
         if (isMounted) setError(err instanceof Error ? err : new Error(String(err)));
-      } finally {
-        isInitializing = false;
+        globalInitPromise = null; // Allow retry
       }
     }
 
