@@ -1,5 +1,5 @@
 import { Outlet, NavLink } from 'react-router-dom';
-import { Home, List, PlusCircle, Settings, BarChart3, PiggyBank, Repeat } from 'lucide-react';
+import { Home, List, PlusCircle, Settings, BarChart3, PiggyBank } from 'lucide-react';
 import { ROUTES } from '@/shared/constants/routes';
 import { useLanguage } from '@/shared/context/LanguageContext';
 import './MainLayout.css';
@@ -12,7 +12,7 @@ export function MainLayout() {
       <main className="main-content">
         <Outlet />
       </main>
-      
+
       <nav className="bottom-nav">
         <NavLink to={ROUTES.HOME} className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`} end>
           <Home size={24} />
@@ -26,7 +26,11 @@ export function MainLayout() {
           <PlusCircle size={24} />
           <span>{t('navigation.add')}</span>
         </NavLink>
-        <NavLink to="/budgets" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
+        <NavLink to={ROUTES.REPORTS} className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
+          <BarChart3 size={24} />
+          <span>{t('navigation.reports')}</span>
+        </NavLink>
+        <NavLink to={ROUTES.BUDGETS} className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
           <PiggyBank size={24} />
           <span>{t('navigation.budgets')}</span>
         </NavLink>
