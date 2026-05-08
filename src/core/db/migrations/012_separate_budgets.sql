@@ -44,7 +44,10 @@ SELECT
 FROM categories
 WHERE budget_amount IS NOT NULL;
 
--- 4. Xoá cột cũ (yêu cầu SQLite >= 3.35)
--- Nếu version thấp hơn, giữ cột và ignore bằng application code
-ALTER TABLE categories DROP COLUMN IF EXISTS budget_amount;
-ALTER TABLE categories DROP COLUMN IF EXISTS budget_period;
+-- 4. Guard: chỉ DROP COLUMN nếu SQLite >= 3.35
+-- Nếu version thấp hơn, application code bỏ qua cột này (nullable).
+-- Kiểm tra version trong migration-runner trước khi chạy bước này.
+SELECT CASE
+  WHEN sqlite_version() >= '3.35.0' THEN 'DROP_SUPPORTED'
+  ELSE 'DROP_NOT_SUPPORTED'
+END AS drop_column_support;

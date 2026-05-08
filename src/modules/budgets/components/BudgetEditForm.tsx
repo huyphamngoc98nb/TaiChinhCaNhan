@@ -1,9 +1,9 @@
 import { X } from 'lucide-react';
 import { useLanguage } from '@/shared/context/LanguageContext';
-import { CategoryBudget, BudgetPeriod } from '../domain/budget.model';
+import { BudgetWithCategory, BudgetPeriod } from '../domain/budget.model';
 
 interface Props {
-  category: CategoryBudget;
+  budget: BudgetWithCategory;
   amount: string;
   setAmount: (val: string) => void;
   period: BudgetPeriod;
@@ -16,7 +16,7 @@ interface Props {
 }
 
 export function BudgetEditForm({
-  category,
+  budget,
   amount,
   setAmount,
   period,
@@ -36,11 +36,11 @@ export function BudgetEditForm({
         <div className="flex items-center space-x-3">
           <div
             className="w-8 h-8 rounded-full flex items-center justify-center text-lg"
-            style={{ backgroundColor: `${category.color}26`, color: category.color }}
+            style={{ backgroundColor: `${budget.color}26`, color: budget.color }}
           >
-            {category.icon || '💰'}
+            {budget.icon || '💰'}
           </div>
-          <h4 className="text-[18px] font-semibold text-gray-900">{category.category_name}</h4>
+          <h4 className="text-[18px] font-semibold text-gray-900">{budget.category_name}</h4>
         </div>
         <button
           onClick={onClose}
@@ -105,19 +105,17 @@ export function BudgetEditForm({
           )}
         </div>
 
-        {/* Remove Link */}
-        {category.budget_amount !== null && (
-          <button
-            onClick={() => {
-              if (window.confirm(t('budgets.remove_confirm'))) {
-                onRemove();
-              }
-            }}
-            className="text-[13px] text-red-500 font-semibold h-11 flex items-center px-1"
-          >
-            {t('budgets.remove_budget')}
-          </button>
-        )}
+        {/* Remove budget */}
+        <button
+          onClick={() => {
+            if (window.confirm(t('budgets.remove_confirm'))) {
+              onRemove();
+            }
+          }}
+          className="text-[13px] text-red-500 font-semibold h-11 flex items-center px-1"
+        >
+          {t('budgets.remove_budget')}
+        </button>
       </div>
 
       {/* Footer */}

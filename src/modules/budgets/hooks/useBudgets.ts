@@ -1,11 +1,11 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { CategoryBudget, BudgetProgress } from '../domain/budget.model';
+import { BudgetWithCategory, BudgetProgress } from '../domain/budget.model';
 import { SQLiteBudgetRepository } from '../repositories/sqlite-budget.repository';
 import { GetBudgetSettingsUseCase } from '../services/get-budget-settings';
 import { ListBudgetAlertsUseCase } from '../services/list-budget-alerts';
 
-export function useBudgets() {
-  const [categories, setCategories] = useState<CategoryBudget[]>([]);
+export function useBudgets(walletId?: string) {
+  const [budgets, setBudgets] = useState<BudgetWithCategory[]>([]);
   const [allProgress, setAllProgress] = useState<BudgetProgress[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -17,19 +17,20 @@ export function useBudgets() {
   const load = useCallback(async () => {
     setIsLoading(true);
     try {
-      const [cats, progress] = await Promise.all([
-        getSettingsUseCase.execute(),
-        listAlertsUseCase.execute()
+      const [budgetList, progress] = await Promise.all([
+        getSettingsUseCase.execute(walletId),
+        listAlertsUseCase.execute(walletId),
       ]);
-      setCategories(cats);
+      setBudgets(budgetList);
       setAllProgress(progress);
       setError(null);
-    } catch (e: any) {
-      setError(e.message || 'Failed to load budgets');
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : 'Failed to load budgets';
+      setError(msg);
     } finally {
       setIsLoading(false);
     }
-  }, [getSettingsUseCase, listAlertsUseCase]);
+  }, [getSettingsUseCase, listAlertsUseCase, walletId]);
 
   useEffect(() => {
     load();
@@ -45,18 +46,18 @@ export function useBudgets() {
     return stats;
   }, [allProgress]);
 
-  const alerts = useMemo(() => 
-    allProgress.filter(p => p.status === 'warning' || p.status === 'exceeded'),
+  const alerts = useMemo(
+    () => allProgress.filter(p => p.status === 'warning' || p.status === 'exceeded'),
     [allProgress]
   );
 
-  return { 
-    categories, 
+  return {
+    budgets,
     allProgress,
     summaryStats,
     alerts,
-    isLoading, 
-    error, 
-    refresh: load 
+    isLoading,
+    error,
+    refresh: load,
   };
 }

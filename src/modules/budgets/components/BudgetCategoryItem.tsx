@@ -1,28 +1,26 @@
 import { useLanguage } from '@/shared/context/LanguageContext';
-import { CategoryBudget, BudgetProgress } from '../domain/budget.model';
+import { BudgetWithCategory, BudgetProgress } from '../domain/budget.model';
 import { BudgetStatusBadge } from './BudgetStatusBadge';
 import { ProgressBar } from '@/shared/components/ProgressBar/ProgressBar';
 
 interface Props {
-  category: CategoryBudget;
+  budget: BudgetWithCategory;
   progress?: BudgetProgress;
   onClick: () => void;
 }
 
-export function BudgetCategoryItem({ category, progress, onClick }: Props) {
+export function BudgetCategoryItem({ budget, progress, onClick }: Props) {
   const { t } = useLanguage();
-  const isSet = category.budget_amount !== null;
 
   const displayIcon =
-    category.icon && !/^[a-zA-Z0-9-_]+$/.test(category.icon)
-      ? category.icon
-      : category.category_name.charAt(0).toUpperCase();
+    budget.icon && !/^[a-zA-Z0-9-_]+$/.test(budget.icon)
+      ? budget.icon
+      : budget.category_name.charAt(0).toUpperCase();
 
-  const periodLabel = isSet
-    ? category.budget_period === 'monthly'
+  const periodLabel =
+    budget.period === 'monthly'
       ? t('budgets.monthly_budget')
-      : t('budgets.weekly_budget')
-    : t('budgets.no_limit_set');
+      : t('budgets.weekly_budget');
 
   return (
     <div
@@ -36,8 +34,8 @@ export function BudgetCategoryItem({ category, progress, onClick }: Props) {
           <div
             className="w-8 h-8 rounded-full flex items-center justify-center font-bold"
             style={{
-              backgroundColor: category.color ? `${category.color}26` : 'rgba(99,102,241,0.15)',
-              color: category.color || '#6366F1',
+              backgroundColor: budget.color ? `${budget.color}26` : 'rgba(99,102,241,0.15)',
+              color: budget.color || '#6366F1',
               fontSize: '14px',
             }}
           >
@@ -45,7 +43,7 @@ export function BudgetCategoryItem({ category, progress, onClick }: Props) {
           </div>
           <div>
             <h4 className="text-[15px] font-semibold text-gray-900 leading-tight">
-              {category.category_name}
+              {budget.category_name}
             </h4>
             <p className="text-[12px] text-gray-500">{periodLabel}</p>
           </div>
@@ -53,8 +51,8 @@ export function BudgetCategoryItem({ category, progress, onClick }: Props) {
         <BudgetStatusBadge status={progress?.status} />
       </div>
 
-      {/* Row 2 & 3 */}
-      {isSet && progress && (
+      {/* Row 2 & 3: progress detail */}
+      {progress && (
         <div className="mt-2 space-y-2">
           <div className="flex w-full">
             <div className="flex-1 text-left">
@@ -66,7 +64,7 @@ export function BudgetCategoryItem({ category, progress, onClick }: Props) {
             <div className="flex-1 text-left">
               <p className="text-[12px] text-gray-500">{t('budgets.budget_label')}</p>
               <p className="text-[14px] font-semibold text-gray-900 tabular-nums">
-                ₫{category.budget_amount?.toLocaleString()}
+                ₫{budget.amount.toLocaleString()}
               </p>
             </div>
             <div className="flex-1 text-left">
@@ -94,27 +92,13 @@ export function BudgetCategoryItem({ category, progress, onClick }: Props) {
         </div>
       )}
 
-      {/* Row 4 */}
+      {/* Row 4: action */}
       <div className="mt-2">
-        {!isSet ? (
-          <button
-            className="w-full flex items-center justify-center rounded-lg bg-transparent"
-            style={{
-              height: '36px',
-              border: '1px dashed rgba(99,102,241,0.4)',
-              color: '#6366F1',
-              fontSize: '13px',
-            }}
-          >
-            {t('budgets.set_budget')}
-          </button>
-        ) : (
-          <div className="flex justify-end">
-            <span className="text-[13px] text-gray-500 h-11 flex items-center">
-              {t('budgets.edit')}
-            </span>
-          </div>
-        )}
+        <div className="flex justify-end">
+          <span className="text-[13px] text-gray-500 h-11 flex items-center">
+            {t('budgets.edit')}
+          </span>
+        </div>
       </div>
     </div>
   );

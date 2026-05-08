@@ -1,4 +1,4 @@
-import { BudgetProgress } from '../domain/budget.model';
+import { BudgetProgress, BudgetPeriod } from '../domain/budget.model';
 import { IBudgetRepository } from '../repositories/budget.repository';
 import { CalculateBudgetProgressUseCase } from './calculate-budget-progress';
 import { buildDateRange } from '@/modules/reports/services/build-date-range';
@@ -10,23 +10,27 @@ export class ListBudgetAlertsUseCase {
     this.calculateProgress = new CalculateBudgetProgressUseCase(repository);
   }
 
-  async execute(): Promise<BudgetProgress[]> {
-    const allCategories = await this.repository.getAllCategoryBudgets();
-    const activeBudgets = allCategories.filter(c => c.budget_amount !== null && c.budget_period !== null);
-    
-    const progressList: BudgetProgress[] = [];
+  /**
+   * @param walletId - tuỳ chọn lọc theo ví; undefined = tất cả ví
+   */
+  async execute(walletId?: string): Promise<BudgetProgress[]> {
+    // Gộp cả 2 period để hiển thị đầy đủ
+    const [weekly, monthly] = await Promise.all([
+      this.repository.getActiveBudgets('weekly', walletId),
+      this.repository.getActiveBudgets('monthly', walletId),
+    ]);
+    const allBudgets = [...weekly, ...monthly];
 
-    for (const budget of activeBudgets) {
-      // Determine range based on budget period
-      const range = buildDateRange(budget.budget_period === 'weekly' ? 'this_week' : 'this_month');
-      
-      const progress = await this.calculateProgress.execute(budget, range.startDate, range.endDate);
-      if (progress) {
-        progressList.push(progress);
-      }
-    }
+    const progressList: BudgetProgress[] = await Promise.all(
+      allBudgets.map(budget => {
+        const range = buildDateRange(
+          (budget.period as BudgetPeriod) === 'weekly' ? 'this_week' : 'this_month'
+        );
+        return this.calculateProgress.execute(budget, range.startDate, range.endDate, walletId);
+      })
+    );
 
-    // Sort by percentage descending
+    // Sắp xếp theo % giảm dần (vượt ngân sách lên trên)
     return progressList.sort((a, b) => b.percentage - a.percentage);
   }
 }

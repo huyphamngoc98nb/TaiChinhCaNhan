@@ -1,39 +1,41 @@
 import { useLanguage } from '@/shared/context/LanguageContext';
-import { CategoryBudget, BudgetProgress } from '../domain/budget.model';
+import { BudgetWithCategory, BudgetProgress } from '../domain/budget.model';
 import { BudgetCategoryItem } from './BudgetCategoryItem';
 import { EmptyBudgetPrompt } from './EmptyBudgetPrompt';
 
 interface Props {
-  categories: CategoryBudget[];
+  budgets: BudgetWithCategory[];
   allProgress: BudgetProgress[];
-  onItemClick: (category: CategoryBudget) => void;
+  onItemClick: (budget: BudgetWithCategory) => void;
 }
 
-export function BudgetCategoryList({ categories, allProgress, onItemClick }: Props) {
+export function BudgetCategoryList({ budgets, allProgress, onItemClick }: Props) {
   const { t } = useLanguage();
-  const budgetsSetCount = categories.filter(c => c.budget_amount !== null).length;
-  const anyBudgetSet = budgetsSetCount > 0;
+
+  if (budgets.length === 0) {
+    return <EmptyBudgetPrompt />;
+  }
 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between mb-2">
         <h3 className="text-[16px] font-semibold text-gray-900">{t('budgets.categories')}</h3>
         <p className="text-[12px] text-gray-500 uppercase">
-          {budgetsSetCount} / {categories.length} {t('budgets.budgets_set')}
+          {budgets.length} {t('budgets.budgets_set')}
         </p>
       </div>
 
-      {!anyBudgetSet && <EmptyBudgetPrompt />}
-
       <div className="space-y-3">
-        {categories.map(category => {
-          const progress = allProgress.find(p => p.budget.category_id === category.category_id);
+        {budgets.map(budget => {
+          const progress = allProgress.find(
+            p => p.budget.category_id === budget.category_id && p.budget.period === budget.period
+          );
           return (
             <BudgetCategoryItem
-              key={category.category_id}
-              category={category}
+              key={budget.id}
+              budget={budget}
               progress={progress}
-              onClick={() => onItemClick(category)}
+              onClick={() => onItemClick(budget)}
             />
           );
         })}
