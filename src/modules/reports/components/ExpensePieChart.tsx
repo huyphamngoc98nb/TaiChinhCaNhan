@@ -2,6 +2,7 @@ import React from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 import { CategorySummary } from '../domain/report.model';
 import { useLanguage } from '@/shared/context/LanguageContext';
+import { useCurrency } from '@/shared/context/CurrencyContext';
 
 interface Props {
   data: CategorySummary[];
@@ -11,11 +12,10 @@ const COLORS = ['#ef4444', '#f97316', '#f59e0b', '#84cc16', '#06b6d4', '#3b82f6'
 
 export const ExpensePieChart: React.FC<Props> = ({ data }) => {
   const { t, language } = useLanguage();
+  const { formatAmount } = useCurrency();
   const locale = language === 'vi' ? 'vi-VN' : 'en-US';
-  const currency = language === 'vi' ? 'VND' : 'USD';
 
-  const fmtTooltip = (value: any) =>
-    new Intl.NumberFormat(locale, { style: 'currency', currency, maximumFractionDigits: language === 'vi' ? 0 : 2 }).format(Number(value || 0));
+  const fmtTooltip = (value: any) => formatAmount(Number(value || 0), locale);
 
   if (!data || data.length === 0) {
     return (

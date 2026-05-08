@@ -2,6 +2,7 @@ import React from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { PeriodSummary } from '../domain/report.model';
 import { useLanguage } from '@/shared/context/LanguageContext';
+import { useCurrency } from '@/shared/context/CurrencyContext';
 
 interface Props {
   data: PeriodSummary[];
@@ -9,11 +10,10 @@ interface Props {
 
 export const CashflowBarChart: React.FC<Props> = ({ data }) => {
   const { t, language } = useLanguage();
+  const { formatAmount } = useCurrency();
   const locale = language === 'vi' ? 'vi-VN' : 'en-US';
-  const currency = language === 'vi' ? 'VND' : 'USD';
 
-  const fmtTooltip = (value: any) =>
-    new Intl.NumberFormat(locale, { style: 'currency', currency, maximumFractionDigits: language === 'vi' ? 0 : 2 }).format(Number(value || 0));
+  const fmtTooltip = (value: any) => formatAmount(Number(value || 0), locale);
 
   if (!data || data.length === 0) {
     return (

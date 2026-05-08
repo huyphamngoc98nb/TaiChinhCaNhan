@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '@/shared/constants/routes';
 import { DatabaseDiagnostics } from '../components/DatabaseDiagnostics';
 import { LanguageSettings } from '../components/LanguageSettings';
+import { CurrencySettings } from '../components/CurrencySettings';
 import { useLanguage } from '@/shared/context/LanguageContext';
 import { Database, ChevronRight } from 'lucide-react';
 
@@ -14,6 +15,8 @@ export function SettingsPage() {
       <div className="header">{t('settings.title')}</div>
       <div className="container" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
         <LanguageSettings />
+
+        <CurrencySettings />
 
         <div
           className="card"

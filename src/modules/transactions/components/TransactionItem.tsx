@@ -1,6 +1,7 @@
 import { Transaction } from '../domain/transaction.model';
 import { Edit2, Trash2, Paperclip } from 'lucide-react';
 import { useLanguage } from '@/shared/context/LanguageContext';
+import { useCurrency } from '@/shared/context/CurrencyContext';
 
 interface Props {
   transaction: Transaction;
@@ -11,6 +12,7 @@ interface Props {
 
 export function TransactionItem({ transaction, onEdit, onDelete, showDate = false }: Props) {
   const { language } = useLanguage();
+  const { formatAmount } = useCurrency();
   const locale = language === 'vi' ? 'vi-VN' : 'en-US';
   const isExpense = transaction.type === 'expense';
 
@@ -26,9 +28,6 @@ export function TransactionItem({ transaction, onEdit, onDelete, showDate = fals
       month: 'short',
       day: 'numeric',
     });
-
-  const formatCurrency = (value: number) =>
-    new Intl.NumberFormat(locale, { style: 'currency', currency: 'USD' }).format(value);
 
   return (
     <div style={{
@@ -76,7 +75,7 @@ export function TransactionItem({ transaction, onEdit, onDelete, showDate = fals
           fontSize: '1.1rem',
           color: isExpense ? '#e11d48' : '#059669',
         }}>
-          {isExpense ? '-' : '+'}{formatCurrency(transaction.amount)}
+          {isExpense ? '-' : '+'}{formatAmount(transaction.amount, locale)}
         </div>
         <div style={{ display: 'flex', gap: '4px' }}>
           <button

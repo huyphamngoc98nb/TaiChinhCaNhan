@@ -1,6 +1,7 @@
 import { Transaction } from '../domain/transaction.model';
 import { TransactionItem } from './TransactionItem';
 import { useLanguage } from '@/shared/context/LanguageContext';
+import { useCurrency } from '@/shared/context/CurrencyContext';
 
 interface Props {
   transactions: Transaction[];
@@ -12,6 +13,7 @@ interface Props {
 
 export function TransactionList({ transactions, loading, onEdit, onDelete, viewType = 'day' }: Props) {
   const { t, language } = useLanguage();
+  const { formatAmount } = useCurrency();
   const locale = language === 'vi' ? 'vi-VN' : 'en-US';
 
   if (loading) {
@@ -49,9 +51,6 @@ export function TransactionList({ transactions, loading, onEdit, onDelete, viewT
     else currentGroup.expense += tx.amount;
   });
 
-  const formatCurrency = (value: number, currency = 'USD') =>
-    new Intl.NumberFormat(locale, { style: 'currency', currency }).format(value);
-
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
       {groups.map((group) => (
@@ -76,13 +75,13 @@ export function TransactionList({ transactions, loading, onEdit, onDelete, viewT
 
             <div style={{ display: 'flex', gap: '16px', fontSize: '0.8rem', fontWeight: '500' }}>
               <div style={{ color: '#059669' }}>
-                {t('transactions.label_income')}: {formatCurrency(group.income)}
+                {t('transactions.label_income')}: {formatAmount(group.income, locale)}
               </div>
               <div style={{ color: '#e11d48' }}>
-                {t('transactions.label_expense')}: {formatCurrency(group.expense)}
+                {t('transactions.label_expense')}: {formatAmount(group.expense, locale)}
               </div>
               <div style={{ marginLeft: 'auto', color: 'var(--text-muted)' }}>
-                {t('transactions.label_balance')}: {formatCurrency(group.income - group.expense)}
+                {t('transactions.label_balance')}: {formatAmount(group.income - group.expense, locale)}
               </div>
             </div>
           </div>
