@@ -21,8 +21,8 @@
     "@ionic/pwa-elements": "^3.2.2",
     "@testing-library/react": "^16.3.2",
     "jeep-sqlite": "^2.7.0",
-    "jspdf": "^2.5.1",
-    "jspdf-autotable": "^3.8.2",
+    "jspdf": "^4.2.1",
+    "jspdf-autotable": "^5.0.7",
     "lucide-react": "^0.378.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
@@ -54,6 +54,6 @@
     "typescript": "^5.2.2",
     "vite": "^6.0.0",
     "vite-tsconfig-paths": "^4.3.2",
-    "vitest": "^2.0.0"
+    "vitest": "^4.1.5"
   }
 }
