@@ -12,72 +12,88 @@ import transferWalletSql from './007_transactions_transfer_wallet.sql?raw';
 import balanceTriggersSql from './008_wallet_balance_triggers.sql?raw';
 import rbDeleteFixSql from './009_recurring_bills_delete_fix.sql?raw';
 import dropBalanceTriggersSql from './010_drop_balance_triggers.sql?raw';
+import dropTransferCheckTriggersSql from './011_drop_transfer_check_triggers.sql?raw';
 
 const MIGRATIONS = [
-  { version: 1,  name: '001_init',                       sql: initSql },
-  { version: 2,  name: '002_indexes',                    sql: indexesSql },
-  { version: 3,  name: '003_transactions_soft_delete',   sql: softDeleteSql },
-  { version: 4,  name: '004_transactions_receipt_path',  sql: receiptPathSql },
-  { version: 5,  name: '005_category_budgets',           sql: categoryBudgetsSql },
-  { version: 6,  name: '006_recurring_bills_reminder',   sql: recurringBillsReminderSql },
-  { version: 7,  name: '007_transactions_transfer_wallet', sql: transferWalletSql },
-  { version: 8,  name: '008_wallet_balance_triggers',    sql: balanceTriggersSql },
-  { version: 9,  name: '009_recurring_bills_delete_fix', sql: rbDeleteFixSql },
-  { version: 10, name: '010_drop_balance_triggers',      sql: dropBalanceTriggersSql },
+  { version: 1,  name: '001_init',                          sql: initSql },
+  { version: 2,  name: '002_indexes',                       sql: indexesSql },
+  { version: 3,  name: '003_transactions_soft_delete',      sql: softDeleteSql },
+  { version: 4,  name: '004_transactions_receipt_path',     sql: receiptPathSql },
+  { version: 5,  name: '005_category_budgets',              sql: categoryBudgetsSql },
+  { version: 6,  name: '006_recurring_bills_reminder',      sql: recurringBillsReminderSql },
+  { version: 7,  name: '007_transactions_transfer_wallet',  sql: transferWalletSql },
+  { version: 8,  name: '008_wallet_balance_triggers',       sql: balanceTriggersSql },
+  { version: 9,  name: '009_recurring_bills_delete_fix',    sql: rbDeleteFixSql },
+  { version: 10, name: '010_drop_balance_triggers',         sql: dropBalanceTriggersSql },
+  { version: 11, name: '011_drop_transfer_check_triggers',  sql: dropTransferCheckTriggersSql },
 ];
 
 /**
- * Split a migration SQL file into individual executable statements.
+ * Split a SQL migration file into individual executable statements.
  *
- * Problem: @capacitor-community/sqlite on Android cannot handle a string
- * containing multiple statements when one of them is a CREATE TRIGGER
- * with BEGIN...END body (the plugin splits on ';' and sends an incomplete
- * fragment to SQLite, causing "Execute: incomplete input").
+ * Avoids the @capacitor-community/sqlite Android bug where a multi-statement
+ * string containing CREATE TRIGGER BEGIN...END causes "incomplete input".
  *
- * Strategy:
- * 1. Strip SQL comments (-- line comments).
- * 2. Detect trigger blocks: everything from CREATE TRIGGER ... to the
- *    matching standalone END; is kept as one unit.
- * 3. All remaining statements are split on ';' as usual.
+ * NOTE: After removing all triggers from migration files, this splitter
+ * only needs to handle plain DDL/DML statements (split on ';').
+ * The trigger-aware path is kept as a safety net but should never trigger.
  */
 export function splitSqlStatements(sql: string): string[] {
   const statements: string[] = [];
-  // Normalize line endings
   let remaining = sql.replace(/\r\n/g, '\n');
 
   while (remaining.trim().length > 0) {
-    // Skip leading whitespace / comments
+    // Skip leading whitespace and line comments
     remaining = remaining.replace(/^(\s*--[^\n]*\n|\s+)/, '');
     if (!remaining.trim()) break;
 
-    // Detect start of a CREATE TRIGGER block
-    if (/^CREATE\s+(TEMP\s+|TEMPORARY\s+)?TRIGGER/i.test(remaining.trim())) {
-      // Find the END; that closes this trigger (case-insensitive, standalone line)
-      const endMatch = remaining.match(/\bEND\s*;/i);
-      if (endMatch && endMatch.index !== undefined) {
-        const triggerSql = remaining.slice(0, endMatch.index + endMatch[0].length).trim();
-        statements.push(triggerSql);
-        remaining = remaining.slice(endMatch.index + endMatch[0].length);
-      } else {
-        // Malformed trigger — push the rest and break
+    const trimmed = remaining.trimStart();
+
+    if (/^CREATE\s+(TEMP\s+|TEMPORARY\s+)?TRIGGER/i.test(trimmed)) {
+      // Safety net: extract trigger block by counting BEGIN/END depth
+      let depth = 0;
+      let i = 0;
+      let inStr = false;
+      let strChar = '';
+      while (i < remaining.length) {
+        const ch = remaining[i];
+        if (inStr) {
+          if (ch === strChar) inStr = false;
+        } else {
+          if (ch === "'" || ch === '"') { inStr = true; strChar = ch; }
+          else if (/BEGIN/i.test(remaining.slice(i, i + 5))) { depth++; i += 4; }
+          else if (/\bEND\b/i.test(remaining.slice(i, i + 3))) {
+            depth--;
+            if (depth === 0) {
+              // Find the ; after END
+              const semiIdx = remaining.indexOf(';', i);
+              const end = semiIdx === -1 ? remaining.length : semiIdx + 1;
+              statements.push(remaining.slice(0, end).trim());
+              remaining = remaining.slice(end);
+              i = -1; // reset outer loop
+              break;
+            }
+          }
+        }
+        i++;
+      }
+      if (i !== -1) {
+        // Malformed trigger
         statements.push(remaining.trim());
         break;
       }
     } else {
-      // Regular statement: take up to the next ;
+      // Regular statement: split on next ;
       const semiIdx = remaining.indexOf(';');
       if (semiIdx === -1) {
-        const trimmed = remaining.trim();
-        if (trimmed) statements.push(trimmed);
+        const t = remaining.trim();
+        if (t) statements.push(t);
         break;
       }
       const stmt = remaining.slice(0, semiIdx + 1).trim();
       remaining = remaining.slice(semiIdx + 1);
-      // Skip empty or comment-only fragments
-      const contentOnly = stmt.replace(/--[^\n]*/g, '').trim();
-      if (contentOnly && contentOnly !== ';') {
-        statements.push(stmt);
-      }
+      const content = stmt.replace(/--[^\n]*/g, '').trim();
+      if (content && content !== ';') statements.push(stmt);
     }
   }
 
@@ -87,7 +103,6 @@ export function splitSqlStatements(sql: string): string[] {
 export async function runMigrations() {
   const db = await getDbConnection();
 
-  // Create migrations tracking table if not exists
   await db.execute(`
     CREATE TABLE IF NOT EXISTS migrations (
       version INTEGER PRIMARY KEY,
@@ -104,8 +119,6 @@ export async function runMigrations() {
     if (appliedVersions.has(migration.version)) continue;
 
     logger.info(`Running migration: ${migration.name}`);
-
-    // Split into individual statements so triggers are never split on ';'
     const stmts = splitSqlStatements(migration.sql);
     let transactionStarted = false;
 
@@ -119,47 +132,33 @@ export async function runMigrations() {
 
     try {
       for (const stmt of stmts) {
-        // Each statement is sent individually — safe for multi-line trigger bodies
         await db.execute(stmt, false);
       }
-
       await db.run(
         'INSERT INTO migrations (version, name, executed_at) VALUES (?, ?, ?)',
         [migration.version, migration.name, Date.now()],
         false
       );
-
       if (transactionStarted) await db.commitTransaction();
-      logger.info(`Migration ${migration.name} completed (${stmts.length} statements).`);
+      logger.info(`Migration ${migration.name} completed (${stmts.length} stmts).`);
     } catch (err: any) {
       if (transactionStarted) {
-        try {
-          await db.rollbackTransaction();
-        } catch (rollbackErr) {
-          logger.warn(`Rollback for ${migration.name} failed:`, rollbackErr);
-        }
+        try { await db.rollbackTransaction(); }
+        catch (re) { logger.warn(`Rollback failed for ${migration.name}:`, re); }
       }
-
-      const errorMessage = err.message || '';
-      const isDuplicateError =
-        errorMessage.includes('already exists') ||
-        errorMessage.includes('duplicate column');
-
-      if (isWeb && isDuplicateError) {
-        // Partially applied on web — mark as done and continue
-        logger.warn(`Migration ${migration.name} partially applied on web. Marking as executed.`);
+      const msg = err.message || '';
+      const isDupe = msg.includes('already exists') || msg.includes('duplicate column');
+      if (isWeb && isDupe) {
+        logger.warn(`${migration.name} partially applied on web. Marking done.`);
         try {
           await db.run(
             'INSERT INTO migrations (version, name, executed_at) VALUES (?, ?, ?)',
-            [migration.version, migration.name, Date.now()],
-            false
+            [migration.version, migration.name, Date.now()], false
           );
-        } catch (insertErr) {
-          logger.error(`Failed to mark ${migration.name} as done.`, insertErr);
-        }
+        } catch (ie) { logger.error(`Failed to mark ${migration.name} done.`, ie); }
       } else {
         logger.error(`Migration ${migration.name} failed.`, err);
-        throw err; // Surface to UI so user sees actionable error
+        throw err;
       }
     }
   }
