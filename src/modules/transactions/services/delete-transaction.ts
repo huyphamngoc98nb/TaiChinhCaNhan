@@ -10,9 +10,12 @@ export class DeleteTransactionUseCase {
   constructor(private repository: ITransactionRepository) {}
 
   async execute(id: string) {
-    const transaction = await this.repository.getById(id);
+    // Bug #5 fix: use getByIdIncludeDeleted for idempotency check
+    // (getById now filters deleted_at IS NULL, so a deleted record
+    //  would throw "Transaction not found" instead of returning early)
+    const transaction = await this.repository.getByIdIncludeDeleted(id);
     if (!transaction) throw new Error('Transaction not found');
-    if (transaction.deleted_at) return true; // Already soft-deleted
+    if (transaction.deleted_at) return true; // Already soft-deleted — idempotent
 
     const wallet = await this.walletRepository.getById(transaction.wallet_id);
     if (!wallet) throw new Error('Wallet not found');

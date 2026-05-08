@@ -1,5 +1,5 @@
 import { CreateTransactionInput } from '../domain/transaction.model';
-import { validateCreateTransaction } from '../domain/transaction.schema';
+import { validateCreateTransaction, TransactionValidationError } from '../domain/transaction.schema';
 import { ITransactionRepository } from '../repositories/transaction.repository';
 import { SQLiteWalletRepository } from '../../wallets/repositories/sqlite-wallet.repository';
 import { DB_NAME } from '@/core/db/sqlite/connection';
@@ -17,6 +17,11 @@ export class CreateTransactionUseCase {
 
     const wallet = await this.walletRepository.getById(input.wallet_id);
     if (!wallet) throw new Error('Wallet not found');
+
+    // Bug #4 fix: prevent negative balance for expense transactions
+    if (input.type === 'expense' && wallet.balance < input.amount) {
+      throw new TransactionValidationError([`Insufficient balance: available ${wallet.balance}, required ${input.amount}`]);
+    }
 
     let savedReceiptPath: string | undefined;
     if (receiptBase64) {

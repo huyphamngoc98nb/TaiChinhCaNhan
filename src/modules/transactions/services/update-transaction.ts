@@ -15,6 +15,7 @@ export class UpdateTransactionUseCase {
   async execute(id: string, input: UpdateTransactionInput, newReceiptBase64?: string) {
     validateUpdateTransaction(input);
 
+    // getById now only returns active records (deleted_at IS NULL)
     const oldTransaction = await this.repository.getById(id);
     if (!oldTransaction) throw new Error('Transaction not found');
 
@@ -40,11 +41,15 @@ export class UpdateTransactionUseCase {
     if (finalType === 'income') delta += finalAmount;
     else if (finalType === 'expense') delta -= finalAmount;
 
+    // Resolve the final receipt_path that will be stored
+    // Priority: new base64-saved path > explicit input.receipt_path > keep old
+    const finalReceiptPath = newSavedReceiptPath ?? input.receipt_path;
+
     try {
       const updated = await runInTransaction(async () => {
         const result = await this.repository.update(id, {
           ...input,
-          receipt_path: newSavedReceiptPath || input.receipt_path,
+          ...(finalReceiptPath !== undefined ? { receipt_path: finalReceiptPath } : {}),
           updated_at: now,
         });
 
@@ -63,8 +68,9 @@ export class UpdateTransactionUseCase {
         await sqlite.saveToStore(DB_NAME);
       }
 
-      // Cleanup old receipt only after DB fully committed
-      if (updated && newSavedReceiptPath && oldTransaction.receipt_path) {
+      // Bug #6 fix: delete old receipt whenever receipt path actually changes,
+      // regardless of whether the new path came from base64 upload or direct path.
+      if (updated && finalReceiptPath && oldTransaction.receipt_path && finalReceiptPath !== oldTransaction.receipt_path) {
         await ReceiptStorageService.deleteReceipt(oldTransaction.receipt_path);
       }
 
