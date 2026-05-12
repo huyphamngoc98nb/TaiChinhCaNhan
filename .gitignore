@@ -1,1 +1,10 @@
 node_modules
+
+# ============================================================
+# OTA Signing Keys — NEVER commit private key to repository
+# ============================================================
+private_key.pem
+*.pem
+
+# Artifacts tạm thời trong quá trình build bundle
+artifacts/
