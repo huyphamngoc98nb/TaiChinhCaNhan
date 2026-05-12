@@ -43,17 +43,34 @@ fail() { echo "[ERROR] $*" >&2; exit 1; }
 
 check_dependencies() {
   local missing=()
-  for cmd in node openssl zip sha256sum; do
+  # zip is optional on Windows (we fallback to PowerShell)
+  local required_cmds=(node openssl sha256sum)
+  
+  # Check for sha256sum or shasum (macOS)
+  if ! command -v sha256sum &>/dev/null && ! command -v shasum &>/dev/null; then
+    missing+=(sha256sum)
+  fi
+
+  for cmd in node openssl; do
     command -v "$cmd" &>/dev/null || missing+=("$cmd")
   done
-  # macOS dùng shasum thay cho sha256sum
-  if [[ ${#missing[@]} -gt 0 ]] && [[ "${missing[*]}" == *"sha256sum"* ]]; then
-    if command -v shasum &>/dev/null; then
-      missing=("${missing[@]/sha256sum}")
-      USE_SHASUM=true
-    fi
+
+  # Check for zip or powershell (for zipping fallback)
+  local has_zip=false
+  if command -v zip &>/dev/null && zip -h &>/dev/null; then
+    has_zip=true
   fi
+
+  if [[ "$has_zip" == "false" ]] && ! command -v powershell.exe &>/dev/null; then
+    missing+=(zip)
+  fi
+
   [[ ${#missing[@]} -eq 0 ]] || fail "Thiếu dependency: ${missing[*]}"
+
+  # Set SHA tool
+  if ! command -v sha256sum &>/dev/null && command -v shasum &>/dev/null; then
+    USE_SHASUM=true
+  fi
 }
 
 compute_sha256() {
@@ -82,8 +99,9 @@ log "[1/5] Đọc bundleVersion từ version.config.json..."
 
 [[ -f "${VERSION_FILE}" ]] || fail "Không tìm thấy: ${VERSION_FILE}"
 
-BUNDLE_VERSION=$(node -e "
-  const v = require('${VERSION_FILE}');
+BUNDLE_VERSION=$(cd "${ROOT_DIR}" && node -e "
+  const fs = require('fs');
+  const v = JSON.parse(fs.readFileSync('./version.config.json', 'utf8'));
   if (!v.bundleVersion) { process.stderr.write('Thiếu field bundleVersion\\n'); process.exit(1); }
   process.stdout.write(v.bundleVersion);
 ")
@@ -118,11 +136,18 @@ mkdir -p "${ARTIFACT_DIR}"
 ZIP_NAME="${BUNDLE_VERSION}.zip"
 ZIP_PATH="${ARTIFACT_DIR}/${ZIP_NAME}"
 
-# Xóa zip cũ nếu có (idempotent)
-rm -f "${ZIP_PATH}"
-
 # Zip từ trong dist/ ra — không include đường dẫn tuyệt đối
-(cd "${DIST_DIR}" && zip -r "${ZIP_PATH}" .)
+# Kiểm tra xem lệnh zip có thực sự chạy được không (tránh trường hợp /usr/bin/zip là folder)
+if command -v zip &>/dev/null && zip -h &>/dev/null; then
+  (cd "${DIST_DIR}" && zip -r "${ZIP_PATH}" .)
+else
+  log "    zip command không tìm thấy, sử dụng PowerShell fallback..."
+  # Convert paths for Windows if needed (using pwd -W for physical Windows path)
+  WIN_DIST_DIR=$(cd "${DIST_DIR}" && pwd -W | sed 's/\//\\/g')
+  WIN_ZIP_PATH=$(cd "${ARTIFACT_DIR}" && pwd -W | sed 's/\//\\/g')\\${ZIP_NAME}
+  
+  powershell.exe -Command "Compress-Archive -Path '${WIN_DIST_DIR}\*' -DestinationPath '${WIN_ZIP_PATH}' -Force"
+fi
 
 ZIP_SIZE=$(du -sh "${ZIP_PATH}" | awk '{print $1}')
 log "    ${ZIP_NAME} (${ZIP_SIZE})"
