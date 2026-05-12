@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { CategoryBudget, BudgetProgress } from '../domain/budget.model';
+import { CategoryBudget, BudgetProgress, resolveBudgetScope } from '../domain/budget.model';
 import { SQLiteBudgetRepository } from '../repositories/sqlite-budget.repository';
 import { GetBudgetSettingsUseCase } from '../services/get-budget-settings';
 import { ListBudgetAlertsUseCase } from '../services/list-budget-alerts';
@@ -24,8 +24,9 @@ export function useBudgets() {
       setCategories(cats);
       setAllProgress(progress);
       setError(null);
-    } catch (e: any) {
-      setError(e.message || 'Failed to load budgets');
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : 'Failed to load budgets';
+      setError(msg);
     } finally {
       setIsLoading(false);
     }
@@ -45,18 +46,26 @@ export function useBudgets() {
     return stats;
   }, [allProgress]);
 
-  const alerts = useMemo(() => 
+  const alerts = useMemo(() =>
     allProgress.filter(p => p.status === 'warning' || p.status === 'exceeded'),
     [allProgress]
   );
 
-  return { 
-    categories, 
+  // Group progress theo scope để UI hiển thị theo tab
+  const progressByScope = useMemo(() => ({
+    global:        allProgress.filter(p => resolveBudgetScope(p.budget).type === 'global'),
+    byWallet:      allProgress.filter(p => resolveBudgetScope(p.budget).type === 'wallet'),
+    byAccountType: allProgress.filter(p => resolveBudgetScope(p.budget).type === 'account_type'),
+  }), [allProgress]);
+
+  return {
+    categories,
     allProgress,
     summaryStats,
     alerts,
-    isLoading, 
-    error, 
-    refresh: load 
+    progressByScope,
+    isLoading,
+    error,
+    refresh: load,
   };
 }

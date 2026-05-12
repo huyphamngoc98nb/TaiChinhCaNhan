@@ -1,5 +1,5 @@
 import { IBudgetRepository } from './budget.repository';
-import { Budget, BudgetWithCategory, BudgetPeriod, CreateBudgetDto } from '../domain/budget.model';
+import { Budget, BudgetWithCategory, BudgetPeriod, CreateBudgetDto, AccountType } from '../domain/budget.model';
 import { getDbConnection } from '@/core/db/sqlite/connection';
 
 /**
@@ -12,7 +12,6 @@ function generateId(): string {
   if (typeof crypto !== 'undefined' && crypto.randomUUID) {
     return crypto.randomUUID();
   }
-  // Fallback: timestamp ms + counter tăng (monotonic, không bị trùng trong cùng process)
   _idCounter += 1;
   return `${Date.now().toString(36)}-${_idCounter.toString(36)}`;
 }
@@ -24,7 +23,6 @@ export class SQLiteBudgetRepository implements IBudgetRepository {
   ): Promise<BudgetWithCategory[]> {
     const db = await getDbConnection();
 
-    // wallet_id IS NULL nghĩa là budget áp dụng mọi ví
     const walletFilter = walletId
       ? 'AND (b.wallet_id = ? OR b.wallet_id IS NULL)'
       : '';
@@ -33,7 +31,7 @@ export class SQLiteBudgetRepository implements IBudgetRepository {
 
     const sql = `
       SELECT
-        b.id, b.category_id, b.wallet_id,
+        b.id, b.category_id, b.wallet_id, b.account_type_scope,
         b.amount, b.period, b.start_date, b.end_date,
         b.is_active, b.created_at, b.updated_at,
         c.name  AS category_name,
@@ -55,11 +53,39 @@ export class SQLiteBudgetRepository implements IBudgetRepository {
     })) as BudgetWithCategory[];
   }
 
+  async getActiveBudgetsByAccountType(
+    period: BudgetPeriod,
+    accountType: AccountType
+  ): Promise<BudgetWithCategory[]> {
+    const db = await getDbConnection();
+    const sql = `
+      SELECT
+        b.id, b.category_id, b.wallet_id, b.account_type_scope,
+        b.amount, b.period, b.start_date, b.end_date,
+        b.is_active, b.created_at, b.updated_at,
+        c.name  AS category_name,
+        c.type  AS category_type,
+        c.icon,
+        c.color
+      FROM budgets b
+      JOIN categories c ON c.id = b.category_id
+      WHERE b.period              = ?
+        AND b.is_active           = 1
+        AND b.wallet_id           IS NULL
+        AND b.account_type_scope  = ?
+      ORDER BY c.name
+    `;
+    const { values } = await db.query(sql, [period, accountType]);
+    return (values ?? []).map((row: Record<string, unknown>) => ({
+      ...row,
+      is_active: Boolean(row.is_active),
+    })) as BudgetWithCategory[];
+  }
+
   async getBudgetById(budgetId: string): Promise<Budget | null> {
     const db = await getDbConnection();
-    // SELECT explicit columns thay vì SELECT * — tránh lấy fields thừa
     const sql = `
-      SELECT id, category_id, wallet_id, amount, period,
+      SELECT id, category_id, wallet_id, account_type_scope, amount, period,
              start_date, end_date, is_active, created_at, updated_at
       FROM budgets
       WHERE id = ?
@@ -75,8 +101,14 @@ export class SQLiteBudgetRepository implements IBudgetRepository {
     const db = await getDbConnection();
     const now = Date.now();
     const id = generateId();
+    const accountTypeScope = dto.account_type_scope ?? null;
 
-    // Deactivate budget cũ cùng category + wallet + period trước khi tạo mới
+    // Validation: wallet_id và account_type_scope không cùng tồn tại
+    if (dto.wallet_id && accountTypeScope) {
+      throw new Error('Budget không thể có cả wallet_id và account_type_scope cùng lúc.');
+    }
+
+    // Deactivate budget cũ cùng (category + wallet + account_type_scope + period)
     const deactivateSql = `
       UPDATE budgets
       SET is_active = 0, updated_at = ?
@@ -84,6 +116,7 @@ export class SQLiteBudgetRepository implements IBudgetRepository {
         AND period      = ?
         AND is_active   = 1
         AND (wallet_id = ? OR (wallet_id IS NULL AND ? IS NULL))
+        AND (account_type_scope = ? OR (account_type_scope IS NULL AND ? IS NULL))
     `;
     await db.run(deactivateSql, [
       now,
@@ -91,17 +124,20 @@ export class SQLiteBudgetRepository implements IBudgetRepository {
       dto.period,
       dto.wallet_id ?? null,
       dto.wallet_id ?? null,
+      accountTypeScope,
+      accountTypeScope,
     ]);
 
     const insertSql = `
       INSERT INTO budgets
-        (id, category_id, wallet_id, amount, period, start_date, end_date, is_active, created_at, updated_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?, 1, ?, ?)
+        (id, category_id, wallet_id, account_type_scope, amount, period, start_date, end_date, is_active, created_at, updated_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?)
     `;
     await db.run(insertSql, [
       id,
       dto.category_id,
       dto.wallet_id ?? null,
+      accountTypeScope,
       dto.amount,
       dto.period,
       dto.start_date,
@@ -128,11 +164,6 @@ export class SQLiteBudgetRepository implements IBudgetRepository {
     walletId?: string
   ): Promise<number> {
     const db = await getDbConnection();
-
-    // BUG-2 / WARN note: khi walletId được cung cấp,
-    // chỉ tính các giao dịch của đúng ví đó (không gộp NULL wallet).
-    // Nhất quán với getActiveBudgets: budget có wallet_id scope →
-    // spent cũng chỉ tính trong wallet đó.
     const walletFilter = walletId ? 'AND wallet_id = ?' : '';
     const params: unknown[] = [categoryId, startDate, endDate];
     if (walletId) params.push(walletId);
@@ -151,6 +182,29 @@ export class SQLiteBudgetRepository implements IBudgetRepository {
     const { values } = await db.query(sql, params);
     return (values?.[0]?.total as number) ?? 0;
   }
+
+  async getSpentAmountByAccountType(
+    categoryId: string,
+    startDate: number,
+    endDate: number,
+    accountType: AccountType
+  ): Promise<number> {
+    const db = await getDbConnection();
+    const sql = `
+      SELECT COALESCE(SUM(t.amount), 0) AS total
+      FROM transactions t
+      JOIN wallets w ON w.id = t.wallet_id
+      WHERE t.category_id      = ?
+        AND t.transaction_date >= ?
+        AND t.transaction_date <= ?
+        AND t.type             = 'expense'
+        AND t.deleted_at       IS NULL
+        AND w.account_type     = ?
+    `;
+    const { values } = await db.query(sql, [categoryId, startDate, endDate, accountType]);
+    return (values?.[0]?.total as number) ?? 0;
+  }
+
   async getAllCategoryBudgets(): Promise<any[]> {
     const db = await getDbConnection();
     const sql = `
@@ -174,12 +228,13 @@ export class SQLiteBudgetRepository implements IBudgetRepository {
     const db = await getDbConnection();
     const now = Date.now();
     
-    // Deactivate old
-    await db.run('UPDATE budgets SET is_active = 0, updated_at = ? WHERE category_id = ? AND wallet_id IS NULL AND is_active = 1', [now, categoryId]);
+    await db.run(
+      'UPDATE budgets SET is_active = 0, updated_at = ? WHERE category_id = ? AND wallet_id IS NULL AND account_type_scope IS NULL AND is_active = 1',
+      [now, categoryId]
+    );
     
     if (amount !== null && period !== null) {
       const id = generateId();
-      let start_date = now;
       const d = new Date();
       if (period === 'monthly') {
         d.setDate(1); d.setHours(0,0,0,0);
@@ -187,10 +242,10 @@ export class SQLiteBudgetRepository implements IBudgetRepository {
         const day = d.getDay() || 7;
         d.setDate(d.getDate() - day + 1); d.setHours(0,0,0,0);
       }
-      start_date = d.getTime();
+      const start_date = d.getTime();
       
       await db.run(
-        'INSERT INTO budgets (id, category_id, wallet_id, amount, period, start_date, is_active, created_at, updated_at) VALUES (?, ?, NULL, ?, ?, ?, 1, ?, ?)',
+        'INSERT INTO budgets (id, category_id, wallet_id, account_type_scope, amount, period, start_date, is_active, created_at, updated_at) VALUES (?, ?, NULL, NULL, ?, ?, ?, 1, ?, ?)',
         [id, categoryId, amount, period, start_date, now, now]
       );
     }
@@ -198,6 +253,9 @@ export class SQLiteBudgetRepository implements IBudgetRepository {
 
   async deleteCategoryBudget(categoryId: string): Promise<void> {
     const db = await getDbConnection();
-    await db.run('UPDATE budgets SET is_active = 0, updated_at = ? WHERE category_id = ? AND wallet_id IS NULL AND is_active = 1', [Date.now(), categoryId]);
+    await db.run(
+      'UPDATE budgets SET is_active = 0, updated_at = ? WHERE category_id = ? AND wallet_id IS NULL AND account_type_scope IS NULL AND is_active = 1',
+      [Date.now(), categoryId]
+    );
   }
 }

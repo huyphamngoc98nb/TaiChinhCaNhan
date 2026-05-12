@@ -16,6 +16,7 @@ import dropTransferCheckTriggersSql from './011_drop_transfer_check_triggers.sql
 import separateBudgetsSql from './012_separate_budgets.sql?raw';
 import enhanceWalletsSql from './013_enhance_wallets.sql?raw';
 import walletAccountTypeExtrasSql from './014_wallet_account_type_extras.sql?raw';
+import budgetAccountTypeSql from './015_budget_account_type_scope.sql?raw';
 
 const MIGRATIONS = [
   { version: 1,  name: '001_init',                          sql: initSql },
@@ -32,6 +33,7 @@ const MIGRATIONS = [
   { version: 12, name: '012_separate_budgets',              sql: separateBudgetsSql },
   { version: 13, name: '013_enhance_wallets',               sql: enhanceWalletsSql },
   { version: 14, name: '014_wallet_account_type_extras',    sql: walletAccountTypeExtrasSql },
+  { version: 15, name: '015_budget_account_type_scope',     sql: budgetAccountTypeSql },
 ];
 
 /**
@@ -51,7 +53,6 @@ export function splitSqlStatements(sql: string): string[] {
     const trimmed = remaining.trimStart();
 
     if (/^CREATE\s+(TEMP\s+|TEMPORARY\s+)?TRIGGER/i.test(trimmed)) {
-      // Depth-counting to find the real closing END;
       let depth = 0;
       let i = 0;
       let inStr = false;

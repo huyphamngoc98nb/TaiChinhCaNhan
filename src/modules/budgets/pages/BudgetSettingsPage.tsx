@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Wallet } from 'lucide-react';
 import { useLanguage } from '@/shared/context/LanguageContext';
@@ -7,9 +8,12 @@ import { BudgetSummaryStats } from '../components/BudgetSummaryStats';
 import { BudgetAlertsPanel } from '../components/BudgetAlertsPanel';
 import { BudgetCategoryList } from '../components/BudgetCategoryList';
 import { BudgetEditForm } from '../components/BudgetEditForm';
+import { BudgetByAccountTypeSummary } from '../components/BudgetByAccountTypeSummary';
 import { BottomSheet } from '@/shared/components/BottomSheet';
 import { SkeletonCard } from '@/shared/components/SkeletonCard/SkeletonCard';
 import { ErrorScreen } from '@/shared/components/ErrorScreen';
+
+type ScopeTab = 'all' | 'account_type';
 
 export function BudgetSettingsPage() {
   const navigate = useNavigate();
@@ -19,6 +23,7 @@ export function BudgetSettingsPage() {
     allProgress,
     summaryStats,
     alerts,
+    progressByScope,
     isLoading,
     error,
     refresh,
@@ -38,6 +43,8 @@ export function BudgetSettingsPage() {
     isSaving,
     validationError,
   } = useBudgetForm(refresh);
+
+  const [activeTab, setActiveTab] = useState<ScopeTab>('all');
 
   if (isLoading && categories.length === 0) {
     return (
@@ -99,12 +106,47 @@ export function BudgetSettingsPage() {
         {/* Section 3: AlertsPanel */}
         <BudgetAlertsPanel alerts={alerts} />
 
-        {/* Section 4: CategoryBudgetList */}
-        <BudgetCategoryList
-          categories={categories}
-          allProgress={allProgress}
-          onItemClick={open}
-        />
+        {/* Section 4: Tab chọn chế độ xem */}
+        {progressByScope.byAccountType.length > 0 && (
+          <div className="flex gap-2">
+            <button
+              onClick={() => setActiveTab('all')}
+              className={`flex-1 py-2 rounded-[10px] text-[13px] font-semibold transition-colors ${
+                activeTab === 'all'
+                  ? 'bg-indigo-500 text-white'
+                  : 'bg-white text-gray-600 border border-gray-200'
+              }`}
+            >
+              Tất cả
+            </button>
+            <button
+              onClick={() => setActiveTab('account_type')}
+              className={`flex-1 py-2 rounded-[10px] text-[13px] font-semibold transition-colors ${
+                activeTab === 'account_type'
+                  ? 'bg-orange-500 text-white'
+                  : 'bg-white text-gray-600 border border-gray-200'
+              }`}
+            >
+              Theo loại tài khoản
+              {progressByScope.byAccountType.length > 0 && (
+                <span className="ml-1 bg-orange-100 text-orange-600 text-[10px] px-1.5 py-0.5 rounded-full">
+                  {progressByScope.byAccountType.length}
+                </span>
+              )}
+            </button>
+          </div>
+        )}
+
+        {/* Section 5: Nội dung theo tab */}
+        {activeTab === 'all' ? (
+          <BudgetCategoryList
+            categories={categories}
+            allProgress={allProgress}
+            onItemClick={open}
+          />
+        ) : (
+          <BudgetByAccountTypeSummary progresses={progressByScope.byAccountType} />
+        )}
       </div>
 
       {/* Bottom Sheet for Editing */}
