@@ -1,7 +1,9 @@
 import { X } from 'lucide-react';
 import { useLanguage } from '@/shared/context/LanguageContext';
 import { useConfirm } from '@/shared/components/ConfirmDialog/ConfirmContext';
-import { CategoryBudget, BudgetPeriod } from '../domain/budget.model';
+import { CategoryBudget, BudgetPeriod, AccountType } from '../domain/budget.model';
+import { BudgetScopePicker } from './BudgetScopePicker';
+import type { BudgetScopeType } from '../hooks/useBudgetForm';
 
 interface Props {
   category: CategoryBudget;
@@ -9,6 +11,10 @@ interface Props {
   setAmount: (val: string) => void;
   period: BudgetPeriod;
   setPeriod: (val: BudgetPeriod) => void;
+  scopeType: BudgetScopeType;
+  setScopeType: (val: BudgetScopeType) => void;
+  accountTypeScope: AccountType;
+  setAccountTypeScope: (val: AccountType) => void;
   onSave: () => Promise<void>;
   onRemove: () => Promise<void>;
   onClose: () => void;
@@ -22,6 +28,10 @@ export function BudgetEditForm({
   setAmount,
   period,
   setPeriod,
+  scopeType,
+  setScopeType,
+  accountTypeScope,
+  setAccountTypeScope,
   onSave,
   onRemove,
   onClose,
@@ -77,6 +87,14 @@ export function BudgetEditForm({
           </div>
         </div>
 
+        {/* Scope Picker */}
+        <BudgetScopePicker
+          scopeType={scopeType}
+          onScopeChange={setScopeType}
+          accountTypeScope={accountTypeScope}
+          onAccountTypeChange={setAccountTypeScope}
+        />
+
         {/* Amount Input */}
         <div className="space-y-2">
           <p className="text-[13px] font-semibold text-gray-900">{t('budgets.amount')}</p>
@@ -117,9 +135,7 @@ export function BudgetEditForm({
                 confirmText: t('common.yes'),
                 cancelText: t('common.cancel'),
               });
-              if (ok) {
-                onRemove();
-              }
+              if (ok) onRemove();
             }}
             className="text-[13px] text-red-500 font-semibold h-11 flex items-center px-1"
           >

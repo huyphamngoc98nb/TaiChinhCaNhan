@@ -38,6 +38,10 @@ export function BudgetSettingsPage() {
     setAmount,
     period,
     setPeriod,
+    scopeType,
+    setScopeType,
+    accountTypeScope,
+    setAccountTypeScope,
     handleSave,
     handleRemove,
     isSaving,
@@ -88,7 +92,7 @@ export function BudgetSettingsPage() {
 
   return (
     <div className="min-h-screen bg-[#F5F7FA]" style={{ padding: '0 16px' }}>
-      {/* Section 1: PageHeader */}
+      {/* Header */}
       <header className="pt-10 pb-2 flex items-center justify-between">
         <div className="flex flex-col">
           <h1 className="text-[24px] font-bold text-gray-900 leading-tight">{t('budgets.title')}</h1>
@@ -100,13 +104,13 @@ export function BudgetSettingsPage() {
       </header>
 
       <div className="space-y-6 pb-20">
-        {/* Section 2: SummaryStats */}
+        {/* Summary Stats */}
         <BudgetSummaryStats stats={summaryStats} />
 
-        {/* Section 3: AlertsPanel */}
+        {/* Alerts Panel */}
         <BudgetAlertsPanel alerts={alerts} />
 
-        {/* Section 4: Tab chọn chế độ xem */}
+        {/* Tab: chỉ hiện khi có budget theo loại TK */}
         {progressByScope.byAccountType.length > 0 && (
           <div className="flex gap-2">
             <button
@@ -128,16 +132,14 @@ export function BudgetSettingsPage() {
               }`}
             >
               Theo loại tài khoản
-              {progressByScope.byAccountType.length > 0 && (
-                <span className="ml-1 bg-orange-100 text-orange-600 text-[10px] px-1.5 py-0.5 rounded-full">
-                  {progressByScope.byAccountType.length}
-                </span>
-              )}
+              <span className="ml-1.5 inline-flex items-center justify-center w-4 h-4 rounded-full bg-orange-100 text-orange-600 text-[10px] font-bold">
+                {progressByScope.byAccountType.length}
+              </span>
             </button>
           </div>
         )}
 
-        {/* Section 5: Nội dung theo tab */}
+        {/* Content */}
         {activeTab === 'all' ? (
           <BudgetCategoryList
             categories={categories}
@@ -149,7 +151,7 @@ export function BudgetSettingsPage() {
         )}
       </div>
 
-      {/* Bottom Sheet for Editing */}
+      {/* Bottom Sheet */}
       <BottomSheet isOpen={isOpen} onClose={close}>
         {selectedCategory && (
           <BudgetEditForm
@@ -158,6 +160,10 @@ export function BudgetSettingsPage() {
             setAmount={setAmount}
             period={period}
             setPeriod={setPeriod}
+            scopeType={scopeType}
+            setScopeType={setScopeType}
+            accountTypeScope={accountTypeScope}
+            setAccountTypeScope={setAccountTypeScope}
             onSave={handleSave}
             onRemove={handleRemove}
             onClose={close}

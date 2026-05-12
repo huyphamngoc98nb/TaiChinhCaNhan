@@ -1,6 +1,11 @@
 import { useLanguage } from '@/shared/context/LanguageContext';
-import { CategoryBudget, BudgetProgress } from '../domain/budget.model';
+import {
+  CategoryBudget,
+  BudgetProgress,
+  resolveBudgetScope,
+} from '../domain/budget.model';
 import { BudgetStatusBadge } from './BudgetStatusBadge';
+import { BudgetScopeBadge } from './BudgetScopeBadge';
 import { ProgressBar } from '@/shared/components/ProgressBar/ProgressBar';
 
 interface Props {
@@ -24,6 +29,9 @@ export function BudgetCategoryItem({ category, progress, onClick }: Props) {
       : t('budgets.weekly_budget')
     : t('budgets.no_limit_set');
 
+  // Resolve scope từ progress.budget nếu có (đã có account_type_scope)
+  const scope = progress ? resolveBudgetScope(progress.budget) : null;
+
   return (
     <div
       className="bg-white rounded-xl p-4 mb-2 cursor-pointer"
@@ -44,9 +52,12 @@ export function BudgetCategoryItem({ category, progress, onClick }: Props) {
             {displayIcon}
           </div>
           <div>
-            <h4 className="text-[15px] font-semibold text-gray-900 leading-tight">
-              {category.category_name}
-            </h4>
+            <div className="flex items-center gap-1.5">
+              <h4 className="text-[15px] font-semibold text-gray-900 leading-tight">
+                {category.category_name}
+              </h4>
+              {scope && <BudgetScopeBadge scope={scope} />}
+            </div>
             <p className="text-[12px] text-gray-500">{periodLabel}</p>
           </div>
         </div>

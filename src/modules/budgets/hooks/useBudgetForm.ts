@@ -1,14 +1,22 @@
 import { useState, useCallback, useMemo } from 'react';
-import { CategoryBudget, BudgetPeriod } from '../domain/budget.model';
+import {
+  CategoryBudget,
+  BudgetPeriod,
+  AccountType,
+} from '../domain/budget.model';
 import { SQLiteBudgetRepository } from '../repositories/sqlite-budget.repository';
 import { UpsertCategoryBudgetUseCase } from '../services/upsert-category-budget';
 import { useToast } from '@/shared/components/Toast/ToastContext';
+
+export type BudgetScopeType = 'global' | 'account_type';
 
 export function useBudgetForm(onSuccess?: () => void) {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<CategoryBudget | null>(null);
   const [amount, setAmount] = useState<string>('');
   const [period, setPeriod] = useState<BudgetPeriod>('monthly');
+  const [scopeType, setScopeType] = useState<BudgetScopeType>('global');
+  const [accountTypeScope, setAccountTypeScope] = useState<AccountType>('credit_card');
   const [isSaving, setIsSaving] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
   const toast = useToast();
@@ -20,6 +28,8 @@ export function useBudgetForm(onSuccess?: () => void) {
     setSelectedCategory(category);
     setAmount(category.budget_amount ? category.budget_amount.toString() : '');
     setPeriod(category.budget_period || 'monthly');
+    setScopeType('global');
+    setAccountTypeScope('credit_card');
     setValidationError(null);
     setIsOpen(true);
   }, []);
@@ -34,18 +44,24 @@ export function useBudgetForm(onSuccess?: () => void) {
 
     const parsedAmount = parseFloat(amount);
     if (isNaN(parsedAmount) || parsedAmount <= 0) {
-      setValidationError('Budget amount must be greater than 0');
+      setValidationError('Số tiền ngân sách phải lớn hơn 0');
       return;
     }
 
     setIsSaving(true);
     try {
-      await upsertUseCase.execute(selectedCategory.category_id, parsedAmount, period);
-      toast.success('Budget updated ✓');
+      await upsertUseCase.execute(
+        selectedCategory.category_id,
+        parsedAmount,
+        period,
+        scopeType === 'account_type' ? accountTypeScope : null
+      );
+      toast.success('Đã lưu ngân sách ✓');
       onSuccess?.();
       close();
-    } catch (e: any) {
-      setValidationError(e.message || 'Failed to save budget');
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : 'Không thể lưu ngân sách';
+      setValidationError(msg);
     } finally {
       setIsSaving(false);
     }
@@ -53,15 +69,16 @@ export function useBudgetForm(onSuccess?: () => void) {
 
   const handleRemove = async () => {
     if (!selectedCategory) return;
-    
+
     setIsSaving(true);
     try {
-      await upsertUseCase.execute(selectedCategory.category_id, null, null);
-      toast.success('Budget limit removed');
+      await upsertUseCase.execute(selectedCategory.category_id, null, null, null);
+      toast.success('Đã xoá giới hạn ngân sách');
       onSuccess?.();
       close();
-    } catch (e: any) {
-      setValidationError(e.message || 'Failed to remove budget');
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : 'Không thể xoá ngân sách';
+      setValidationError(msg);
     } finally {
       setIsSaving(false);
     }
@@ -76,6 +93,10 @@ export function useBudgetForm(onSuccess?: () => void) {
     setAmount,
     period,
     setPeriod,
+    scopeType,
+    setScopeType,
+    accountTypeScope,
+    setAccountTypeScope,
     handleSave,
     handleRemove,
     isSaving,
