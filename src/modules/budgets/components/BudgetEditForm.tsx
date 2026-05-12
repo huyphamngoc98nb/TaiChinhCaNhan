@@ -1,5 +1,6 @@
 import { X } from 'lucide-react';
 import { useLanguage } from '@/shared/context/LanguageContext';
+import { useConfirm } from '@/shared/components/ConfirmDialog/ConfirmContext';
 import { CategoryBudget, BudgetPeriod } from '../domain/budget.model';
 
 interface Props {
@@ -28,6 +29,7 @@ export function BudgetEditForm({
   error,
 }: Props) {
   const { t } = useLanguage();
+  const { confirm } = useConfirm();
 
   return (
     <div className="flex flex-col h-full">
@@ -108,8 +110,14 @@ export function BudgetEditForm({
         {/* Remove Link */}
         {category.budget_amount !== null && (
           <button
-            onClick={() => {
-              if (window.confirm(t('budgets.remove_confirm'))) {
+            onClick={async () => {
+              const ok = await confirm({
+                title: t('budgets.remove_budget'),
+                message: t('budgets.remove_confirm'),
+                confirmText: t('common.yes'),
+                cancelText: t('common.cancel'),
+              });
+              if (ok) {
                 onRemove();
               }
             }}

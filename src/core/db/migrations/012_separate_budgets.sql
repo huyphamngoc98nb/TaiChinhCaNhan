@@ -46,5 +46,5 @@ WHERE budget_amount IS NOT NULL;
 
 -- 4. Xoá cột cũ (yêu cầu SQLite >= 3.35)
 -- Nếu version thấp hơn, giữ cột và ignore bằng application code
-ALTER TABLE categories DROP COLUMN IF EXISTS budget_amount;
-ALTER TABLE categories DROP COLUMN IF EXISTS budget_period;
+ALTER TABLE categories DROP COLUMN budget_amount;
+ALTER TABLE categories DROP COLUMN budget_period;

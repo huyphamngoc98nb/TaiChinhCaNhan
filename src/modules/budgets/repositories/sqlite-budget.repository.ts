@@ -151,4 +151,53 @@ export class SQLiteBudgetRepository implements IBudgetRepository {
     const { values } = await db.query(sql, params);
     return (values?.[0]?.total as number) ?? 0;
   }
+  async getAllCategoryBudgets(): Promise<any[]> {
+    const db = await getDbConnection();
+    const sql = `
+      SELECT 
+        c.id as category_id,
+        c.name as category_name,
+        c.type,
+        c.icon,
+        c.color,
+        b.amount as budget_amount,
+        b.period as budget_period
+      FROM categories c
+      LEFT JOIN budgets b ON b.category_id = c.id AND b.is_active = 1 AND b.wallet_id IS NULL
+      ORDER BY c.name
+    `;
+    const { values } = await db.query(sql);
+    return values || [];
+  }
+
+  async upsertCategoryBudget(categoryId: string, amount: number | null, period: 'weekly' | 'monthly' | null): Promise<void> {
+    const db = await getDbConnection();
+    const now = Date.now();
+    
+    // Deactivate old
+    await db.run('UPDATE budgets SET is_active = 0, updated_at = ? WHERE category_id = ? AND wallet_id IS NULL AND is_active = 1', [now, categoryId]);
+    
+    if (amount !== null && period !== null) {
+      const id = generateId();
+      let start_date = now;
+      const d = new Date();
+      if (period === 'monthly') {
+        d.setDate(1); d.setHours(0,0,0,0);
+      } else {
+        const day = d.getDay() || 7;
+        d.setDate(d.getDate() - day + 1); d.setHours(0,0,0,0);
+      }
+      start_date = d.getTime();
+      
+      await db.run(
+        'INSERT INTO budgets (id, category_id, wallet_id, amount, period, start_date, is_active, created_at, updated_at) VALUES (?, ?, NULL, ?, ?, ?, 1, ?, ?)',
+        [id, categoryId, amount, period, start_date, now, now]
+      );
+    }
+  }
+
+  async deleteCategoryBudget(categoryId: string): Promise<void> {
+    const db = await getDbConnection();
+    await db.run('UPDATE budgets SET is_active = 0, updated_at = ? WHERE category_id = ? AND wallet_id IS NULL AND is_active = 1', [Date.now(), categoryId]);
+  }
 }
