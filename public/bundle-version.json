@@ -1,0 +1,8 @@
+{
+  "bundleVersion": "0.1.0-b1",
+  "nativeVersionName": "0.1.0",
+  "minNativeVersionCode": 100,
+  "builtAt": "2026-05-12T15:00:00Z",
+  "mandatory": false,
+  "notes": "Initial versioning baseline"
+}

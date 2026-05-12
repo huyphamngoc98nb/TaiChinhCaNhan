@@ -1,0 +1,7 @@
+{
+  "nativeVersionName": "0.1.0",
+  "nativeVersionCode": 100,
+  "bundleVersion": "0.1.0-b1",
+  "minNativeVersionCodeForBundle": 100,
+  "_comment": "SOURCE OF TRUTH – Chỉ sửa file này khi bump version. Xem docs/versioning.md."
+}

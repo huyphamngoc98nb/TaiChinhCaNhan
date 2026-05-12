@@ -1,3 +1,13 @@
+// ─────────────────────────────────────────────────────────────
+// Đọc version từ nguồn sự thật trung tâm: version.config.json
+// Xem docs/versioning.md để hiểu quy ước 3 lớp.
+// KHÔNG sửa versionCode/versionName trực tiếp ở đây.
+// ─────────────────────────────────────────────────────────────
+import groovy.json.JsonSlurper
+
+def versionConfigFile = file("${rootProject.projectDir}/../version.config.json")
+def versionConfig = new JsonSlurper().parse(versionConfigFile)
+
 apply plugin: 'com.android.application'
 
 android {
@@ -7,8 +17,14 @@ android {
         applicationId "com.taixiucanhan.app"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 1
-        versionName "1.0"
+
+        // ── Version được đọc từ version.config.json ──
+        // Công thức: versionCode = MAJOR*10000 + MINOR*100 + PATCH
+        // 0.1.0 → 100 | 0.2.0 → 200 | 1.0.0 → 10000
+        versionCode versionConfig.nativeVersionCode
+        versionName versionConfig.nativeVersionName
+        // ─────────────────────────────────────────────
+
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
