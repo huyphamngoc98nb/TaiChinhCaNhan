@@ -34,6 +34,7 @@ DIST_DIR="${ROOT_DIR}/dist"
 ARTIFACT_DIR="${ROOT_DIR}/artifacts"
 KEY_PATH="${KEY_PATH:-${ROOT_DIR}/private_key.pem}"
 SKIP_NPM_BUILD="${SKIP_NPM_BUILD:-false}"
+USE_SHASUM=false   # fix: declare global trước khi dùng set -u
 
 # ------------------------------------------------------------------
 # Helper functions
@@ -46,19 +47,25 @@ check_dependencies() {
   for cmd in node openssl zip sha256sum; do
     command -v "$cmd" &>/dev/null || missing+=("$cmd")
   done
-  # macOS dùng shasum thay cho sha256sum
+
+  # fix: macOS dùng shasum thay sha256sum — filter đúng phần tử rỗng
   if [[ ${#missing[@]} -gt 0 ]] && [[ "${missing[*]}" == *"sha256sum"* ]]; then
     if command -v shasum &>/dev/null; then
-      missing=("${missing[@]/sha256sum}")
+      local filtered=()
+      for item in "${missing[@]}"; do
+        [[ "$item" != "sha256sum" ]] && filtered+=("$item")
+      done
+      missing=("${filtered[@]+"${filtered[@]}"}")  # safe khi filtered rỗng
       USE_SHASUM=true
     fi
   fi
+
   [[ ${#missing[@]} -eq 0 ]] || fail "Thiếu dependency: ${missing[*]}"
 }
 
 compute_sha256() {
   local file="$1"
-  if [[ "${USE_SHASUM:-false}" == true ]]; then
+  if [[ "${USE_SHASUM}" == true ]]; then
     shasum -a 256 "$file" | awk '{print $1}'
   else
     sha256sum "$file" | awk '{print $1}'
@@ -100,8 +107,8 @@ if [[ "${SKIP_NPM_BUILD}" == "true" ]]; then
   log "    SKIP_NPM_BUILD=true — bỏ qua bước npm run build"
   [[ -d "${DIST_DIR}" ]] || fail "dist/ không tồn tại và SKIP_NPM_BUILD=true"
 else
-  cd "${ROOT_DIR}"
-  npm run build
+  # fix: wrap subshell để không thay đổi working directory của session hiện tại
+  (cd "${ROOT_DIR}" && npm run build)
   [[ -d "${DIST_DIR}" ]] || fail "npm run build thành công nhưng dist/ vẫn không tồn tại"
 fi
 
@@ -146,7 +153,12 @@ log "    SHA-256: ${CHECKSUM}"
 # ------------------------------------------------------------------
 log "[5/5] Ký số bundle..."
 
-[[ -f "${KEY_PATH}" ]] || fail "Không tìm thấy private key: ${KEY_PATH}\n       Hãy chạy: bash scripts/generate-keypair.sh"
+# fix: tách fail() thành 2 echo riêng để xuống dòng đúng
+if [[ ! -f "${KEY_PATH}" ]]; then
+  echo "[ERROR] Không tìm thấy private key: ${KEY_PATH}" >&2
+  echo "        Hãy chạy: bash scripts/generate-keypair.sh" >&2
+  exit 1
+fi
 
 SIG_NAME="${ZIP_NAME}.sig"
 SIG_PATH="${ARTIFACT_DIR}/${SIG_NAME}"
@@ -175,7 +187,7 @@ echo "  bundleVersion : ${BUNDLE_VERSION}"
 echo "  sha256        : ${CHECKSUM}"
 echo "------------------------------------------------------------"
 echo ""
-echo "  Nếuếu verify thủ công:"
+echo "  Nếu muốn verify thủ công:"
 echo "  openssl dgst -sha256 -verify public_key.pem \\"
 echo "    -signature artifacts/${SIG_NAME} \\"
 echo "    artifacts/${ZIP_NAME}"
