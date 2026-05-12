@@ -1,164 +1,195 @@
 #!/usr/bin/env bash
 # =============================================================
 # build-bundle.sh
-# Build OTA bundle: vite build -> zip -> SHA-256 -> ký RSA
+# Build OTA bundle cho TaiXiuCaNhan (React/Vite + Capacitor)
 #
-# Yêu cầu:
-#   - Node.js (để đọc version.config.json)
-#   - openssl
-#   - zip
-#   - private_key.pem ở root project (KHÔNG commit git)
-#
-# Cách dùng:
+# Cách dùng (local):
 #   bash scripts/build-bundle.sh
 #
-# Artifacts đầu ra (trong thư mục artifacts/):
-#   <bundleVersion>.zip         — Web bundle
-#   <bundleVersion>.zip.sha256  — SHA-256 checksum
-#   <bundleVersion>.zip.sig     — Chữ ký RSA
+# Cách dùng trong CI (GitHub Actions):
+#   env SKIP_NPM_BUILD=true bash scripts/build-bundle.sh
+#   (khi CI đã chạy npm run build trước rồi)
+#
+# Prerequisites:
+#   - Node.js, npm
+#   - openssl
+#   - zip
+#   - private_key.pem tồn tại ở root (hoặc được set qua biến KEY_PATH)
+#
+# Artifacts output (artifacts/<bundleVersion>.*):
+#   - .zip        : Web bundle (nội dung dist/)
+#   - .zip.sha256 : Checksum SHA-256
+#   - .zip.sig    : Chữ ký RSA-SHA256 (binary)
 # =============================================================
 set -euo pipefail
 
-# ----------------------------------------------------------
-# Đường dẫn gốc project (thư mục chứa package.json)
-# ----------------------------------------------------------
-PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/.."
-cd "$PROJECT_ROOT"
+# ------------------------------------------------------------------
+# Config — override bằng env nếu cần
+# ------------------------------------------------------------------
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ROOT_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
 
-ARTIFACT_DIR="artifacts"
-PRIVATE_KEY="private_key.pem"
-VERSION_CONFIG="version.config.json"
+VERSION_FILE="${ROOT_DIR}/version.config.json"
+DIST_DIR="${ROOT_DIR}/dist"
+ARTIFACT_DIR="${ROOT_DIR}/artifacts"
+KEY_PATH="${KEY_PATH:-${ROOT_DIR}/private_key.pem}"
+SKIP_NPM_BUILD="${SKIP_NPM_BUILD:-false}"
+USE_SHASUM=false   # fix: declare global trước khi dùng set -u
 
-# ----------------------------------------------------------
-# Màu log
-# ----------------------------------------------------------
-GREEN="\033[0;32m"
-YELLOW="\033[1;33m"
-RED="\033[0;31m"
-NC="\033[0m" # No Color
+# ------------------------------------------------------------------
+# Helper functions
+# ------------------------------------------------------------------
+log()  { echo ">> $*"; }
+fail() { echo "[ERROR] $*" >&2; exit 1; }
 
-log_step() { echo -e "\n${YELLOW}>> Step $1: $2${NC}"; }
-log_ok()   { echo -e "   ${GREEN}✓${NC} $1"; }
-log_err()  { echo -e "   ${RED}✗ ERROR: $1${NC}"; exit 1; }
+check_dependencies() {
+  local missing=()
+  for cmd in node openssl zip sha256sum; do
+    command -v "$cmd" &>/dev/null || missing+=("$cmd")
+  done
 
-echo "==========================================================="
-echo " OTA Build Pipeline — TaiXiuCaNhan"
-echo "==========================================================="
+  # fix: macOS dùng shasum thay sha256sum — filter đúng phần tử rỗng
+  if [[ ${#missing[@]} -gt 0 ]] && [[ "${missing[*]}" == *"sha256sum"* ]]; then
+    if command -v shasum &>/dev/null; then
+      local filtered=()
+      for item in "${missing[@]}"; do
+        [[ "$item" != "sha256sum" ]] && filtered+=("$item")
+      done
+      missing=("${filtered[@]+"${filtered[@]}"}")  # safe khi filtered rỗng
+      USE_SHASUM=true
+    fi
+  fi
 
-# ----------------------------------------------------------
-# Kiểm tra dependencies trước khi bắt đầu
-# ----------------------------------------------------------
-for cmd in node npm openssl zip sha256sum; do
-  command -v "$cmd" &>/dev/null || log_err "Thiếu dependency: $cmd"
-done
+  [[ ${#missing[@]} -eq 0 ]] || fail "Thiếu dependency: ${missing[*]}"
+}
 
-[ -f "$PRIVATE_KEY" ] || log_err "Không tìm thấy $PRIVATE_KEY. Chạy: bash scripts/generate-keypair.sh"
-[ -f "$VERSION_CONFIG" ] || log_err "Không tìm thấy $VERSION_CONFIG"
+compute_sha256() {
+  local file="$1"
+  if [[ "${USE_SHASUM}" == true ]]; then
+    shasum -a 256 "$file" | awk '{print $1}'
+  else
+    sha256sum "$file" | awk '{print $1}'
+  fi
+}
 
-# ==========================================================
-# STEP 1 — Đọc bundleVersion từ version.config.json
-# ==========================================================
-log_step 1 "Đọc bundleVersion từ $VERSION_CONFIG"
+# ------------------------------------------------------------------
+# Main
+# ------------------------------------------------------------------
+echo ""
+echo "============================================================"
+echo " OTA Bundle Builder — TaiXiuCaNhan"
+echo "============================================================"
+
+check_dependencies
+
+# ------------------------------------------------------------------
+# Bước 1: Đọc bundleVersion từ version.config.json
+# ------------------------------------------------------------------
+log "[1/5] Đọc bundleVersion từ version.config.json..."
+
+[[ -f "${VERSION_FILE}" ]] || fail "Không tìm thấy: ${VERSION_FILE}"
 
 BUNDLE_VERSION=$(node -e "
-  const v = require('./$VERSION_CONFIG');
-  if (!v.bundleVersion) process.exit(1);
+  const v = require('${VERSION_FILE}');
+  if (!v.bundleVersion) { process.stderr.write('Thiếu field bundleVersion\\n'); process.exit(1); }
   process.stdout.write(v.bundleVersion);
 ")
 
-[ -n "$BUNDLE_VERSION" ] || log_err "bundleVersion rỗng trong $VERSION_CONFIG"
-log_ok "bundleVersion = \"$BUNDLE_VERSION\""
+[[ -n "${BUNDLE_VERSION}" ]] || fail "bundleVersion rỗng"
+log "    bundleVersion = ${BUNDLE_VERSION}"
 
-# Tên artifacts
-ZIP_FILE="${ARTIFACT_DIR}/${BUNDLE_VERSION}.zip"
-SHA_FILE="${ZIP_FILE}.sha256"
-SIG_FILE="${ZIP_FILE}.sig"
+# ------------------------------------------------------------------
+# Bước 2: Build web assets (npm run build)
+# ------------------------------------------------------------------
+log "[2/5] Build web assets..."
 
-# ==========================================================
-# STEP 2 — Build web assets (vite build)
-# ==========================================================
-log_step 2 "npm run build"
+if [[ "${SKIP_NPM_BUILD}" == "true" ]]; then
+  log "    SKIP_NPM_BUILD=true — bỏ qua bước npm run build"
+  [[ -d "${DIST_DIR}" ]] || fail "dist/ không tồn tại và SKIP_NPM_BUILD=true"
+else
+  # fix: wrap subshell để không thay đổi working directory của session hiện tại
+  (cd "${ROOT_DIR}" && npm run build)
+  [[ -d "${DIST_DIR}" ]] || fail "npm run build thành công nhưng dist/ vẫn không tồn tại"
+fi
 
-npm run build
+DIST_FILE_COUNT=$(find "${DIST_DIR}" -type f | wc -l | tr -d ' ')
+log "    dist/ có ${DIST_FILE_COUNT} files"
 
-[ -d "dist" ] || log_err "dist/ không tồn tại sau khi build. Kiểm tra lỗi vite."
-log_ok "dist/ đã được tạo"
+# ------------------------------------------------------------------
+# Bước 3: Zip dist/ thành artifacts/<bundleVersion>.zip
+# ------------------------------------------------------------------
+log "[3/5] Tạo zip bundle..."
 
-# ==========================================================
-# STEP 3 — Zip toàn bộ dist/ thành artifacts/<bundleVersion>.zip
-# ==========================================================
-log_step 3 "Zip dist/ -> $ZIP_FILE"
+mkdir -p "${ARTIFACT_DIR}"
 
-mkdir -p "$ARTIFACT_DIR"
+ZIP_NAME="${BUNDLE_VERSION}.zip"
+ZIP_PATH="${ARTIFACT_DIR}/${ZIP_NAME}"
 
-# Xoá zip cũ nếu tồn tại (tránh zip --update hành vi không mong muốn)
-[ -f "$ZIP_FILE" ] && rm -f "$ZIP_FILE"
+# Xóa zip cũ nếu có (idempotent)
+rm -f "${ZIP_PATH}"
 
-# Zip từ trong dist/ để tránh path prefix "dist/" bên trong archive
-(cd dist && zip -r "${OLDPWD}/${ZIP_FILE}" .)
+# Zip từ trong dist/ ra — không include đường dẫn tuyệt đối
+(cd "${DIST_DIR}" && zip -r "${ZIP_PATH}" .)
 
-ZIP_SIZE=$(du -sh "$ZIP_FILE" | awk '{print $1}')
-log_ok "$ZIP_FILE (${ZIP_SIZE})"
+ZIP_SIZE=$(du -sh "${ZIP_PATH}" | awk '{print $1}')
+log "    ${ZIP_NAME} (${ZIP_SIZE})"
 
-# ==========================================================
-# STEP 4 — Tính SHA-256 checksum
-# ==========================================================
-log_step 4 "Tính SHA-256 checksum -> $SHA_FILE"
+# ------------------------------------------------------------------
+# Bước 4: Tính SHA-256 checksum
+# ------------------------------------------------------------------
+log "[4/5] Tính SHA-256 checksum..."
 
-# sha256sum output: "<hash>  <filename>" — chỉ lấy hash
-sha256sum "$ZIP_FILE" | awk '{print $1}' > "$SHA_FILE"
+SHA_NAME="${ZIP_NAME}.sha256"
+SHA_PATH="${ARTIFACT_DIR}/${SHA_NAME}"
 
-CHECKSUM=$(cat "$SHA_FILE")
-log_ok "SHA-256: $CHECKSUM"
+CHECKSUM=$(compute_sha256 "${ZIP_PATH}")
+echo "${CHECKSUM}" > "${SHA_PATH}"
 
-# ==========================================================
-# STEP 5 — Ký số bằng private_key.pem
-# ==========================================================
-log_step 5 "Ký RSA-SHA256 -> $SIG_FILE"
+log "    ${SHA_NAME}"
+log "    SHA-256: ${CHECKSUM}"
+
+# ------------------------------------------------------------------
+# Bước 5: Ký số bằng RSA private key
+# ------------------------------------------------------------------
+log "[5/5] Ký số bundle..."
+
+# fix: tách fail() thành 2 echo riêng để xuống dòng đúng
+if [[ ! -f "${KEY_PATH}" ]]; then
+  echo "[ERROR] Không tìm thấy private key: ${KEY_PATH}" >&2
+  echo "        Hãy chạy: bash scripts/generate-keypair.sh" >&2
+  exit 1
+fi
+
+SIG_NAME="${ZIP_NAME}.sig"
+SIG_PATH="${ARTIFACT_DIR}/${SIG_NAME}"
 
 openssl dgst \
   -sha256 \
-  -sign "$PRIVATE_KEY" \
-  -out "$SIG_FILE" \
-  "$ZIP_FILE"
+  -sign "${KEY_PATH}" \
+  -out "${SIG_PATH}" \
+  "${ZIP_PATH}"
 
-log_ok "$SIG_FILE"
+SIG_SIZE=$(du -sh "${SIG_PATH}" | awk '{print $1}')
+log "    ${SIG_NAME} (${SIG_SIZE})"
 
-# ----------------------------------------------------------
-# Quick verify chữ ký ngay sau khi ký
-# ----------------------------------------------------------
-if [ -f "public_key.pem" ]; then
-  VERIFY=$(openssl dgst -sha256 -verify public_key.pem -signature "$SIG_FILE" "$ZIP_FILE" 2>&1)
-  if echo "$VERIFY" | grep -q "Verified OK"; then
-    log_ok "Verify chữ ký: OK"
-  else
-    log_err "Verify chữ ký thất bại! Output: $VERIFY"
-  fi
-else
-  echo "   (Bỏ qua verify: public_key.pem không có ở local)"
-fi
-
-# ==========================================================
-# TÓM TẮT — Danh sách 3 artifacts
-# ==========================================================
+# ------------------------------------------------------------------
+# Kết quả
+# ------------------------------------------------------------------
 echo ""
-echo "==========================================================="
-echo -e " ${GREEN}BUILD THÀNH CÔNG${NC} — bundleVersion: $BUNDLE_VERSION"
-echo "==========================================================="
+echo "============================================================"
+echo " ARTIFACTS đã tạo trong artifacts/"
+echo "============================================================"
+printf "  %-40s %s\n" "${ZIP_NAME}" "(web bundle)"
+printf "  %-40s %s\n" "${SHA_NAME}" "(SHA-256 checksum)"
+printf "  %-40s %s\n" "${SIG_NAME}" "(RSA-SHA256 signature)"
+echo "------------------------------------------------------------"
+echo "  bundleVersion : ${BUNDLE_VERSION}"
+echo "  sha256        : ${CHECKSUM}"
+echo "------------------------------------------------------------"
 echo ""
-echo " Artifacts:"
-for f in "$ZIP_FILE" "$SHA_FILE" "$SIG_FILE"; do
-  if [ -f "$f" ]; then
-    SIZE=$(du -sh "$f" | awk '{print $1}')
-    echo -e "   ${GREEN}✓${NC}  $f  ($SIZE)"
-  else
-    echo -e "   ${RED}✗${NC}  $f  (MISSING)"
-  fi
-done
-echo ""
-echo " Checksum: $CHECKSUM"
-echo "==========================================================="
-echo " Bước tiếp theo:"
-echo "   1. Upload artifacts/ lên CDN"
-echo "   2. Chạy scripts/update-manifest.js để cập nhật bundle-manifest.json"
-echo "==========================================================="
+echo "  Nếu muốn verify thủ công:"
+echo "  openssl dgst -sha256 -verify public_key.pem \\"
+echo "    -signature artifacts/${SIG_NAME} \\"
+echo "    artifacts/${ZIP_NAME}"
+echo "  Kết quả mong đợi: Verified OK"
+echo "============================================================"
