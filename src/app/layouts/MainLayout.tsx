@@ -1,5 +1,5 @@
 import { Outlet, NavLink } from 'react-router-dom';
-import { Home, List, PlusCircle, Settings, BarChart3, PiggyBank } from 'lucide-react';
+import { Home, List, PlusCircle, Settings, BarChart3, Wallet } from 'lucide-react';
 import { ROUTES } from '@/shared/constants/routes';
 import { useLanguage } from '@/shared/context/LanguageContext';
 import './MainLayout.css';
@@ -30,9 +30,9 @@ export function MainLayout() {
           <BarChart3 size={24} />
           <span>{t('navigation.reports')}</span>
         </NavLink>
-        <NavLink to={ROUTES.BUDGETS} className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
-          <PiggyBank size={24} />
-          <span>{t('navigation.budgets')}</span>
+        <NavLink to={ROUTES.WALLETS} className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
+          <Wallet size={24} />
+          <span>Tài khoản</span>
         </NavLink>
         <NavLink to={ROUTES.SETTINGS} className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
           <Settings size={24} />

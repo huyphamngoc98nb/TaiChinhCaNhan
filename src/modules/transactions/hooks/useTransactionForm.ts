@@ -56,7 +56,7 @@ export function useTransactionForm(existing?: Transaction) {
     async function loadOptions() {
       try {
         const db = await getDbConnection();
-        const { values: wallets } = await db.query('SELECT id, name FROM wallets');
+        const { values: wallets } = await db.query('SELECT id, name FROM wallets WHERE is_active = 1 ORDER BY sort_order ASC, name ASC');
         const { values: categories } = await db.query('SELECT id, name, type FROM categories');
         
         const loadedWallets = wallets || [];

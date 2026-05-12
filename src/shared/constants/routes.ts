@@ -9,4 +9,5 @@ export const ROUTES = {
   RECURRING_BILLS: '/recurring-bills',
   BACKUP: '/backup',
   EXPORT: '/export',
+  WALLETS: '/wallets',
 } as const;

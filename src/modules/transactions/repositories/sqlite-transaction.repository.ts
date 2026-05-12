@@ -135,4 +135,33 @@ export class SQLiteTransactionRepository implements ITransactionRepository {
     const { values: rows } = await db.query(sql, values as unknown[]);
     return (rows || []).map(mapToTransaction);
   }
+
+  /**
+   * Aggregate income and expense totals grouped by wallet account_type.
+   * Useful for account-type breakdown in reports.
+   * Excludes soft-deleted transactions (deleted_at IS NULL).
+   */
+  async getSummaryByAccountType(): Promise<
+    { account_type: string; total_expense: number; total_income: number }[]
+  > {
+    const db = await getDbConnection();
+    const sql = `
+      SELECT
+        w.account_type,
+        COALESCE(SUM(CASE WHEN t.type = 'expense' THEN t.amount ELSE 0 END), 0) AS total_expense,
+        COALESCE(SUM(CASE WHEN t.type = 'income'  THEN t.amount ELSE 0 END), 0) AS total_income
+      FROM transactions t
+      JOIN wallets w ON t.wallet_id = w.id
+      WHERE t.deleted_at IS NULL
+      GROUP BY w.account_type
+      ORDER BY w.account_type
+    `;
+    const { values } = await db.query(sql);
+    return (values ?? []).map((row: Record<string, unknown>) => ({
+      account_type:  row.account_type as string,
+      total_expense: row.total_expense as number,
+      total_income:  row.total_income  as number,
+    }));
+  }
 }
+
