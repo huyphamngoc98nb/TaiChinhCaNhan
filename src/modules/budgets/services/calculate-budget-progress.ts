@@ -1,4 +1,4 @@
-import { Budget, BudgetWithCategory, BudgetProgress, resolveBudgetScope } from '../domain/budget.model';
+import { BudgetWithCategory, BudgetProgress, resolveBudgetScope } from '../domain/budget.model';
 import { IBudgetRepository } from '../repositories/budget.repository';
 import { classifyBudgetStatus } from './classify-budget-status';
 

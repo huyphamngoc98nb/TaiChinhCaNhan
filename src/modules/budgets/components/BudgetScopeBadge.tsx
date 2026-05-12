@@ -1,4 +1,3 @@
-import React from 'react';
 import { BudgetScope, ACCOUNT_TYPE_LABELS } from '../domain/budget.model';
 
 interface Props {

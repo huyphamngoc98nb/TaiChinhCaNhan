@@ -43,8 +43,9 @@ export function BudgetProgressCard({ progress }: Props) {
           </div>
           <div>
             <h4 className="font-bold text-gray-900 text-lg leading-tight">{budget.category_name}</h4>
+            {/* Đú́ng field: budget.period và budget.amount (kế thừa từ Budget interface) */}
             <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mt-0.5">
-              {budget.budget_period} limit: ${budget.budget_amount?.toFixed(0)}
+              {budget.period} limit: ${budget.amount?.toFixed(0)}
             </p>
           </div>
         </div>
@@ -63,8 +64,8 @@ export function BudgetProgressCard({ progress }: Props) {
             <span className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-1">Remaining</span>
             <span className={`text-2xl font-bold ${percentage >= 1 ? 'text-rose-500' : 'text-emerald-500'}`}>
               {percentage >= 1 
-                ? `-$${Math.round(spent_amount - (budget.budget_amount || 0))}` 
-                : `$${Math.round((budget.budget_amount || 0) - spent_amount)}`}
+                ? `-$${Math.round(spent_amount - (budget.amount || 0))}` 
+                : `$${Math.round((budget.amount || 0) - spent_amount)}`}
             </span>
           </div>
         </div>
@@ -79,7 +80,7 @@ export function BudgetProgressCard({ progress }: Props) {
         <div className="flex justify-between text-[11px] font-bold uppercase tracking-wider">
           <span className={config.text}>{Math.round(percentage * 100)}% of limit used</span>
           <span className="text-gray-400">
-            {budget.budget_period} cycle
+            {budget.period} cycle
           </span>
         </div>
       </div>

@@ -1,4 +1,3 @@
-import React from 'react';
 import { AccountType, ACCOUNT_TYPE_LABELS } from '../domain/budget.model';
 import type { BudgetScopeType } from '../hooks/useBudgetForm';
 

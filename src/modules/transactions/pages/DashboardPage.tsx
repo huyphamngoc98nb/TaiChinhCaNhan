@@ -1,15 +1,13 @@
 import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { PlusCircle, PieChart, ArrowDownLeft, ArrowUpRight, ChevronRight, Bell } from 'lucide-react';
+import { PlusCircle, PieChart, ChevronRight, Bell } from 'lucide-react';
 import { useBudgets } from '@/modules/budgets/hooks/useBudgets';
 import { useRecurringBills } from '@/modules/recurring-bills/hooks/useRecurringBills';
 import { useWallets } from '@/modules/wallets/hooks/useWallets';
 import { ROUTES } from '@/shared/constants/routes';
-import { useLanguage } from '@/shared/context/LanguageContext';
-import { ACCOUNT_TYPE_LABELS } from '@/modules/budgets/domain/budget.model';
 import type { AccountType } from '@/modules/wallets/repositories/sqlite-wallet.repository';
 
-// ── helpers ────────────────────────────────────────────────────────────────
+// ── helpers ────────────────────────────────────────────────────────────────────
 function formatVND(n: number): string {
   if (Math.abs(n) >= 1_000_000_000)
     return `${(n / 1_000_000_000).toFixed(1)} tỷ`;
@@ -39,15 +37,14 @@ const STATUS_BG: Record<'safe' | 'warning' | 'exceeded', string> = {
   exceeded: 'bg-red-50',
 };
 
-// ── component ──────────────────────────────────────────────────────────────
-export function DashboardPage() {
+// ── component ────────────────────────────────────────────────────────────
+function DashboardPage() {
   const { alerts, allProgress, isLoading: budgetLoading } = useBudgets();
   const { reminders } = useRecurringBills();
   const { wallets, totalBalance, loading: walletLoading } = useWallets();
   const navigate = useNavigate();
-  const { t } = useLanguage();
 
-  // Top 3 budgets for mini-cards (warning/exceeded first)
+  // Top 5 budgets for mini-cards (warning/exceeded first)
   const topBudgets = useMemo(() => {
     const sorted = [...allProgress].sort((a, b) => {
       const order = { exceeded: 0, warning: 1, safe: 2 };
@@ -56,14 +53,13 @@ export function DashboardPage() {
     return sorted.slice(0, 5);
   }, [allProgress]);
 
-  // Monthly income / expense from wallet movements — approximate from progress
   const hasAlerts = alerts.length > 0;
   const hasBills  = reminders.length > 0;
 
   return (
     <div className="min-h-screen bg-[#F5F7FA] pb-24">
 
-      {/* ── Hero Card ───────────────────────────────────────────────── */}
+      {/* ── Hero Card ─────────────────────────────────────────────── */}
       <div
         className="relative mx-4 mt-6 rounded-[24px] p-5 overflow-hidden"
         style={{
@@ -71,7 +67,6 @@ export function DashboardPage() {
           boxShadow: '0 8px 32px rgba(99,102,241,0.35)',
         }}
       >
-        {/* decorative circles */}
         <div className="absolute -top-8 -right-8 w-32 h-32 rounded-full bg-white/10" />
         <div className="absolute -bottom-10 -left-6 w-28 h-28 rounded-full bg-white/10" />
 
@@ -84,7 +79,6 @@ export function DashboardPage() {
           </h2>
         )}
 
-        {/* Wallet chips */}
         <div className="flex gap-2 flex-wrap">
           {wallets.slice(0, 4).map(w => (
             <div
@@ -124,7 +118,7 @@ export function DashboardPage() {
         </button>
       </div>
 
-      {/* ── Bill Reminders banner ────────────────────────────────────── */}
+      {/* ── Bill Reminders banner ────────────────────────────────────────── */}
       {hasBills && (
         <div
           className="mx-4 mt-4 flex items-center gap-3 bg-amber-50 border border-amber-200 rounded-[16px] px-4 py-3 cursor-pointer active:scale-[0.98] transition-transform"
@@ -145,7 +139,7 @@ export function DashboardPage() {
         </div>
       )}
 
-      {/* ── Budget Mini-cards (horizontal scroll) ───────────────────── */}
+      {/* ── Budget Mini-cards ────────────────────────────────────────────── */}
       {!budgetLoading && topBudgets.length > 0 && (
         <div className="mt-5">
           <div className="flex items-center justify-between px-4 mb-3">
@@ -182,7 +176,6 @@ export function DashboardPage() {
                 <p className="text-[12px] font-semibold text-gray-800 leading-tight mb-2 truncate">
                   {p.budget.category_name}
                 </p>
-                {/* progress bar */}
                 <div className="h-1.5 bg-black/10 rounded-full overflow-hidden">
                   <div
                     className={`h-full rounded-full bg-gradient-to-r ${STATUS_GRADIENT[p.status]}`}
@@ -198,7 +191,7 @@ export function DashboardPage() {
         </div>
       )}
 
-      {/* ── Budget Alerts ────────────────────────────────────────────── */}
+      {/* ── Budget Alerts ────────────────────────────────────────────────── */}
       {hasAlerts && (
         <div className="mx-4 mt-5">
           <div className="flex items-center justify-between mb-3">
@@ -241,7 +234,7 @@ export function DashboardPage() {
         </div>
       )}
 
-      {/* ── Empty state (no wallets, no budgets) ─────────────────────── */}
+      {/* ── Empty state ──────────────────────────────────────────────────────── */}
       {!walletLoading && wallets.length === 0 && topBudgets.length === 0 && !hasAlerts && (
         <div className="flex flex-col items-center justify-center mt-20 px-8 text-center space-y-4">
           <div className="text-6xl">👋</div>
@@ -260,3 +253,5 @@ export function DashboardPage() {
     </div>
   );
 }
+
+export { DashboardPage };

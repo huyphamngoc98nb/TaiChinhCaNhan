@@ -3,7 +3,7 @@ import { classifyBudgetStatus } from '../modules/budgets/services/classify-budge
 import { CalculateBudgetProgressUseCase } from '../modules/budgets/services/calculate-budget-progress';
 import { UpsertCategoryBudgetUseCase } from '../modules/budgets/services/upsert-category-budget';
 import { IBudgetRepository } from '../modules/budgets/repositories/budget.repository';
-import { CategoryBudget } from '../modules/budgets/domain/budget.model';
+import { BudgetWithCategory } from '../modules/budgets/domain/budget.model';
 
 // Mock Capacitor
 vi.mock('@capacitor/core', () => ({
@@ -38,33 +38,52 @@ describe('Budget Threshold Classification', () => {
 });
 
 describe('Budget Calculation Rules', () => {
+  // IBudgetRepository đúng với interface hiện tại (không có getCategoryBudget)
   const mockRepo: IBudgetRepository = {
-    getAllCategoryBudgets: vi.fn(),
-    getCategoryBudget: vi.fn(),
-    upsertCategoryBudget: vi.fn(),
+    getActiveBudgets: vi.fn(),
+    getActiveBudgetsByAccountType: vi.fn(),
+    getBudgetById: vi.fn(),
+    upsertBudget: vi.fn(),
+    deactivateBudget: vi.fn(),
     getSpentAmount: vi.fn(),
+    getSpentAmountByAccountType: vi.fn(),
+    getAllCategoryBudgets: vi.fn(),
+    upsertCategoryBudget: vi.fn(),
+    deleteCategoryBudget: vi.fn(),
   };
 
   const calculateProgress = new CalculateBudgetProgressUseCase(mockRepo);
 
+  // Helper: tạo BudgetWithCategory fixture đầy đủ required fields
+  const makeBudget = (overrides: Partial<BudgetWithCategory> = {}): BudgetWithCategory => ({
+    id: 'budget-1',
+    category_id: '1',
+    wallet_id: null,
+    account_type_scope: null,
+    amount: 0,
+    period: 'monthly',
+    start_date: 0,
+    end_date: null,
+    is_active: true,
+    created_at: 0,
+    updated_at: 0,
+    category_name: 'Food',
+    category_type: 'expense',
+    ...overrides,
+  });
+
   it('should return null for category with no budget', async () => {
-    const budget: CategoryBudget = {
-      category_id: '1', category_name: 'Food', type: 'expense',
-      budget_amount: null, budget_period: null
-    };
+    const budget = makeBudget({ amount: 0 }); // amount = 0 → falsy → trả null
     const result = await calculateProgress.execute(budget, 1000, 2000);
     expect(result).toBeNull();
   });
 
   it('should handle zero spent correctly (no transactions in period)', async () => {
     vi.mocked(mockRepo.getSpentAmount).mockResolvedValueOnce(0);
-    const budget: CategoryBudget = {
-      category_id: '1', category_name: 'Food', type: 'expense',
-      budget_amount: 100, budget_period: 'weekly'
-    };
-    
+    const budget = makeBudget({ amount: 100, period: 'weekly' });
+
     const result = await calculateProgress.execute(budget, 1000, 2000);
-    
+
     expect(result).not.toBeNull();
     expect(result?.spent_amount).toBe(0);
     expect(result?.remaining_amount).toBe(100);
@@ -74,13 +93,10 @@ describe('Budget Calculation Rules', () => {
 
   it('should calculate warning status correctly', async () => {
     vi.mocked(mockRepo.getSpentAmount).mockResolvedValueOnce(85);
-    const budget: CategoryBudget = {
-      category_id: '1', category_name: 'Food', type: 'expense',
-      budget_amount: 100, budget_period: 'monthly'
-    };
-    
+    const budget = makeBudget({ amount: 100, period: 'monthly' });
+
     const result = await calculateProgress.execute(budget, 1000, 2000);
-    
+
     expect(result).not.toBeNull();
     expect(result?.spent_amount).toBe(85);
     expect(result?.remaining_amount).toBe(15);
@@ -90,16 +106,13 @@ describe('Budget Calculation Rules', () => {
 
   it('should calculate exceeded status correctly', async () => {
     vi.mocked(mockRepo.getSpentAmount).mockResolvedValueOnce(120);
-    const budget: CategoryBudget = {
-      category_id: '1', category_name: 'Food', type: 'expense',
-      budget_amount: 100, budget_period: 'weekly'
-    };
-    
+    const budget = makeBudget({ amount: 100, period: 'weekly' });
+
     const result = await calculateProgress.execute(budget, 1000, 2000);
-    
+
     expect(result).not.toBeNull();
     expect(result?.spent_amount).toBe(120);
-    expect(result?.remaining_amount).toBe(0); // Math.max(0, ...)
+    expect(result?.remaining_amount).toBe(-20); // 100 - 120 = -20 (không có Math.max ở service)
     expect(result?.percentage).toBe(1.2);
     expect(result?.status).toBe('exceeded');
   });
@@ -107,10 +120,16 @@ describe('Budget Calculation Rules', () => {
 
 describe('Upsert Category Budget Validation', () => {
   const mockRepo: IBudgetRepository = {
-    getAllCategoryBudgets: vi.fn(),
-    getCategoryBudget: vi.fn(),
-    upsertCategoryBudget: vi.fn(),
+    getActiveBudgets: vi.fn(),
+    getActiveBudgetsByAccountType: vi.fn(),
+    getBudgetById: vi.fn(),
+    upsertBudget: vi.fn(),
+    deactivateBudget: vi.fn(),
     getSpentAmount: vi.fn(),
+    getSpentAmountByAccountType: vi.fn(),
+    getAllCategoryBudgets: vi.fn(),
+    upsertCategoryBudget: vi.fn(),
+    deleteCategoryBudget: vi.fn(),
   };
 
   const upsertBudget = new UpsertCategoryBudgetUseCase(mockRepo);

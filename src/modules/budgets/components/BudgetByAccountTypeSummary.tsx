@@ -1,4 +1,3 @@
-import React from 'react';
 import { BudgetProgress, AccountType, ACCOUNT_TYPE_LABELS, resolveBudgetScope } from '../domain/budget.model';
 
 // Icon đơn giản theo account_type (emoji fallback, dễ thay bằng Lucide sau)
