@@ -77,14 +77,17 @@ jobs:
         run: bash scripts/build-bundle.sh
 
       # ----------------------------------------------------------
-      # Step 6: Đọc bundleVersion → $GITHUB_ENV để dùng ở các step sau
+      # Step 6: Đọc bundleVersion → $GITHUB_ENV
+      # Dùng node -p với fs.readFileSync thay vì require()
+      # vì package.json có "type":"module" (ESM)
       # ----------------------------------------------------------
       - name: Read bundle version
         run: |
           BUNDLE_VERSION=$(node -e "
-            const v = require('./version.config.json');
+            import fs from 'fs';
+            const v = JSON.parse(fs.readFileSync('./version.config.json', 'utf8'));
             process.stdout.write(v.bundleVersion);
-          ")
+          " --input-type=module)
           echo "BUNDLE_VERSION=${BUNDLE_VERSION}" >> "$GITHUB_ENV"
           echo ">> bundleVersion = ${BUNDLE_VERSION}"
 
@@ -157,8 +160,8 @@ jobs:
           echo "============================================================"
 
       # ----------------------------------------------------------
-      # Step A: Đọc checksum và bundleVersion vào $GITHUB_ENV
-      # (Step 6 đã set BUNDLE_VERSION, ở đây set thêm CHECKSUM)
+      # Step A: Đọc checksum vào $GITHUB_ENV
+      # BUNDLE_VERSION đã có sẵn từ Step 6, chỉ cần set thêm CHECKSUM
       # ----------------------------------------------------------
       - name: Read checksum into env
         run: |
@@ -168,7 +171,9 @@ jobs:
 
       # ----------------------------------------------------------
       # Step B: Chạy update-manifest.js cập nhật bundle-manifest.json
-      # CDN_BASE_URL = GitHub Releases download URL của repo này
+      # CDN_BASE_URL = GitHub Releases base download URL của repo
+      # Format: .../releases/download/bundle-<ver> (update-manifest.js
+      # sẽ tự nối thêm /<ver>.zip)
       # ----------------------------------------------------------
       - name: Update bundle manifest
         env:
@@ -181,6 +186,7 @@ jobs:
       # ----------------------------------------------------------
       # Step C: Git commit và push bundle-manifest.json
       # Dùng GITHUB_TOKEN mặc định (permissions: contents: write đã khai báo)
+      # Guard: chỉ commit nếu có thay đổi thực sự — tránh lỗi commit rỗng
       # ----------------------------------------------------------
       - name: Commit and push bundle manifest
         run: |
