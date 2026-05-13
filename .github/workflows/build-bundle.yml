@@ -2,13 +2,14 @@
 # build-bundle.yml
 # CI/CD: Tự động build OTA bundle sau mỗi push vào main
 #
-# Secrets cần cấu hình trước khi dùng:
-#   BUNDLE_SIGNING_KEY    — Nội dung private_key.pem (RSA 4096-bit)
-#   R2_ACCOUNT_ID         — Cloudflare Account ID
-#   R2_ACCESS_KEY_ID      — R2 Access Key (tạo trong CF Dashboard)
-#   R2_SECRET_ACCESS_KEY  — R2 Secret Key
-#   R2_BUCKET_NAME        — Tên R2 bucket (VD: ota-bundles)
-#   R2_PUBLIC_URL         — Base URL public bucket (VD: https://cdn.example.com)
+# Secret cần cấu hình duy nhất:
+#   BUNDLE_SIGNING_KEY — Nội dung private_key.pem (RSA 4096-bit)
+#                         Settings → Secrets and variables → Actions
+#
+# Artifacts được publish lên GitHub Releases với tag:
+#   bundle-<bundleVersion>  (VD: bundle-0.1.0-b1)
+# Public download URL (dùng trong bundle-manifest.json):
+#   https://github.com/<owner>/<repo>/releases/download/bundle-<ver>/<ver>.zip
 # =============================================================
 name: Build OTA Bundle
 
@@ -25,9 +26,14 @@ concurrency:
   group: build-bundle-${{ github.ref }}
   cancel-in-progress: true
 
+# Cấp quyền tối thiểu cho GITHUB_TOKEN
+# contents: write — cần để tạo Release và upload artifact
+permissions:
+  contents: write
+
 jobs:
-  build-and-upload:
-    name: Build → Sign → Upload OTA Bundle
+  build-and-release:
+    name: Build → Sign → GitHub Release
     runs-on: ubuntu-latest
     timeout-minutes: 20
 
@@ -48,14 +54,14 @@ jobs:
           cache: 'npm'
 
       # ----------------------------------------------------------
-      # Step 3: Cài đặt dependencies (ci = clean install, không sửa lock)
+      # Step 3: Cài đặt dependencies
       # ----------------------------------------------------------
       - name: Install dependencies
         run: npm ci
 
       # ----------------------------------------------------------
       # Step 4: Ghi BUNDLE_SIGNING_KEY ra private_key.pem
-      # Dùng printf thay echo để tránh platform-specific newline issues
+      # Dùng printf để tránh platform-specific newline issues với PEM
       # ----------------------------------------------------------
       - name: Write signing key
         env:
@@ -71,22 +77,22 @@ jobs:
         run: bash scripts/build-bundle.sh
 
       # ----------------------------------------------------------
-      # Step 6: Đọc bundleVersion vào env để dùng ở các step sau
+      # Step 6: Đọc bundleVersion → $GITHUB_ENV để dùng ở các step sau
       # ----------------------------------------------------------
-      - name: Set BUNDLE_VERSION env
+      - name: Read bundle version
         run: |
           BUNDLE_VERSION=$(node -e "
             const v = require('./version.config.json');
             process.stdout.write(v.bundleVersion);
           ")
-          echo "BUNDLE_VERSION=${BUNDLE_VERSION}" >> $GITHUB_ENV
+          echo "BUNDLE_VERSION=${BUNDLE_VERSION}" >> "$GITHUB_ENV"
           echo ">> bundleVersion = ${BUNDLE_VERSION}"
 
       # ----------------------------------------------------------
       # Step 7: Upload artifacts lên GitHub Actions Artifacts
-      # Giữ lại 7 ngày (giảm storage, đủ để debug)
+      # Dùng để debug; giữ 7 ngày
       # ----------------------------------------------------------
-      - name: Upload artifacts to GitHub
+      - name: Upload artifacts to GitHub Actions
         uses: actions/upload-artifact@v4
         with:
           name: ota-bundle-${{ github.sha }}
@@ -95,35 +101,66 @@ jobs:
           if-no-files-found: error
 
       # ----------------------------------------------------------
-      # Step 8: Upload lên Cloudflare R2
-      # R2 tương thích S3 API — dùng awscli với custom endpoint
-      # Endpoint format: https://<ACCOUNT_ID>.r2.cloudflarestorage.com
-      # Egress (download) miễn phí — không tốn phí khi app tải bundle
+      # Step 8: Tạo GitHub Release và đính kèm 3 artifacts
+      #
+      # Tag format : bundle-<bundleVersion>  (VD: bundle-0.1.0-b1)
+      # Nếu tag đã tồn tại (push lại cùng version) — release sẽ được
+      # cập nhật (update_existing_release: true)
+      #
+      # Download URL sau khi release:
+      # https://github.com/huyphamngoc98nb/TaiXiuCaNhan/releases/download
+      #   /bundle-<ver>/<ver>.zip
       # ----------------------------------------------------------
-      - name: Upload artifacts to Cloudflare R2
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
-          R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
-          R2_BUCKET_NAME: ${{ secrets.R2_BUCKET_NAME }}
-          R2_PUBLIC_URL: ${{ secrets.R2_PUBLIC_URL }}
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: bundle-${{ env.BUNDLE_VERSION }}
+          name: "OTA Bundle ${{ env.BUNDLE_VERSION }}"
+          body: |
+            ## OTA Bundle `${{ env.BUNDLE_VERSION }}`
+
+            **Commit**: ${{ github.sha }}
+            **Branch**: ${{ github.ref_name }}
+            **Build time**: ${{ github.event.head_commit.timestamp }}
+
+            ### Artifacts
+            | File | Mô tả |
+            |------|-------|
+            | `${{ env.BUNDLE_VERSION }}.zip` | Web bundle (giải nén vào app) |
+            | `${{ env.BUNDLE_VERSION }}.zip.sha256` | SHA-256 checksum |
+            | `${{ env.BUNDLE_VERSION }}.zip.sig` | Chữ ký RSA-SHA256 |
+
+            ### Verify chữ ký
+            ```bash
+            openssl dgst -sha256 -verify public_key.pem \
+              -signature ${{ env.BUNDLE_VERSION }}.zip.sig \
+              ${{ env.BUNDLE_VERSION }}.zip
+            ```
+          files: |
+            artifacts/${{ env.BUNDLE_VERSION }}.zip
+            artifacts/${{ env.BUNDLE_VERSION }}.zip.sha256
+            artifacts/${{ env.BUNDLE_VERSION }}.zip.sig
+          make_latest: true
+          update_existing_release: true
+          fail_on_unmatched_files: true
+
+      # ----------------------------------------------------------
+      # Step 9: In public URL để dễ copy vào bundle-manifest.json
+      # ----------------------------------------------------------
+      - name: Print download URLs
         run: |
-          R2_ENDPOINT="https://${R2_ACCOUNT_ID}.r2.cloudflarestorage.com"
-
-          # Upload 3 artifacts lên thư mục bundles/ trong R2 bucket
-          aws s3 cp artifacts/ "s3://${R2_BUCKET_NAME}/bundles/" \
-            --recursive \
-            --no-progress \
-            --endpoint-url "${R2_ENDPOINT}"
-
-          # In public URL của từng artifact để trace
-          echo ">> Artifacts available at:"
-          echo "   ${R2_PUBLIC_URL}/bundles/${{ env.BUNDLE_VERSION }}.zip"
-          echo "   ${R2_PUBLIC_URL}/bundles/${{ env.BUNDLE_VERSION }}.zip.sha256"
-          echo "   ${R2_PUBLIC_URL}/bundles/${{ env.BUNDLE_VERSION }}.zip.sig"
+          BASE="https://github.com/huyphamngoc98nb/TaiXiuCaNhan/releases/download/bundle-${{ env.BUNDLE_VERSION }}"
+          echo ""
+          echo "============================================================"
+          echo " RELEASE URLs (dùng trong bundle-manifest.json)"
+          echo "============================================================"
+          echo "  url    : ${BASE}/${{ env.BUNDLE_VERSION }}.zip"
+          echo "  sigUrl : ${BASE}/${{ env.BUNDLE_VERSION }}.zip.sig"
+          echo "  sha256 : $(cat artifacts/${{ env.BUNDLE_VERSION }}.zip.sha256)"
+          echo "============================================================"
 
       # ----------------------------------------------------------
-      # Step 9: Xóa private key — luôn chạy kể cả khi các step trước fail
+      # Step 10: Xóa private key — luôn chạy kể cả khi fail
       # ----------------------------------------------------------
       - name: Cleanup signing key
         if: always()
