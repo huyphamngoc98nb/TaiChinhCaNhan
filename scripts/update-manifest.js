@@ -1,5 +1,3 @@
-'use strict';
-
 // =============================================================
 // scripts/update-manifest.js
 // Cập nhật server/data/bundle-manifest.json sau mỗi CI build
@@ -9,10 +7,17 @@
 //
 // Env vars:
 //   CDN_BASE_URL  (mặc định: https://cdn.example.com/bundles)
+//
+// NOTE: Dùng ESM syntax vì package.json có "type": "module"
 // =============================================================
 
-const fs   = require('fs');
-const path = require('path');
+import fs   from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+// __dirname không tồn tại trong ESM — tự tạo lại
+const __filename = fileURLToPath(import.meta.url);
+const __dirname  = path.dirname(__filename);
 
 // ─── Parse arguments ────────────────────────────────────────
 function parseArgs(argv) {
@@ -33,8 +38,8 @@ if (!args.version || !args.checksum) {
 }
 
 // ─── Paths ───────────────────────────────────────────────────
-const ROOT_DIR     = path.resolve(__dirname, '..');
-const MANIFEST_PATH = path.join(ROOT_DIR, 'server', 'data', 'bundle-manifest.json');
+const ROOT_DIR          = path.resolve(__dirname, '..');
+const MANIFEST_PATH     = path.join(ROOT_DIR, 'server', 'data', 'bundle-manifest.json');
 const VERSION_CONFIG_PATH = path.join(ROOT_DIR, 'version.config.json');
 
 // ─── Đọc version.config.json ─────────────────────────────────
@@ -49,15 +54,14 @@ const minNativeVersion = versionConfig.minNativeVersion
 
 // ─── CDN base URL ────────────────────────────────────────────
 const CDN_BASE_URL = (process.env.CDN_BASE_URL || 'https://cdn.example.com/bundles')
-  .replace(/\/$/, ''); // bỏ trailing slash nếu có
+  .replace(/\/$/, '');
 
 // ─── Đọc manifest hiện tại (tạo mới nếu chưa có) ────────────
 let manifest;
 if (fs.existsSync(MANIFEST_PATH)) {
   try {
-    const raw = fs.readFileSync(MANIFEST_PATH, 'utf8');
+    const raw    = fs.readFileSync(MANIFEST_PATH, 'utf8');
     const parsed = JSON.parse(raw);
-    // Hỗ trợ cả 2 format: array trực tiếp hoặc { bundles: [] }
     if (Array.isArray(parsed)) {
       manifest = { bundles: parsed };
     } else if (parsed && Array.isArray(parsed.bundles)) {
@@ -67,12 +71,11 @@ if (fs.existsSync(MANIFEST_PATH)) {
       manifest = { bundles: [] };
     }
   } catch (e) {
-    console.warn('[WARN] Không parse được bundle-manifest.json, reset về mảng rỗng. Lỗi: ' + e.message);
+    console.warn('[WARN] Không parse được bundle-manifest.json, reset. Lỗi: ' + e.message);
     manifest = { bundles: [] };
   }
 } else {
   console.log('[INFO] bundle-manifest.json chưa tồn tại, tạo mới.');
-  // Tạo thư mục nếu chưa có
   const dataDir = path.dirname(MANIFEST_PATH);
   if (!fs.existsSync(dataDir)) {
     fs.mkdirSync(dataDir, { recursive: true });
@@ -87,19 +90,19 @@ const url    = CDN_BASE_URL + '/' + bundleVersion + '.zip';
 const sigUrl = url + '.sig';
 
 const newEntry = {
-  bundleVersion : bundleVersion,
-  url           : url,
-  sha256        : args.checksum,
-  sigUrl        : sigUrl,
+  bundleVersion    : bundleVersion,
+  url              : url,
+  sha256           : args.checksum,
+  sigUrl           : sigUrl,
   minNativeVersion : minNativeVersion,
-  releaseNotes  : 'Auto-built from CI \u2014 ' + bundleVersion,
-  disabled      : false,
-  createdAt     : new Date().toISOString(),
+  releaseNotes     : 'Auto-built from CI \u2014 ' + bundleVersion,
+  disabled         : false,
+  createdAt        : new Date().toISOString(),
 };
 
 // ─── Kiểm tra duplicate ──────────────────────────────────────
 const existingIdx = manifest.bundles.findIndex(
-  function(b) { return b.bundleVersion === bundleVersion; }
+  (b) => b.bundleVersion === bundleVersion
 );
 if (existingIdx !== -1) {
   console.warn('[WARN] bundleVersion "' + bundleVersion + '" đã tồn tại tại index ' + existingIdx + ', sẽ ghi đè.');
@@ -109,15 +112,8 @@ if (existingIdx !== -1) {
 // ─── Unshift (newest first) ───────────────────────────────────
 manifest.bundles.unshift(newEntry);
 
-// ─── Ghi lại file ────────────────────────────────────────────
-// Giữ nguyên format array nếu file ban đầu là array
-const outputData = Array.isArray(JSON.parse(
-  fs.existsSync(MANIFEST_PATH + '.bak') ? '[]' : '[]'
-))
-  ? manifest.bundles  // luôn ghi ra array để tương thích với server/
-  : manifest.bundles;
-
-fs.writeFileSync(MANIFEST_PATH, JSON.stringify(outputData, null, 2) + '\n', 'utf8');
+// ─── Ghi ra array format (tương thích với server/) ───────────────
+fs.writeFileSync(MANIFEST_PATH, JSON.stringify(manifest.bundles, null, 2) + '\n', 'utf8');
 
 // ─── Log kết quả ─────────────────────────────────────────────
 console.log('\n[SUCCESS] Đã thêm entry vào bundle-manifest.json:');

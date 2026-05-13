@@ -4,7 +4,7 @@
 #
 # Secret cần cấu hình duy nhất:
 #   BUNDLE_SIGNING_KEY — Nội dung private_key.pem (RSA 4096-bit)
-#                         Settings → Secrets and variables → Actions
+#                       Settings → Secrets and variables → Actions
 #
 # Artifacts được publish lên GitHub Releases với tag:
 #   bundle-<bundleVersion>  (VD: bundle-0.1.0-b1)
@@ -27,7 +27,7 @@ concurrency:
   cancel-in-progress: true
 
 # Cấp quyền tối thiểu cho GITHUB_TOKEN
-# contents: write — cần để tạo Release và upload artifact
+# contents: write — cần để tạo Release, upload artifact và push manifest
 permissions:
   contents: write
 
@@ -77,14 +77,17 @@ jobs:
         run: bash scripts/build-bundle.sh
 
       # ----------------------------------------------------------
-      # Step 6: Đọc bundleVersion → $GITHUB_ENV để dùng ở các step sau
+      # Step 6: Đọc bundleVersion → $GITHUB_ENV
+      # Dùng node -p với fs.readFileSync thay vì require()
+      # vì package.json có "type":"module" (ESM)
       # ----------------------------------------------------------
       - name: Read bundle version
         run: |
           BUNDLE_VERSION=$(node -e "
-            const v = require('./version.config.json');
+            import fs from 'fs';
+            const v = JSON.parse(fs.readFileSync('./version.config.json', 'utf8'));
             process.stdout.write(v.bundleVersion);
-          ")
+          " --input-type=module)
           echo "BUNDLE_VERSION=${BUNDLE_VERSION}" >> "$GITHUB_ENV"
           echo ">> bundleVersion = ${BUNDLE_VERSION}"
 
@@ -103,12 +106,12 @@ jobs:
       # ----------------------------------------------------------
       # Step 8: Tạo GitHub Release và đính kèm 3 artifacts
       #
-      # Tag format : bundle-<bundleVersion>  (VD: bundle-0.1.0-b1)
+      # Tag format  : bundle-<bundleVersion> (VD: bundle-0.1.0-b1)
       # Nếu tag đã tồn tại (push lại cùng version) — release sẽ được
       # cập nhật (update_existing_release: true)
       #
       # Download URL sau khi release:
-      # https://github.com/huyphamngoc98nb/TaiXiuCaNhan/releases/download
+      #   https://github.com/huyphamngoc98nb/TaiXiuCaNhan/releases/download
       #   /bundle-<ver>/<ver>.zip
       # ----------------------------------------------------------
       - name: Create GitHub Release
@@ -118,18 +121,15 @@ jobs:
           name: "OTA Bundle ${{ env.BUNDLE_VERSION }}"
           body: |
             ## OTA Bundle `${{ env.BUNDLE_VERSION }}`
-
             **Commit**: ${{ github.sha }}
             **Branch**: ${{ github.ref_name }}
             **Build time**: ${{ github.event.head_commit.timestamp }}
-
             ### Artifacts
             | File | Mô tả |
             |------|-------|
             | `${{ env.BUNDLE_VERSION }}.zip` | Web bundle (giải nén vào app) |
             | `${{ env.BUNDLE_VERSION }}.zip.sha256` | SHA-256 checksum |
             | `${{ env.BUNDLE_VERSION }}.zip.sig` | Chữ ký RSA-SHA256 |
-
             ### Verify chữ ký
             ```bash
             openssl dgst -sha256 -verify public_key.pem \
@@ -158,6 +158,48 @@ jobs:
           echo "  sigUrl : ${BASE}/${{ env.BUNDLE_VERSION }}.zip.sig"
           echo "  sha256 : $(cat artifacts/${{ env.BUNDLE_VERSION }}.zip.sha256)"
           echo "============================================================"
+
+      # ----------------------------------------------------------
+      # Step A: Đọc checksum vào $GITHUB_ENV
+      # BUNDLE_VERSION đã có sẵn từ Step 6, chỉ cần set thêm CHECKSUM
+      # ----------------------------------------------------------
+      - name: Read checksum into env
+        run: |
+          CHECKSUM=$(cat "artifacts/${{ env.BUNDLE_VERSION }}.zip.sha256")
+          echo "CHECKSUM=${CHECKSUM}" >> "$GITHUB_ENV"
+          echo ">> checksum = ${CHECKSUM}"
+
+      # ----------------------------------------------------------
+      # Step B: Chạy update-manifest.js cập nhật bundle-manifest.json
+      # CDN_BASE_URL = GitHub Releases base download URL của repo
+      # Format: .../releases/download/bundle-<ver> (update-manifest.js
+      # sẽ tự nối thêm /<ver>.zip)
+      # ----------------------------------------------------------
+      - name: Update bundle manifest
+        env:
+          CDN_BASE_URL: "https://github.com/huyphamngoc98nb/TaiXiuCaNhan/releases/download/bundle-${{ env.BUNDLE_VERSION }}"
+        run: |
+          node scripts/update-manifest.js \
+            --version "${{ env.BUNDLE_VERSION }}" \
+            --checksum "${{ env.CHECKSUM }}"
+
+      # ----------------------------------------------------------
+      # Step C: Git commit và push bundle-manifest.json
+      # Dùng GITHUB_TOKEN mặc định (permissions: contents: write đã khai báo)
+      # Guard: chỉ commit nếu có thay đổi thực sự — tránh lỗi commit rỗng
+      # ----------------------------------------------------------
+      - name: Commit and push bundle manifest
+        run: |
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+          git add server/data/bundle-manifest.json
+          if git diff --cached --quiet; then
+            echo ">> bundle-manifest.json không thay đổi, bỏ qua commit."
+          else
+            git commit -m "ci: update bundle manifest to ${{ env.BUNDLE_VERSION }}"
+            git push
+            echo ">> Đã push bundle-manifest.json lên main."
+          fi
 
       # ----------------------------------------------------------
       # Step 10: Xóa private key — luôn chạy kể cả khi fail
