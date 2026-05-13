@@ -1,6 +1,8 @@
 import { App } from '@capacitor/app';
 import { getDbConnection } from '@/core/db/sqlite/connection';
 import { logger } from '@/core/telemetry/logger';
+import { applyBundleUpdate, runHealthcheck } from './bundleUpdateService';
+import { markCurrentAsGood, rollback } from './rollbackService';
 import versionConfig from '../../version.config.json';
 
 const LAST_CHECK_KEY = 'lastCheckAt';
@@ -25,6 +27,13 @@ interface BundleCheckResponse {
   update: unknown | null;
 }
 
+interface BundleUpdatePayload {
+  bundleVersion: string;
+  zipUrl: string;
+  sha256: string;
+  sigBase64: string;
+}
+
 interface ConfigRow {
   value?: unknown;
 }
@@ -39,6 +48,20 @@ function isBundleCheckResponse(value: unknown): value is BundleCheckResponse {
     typeof response.hasUpdate === 'boolean' &&
     'nativeRequired' in response &&
     'update' in response
+  );
+}
+
+function isBundleUpdatePayload(value: unknown): value is BundleUpdatePayload {
+  if (!value || typeof value !== 'object') {
+    return false;
+  }
+
+  const update = value as Record<string, unknown>;
+  return (
+    typeof update.bundleVersion === 'string' &&
+    typeof update.zipUrl === 'string' &&
+    typeof update.sha256 === 'string' &&
+    typeof update.sigBase64 === 'string'
   );
 }
 
@@ -80,6 +103,24 @@ function toApiError(startMs: number, bundleVersion?: string): UpdateResult {
   const result: UpdateResult = { strategy: 'none', status: 'api_error' };
   logResult(result, Date.now() - startMs, bundleVersion);
   return result;
+}
+
+async function applyBundleIfPayloadReady(data: BundleCheckResponse): Promise<void> {
+  if (!isBundleUpdatePayload(data.update)) {
+    return;
+  }
+
+  const applyResult = await applyBundleUpdate(data.update);
+  if (!applyResult.success) {
+    return;
+  }
+
+  const health = await runHealthcheck();
+  if (health === 'pass') {
+    await markCurrentAsGood();
+  } else {
+    await rollback();
+  }
 }
 
 /**
@@ -124,6 +165,7 @@ async function checkAndUpdate(): Promise<UpdateResult> {
       result = { strategy: 'A', status: 'native_required', data };
     } else if (data.hasUpdate) {
       result = { strategy: 'B', status: 'bundle_available', data };
+      await applyBundleIfPayloadReady(data);
     } else {
       result = { strategy: 'none', status: 'up_to_date' };
     }

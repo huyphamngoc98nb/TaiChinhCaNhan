@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import updatesRouter from './routes/updates';
+import apkUpdateRouter from './routes/apkUpdate';
 
 const app  = express();
 const PORT = Number(process.env.PORT ?? 3001);
@@ -22,6 +23,7 @@ app.use((req, _res, next) => {
 
 // ── Routes ──────────────────────────────────────────────────────────────────
 app.use('/api', updatesRouter);
+app.use('/api/updates/apk', apkUpdateRouter);
 
 // ── 404 fallback ────────────────────────────────────────────────────────────
 app.use((_req, res) => {

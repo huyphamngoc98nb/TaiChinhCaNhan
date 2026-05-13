@@ -52,7 +52,7 @@ const BETA_BUNDLE: BundleManifest = {
 /** Set manifest trả về từ fs.readFileSync */
 function mockManifest(entries: BundleManifest[]) {
   vi.mocked(fs.existsSync).mockReturnValue(true);
-  vi.mocked(fs.readFileSync).mockReturnValue(JSON.stringify(entries) as unknown as Buffer);
+  vi.mocked(fs.readFileSync).mockReturnValue(JSON.stringify(entries));
 }
 
 // ── Tests ───────────────────────────────────────────────────────────────────

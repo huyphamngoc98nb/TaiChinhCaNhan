@@ -1,0 +1,12 @@
+{
+  "latest": {
+    "versionCode": 200,
+    "versionName": "0.2.0",
+    "apkUrl": "https://cdn.example.com/apk/0.2.0.apk",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "fileSize": 15728640,
+    "releaseNotes": "Thêm Bluetooth plugin",
+    "mandatory": true,
+    "minSupportedVersionCode": 100
+  }
+}
