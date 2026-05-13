@@ -211,3 +211,107 @@ jobs:
         run: |
           rm -f private_key.pem
           echo ">> private_key.pem đã được xóa"
+
+  # ============================================================
+  # Job Android: Build + Unit test dưới JDK 17
+  # Chạy song song với build-and-release, không phụ thuộc nhau
+  # Gradle 8.10.2 (wrapper hiện tại) tương thích JDK 17 ✅
+  # build.gradle đã khai báo JavaVersion.VERSION_17 ✅
+  # ============================================================
+  android-build:
+    name: Android → JDK 17 → Build + Test
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      # ----------------------------------------------------------
+      # Step 1: Checkout
+      # ----------------------------------------------------------
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # ----------------------------------------------------------
+      # Step 2: Setup JDK 17 (Temurin — OpenJDK phổ biến nhất cho Android CI)
+      # Đây là bước bắt buộc:
+      # Android Gradle Plugin yêu cầu Java 17 để chạy.
+      # ----------------------------------------------------------
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      # ----------------------------------------------------------
+      # Step 3: Setup Node.js 20 — cần để vite build (capacitor sync)
+      # và để đọc version.config.json trong build.gradle
+      # ----------------------------------------------------------
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      # ----------------------------------------------------------
+      # Step 4: Cài npm dependencies
+      # ----------------------------------------------------------
+      - name: Install npm dependencies
+        run: npm ci
+
+      # ----------------------------------------------------------
+      # Step 5: Verify Java và Gradle đúng version
+      # ----------------------------------------------------------
+      - name: Verify Java & Gradle versions
+        run: |
+          echo "=== Java version ==="
+          java -version
+          echo ""
+          echo "=== Gradle version ==="
+          cd android
+          ./gradlew -version
+
+      # ----------------------------------------------------------
+      # Step 6: Cấp quyền thực thi cho gradlew (cần thiết trên Linux)
+      # ----------------------------------------------------------
+      - name: Make gradlew executable
+        run: chmod +x android/gradlew
+
+      # ----------------------------------------------------------
+      # Step 7: Cache Gradle để tăng tốc build lần sau
+      # ----------------------------------------------------------
+      - name: Cache Gradle packages
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: gradle-${{ runner.os }}-${{ hashFiles('android/**/*.gradle*', 'android/gradle/wrapper/gradle-wrapper.properties') }}
+          restore-keys: |
+            gradle-${{ runner.os }}-
+
+      # ----------------------------------------------------------
+      # Step 8: Run Android unit tests
+      # (Unit tests — không cần emulator)
+      # ----------------------------------------------------------
+      - name: Run Android unit tests
+        run: |
+          cd android
+          ./gradlew test --no-daemon
+
+      # ----------------------------------------------------------
+      # Step 9: Build debug APK
+      # ----------------------------------------------------------
+      - name: Build debug APK
+        run: |
+          cd android
+          ./gradlew assembleDebug --no-daemon
+
+      # ----------------------------------------------------------
+      # Step 10: Upload APK artifact
+      # ----------------------------------------------------------
+      - name: Upload debug APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: debug-apk-${{ github.sha }}
+          path: android/app/build/outputs/apk/debug/app-debug.apk
+          retention-days: 7
+          if-no-files-found: warn
