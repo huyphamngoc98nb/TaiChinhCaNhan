@@ -8,8 +8,6 @@
 #
 # Artifacts được publish lên GitHub Releases với tag:
 #   bundle-<bundleVersion>  (VD: bundle-0.1.0-b1)
-# Public download URL (dùng trong bundle-manifest.json):
-#   https://github.com/<owner>/<repo>/releases/download/bundle-<ver>/<ver>.zip
 # =============================================================
 name: Build OTA Bundle
 
@@ -17,21 +15,20 @@ on:
   push:
     branches:
       - main
-  # Chạy thủ công từ GitHub UI nếu cần
   workflow_dispatch:
 
-# Chỉ cho phép 1 workflow chạy cùng lúc trên main
-# Workflow cũ hơn sẽ bị hủy thay vì chờ
 concurrency:
   group: build-bundle-${{ github.ref }}
   cancel-in-progress: true
 
-# Cấp quyền tối thiểu cho GITHUB_TOKEN
-# contents: write — cần để tạo Release, upload artifact và push manifest
 permissions:
   contents: write
 
 jobs:
+  # ============================================================
+  # Job 1: Build web bundle → ký số → GitHub Release
+  # Yêu cầu secret: BUNDLE_SIGNING_KEY
+  # ============================================================
   build-and-release:
     name: Build → Sign → GitHub Release
     runs-on: ubuntu-latest
@@ -94,7 +91,7 @@ jobs:
             ### Artifacts
             | File | Mô tả |
             |------|-------|
-            | `${{ env.BUNDLE_VERSION }}.zip` | Web bundle (giải nén vào app) |
+            | `${{ env.BUNDLE_VERSION }}.zip` | Web bundle |
             | `${{ env.BUNDLE_VERSION }}.zip.sha256` | SHA-256 checksum |
             | `${{ env.BUNDLE_VERSION }}.zip.sig` | Chữ ký RSA-SHA256 |
             ### Verify chữ ký
@@ -113,13 +110,10 @@ jobs:
       - name: Print download URLs
         run: |
           BASE="https://github.com/huyphamngoc98nb/TaiXiuCaNhan/releases/download/bundle-${{ env.BUNDLE_VERSION }}"
-          echo "============================================================"
-          echo " RELEASE URLs (dùng trong bundle-manifest.json)"
-          echo "============================================================"
+          echo "=== RELEASE URLs ==="
           echo "  url    : ${BASE}/${{ env.BUNDLE_VERSION }}.zip"
           echo "  sigUrl : ${BASE}/${{ env.BUNDLE_VERSION }}.zip.sig"
           echo "  sha256 : $(cat artifacts/${{ env.BUNDLE_VERSION }}.zip.sha256)"
-          echo "============================================================"
 
       - name: Read checksum into env
         run: |
@@ -140,7 +134,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git add server/data/bundle-manifest.json
           if git diff --cached --quiet; then
-            echo ">> bundle-manifest.json không thay đổi, bỏ qua commit."
+            echo ">> Không có thay đổi, bỏ qua commit."
           else
             git commit -m "ci: update bundle manifest to ${{ env.BUNDLE_VERSION }}"
             git push
@@ -151,9 +145,9 @@ jobs:
         run: rm -f private_key.pem
 
   # ============================================================
-  # Job Android: Build + Unit test dưới JDK 17
-  # Gradle 8.10.2 tương thích JDK 17 ✅
-  # build.gradle khai báo JavaVersion.VERSION_17 ✅
+  # Job 2: Android build + unit test dưới JDK 17
+  # Không cần BUNDLE_SIGNING_KEY
+  # Gradle 8.10.2 + JavaVersion.VERSION_17 trong build.gradle ✅
   # ============================================================
   android-build:
     name: Android → JDK 17 → Build + Test
@@ -164,13 +158,14 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # JDK 17 bắt buộc — Android Gradle Plugin yêu cầu Java 17
+      # Bắc buộc: AGP yêu cầu Java 17
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '17'
 
+      # Cần cho build.gradle đọc version.config.json qua JsonSlurper
       - name: Setup Node.js 20
         uses: actions/setup-node@v4
         with:
@@ -181,14 +176,13 @@ jobs:
         run: npm ci
 
       # --------------------------------------------------------
-      # QUAN TRỌNG: chmod +x phải đứng TRƯỜC mọi lệnh ./gradlew
-      # Linux runner không giữ file permission từ git checkout
-      # Nếu để sau sẽ gây: Permission denied (exit code 126)
+      # QUAN TRỌNG: chmod +x trước bất kỳ lệnh ./gradlew nào
+      # Linux runner không giữ execute bit từ git → exit code 126
       # --------------------------------------------------------
       - name: Make gradlew executable
         run: chmod +x android/gradlew
 
-      # Cache Gradle — đặt sau chmod, trước khi Gradle chạy lần đầu
+      # Cache trước khi Gradle chạy lần đầu → tiết kiệm thời gian download
       - name: Cache Gradle packages
         uses: actions/cache@v4
         with:
@@ -199,7 +193,7 @@ jobs:
           restore-keys: |
             gradle-${{ runner.os }}-
 
-      # Verify sau chmod — lúc này ./gradlew mới có quyền chạy
+      # Verify: java -version và ./gradlew -version phải ra 17
       - name: Verify Java & Gradle versions
         run: |
           echo "=== Java version ==="
@@ -208,11 +202,32 @@ jobs:
           echo "=== Gradle version ==="
           cd android && ./gradlew -version
 
+      # --------------------------------------------------------
+      # Clean trước khi test/build:
+      # - Loại bỏ Gradle cache bị hỏng giữa các run
+      # - Giúp expose lỗi thực sự thay vì lỗi do stale artifacts
+      # --------------------------------------------------------
+      - name: Clean Gradle build
+        run: cd android && ./gradlew clean --no-daemon
+
+      # --stacktrace --info để lấy full error output khi có lỗi
       - name: Run Android unit tests
-        run: cd android && ./gradlew test --no-daemon
+        run: cd android && ./gradlew test --no-daemon --stacktrace --info
 
       - name: Build debug APK
-        run: cd android && ./gradlew assembleDebug --no-daemon
+        run: cd android && ./gradlew assembleDebug --no-daemon --stacktrace
+
+      # Upload build reports kể cả khi fail — để debug lỗi dễ hơn
+      - name: Upload Gradle build reports (on failure)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gradle-reports-${{ github.sha }}
+          path: |
+            android/app/build/reports/
+            android/**/build/reports/
+          retention-days: 7
+          if-no-files-found: ignore
 
       - name: Upload debug APK
         uses: actions/upload-artifact@v4
