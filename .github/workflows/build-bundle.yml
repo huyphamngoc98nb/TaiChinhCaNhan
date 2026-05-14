@@ -6,6 +6,7 @@
 #   BUNDLE_SIGNING_KEY — Nội dung private_key.pem (RSA 4096-bit)
 #                       Settings → Secrets and variables → Actions
 #
+# Node.js 22 bắt buộc: @capacitor/cli ^8.x yêu cầu Node >= 22
 # Artifacts được publish lên GitHub Releases với tag:
 #   bundle-<bundleVersion>  (VD: bundle-0.1.0-b1)
 # =============================================================
@@ -28,6 +29,7 @@ jobs:
   # ============================================================
   # Job 1: Build web bundle → ký số → GitHub Release
   # Yêu cầu secret: BUNDLE_SIGNING_KEY
+  # Node 22 bắt buộc: Capacitor CLI v8 yêu cầu Node >= 22
   # ============================================================
   build-and-release:
     name: Build → Sign → GitHub Release
@@ -41,10 +43,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup Node.js 20
+      # Node 22 LTS — bắt buộc cho @capacitor/cli ^8.x
+      - name: Setup Node.js 22
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
           cache: 'npm'
 
       - name: Install dependencies
@@ -148,15 +151,18 @@ jobs:
   # Job 2: Android build + unit test dưới JDK 17
   # Không cần BUNDLE_SIGNING_KEY
   #
+  # Node 22 bắt buộc: `npx cap sync android` dùng Capacitor CLI v8
+  #   @capacitor/cli ^8.3.1 yêu cầu Node >= 22
+  #   Dùng Node 20 → [fatal] The Capacitor CLI requires NodeJS >=22.0.0
+  #
   # Tại sao cần `npx cap sync android`:
   #   Capacitor generate các module local khi sync:
-  #     - android/capacitor-android/          (module :capacitor-android)
-  #     - android/capacitor-cordova-android-plugins/  (module :capacitor-cordova-android-plugins)
-  #     - android/app/src/main/assets/public/ (web assets)
-  #   Nếu không sync, Gradle báo "Project ':capacitor-android' not found"
+  #     - android/capacitor-android/                   (:capacitor-android)
+  #     - android/capacitor-cordova-android-plugins/   (:capacitor-cordova-android-plugins)
+  #     - android/app/src/main/assets/public/          (web assets)
+  #   Nếu không sync → Gradle: "Project ':capacitor-android' not found"
   #
-  # flatDir WARNING là bình thường, do Capacitor tự thêm vào —
-  # không phải nguyên nhân gây lỗi build.
+  # flatDir WARNING là bình thường — do Capacitor tự thêm, không sửa.
   # ============================================================
   android-build:
     name: Android → JDK 17 → Build + Test
@@ -167,17 +173,18 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # Bắc buộc: AGP yêu cầu Java 17
+      # Bắt buộc: AGP yêu cầu Java 17
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '17'
 
-      - name: Setup Node.js 20
+      # Node 22 LTS — bắt buộc cho @capacitor/cli ^8.x (cap sync)
+      - name: Setup Node.js 22
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
           cache: 'npm'
 
       # Bước 1: cài npm trước — cap sync cần node_modules
@@ -188,8 +195,7 @@ jobs:
       # Bước 2: Capacitor sync — QUAN TRỌNG
       # Generate android/capacitor-android/ và
       # android/capacitor-cordova-android-plugins/
-      # Nếu bỏ bước này: Gradle fail với
-      #   "Project ':capacitor-android' not found"
+      # Cần Node 22: Capacitor CLI v8 yêu cầu Node >= 22
       # --------------------------------------------------------
       - name: Capacitor sync Android
         run: npx cap sync android
