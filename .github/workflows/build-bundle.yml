@@ -147,7 +147,16 @@ jobs:
   # ============================================================
   # Job 2: Android build + unit test dưới JDK 17
   # Không cần BUNDLE_SIGNING_KEY
-  # Gradle 8.10.2 + JavaVersion.VERSION_17 trong build.gradle ✅
+  #
+  # Tại sao cần `npx cap sync android`:
+  #   Capacitor generate các module local khi sync:
+  #     - android/capacitor-android/          (module :capacitor-android)
+  #     - android/capacitor-cordova-android-plugins/  (module :capacitor-cordova-android-plugins)
+  #     - android/app/src/main/assets/public/ (web assets)
+  #   Nếu không sync, Gradle báo "Project ':capacitor-android' not found"
+  #
+  # flatDir WARNING là bình thường, do Capacitor tự thêm vào —
+  # không phải nguyên nhân gây lỗi build.
   # ============================================================
   android-build:
     name: Android → JDK 17 → Build + Test
@@ -165,24 +174,34 @@ jobs:
           distribution: temurin
           java-version: '17'
 
-      # Cần cho build.gradle đọc version.config.json qua JsonSlurper
       - name: Setup Node.js 20
         uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'npm'
 
+      # Bước 1: cài npm trước — cap sync cần node_modules
       - name: Install npm dependencies
         run: npm ci
 
       # --------------------------------------------------------
-      # QUAN TRỌNG: chmod +x trước bất kỳ lệnh ./gradlew nào
+      # Bước 2: Capacitor sync — QUAN TRỌNG
+      # Generate android/capacitor-android/ và
+      # android/capacitor-cordova-android-plugins/
+      # Nếu bỏ bước này: Gradle fail với
+      #   "Project ':capacitor-android' not found"
+      # --------------------------------------------------------
+      - name: Capacitor sync Android
+        run: npx cap sync android
+
+      # --------------------------------------------------------
+      # Bước 3: chmod +x trước bất kỳ lệnh ./gradlew nào
       # Linux runner không giữ execute bit từ git → exit code 126
       # --------------------------------------------------------
       - name: Make gradlew executable
         run: chmod +x android/gradlew
 
-      # Cache trước khi Gradle chạy lần đầu → tiết kiệm thời gian download
+      # Cache sau chmod, trước khi Gradle chạy lần đầu
       - name: Cache Gradle packages
         uses: actions/cache@v4
         with:
@@ -193,7 +212,7 @@ jobs:
           restore-keys: |
             gradle-${{ runner.os }}-
 
-      # Verify: java -version và ./gradlew -version phải ra 17
+      # Verify: phải ra openjdk 17 và Gradle 8.10.2, JVM: 17.x
       - name: Verify Java & Gradle versions
         run: |
           echo "=== Java version ==="
@@ -202,11 +221,7 @@ jobs:
           echo "=== Gradle version ==="
           cd android && ./gradlew -version
 
-      # --------------------------------------------------------
-      # Clean trước khi test/build:
-      # - Loại bỏ Gradle cache bị hỏng giữa các run
-      # - Giúp expose lỗi thực sự thay vì lỗi do stale artifacts
-      # --------------------------------------------------------
+      # Clean — loại bỏ stale artifacts giữa các run
       - name: Clean Gradle build
         run: cd android && ./gradlew clean --no-daemon
 
@@ -217,7 +232,7 @@ jobs:
       - name: Build debug APK
         run: cd android && ./gradlew assembleDebug --no-daemon --stacktrace
 
-      # Upload build reports kể cả khi fail — để debug lỗi dễ hơn
+      # Upload build reports khi fail — để debug lỗi dễ hơn
       - name: Upload Gradle build reports (on failure)
         if: failure()
         uses: actions/upload-artifact@v4
