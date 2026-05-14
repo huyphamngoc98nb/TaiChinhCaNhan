@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '@/shared/constants/routes';
 import { DatabaseDiagnostics } from '../components/DatabaseDiagnostics';
+import { CheckUpdateButton } from '../components/CheckUpdateButton';
 import { LanguageSettings } from '../components/LanguageSettings';
 import { CurrencySettings } from '../components/CurrencySettings';
 import { useLanguage } from '@/shared/context/LanguageContext';
@@ -106,6 +107,13 @@ export function SettingsPage() {
               <ChevronRight size={18} className="text-gray-300 shrink-0" />
             </button>
           ))}
+        </div>
+
+        <div className="bg-white rounded-[16px] overflow-hidden"
+          style={{ boxShadow: '0 1px 4px rgba(0,0,0,0.07)' }}>
+          <div className="px-4 py-3">
+            <CheckUpdateButton />
+          </div>
         </div>
 
         {/* DB Diagnostics */}

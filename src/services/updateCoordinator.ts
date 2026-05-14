@@ -19,7 +19,7 @@ export interface UpdateResult {
 }
 
 export interface UpdateCoordinator {
-  checkAndUpdate(): Promise<UpdateResult>;
+  checkAndUpdate(options?: { forceCheck?: boolean }): Promise<UpdateResult>;
 }
 
 interface BundleCheckResponse {
@@ -157,17 +157,19 @@ function startNativeUpdateIfPayloadReady(data: BundleCheckResponse): void {
  * Checks the OTA Bundle API once per 24 hours, stores the successful check time,
  * and returns the next update strategy for native or bundle update flows.
  */
-async function checkAndUpdate(): Promise<UpdateResult> {
+async function checkAndUpdate(options?: { forceCheck?: boolean }): Promise<UpdateResult> {
   const startMs = Date.now();
   const now = startMs;
   const bundleVersion = versionConfig.bundleVersion;
 
   try {
-    const lastCheckAt = Number(await getConfig(LAST_CHECK_KEY));
-    if (Number.isFinite(lastCheckAt) && now - lastCheckAt < UPDATE_CHECK_THROTTLE_MS) {
-      const result: UpdateResult = { strategy: 'none', status: 'throttled' };
-      logResult(result, Date.now() - startMs, bundleVersion);
-      return result;
+    if (!options?.forceCheck) {
+      const lastCheckAt = Number(await getConfig(LAST_CHECK_KEY));
+      if (Number.isFinite(lastCheckAt) && now - lastCheckAt < UPDATE_CHECK_THROTTLE_MS) {
+        const result: UpdateResult = { strategy: 'none', status: 'throttled' };
+        logResult(result, Date.now() - startMs, bundleVersion);
+        return result;
+      }
     }
 
     const appInfo = await App.getInfo();
