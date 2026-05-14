@@ -4,6 +4,8 @@ import { useConfirm } from '@/shared/components/ConfirmDialog/ConfirmContext';
 import { CategoryBudget, BudgetPeriod, AccountType } from '../domain/budget.model';
 import { BudgetScopePicker } from './BudgetScopePicker';
 import type { BudgetScopeType } from '../hooks/useBudgetForm';
+import { CurrencyAmountInput } from '@/shared/components/CurrencyAmountInput';
+import { useCurrency } from '@/shared/context/CurrencyContext';
 
 interface Props {
   category: CategoryBudget;
@@ -40,6 +42,7 @@ export function BudgetEditForm({
 }: Props) {
   const { t } = useLanguage();
   const { confirm } = useConfirm();
+  const { currency } = useCurrency();
 
   return (
     <div className="flex flex-col h-full">
@@ -105,22 +108,13 @@ export function BudgetEditForm({
         {/* Amount Input */}
         <div className="space-y-1.5">
           <p className="text-[13px] font-semibold text-gray-700">{t('budgets.amount')}</p>
-          <div
-            className={`flex items-center h-[56px] bg-gray-50 border rounded-[14px] px-4 transition-colors focus-within:border-indigo-400 ${
-              error ? 'border-red-300' : 'border-gray-200'
-            }`}
-          >
-            <span className="text-[14px] font-semibold text-gray-400 mr-2">VND</span>
-            <input
-              type="number"
-              inputMode="numeric"
-              value={amount}
-              onChange={e => setAmount(e.target.value)}
-              className="flex-1 bg-transparent text-[26px] font-bold text-gray-900 outline-none tabular-nums"
-              placeholder="0"
-              autoFocus
-            />
-          </div>
+          <CurrencyAmountInput
+            currency={currency}
+            value={amount}
+            onValueChange={setAmount}
+            className={error ? 'border-red-300' : 'border-gray-200'}
+            autoFocus
+          />
           {!error && (
             <p className="text-[12px] text-gray-400 ml-1 italic">
               {period === 'monthly'

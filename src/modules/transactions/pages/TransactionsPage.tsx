@@ -4,6 +4,7 @@ import { useTransactions } from '../hooks/useTransactions';
 import { TransactionList } from '../components/TransactionList';
 import { useConfirm } from '@/shared/components/ConfirmDialog/ConfirmContext';
 import { useLanguage } from '@/shared/context/LanguageContext';
+import { DropdownList } from '@/shared/components/DropdownList';
 
 export type ViewType = 'day' | 'month' | 'year';
 
@@ -57,22 +58,18 @@ export function TransactionsPage() {
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '24px' }}>
         <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '4px' }}>
-          <select
+          <DropdownList
             value={filter.type || ''}
-            onChange={e => setFilter({ ...filter, type: e.target.value as any || undefined })}
-            style={{
-              padding: '10px 14px',
-              borderRadius: '10px',
-              border: '1px solid var(--border)',
-              background: 'var(--surface)',
-              fontSize: '0.9rem',
-              color: 'var(--text)',
-            }}
-          >
-            <option value="">{t('transactions.all_types')}</option>
-            <option value="expense">{t('transactions.filter_expenses')}</option>
-            <option value="income">{t('transactions.filter_income')}</option>
-          </select>
+            onChange={value => setFilter({ ...filter, type: value as any || undefined })}
+            ariaLabel={t('transactions.all_types')}
+            className="min-w-[142px]"
+            buttonClassName="bg-white"
+            options={[
+              { value: '', label: t('transactions.all_types') },
+              { value: 'expense', label: t('transactions.filter_expenses') },
+              { value: 'income', label: t('transactions.filter_income') },
+            ]}
+          />
 
           <div style={{
             display: 'flex',

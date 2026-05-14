@@ -29,8 +29,9 @@ describe('Reports UI - DateRangePicker', () => {
       />
     );
 
-    const presetSelect = await screen.findByLabelText(/Time Period/i);
-    fireEvent.change(presetSelect, { target: { value: 'last_30_days' } });
+    const presetDropdown = await screen.findByLabelText(/Time Period/i);
+    fireEvent.click(presetDropdown);
+    fireEvent.click(await screen.findByRole('option', { name: /Last 30 days/i }));
 
     expect(onPresetChange).toHaveBeenCalledWith('last_30_days');
   });
@@ -48,8 +49,9 @@ describe('Reports UI - DateRangePicker', () => {
       />
     );
 
-    const granularitySelect = await screen.findByLabelText(/Group By/i);
-    fireEvent.change(granularitySelect, { target: { value: 'week' } });
+    const granularityDropdown = await screen.findByLabelText(/Group By/i);
+    fireEvent.click(granularityDropdown);
+    fireEvent.click(await screen.findByRole('option', { name: /Week/i }));
 
     expect(onGranularityChange).toHaveBeenCalledWith('week');
   });
