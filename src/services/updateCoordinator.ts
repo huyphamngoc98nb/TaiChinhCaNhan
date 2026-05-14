@@ -1,6 +1,7 @@
 import { App } from '@capacitor/app';
 import { getDbConnection } from '@/core/db/sqlite/connection';
 import { logger } from '@/core/telemetry/logger';
+import { startApkDownload } from './apkDownloadService';
 import { applyBundleUpdate, runHealthcheck } from './bundleUpdateService';
 import { markCurrentAsGood, rollback } from './rollbackService';
 import versionConfig from '../../version.config.json';
@@ -34,6 +35,11 @@ interface BundleUpdatePayload {
   sigBase64: string;
 }
 
+interface NativeRequiredPayload {
+  downloadUrl: string;
+  mandatory: boolean;
+}
+
 interface ConfigRow {
   value?: unknown;
 }
@@ -63,6 +69,15 @@ function isBundleUpdatePayload(value: unknown): value is BundleUpdatePayload {
     typeof update.sha256 === 'string' &&
     typeof update.sigBase64 === 'string'
   );
+}
+
+function isNativeRequiredPayload(value: unknown): value is NativeRequiredPayload {
+  if (!value || typeof value !== 'object') {
+    return false;
+  }
+
+  const update = value as Record<string, unknown>;
+  return typeof update.downloadUrl === 'string' && typeof update.mandatory === 'boolean';
 }
 
 async function ensureAppConfigTable(): Promise<void> {
@@ -123,6 +138,21 @@ async function applyBundleIfPayloadReady(data: BundleCheckResponse): Promise<voi
   }
 }
 
+function startNativeUpdateIfPayloadReady(data: BundleCheckResponse): void {
+  if (!isNativeRequiredPayload(data.nativeRequired)) {
+    return;
+  }
+
+  void startApkDownload({
+    apkUrl: data.nativeRequired.downloadUrl,
+    mandatory: data.nativeRequired.mandatory,
+  }).catch(error => {
+    logger.warn(
+      `[UpdateCoordinator] native APK download did not complete: ${error instanceof Error ? error.message : 'unknown error'}`,
+    );
+  });
+}
+
 /**
  * Checks the OTA Bundle API once per 24 hours, stores the successful check time,
  * and returns the next update strategy for native or bundle update flows.
@@ -163,6 +193,7 @@ async function checkAndUpdate(): Promise<UpdateResult> {
     let result: UpdateResult;
     if (data.nativeRequired !== null) {
       result = { strategy: 'A', status: 'native_required', data };
+      startNativeUpdateIfPayloadReady(data);
     } else if (data.hasUpdate) {
       result = { strategy: 'B', status: 'bundle_available', data };
       await applyBundleIfPayloadReady(data);
