@@ -41,31 +41,18 @@ jobs:
       CHECKSUM: ""
 
     steps:
-      # ----------------------------------------------------------
-      # Step 1: Checkout code
-      # ----------------------------------------------------------
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # ----------------------------------------------------------
-      # Step 2: Setup Node.js 20 với npm cache
-      # ----------------------------------------------------------
       - name: Setup Node.js 20
         uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'npm'
 
-      # ----------------------------------------------------------
-      # Step 3: Cài đặt dependencies
-      # ----------------------------------------------------------
       - name: Install dependencies
         run: npm ci
 
-      # ----------------------------------------------------------
-      # Step 4: Ghi BUNDLE_SIGNING_KEY ra private_key.pem
-      # Dùng printf để tránh platform-specific newline issues với PEM
-      # ----------------------------------------------------------
       - name: Write signing key
         env:
           BUNDLE_SIGNING_KEY: ${{ secrets.BUNDLE_SIGNING_KEY }}
@@ -73,17 +60,9 @@ jobs:
           printf '%s' "${BUNDLE_SIGNING_KEY}" > private_key.pem
           chmod 600 private_key.pem
 
-      # ----------------------------------------------------------
-      # Step 5: Build bundle (vite build → zip → sha256 → sign)
-      # ----------------------------------------------------------
       - name: Build OTA bundle
         run: bash scripts/build-bundle.sh
 
-      # ----------------------------------------------------------
-      # Step 6: Đọc bundleVersion → $GITHUB_ENV
-      # Dùng node -p với fs.readFileSync thay vì require()
-      # vì package.json có "type":"module" (ESM)
-      # ----------------------------------------------------------
       - name: Read bundle version
         run: |
           BUNDLE_VERSION=$(node -e "
@@ -94,10 +73,6 @@ jobs:
           echo "BUNDLE_VERSION=${BUNDLE_VERSION}" >> "$GITHUB_ENV"
           echo ">> bundleVersion = ${BUNDLE_VERSION}"
 
-      # ----------------------------------------------------------
-      # Step 7: Upload artifacts lên GitHub Actions Artifacts
-      # Dùng để debug; giữ 7 ngày
-      # ----------------------------------------------------------
       - name: Upload artifacts to GitHub Actions
         uses: actions/upload-artifact@v4
         with:
@@ -106,17 +81,6 @@ jobs:
           retention-days: 7
           if-no-files-found: error
 
-      # ----------------------------------------------------------
-      # Step 8: Tạo GitHub Release và đính kèm 3 artifacts
-      #
-      # Tag format  : bundle-<bundleVersion> (VD: bundle-0.1.0-b1)
-      # Nếu tag đã tồn tại (push lại cùng version) — release sẽ được
-      # cập nhật (update_existing_release: true)
-      #
-      # Download URL sau khi release:
-      #   https://github.com/huyphamngoc98nb/TaiXiuCaNhan/releases/download
-      #   /bundle-<ver>/<ver>.zip
-      # ----------------------------------------------------------
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
@@ -146,13 +110,9 @@ jobs:
           make_latest: true
           fail_on_unmatched_files: true
 
-      # ----------------------------------------------------------
-      # Step 9: In public URL để dễ copy vào bundle-manifest.json
-      # ----------------------------------------------------------
       - name: Print download URLs
         run: |
           BASE="https://github.com/huyphamngoc98nb/TaiXiuCaNhan/releases/download/bundle-${{ env.BUNDLE_VERSION }}"
-          echo ""
           echo "============================================================"
           echo " RELEASE URLs (dùng trong bundle-manifest.json)"
           echo "============================================================"
@@ -161,22 +121,11 @@ jobs:
           echo "  sha256 : $(cat artifacts/${{ env.BUNDLE_VERSION }}.zip.sha256)"
           echo "============================================================"
 
-      # ----------------------------------------------------------
-      # Step A: Đọc checksum vào $GITHUB_ENV
-      # BUNDLE_VERSION đã có sẵn từ Step 6, chỉ cần set thêm CHECKSUM
-      # ----------------------------------------------------------
       - name: Read checksum into env
         run: |
           CHECKSUM=$(cat "artifacts/${{ env.BUNDLE_VERSION }}.zip.sha256")
           echo "CHECKSUM=${CHECKSUM}" >> "$GITHUB_ENV"
-          echo ">> checksum = ${CHECKSUM}"
 
-      # ----------------------------------------------------------
-      # Step B: Chạy update-manifest.js cập nhật bundle-manifest.json
-      # CDN_BASE_URL = GitHub Releases base download URL của repo
-      # Format: .../releases/download/bundle-<ver> (update-manifest.js
-      # sẽ tự nối thêm /<ver>.zip)
-      # ----------------------------------------------------------
       - name: Update bundle manifest
         env:
           CDN_BASE_URL: "https://github.com/huyphamngoc98nb/TaiXiuCaNhan/releases/download/bundle-${{ env.BUNDLE_VERSION }}"
@@ -185,11 +134,6 @@ jobs:
             --version "${{ env.BUNDLE_VERSION }}" \
             --checksum "${{ env.CHECKSUM }}"
 
-      # ----------------------------------------------------------
-      # Step C: Git commit và push bundle-manifest.json
-      # Dùng GITHUB_TOKEN mặc định (permissions: contents: write đã khai báo)
-      # Guard: chỉ commit nếu có thay đổi thực sự — tránh lỗi commit rỗng
-      # ----------------------------------------------------------
       - name: Commit and push bundle manifest
         run: |
           git config user.email "github-actions[bot]@users.noreply.github.com"
@@ -200,23 +144,16 @@ jobs:
           else
             git commit -m "ci: update bundle manifest to ${{ env.BUNDLE_VERSION }}"
             git push
-            echo ">> Đã push bundle-manifest.json lên main."
           fi
 
-      # ----------------------------------------------------------
-      # Step 10: Xóa private key — luôn chạy kể cả khi fail
-      # ----------------------------------------------------------
       - name: Cleanup signing key
         if: always()
-        run: |
-          rm -f private_key.pem
-          echo ">> private_key.pem đã được xóa"
+        run: rm -f private_key.pem
 
   # ============================================================
   # Job Android: Build + Unit test dưới JDK 17
-  # Chạy song song với build-and-release, không phụ thuộc nhau
-  # Gradle 8.10.2 (wrapper hiện tại) tương thích JDK 17 ✅
-  # build.gradle đã khai báo JavaVersion.VERSION_17 ✅
+  # Gradle 8.10.2 tương thích JDK 17 ✅
+  # build.gradle khai báo JavaVersion.VERSION_17 ✅
   # ============================================================
   android-build:
     name: Android → JDK 17 → Build + Test
@@ -224,60 +161,34 @@ jobs:
     timeout-minutes: 30
 
     steps:
-      # ----------------------------------------------------------
-      # Step 1: Checkout
-      # ----------------------------------------------------------
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # ----------------------------------------------------------
-      # Step 2: Setup JDK 17 (Temurin — OpenJDK phổ biến nhất cho Android CI)
-      # Đây là bước bắt buộc:
-      # Android Gradle Plugin yêu cầu Java 17 để chạy.
-      # ----------------------------------------------------------
+      # JDK 17 bắt buộc — Android Gradle Plugin yêu cầu Java 17
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '17'
 
-      # ----------------------------------------------------------
-      # Step 3: Setup Node.js 20 — cần để vite build (capacitor sync)
-      # và để đọc version.config.json trong build.gradle
-      # ----------------------------------------------------------
       - name: Setup Node.js 20
         uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'npm'
 
-      # ----------------------------------------------------------
-      # Step 4: Cài npm dependencies
-      # ----------------------------------------------------------
       - name: Install npm dependencies
         run: npm ci
 
-      # ----------------------------------------------------------
-      # Step 5: Verify Java và Gradle đúng version
-      # ----------------------------------------------------------
-      - name: Verify Java & Gradle versions
-        run: |
-          echo "=== Java version ==="
-          java -version
-          echo ""
-          echo "=== Gradle version ==="
-          cd android
-          ./gradlew -version
-
-      # ----------------------------------------------------------
-      # Step 6: Cấp quyền thực thi cho gradlew (cần thiết trên Linux)
-      # ----------------------------------------------------------
+      # --------------------------------------------------------
+      # QUAN TRỌNG: chmod +x phải đứng TRƯỜC mọi lệnh ./gradlew
+      # Linux runner không giữ file permission từ git checkout
+      # Nếu để sau sẽ gây: Permission denied (exit code 126)
+      # --------------------------------------------------------
       - name: Make gradlew executable
         run: chmod +x android/gradlew
 
-      # ----------------------------------------------------------
-      # Step 7: Cache Gradle để tăng tốc build lần sau
-      # ----------------------------------------------------------
+      # Cache Gradle — đặt sau chmod, trước khi Gradle chạy lần đầu
       - name: Cache Gradle packages
         uses: actions/cache@v4
         with:
@@ -288,26 +199,21 @@ jobs:
           restore-keys: |
             gradle-${{ runner.os }}-
 
-      # ----------------------------------------------------------
-      # Step 8: Run Android unit tests
-      # (Unit tests — không cần emulator)
-      # ----------------------------------------------------------
+      # Verify sau chmod — lúc này ./gradlew mới có quyền chạy
+      - name: Verify Java & Gradle versions
+        run: |
+          echo "=== Java version ==="
+          java -version
+          echo ""
+          echo "=== Gradle version ==="
+          cd android && ./gradlew -version
+
       - name: Run Android unit tests
-        run: |
-          cd android
-          ./gradlew test --no-daemon
+        run: cd android && ./gradlew test --no-daemon
 
-      # ----------------------------------------------------------
-      # Step 9: Build debug APK
-      # ----------------------------------------------------------
       - name: Build debug APK
-        run: |
-          cd android
-          ./gradlew assembleDebug --no-daemon
+        run: cd android && ./gradlew assembleDebug --no-daemon
 
-      # ----------------------------------------------------------
-      # Step 10: Upload APK artifact
-      # ----------------------------------------------------------
       - name: Upload debug APK
         uses: actions/upload-artifact@v4
         with:
