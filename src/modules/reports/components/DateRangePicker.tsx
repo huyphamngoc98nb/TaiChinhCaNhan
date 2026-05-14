@@ -12,12 +12,15 @@ interface Props {
 
 export const DateRangePicker: React.FC<Props> = ({ preset, granularity, onPresetChange, onGranularityChange }) => {
   const { t } = useLanguage();
+  const presetId = React.useId();
+  const granularityId = React.useId();
 
   return (
     <div className="flex flex-col space-y-4 sm:flex-row sm:space-y-0 sm:space-x-4 mb-6 bg-white p-4 rounded-lg shadow border border-gray-100">
       <div className="flex-1">
-        <label className="block text-sm font-medium text-gray-700 mb-1">{t('reports.period_label')}</label>
+        <label htmlFor={presetId} className="block text-sm font-medium text-gray-700 mb-1">{t('reports.period_label')}</label>
         <select
+          id={presetId}
           value={preset}
           onChange={(e) => onPresetChange(e.target.value as DateRangePreset)}
           className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border"
@@ -29,8 +32,9 @@ export const DateRangePicker: React.FC<Props> = ({ preset, granularity, onPreset
         </select>
       </div>
       <div className="flex-1">
-        <label className="block text-sm font-medium text-gray-700 mb-1">{t('reports.granularity_label')}</label>
+        <label htmlFor={granularityId} className="block text-sm font-medium text-gray-700 mb-1">{t('reports.granularity_label')}</label>
         <select
+          id={granularityId}
           value={granularity}
           onChange={(e) => onGranularityChange(e.target.value as ReportGranularity)}
           className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border"

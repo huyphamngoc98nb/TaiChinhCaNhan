@@ -15,7 +15,7 @@ export class SQLiteReportRepository implements IReportRepository {
         AND t.transaction_date >= ? 
         AND t.transaction_date <= ?
         AND t.deleted_at IS NULL
-      GROUP BY t.category_id
+      GROUP BY category_id
       ORDER BY amount DESC
     `;
     const { values } = await db.query(sql, [type, range.startDate, range.endDate]);

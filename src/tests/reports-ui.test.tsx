@@ -1,13 +1,20 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
+import type React from 'react';
 import { DateRangePicker } from '../modules/reports/components/DateRangePicker';
+import { LanguageProvider } from '@/shared/context/LanguageContext';
+
+function renderWithProviders(ui: React.ReactElement) {
+  localStorage.setItem('app_language', 'en');
+  return render(<LanguageProvider>{ui}</LanguageProvider>);
+}
 
 describe('Reports UI - DateRangePicker', () => {
   it('calls onPresetChange when a new preset is selected', () => {
     const onPresetChange = vi.fn();
     const onGranularityChange = vi.fn();
 
-    render(
+    renderWithProviders(
       <DateRangePicker 
         preset="this_month" 
         granularity="day" 
@@ -26,7 +33,7 @@ describe('Reports UI - DateRangePicker', () => {
     const onPresetChange = vi.fn();
     const onGranularityChange = vi.fn();
 
-    render(
+    renderWithProviders(
       <DateRangePicker 
         preset="this_month" 
         granularity="day" 

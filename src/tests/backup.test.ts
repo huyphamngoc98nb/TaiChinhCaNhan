@@ -4,7 +4,12 @@ import { restoreDatabase } from '@/modules/backup/services/restore-database';
 import * as connection from '@/core/db/sqlite/connection';
 
 vi.mock('@/core/db/sqlite/connection', () => ({
+  DB_NAME: 'test_db',
   getDbConnection: vi.fn(),
+}));
+
+vi.mock('@/core/db/sqlite/pragmas', () => ({
+  sqlite: { saveToStore: vi.fn() },
 }));
 
 vi.mock('@/core/telemetry/logger', () => ({

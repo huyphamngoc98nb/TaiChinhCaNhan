@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { ReceiptStorageService } from '../core/files/receipt-storage';
 import { CreateTransactionUseCase } from '../modules/transactions/services/create-transaction';
 import { UpdateTransactionUseCase } from '../modules/transactions/services/update-transaction';
+import { getDbConnection } from '@/core/db/sqlite/connection';
 
 // Mock dependencies
 vi.mock('@/core/files/receipt-storage', () => ({
@@ -11,6 +12,42 @@ vi.mock('@/core/files/receipt-storage', () => ({
     getReceiptDataUrl: vi.fn(),
   }
 }));
+
+vi.mock('@capacitor/core', () => ({
+  Capacitor: { getPlatform: () => 'web' },
+}));
+
+vi.mock('@/core/db/sqlite/connection', () => ({
+  DB_NAME: 'test_db',
+  getDbConnection: vi.fn(),
+}));
+
+vi.mock('@/core/db/sqlite/pragmas', () => ({
+  sqlite: { saveToStore: vi.fn() },
+}));
+
+const walletRow = {
+  id: 'w1',
+  name: 'Cash',
+  currency: 'VND',
+  balance: 10_000,
+  account_type: 'cash',
+  icon: null,
+  color: null,
+  sort_order: 0,
+  is_active: 1,
+  exclude_from_total: 0,
+  credit_limit: null,
+  statement_day: null,
+  due_day: null,
+  created_at: 0,
+  updated_at: 0,
+};
+
+const mockDb = {
+  query: vi.fn(async () => ({ values: [walletRow] })),
+  run: vi.fn(async () => ({ changes: { changes: 1 } })),
+};
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -51,6 +88,9 @@ describe('CreateTransactionUseCase – receipt handling', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    mockDb.query.mockResolvedValue({ values: [walletRow] });
+    mockDb.run.mockResolvedValue({ changes: { changes: 1 } });
+    vi.mocked(getDbConnection).mockResolvedValue(mockDb as any);
     mockRepo = {
       create: vi.fn().mockImplementation((data) => Promise.resolve(data)),
     };
@@ -111,6 +151,9 @@ describe('UpdateTransactionUseCase – receipt handling', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    mockDb.query.mockResolvedValue({ values: [walletRow] });
+    mockDb.run.mockResolvedValue({ changes: { changes: 1 } });
+    vi.mocked(getDbConnection).mockResolvedValue(mockDb as any);
     mockRepo = {
       getById: vi.fn().mockResolvedValue(existingWithReceipt),
       update: vi.fn().mockImplementation((_id, data) =>
@@ -180,6 +223,13 @@ describe('UpdateTransactionUseCase – receipt handling', () => {
 // Receipt storage service – edge cases (mocked at call boundary)
 // ---------------------------------------------------------------------------
 describe('ReceiptStorageService – boundary behavior', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockDb.query.mockResolvedValue({ values: [walletRow] });
+    mockDb.run.mockResolvedValue({ changes: { changes: 1 } });
+    vi.mocked(getDbConnection).mockResolvedValue(mockDb as any);
+  });
+
   it('saveReceipt returning undefined would cause receipt_path to be undefined', async () => {
     // Documenting: if saveReceipt ever returns undefined (wrong override),
     // the create service would store undefined as receipt_path.

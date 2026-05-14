@@ -42,7 +42,7 @@ export async function exportToPdf(dataset: ExportDataset): Promise<string> {
   });
 
   // Categories
-  let currentY = (doc as any).lastAutoTable.finalY + 15;
+  const currentY = (doc as any).lastAutoTable.finalY + 15;
   doc.text('Expenses by Category', 14, currentY);
   
   doc.autoTable({

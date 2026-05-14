@@ -8,7 +8,16 @@ import * as connection from '../core/db/sqlite/connection';
 
 // Mock dependencies
 vi.mock('../core/db/sqlite/connection', () => ({
+  DB_NAME: 'test_db',
   getDbConnection: vi.fn(),
+}));
+
+vi.mock('@capacitor/core', () => ({
+  Capacitor: { getPlatform: () => 'web' },
+}));
+
+vi.mock('@/core/db/sqlite/pragmas', () => ({
+  sqlite: { saveToStore: vi.fn() },
 }));
 
 vi.mock('../core/files/receipt-storage', () => ({
@@ -44,6 +53,24 @@ describe('Transaction Module QA Tests', () => {
     updateUseCase = new UpdateTransactionUseCase(repository);
   });
 
+  const walletRow = {
+    id: 'w-1',
+    name: 'Cash',
+    currency: 'VND',
+    balance: 10_000,
+    account_type: 'cash',
+    icon: null,
+    color: null,
+    sort_order: 0,
+    is_active: 1,
+    exclude_from_total: 0,
+    credit_limit: null,
+    statement_day: null,
+    due_day: null,
+    created_at: 0,
+    updated_at: 0,
+  };
+
   describe('Repository Layer', () => {
     it('create() inserts correct values and maps note/receipt to null if empty', async () => {
       const input = {
@@ -72,9 +99,9 @@ describe('Transaction Module QA Tests', () => {
       await repository.list({ type: 'income', wallet_id: 'w-1' });
       
       const [sql, values] = mockDb.query.mock.calls[0];
-      expect(sql).toContain('AND type = ?');
-      expect(sql).toContain('AND wallet_id = ?');
-      expect(sql).toContain('AND deleted_at IS NULL'); // Default behavior
+      expect(sql).toContain('AND t.type = ?');
+      expect(sql).toContain('AND t.wallet_id = ?');
+      expect(sql).toContain('AND t.deleted_at IS NULL'); // Default behavior
       expect(values).toContain('income');
       expect(values).toContain('w-1');
     });
@@ -105,6 +132,7 @@ describe('Transaction Module QA Tests', () => {
 
     it('CreateTransactionUseCase cleans up receipt file if DB insert fails', async () => {
       vi.mocked(ReceiptStorageService.saveReceipt).mockResolvedValue('path/to/receipt.jpg');
+      mockDb.query.mockResolvedValueOnce({ values: [walletRow] });
       mockDb.run.mockRejectedValue(new Error('DB Error'));
 
       await expect(createUseCase.execute(validCreateInput, 'base64data')).rejects.toThrow('DB Error');

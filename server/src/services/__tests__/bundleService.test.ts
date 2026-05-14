@@ -4,7 +4,12 @@ import { checkBundleUpdate } from '../bundleService';
 import type { BundleManifest } from '../../types/bundle';
 
 // Mock toàn bộ module fs — không chạm đĩa cứng thật
-vi.mock('fs');
+vi.mock('fs', () => ({
+  default: {
+    existsSync: vi.fn(),
+    readFileSync: vi.fn(),
+  },
+}));
 
 // ── Fixtures ────────────────────────────────────────────────────────────────
 

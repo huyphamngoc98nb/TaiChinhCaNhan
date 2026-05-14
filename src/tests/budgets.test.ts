@@ -146,7 +146,14 @@ describe('Upsert Category Budget Validation', () => {
 
   it('should call repository if valid', async () => {
     await upsertBudget.execute('1', 100, 'weekly');
-    expect(mockRepo.upsertCategoryBudget).toHaveBeenCalledWith('1', 100, 'weekly');
+    expect(mockRepo.upsertBudget).toHaveBeenCalledWith(expect.objectContaining({
+      category_id: '1',
+      wallet_id: null,
+      account_type_scope: null,
+      amount: 100,
+      period: 'weekly',
+      start_date: expect.any(Number),
+    }));
   });
 
   it('should call repository to clear if both are null', async () => {

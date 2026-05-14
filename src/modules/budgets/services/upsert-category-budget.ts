@@ -12,12 +12,12 @@ export class UpsertCategoryBudgetUseCase {
     accountTypeScope: AccountType | null = null
   ): Promise<void> {
     if (amount !== null && amount <= 0) {
-      throw new Error('Số tiền ngân sách phải lớn hơn 0');
+      throw new Error('Budget amount must be greater than 0');
     }
 
     // Nếu 1 cái null thì cả 2 phải null (clear)
     if ((amount === null && period !== null) || (amount !== null && period === null)) {
-      throw new Error('amount và period phải cùng có hoặc cùng null');
+      throw new Error('Both amount and period must be provided');
     }
 
     if (amount !== null && period !== null) {

@@ -16,8 +16,8 @@ describe('Recurring Bills Logic', () => {
       const start = new Date(2026, 0, 31).getTime(); // Jan 31
       const next = computeNextDueDate(start, 'monthly');
       const nextDate = new Date(next);
-      // Native JS: new Date(2026, 1, 31) becomes Mar 3
-      expect(nextDate.getMonth()).toBe(2); 
+      expect(nextDate.getMonth()).toBe(1); // Feb
+      expect(nextDate.getDate()).toBe(28);
     });
 
     it('computes next year correctly', () => {

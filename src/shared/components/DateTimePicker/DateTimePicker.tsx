@@ -169,7 +169,7 @@ export function DateTimePicker({ value, onChange, label = 'Ngày giao dịch' }:
 
       {/* Preview */}
       <p className="text-[11px] text-gray-400 ml-0.5">
-        📅 {formatPreview(buildTimestamp(dateStr, timeStr))}
+        📅 {formatPreview(buildTimestamp(dateStr, timeStr))}
       </p>
     </div>
   );

@@ -5,9 +5,14 @@ import * as connection from '../core/db/sqlite/connection';
 
 // Mock the DB connection and logger
 vi.mock('../core/db/sqlite/connection', () => ({
+  DB_NAME: 'test_db',
   getDbConnection: vi.fn(),
   isDatabaseReady: vi.fn(),
   initDatabaseConnection: vi.fn(),
+}));
+
+vi.mock('@capacitor/core', () => ({
+  Capacitor: { getPlatform: () => 'android' },
 }));
 
 vi.mock('@/core/telemetry/logger', () => ({
@@ -21,6 +26,29 @@ vi.mock('@/core/telemetry/logger', () => ({
 describe('Database SQLite Tests', () => {
   let mockDb: any;
 
+  function expectExecuteContaining(fragment: string) {
+    expect(
+      mockDb.execute.mock.calls.some(([sql]: [string]) => sql.includes(fragment))
+    ).toBe(true);
+  }
+
+  function expectNoExecuteContaining(fragment: string) {
+    expect(
+      mockDb.execute.mock.calls.some(([sql]: [string]) => sql.includes(fragment))
+    ).toBe(false);
+  }
+
+  function expectMigrationMarked(version: number, name: string) {
+    expect(
+      mockDb.run.mock.calls.some(([sql, values]: [string, unknown[]]) =>
+        sql.includes('INSERT INTO migrations') &&
+        values[0] === version &&
+        values[1] === name &&
+        typeof values[2] === 'number'
+      )
+    ).toBe(true);
+  }
+
   beforeEach(() => {
     vi.clearAllMocks();
     mockDb = {
@@ -30,6 +58,7 @@ describe('Database SQLite Tests', () => {
       beginTransaction: vi.fn().mockResolvedValue(undefined),
       commitTransaction: vi.fn().mockResolvedValue(undefined),
       rollbackTransaction: vi.fn().mockResolvedValue(undefined),
+      isTransactionActive: vi.fn().mockResolvedValue({ result: false }),
     };
     vi.mocked(connection.getDbConnection).mockResolvedValue(mockDb);
   });
@@ -37,7 +66,7 @@ describe('Database SQLite Tests', () => {
   // -------------------------------------------------------------------------
   // Migration runner – happy path (all 4 migrations)
   // -------------------------------------------------------------------------
-  it('migration runner creates migrations table and runs all 4 migrations in order', async () => {
+  it('migration runner creates migrations table and runs all migrations in order', async () => {
     await runMigrations();
 
     // Migrations tracking table
@@ -45,45 +74,27 @@ describe('Database SQLite Tests', () => {
       expect.stringContaining('CREATE TABLE IF NOT EXISTS migrations')
     );
 
-    // All four migration SQL files were executed
-    expect(mockDb.execute).toHaveBeenCalledWith(
-      expect.stringContaining('CREATE TABLE IF NOT EXISTS wallets')
-    );
-    expect(mockDb.execute).toHaveBeenCalledWith(
-      expect.stringContaining('CREATE INDEX IF NOT EXISTS idx_transactions_date')
-    );
-    expect(mockDb.execute).toHaveBeenCalledWith(
-      expect.stringContaining('ALTER TABLE transactions ADD COLUMN deleted_at')
-    );
-    expect(mockDb.execute).toHaveBeenCalledWith(
-      expect.stringContaining('ALTER TABLE transactions ADD COLUMN receipt_path')
-    );
+    expectExecuteContaining('CREATE TABLE IF NOT EXISTS wallets');
+    expectExecuteContaining('CREATE INDEX IF NOT EXISTS idx_transactions_date');
+    expectExecuteContaining('ALTER TABLE transactions ADD COLUMN deleted_at');
+    expectExecuteContaining('ALTER TABLE transactions ADD COLUMN receipt_path');
+    expectExecuteContaining('CREATE TABLE IF NOT EXISTS budgets');
+    expectExecuteContaining('ALTER TABLE budgets ADD COLUMN account_type_scope');
 
     // Each migration is bookmarked with an INSERT
-    expect(mockDb.run).toHaveBeenCalledWith(
-      expect.stringContaining('INSERT INTO migrations'),
-      expect.arrayContaining([1, '001_init', expect.any(Number)])
-    );
-    expect(mockDb.run).toHaveBeenCalledWith(
-      expect.stringContaining('INSERT INTO migrations'),
-      expect.arrayContaining([2, '002_indexes', expect.any(Number)])
-    );
-    expect(mockDb.run).toHaveBeenCalledWith(
-      expect.stringContaining('INSERT INTO migrations'),
-      expect.arrayContaining([3, '003_transactions_soft_delete', expect.any(Number)])
-    );
-    expect(mockDb.run).toHaveBeenCalledWith(
-      expect.stringContaining('INSERT INTO migrations'),
-      expect.arrayContaining([4, '004_transactions_receipt_path', expect.any(Number)])
-    );
+    expectMigrationMarked(1, '001_init');
+    expectMigrationMarked(2, '002_indexes');
+    expectMigrationMarked(3, '003_transactions_soft_delete');
+    expectMigrationMarked(4, '004_transactions_receipt_path');
+    expectMigrationMarked(15, '015_budget_account_type_scope');
   });
 
   it('wraps each migration in a transaction (beginTransaction / commitTransaction)', async () => {
     await runMigrations();
 
     // 4 migrations → 4 begin + 4 commit calls
-    expect(mockDb.beginTransaction).toHaveBeenCalledTimes(4);
-    expect(mockDb.commitTransaction).toHaveBeenCalledTimes(4);
+    expect(mockDb.beginTransaction).toHaveBeenCalledTimes(15);
+    expect(mockDb.commitTransaction).toHaveBeenCalledTimes(15);
     expect(mockDb.rollbackTransaction).not.toHaveBeenCalled();
   });
 
@@ -91,8 +102,9 @@ describe('Database SQLite Tests', () => {
   // Migration runner – idempotency (already at current version)
   // -------------------------------------------------------------------------
   it('skips all migrations when DB already at latest version', async () => {
-    // Simulate DB already at version 4
-    mockDb.query.mockResolvedValueOnce({ values: [{ version: 4 }] });
+    mockDb.query.mockResolvedValueOnce({
+      values: Array.from({ length: 15 }, (_value, index) => ({ version: index + 1 })),
+    });
 
     await runMigrations();
 
@@ -107,26 +119,18 @@ describe('Database SQLite Tests', () => {
 
   it('only runs pending migrations when partially migrated', async () => {
     // Simulate DB at version 2 – migrations 3 and 4 are pending
-    mockDb.query.mockResolvedValueOnce({ values: [{ version: 2 }] });
+    mockDb.query.mockResolvedValueOnce({ values: [{ version: 1 }, { version: 2 }] });
 
     await runMigrations();
 
     // Migrations 1 & 2 should NOT be re-run
-    expect(mockDb.execute).not.toHaveBeenCalledWith(
-      expect.stringContaining('CREATE TABLE IF NOT EXISTS wallets')
-    );
-    expect(mockDb.execute).not.toHaveBeenCalledWith(
-      expect.stringContaining('CREATE INDEX IF NOT EXISTS idx_transactions_date')
-    );
+    expectNoExecuteContaining('CREATE TABLE IF NOT EXISTS wallets');
+    expectNoExecuteContaining('CREATE INDEX IF NOT EXISTS idx_transactions_date');
 
     // Migrations 3 & 4 should run
-    expect(mockDb.execute).toHaveBeenCalledWith(
-      expect.stringContaining('ALTER TABLE transactions ADD COLUMN deleted_at')
-    );
-    expect(mockDb.execute).toHaveBeenCalledWith(
-      expect.stringContaining('ALTER TABLE transactions ADD COLUMN receipt_path')
-    );
-    expect(mockDb.beginTransaction).toHaveBeenCalledTimes(2);
+    expectExecuteContaining('ALTER TABLE transactions ADD COLUMN deleted_at');
+    expectExecuteContaining('ALTER TABLE transactions ADD COLUMN receipt_path');
+    expect(mockDb.beginTransaction).toHaveBeenCalledTimes(13);
   });
 
   // -------------------------------------------------------------------------
@@ -190,7 +194,7 @@ describe('Database SQLite Tests', () => {
     // Wallet inserted
     expect(mockDb.run).toHaveBeenCalledWith(
       expect.stringContaining('INSERT INTO wallets'),
-      expect.arrayContaining(['wallet-default-1'])
+      expect.arrayContaining(['wallet-cash-1'])
     );
 
     // Categories inserted – spot-check first and last
