@@ -31,6 +31,7 @@ export const translations = {
       reports: 'Reports',
       budgets: 'Budgets',
       bills: 'Bills',
+      more: 'More',
       settings: 'Settings',
     },
     dashboard: {
@@ -253,6 +254,7 @@ export const translations = {
       reports: 'Báo cáo',
       budgets: 'Ngân sách',
       bills: 'Hóa đơn',
+      more: 'Thêm',
       settings: 'Cài đặt',
     },
     dashboard: {
@@ -443,7 +445,18 @@ export const translations = {
       total_balance: 'Tổng số dư',
       },
   }
-};
+} as const;
 
 export type Language = 'en' | 'vi';
+type NestedKeyOf<T> = T extends object
+  ? {
+      [K in keyof T]: K extends string
+        ? T[K] extends object
+          ? `${K}.${NestedKeyOf<T[K]>}`
+          : K
+        : never;
+    }[keyof T]
+  : never;
+
+export type TranslationPath = NestedKeyOf<typeof translations.en>;
 export type TranslationKey = keyof typeof translations.en;

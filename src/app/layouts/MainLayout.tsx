@@ -25,11 +25,11 @@ export function MainLayout() {
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   const menuItems = [
-    { icon: <Wallet size={22} />, label: 'Tài khoản', route: ROUTES.WALLETS },
+    { icon: <Wallet size={22} />, label: t('wallets.title'), route: ROUTES.WALLETS },
     { icon: <BarChart3 size={22} />, label: t('navigation.reports'), route: ROUTES.REPORTS },
-    { icon: <RefreshCcw size={22} />, label: 'Hoá đơn định kỳ', route: ROUTES.RECURRING_BILLS },
-    { icon: <Download size={22} />, label: 'Xuất dữ liệu', route: ROUTES.EXPORT },
-    { icon: <Database size={22} />, label: 'Sao lưu & Khôi phục', route: ROUTES.BACKUP },
+    { icon: <RefreshCcw size={22} />, label: t('recurring_bills.title'), route: ROUTES.RECURRING_BILLS },
+    { icon: <Download size={22} />, label: t('reports.export'), route: ROUTES.EXPORT },
+    { icon: <Database size={22} />, label: t('settings.backup_restore'), route: ROUTES.BACKUP },
     { icon: <Settings size={22} />, label: t('navigation.settings'), route: ROUTES.SETTINGS },
   ];
 
@@ -39,7 +39,7 @@ export function MainLayout() {
         <Outlet />
       </main>
 
-      {/* Bottom Nav — 5 tabs */}
+      {/* Bottom Nav - 5 tabs */}
       <nav className="bottom-nav">
         <NavLink to={ROUTES.HOME} className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`} end>
           <Home size={22} />
@@ -57,11 +57,11 @@ export function MainLayout() {
         </NavLink>
         <NavLink to={ROUTES.BUDGETS} className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
           <PieChart size={22} />
-          <span>Ngân sách</span>
+          <span>{t('navigation.budgets')}</span>
         </NavLink>
         <button className="nav-item" onClick={() => setDrawerOpen(true)}>
           <MoreHorizontal size={22} />
-          <span>Thêm</span>
+          <span>{t('navigation.more')}</span>
         </button>
       </nav>
 
@@ -75,7 +75,7 @@ export function MainLayout() {
           <div className="drawer-sheet">
             <div className="drawer-handle" />
             <div className="drawer-header">
-              <span className="drawer-title">Tiện ích</span>
+              <span className="drawer-title">{t('navigation.more')}</span>
               <button className="drawer-close" onClick={() => setDrawerOpen(false)}>
                 <X size={20} />
               </button>

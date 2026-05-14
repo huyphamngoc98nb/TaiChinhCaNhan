@@ -1,44 +1,77 @@
-import React, { createContext, useContext, useState, useCallback } from 'react';
-import { translations, Language } from '../constants/translations';
+import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
+import { Preferences } from '@capacitor/preferences';
+import { translations, type Language, type TranslationPath } from '../constants/translations';
+
+const LANGUAGE_STORAGE_KEY = 'app_language';
 
 interface LanguageContextType {
   language: Language;
   setLanguage: (lang: Language) => void;
-  t: (path: string) => string;
+  t: (path: TranslationPath) => string;
 }
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
 export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [language, setLang] = useState<Language>(() => {
-    const saved = localStorage.getItem('app_language');
-    return (saved as Language) || 'en';
-  });
+  const [language, setLang] = useState<Language>('vi');
+  const [ready, setReady] = useState(false);
+
+  useEffect(() => {
+    let mounted = true;
+
+    Preferences.get({ key: LANGUAGE_STORAGE_KEY })
+      .then(({ value }) => {
+        if (!mounted) {
+          return;
+        }
+
+        if (value === 'en' || value === 'vi') {
+          setLang(value);
+        }
+      })
+      .finally(() => {
+        if (mounted) {
+          setReady(true);
+        }
+      });
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   const setLanguage = useCallback((lang: Language) => {
     setLang(lang);
-    localStorage.setItem('app_language', lang);
+    void Preferences.set({ key: LANGUAGE_STORAGE_KEY, value: lang });
   }, []);
 
-  const t = useCallback((path: string) => {
+  const t = useCallback((path: TranslationPath) => {
     const keys = path.split('.');
-    let current: any = translations[language];
-    
+    let current: unknown = translations[language];
+
     for (const key of keys) {
-      if (current[key] === undefined) {
-        // Fallback to English if key missing in current language
-        let fallback: any = translations['en'];
-        for (const fkey of keys) {
-          if (fallback[fkey] === undefined) return path;
-          fallback = fallback[fkey];
+      if (!current || typeof current !== 'object' || !(key in current)) {
+        let fallback: unknown = translations.en;
+
+        for (const fallbackKey of keys) {
+          if (!fallback || typeof fallback !== 'object' || !(fallbackKey in fallback)) {
+            return path;
+          }
+          fallback = (fallback as Record<string, unknown>)[fallbackKey];
         }
-        return fallback;
+
+        return typeof fallback === 'string' ? fallback : path;
       }
-      current = current[key];
+
+      current = (current as Record<string, unknown>)[key];
     }
-    
-    return current;
+
+    return typeof current === 'string' ? current : path;
   }, [language]);
+
+  if (!ready) {
+    return null;
+  }
 
   return (
     <LanguageContext.Provider value={{ language, setLanguage, t }}>

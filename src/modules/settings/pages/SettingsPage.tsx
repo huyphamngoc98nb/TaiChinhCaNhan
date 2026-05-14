@@ -32,7 +32,7 @@ export function SettingsPage() {
       icon: <Wallet size={20} />,
       iconBg: 'rgba(99,102,241,0.12)',
       iconColor: '#6366F1',
-      label: 'Tài khoản & Ví',
+      label: t('wallets.title'),
       desc: 'Quản lý ví tiền mặt, ngân hàng, thẻ tín dụng',
       route: ROUTES.WALLETS,
     },
@@ -48,7 +48,7 @@ export function SettingsPage() {
       icon: <RefreshCcw size={20} />,
       iconBg: 'rgba(245,158,11,0.12)',
       iconColor: '#F59E0B',
-      label: 'Hoá đơn định kỳ',
+      label: t('recurring_bills.title'),
       desc: 'Quản lý và nhắc nhở hóa đơn hàng tháng',
       route: ROUTES.RECURRING_BILLS,
     },
@@ -56,7 +56,7 @@ export function SettingsPage() {
       icon: <Download size={20} />,
       iconBg: 'rgba(14,165,233,0.12)',
       iconColor: '#0EA5E9',
-      label: 'Xuất dữ liệu',
+      label: t('reports.export'),
       desc: 'Xuất báo cáo sang file Excel, CSV',
       route: ROUTES.EXPORT,
     },
@@ -74,7 +74,7 @@ export function SettingsPage() {
     <div className="min-h-screen bg-[#F5F7FA]">
       <div className="px-4 pt-10 pb-2">
         <h1 className="text-[24px] font-bold text-gray-900">{t('settings.title')}</h1>
-        <p className="text-[12px] text-gray-500 mt-0.5">Tuỳ chỉnh ứng dụng</p>
+        <p className="text-[12px] text-gray-500 mt-0.5">Tùy chỉnh ứng dụng</p>
       </div>
 
       <div className="px-4 pb-24 space-y-4 mt-4">

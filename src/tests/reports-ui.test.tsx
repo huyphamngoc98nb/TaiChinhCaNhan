@@ -4,13 +4,19 @@ import type React from 'react';
 import { DateRangePicker } from '../modules/reports/components/DateRangePicker';
 import { LanguageProvider } from '@/shared/context/LanguageContext';
 
+vi.mock('@capacitor/preferences', () => ({
+  Preferences: {
+    get: vi.fn(async () => ({ value: 'en' })),
+    set: vi.fn(async () => undefined),
+  },
+}));
+
 function renderWithProviders(ui: React.ReactElement) {
-  localStorage.setItem('app_language', 'en');
   return render(<LanguageProvider>{ui}</LanguageProvider>);
 }
 
 describe('Reports UI - DateRangePicker', () => {
-  it('calls onPresetChange when a new preset is selected', () => {
+  it('calls onPresetChange when a new preset is selected', async () => {
     const onPresetChange = vi.fn();
     const onGranularityChange = vi.fn();
 
@@ -23,13 +29,13 @@ describe('Reports UI - DateRangePicker', () => {
       />
     );
 
-    const presetSelect = screen.getByLabelText(/Time Period/i);
+    const presetSelect = await screen.findByLabelText(/Time Period/i);
     fireEvent.change(presetSelect, { target: { value: 'last_30_days' } });
 
     expect(onPresetChange).toHaveBeenCalledWith('last_30_days');
   });
 
-  it('calls onGranularityChange when a new granularity is selected', () => {
+  it('calls onGranularityChange when a new granularity is selected', async () => {
     const onPresetChange = vi.fn();
     const onGranularityChange = vi.fn();
 
@@ -42,7 +48,7 @@ describe('Reports UI - DateRangePicker', () => {
       />
     );
 
-    const granularitySelect = screen.getByLabelText(/Group By/i);
+    const granularitySelect = await screen.findByLabelText(/Group By/i);
     fireEvent.change(granularitySelect, { target: { value: 'week' } });
 
     expect(onGranularityChange).toHaveBeenCalledWith('week');
