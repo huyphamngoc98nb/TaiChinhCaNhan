@@ -1,0 +1,17 @@
+{
+  "gradle.java.home": "D:\\JDK17",
+  "java.jdt.ls.java.home": "D:\\JDK17",
+  "java.import.gradle.java.home": "D:\\JDK17",
+  "terminal.integrated.env.windows": {
+    "JAVA_HOME": "D:\\JDK17",
+    "PATH": "D:\\JDK17\\bin;${env:PATH}"
+  },
+  "java.configuration.runtimes": [
+    {
+      "name": "JavaSE-17",
+      "path": "D:\\JDK17",
+      "default": true
+    }
+  ],
+  "java.configuration.updateBuildConfiguration": "interactive"
+}
