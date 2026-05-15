@@ -114,6 +114,18 @@ const BACKUP_SCHEMAS: Record<string, Record<string, SectionSchema>> = {
         updated_at: { type: 'number', required: true },
       },
     },
+    error_logs: {
+      required: true,
+      fields: {
+        id: { type: 'string', required: true },
+        level: { type: 'string', required: true, enum: ['info', 'warn', 'error', 'debug'] as const },
+        message: { type: 'string', required: true },
+        context: { type: 'string', nullable: true },
+        stack: { type: 'string', nullable: true },
+        metadata_json: { type: 'string', nullable: true },
+        created_at: { type: 'number', required: true },
+      },
+    },
   },
 };
 

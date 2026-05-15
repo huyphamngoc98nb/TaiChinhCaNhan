@@ -1,7 +1,10 @@
 import { useNavigate } from 'react-router-dom';
 import { PlusCircle, PieChart, ChevronRight, Bell } from 'lucide-react';
 import { ROUTES } from '@/shared/constants/routes';
-import { useDashboard } from '../hooks/useDashboard';
+import { useBudgetAnalysis } from '../hooks/useBudgetAnalysis';
+import { useRecurringReminders } from '../hooks/useRecurringReminders';
+import { useTransactionSummary } from '../hooks/useTransactionSummary';
+import { useWalletBalances } from '../hooks/useWalletBalances';
 import { formatVND } from '../services/build-dashboard-view-model';
 import type { AccountType } from '@/modules/wallets/repositories/wallet.repository';
 
@@ -30,19 +33,32 @@ const STATUS_BG: Record<'safe' | 'warning' | 'exceeded', string> = {
 // ── component ────────────────────────────────────────────────────────────
 function DashboardPage() {
   const {
+    totalIncome,
+    totalExpense,
+    loading: summaryLoading,
+  } = useTransactionSummary();
+  const {
     alerts,
-    budgetLoading,
     hasAlerts,
+    topBudgets,
+    loading: budgetLoading,
+  } = useBudgetAnalysis();
+  const {
     hasBills,
     overdueBillCount,
     reminders,
-    showEmptyState,
-    topBudgets,
+  } = useRecurringReminders();
+  const {
     totalBalance,
-    walletLoading,
     wallets,
-  } = useDashboard();
+    loading: walletLoading,
+  } = useWalletBalances();
   const navigate = useNavigate();
+  const showEmptyState =
+    !walletLoading &&
+    wallets.length === 0 &&
+    topBudgets.length === 0 &&
+    !hasAlerts;
 
   return (
     <div className="min-h-screen bg-[#F5F7FA] pb-24">
@@ -85,6 +101,21 @@ function DashboardPage() {
               <span className="text-white/70 text-[11px]">+{wallets.length - 4} ví</span>
             </div>
           )}
+        </div>
+
+        <div className="mt-4 grid grid-cols-2 gap-2">
+          <div className="rounded-[14px] bg-white/15 px-3 py-2">
+            <p className="text-white/60 text-[10px] font-medium">Thu thang nay</p>
+            <p className="text-white text-[13px] font-bold">
+              {summaryLoading ? '...' : `+${formatVND(totalIncome)}`}
+            </p>
+          </div>
+          <div className="rounded-[14px] bg-white/15 px-3 py-2">
+            <p className="text-white/60 text-[10px] font-medium">Chi thang nay</p>
+            <p className="text-white text-[13px] font-bold">
+              {summaryLoading ? '...' : `-${formatVND(totalExpense)}`}
+            </p>
+          </div>
         </div>
       </div>
 

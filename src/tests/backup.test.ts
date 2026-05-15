@@ -22,13 +22,14 @@ vi.mock('@/core/telemetry/logger', () => ({
 describe('Backup Module Tests', () => {
   describe('validateBackupPayload', () => {
     const validPayload = {
-      metadata: { version: '2.0', schema_version: 15, exported_at: Date.now(), app_version: '0.1.0' },
+      metadata: { version: '2.0', schema_version: 16, exported_at: Date.now(), app_version: '0.1.0' },
       wallets: [],
       categories: [],
       transactions: [],
       recurring_bills: [],
       app_settings: [],
-      budgets: []
+      budgets: [],
+      error_logs: []
     };
 
     it('validates a correct payload', () => {
@@ -52,7 +53,7 @@ describe('Backup Module Tests', () => {
     });
 
     it('rejects unsupported schema versions for current backup format', () => {
-      const invalid = { ...validPayload, metadata: { ...validPayload.metadata, schema_version: 16 } };
+      const invalid = { ...validPayload, metadata: { ...validPayload.metadata, schema_version: 17 } };
       const result = validateBackupPayload(invalid);
       expect(result.isValid).toBe(false);
       expect(result.error).toContain('Unsupported schema version');
@@ -90,7 +91,7 @@ describe('Backup Module Tests', () => {
 
     it('disables foreign keys before executeSet and re-enables them after', async () => {
       const payload = {
-        metadata: { version: '2.0', schema_version: 15, exported_at: 0, app_version: '' },
+        metadata: { version: '2.0', schema_version: 16, exported_at: 0, app_version: '' },
         wallets: [], categories: [], transactions: [], recurring_bills: [], app_settings: []
       };
       await restoreDatabase(payload);
@@ -102,7 +103,7 @@ describe('Backup Module Tests', () => {
 
     it('re-enables foreign keys even if restore fails', async () => {
       const payload = {
-        metadata: { version: '2.0', schema_version: 15, exported_at: 0, app_version: '' },
+        metadata: { version: '2.0', schema_version: 16, exported_at: 0, app_version: '' },
         wallets: [], categories: [], transactions: [], recurring_bills: [], app_settings: []
       };
       mockDb.executeSet.mockRejectedValue(new Error('Batch Error'));
@@ -113,7 +114,7 @@ describe('Backup Module Tests', () => {
 
     it('restores current wallet and budget schema columns', async () => {
       const payload = {
-        metadata: { version: '2.0', schema_version: 15, exported_at: 0, app_version: '' },
+        metadata: { version: '2.0', schema_version: 16, exported_at: 0, app_version: '' },
         wallets: [{
           id: 'wallet-1',
           name: 'Cash',
@@ -156,6 +157,15 @@ describe('Backup Module Tests', () => {
         transactions: [],
         recurring_bills: [],
         app_settings: [],
+        error_logs: [{
+          id: 'err-1',
+          level: 'error',
+          message: 'Boom',
+          context: 'test',
+          stack: null,
+          metadata_json: null,
+          created_at: 1,
+        }],
       };
 
       await restoreDatabase(payload);
@@ -171,6 +181,10 @@ describe('Backup Module Tests', () => {
           expect.objectContaining({
             statement: expect.stringContaining('INSERT INTO budgets'),
             values: expect.arrayContaining(['budget-1', 'category-1', 500, 'monthly']),
+          }),
+          expect.objectContaining({
+            statement: expect.stringContaining('INSERT INTO error_logs'),
+            values: expect.arrayContaining(['err-1', 'error', 'Boom']),
           }),
         ])
       );

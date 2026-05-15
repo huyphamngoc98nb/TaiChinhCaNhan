@@ -4,14 +4,15 @@ import { ITransactionRepository } from '../repositories/transaction.repository';
 import { appRepositories } from '@/core/repositories/app-repositories';
 import { IWalletRepository } from '@/modules/wallets/repositories/wallet.repository';
 import { DB_NAME } from '@/core/db/sqlite/connection';
-import { runInTransaction } from '@/core/db/sqlite/transaction';
+import { sqliteTransactionRunner, TransactionRunner } from '@/core/db/transaction-runner';
 import { ReceiptStorageService } from '@/core/files/receipt-storage';
 import { Capacitor } from '@capacitor/core';
 
 export class UpdateTransactionUseCase {
   constructor(
     private repository: ITransactionRepository,
-    private walletRepository: IWalletRepository = appRepositories.wallet
+    private walletRepository: IWalletRepository = appRepositories.wallet,
+    private runTransaction: TransactionRunner = sqliteTransactionRunner
   ) {}
 
   async execute(id: string, input: UpdateTransactionInput, newReceiptBase64?: string) {
@@ -60,7 +61,7 @@ export class UpdateTransactionUseCase {
     const finalReceiptPath = newSavedReceiptPath ?? input.receipt_path;
 
     try {
-      const updated = await runInTransaction(async () => {
+      const updated = await this.runTransaction(async () => {
         const result = await this.repository.update(id, {
           ...input,
           ...(finalReceiptPath !== undefined ? { receipt_path: finalReceiptPath } : {}),

@@ -15,6 +15,7 @@ export interface BackupPayload {
   recurring_bills: BackupRow[];
   app_settings: BackupRow[];
   budgets: BackupRow[];
+  error_logs: BackupRow[];
 }
 
 export interface ValidationResult {

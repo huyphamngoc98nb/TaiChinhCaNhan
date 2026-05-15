@@ -2,12 +2,20 @@ import { getDbConnection } from '@/core/db/sqlite/connection';
 import { BackupPayload, BackupRow } from '../domain/backup.model';
 
 export const CURRENT_BACKUP_VERSION = '2.0';
-export const CURRENT_SCHEMA_VERSION = 15;
+export const CURRENT_SCHEMA_VERSION = 16;
 
 export async function exportBackupJson(): Promise<BackupPayload> {
   const db = await getDbConnection();
 
-  const tables = ['wallets', 'categories', 'transactions', 'recurring_bills', 'app_settings', 'budgets'];
+  const tables = [
+    'wallets',
+    'categories',
+    'transactions',
+    'recurring_bills',
+    'app_settings',
+    'budgets',
+    'error_logs',
+  ];
   const data: Record<string, BackupRow[]> = {};
 
   for (const table of tables) {
@@ -28,6 +36,7 @@ export async function exportBackupJson(): Promise<BackupPayload> {
     recurring_bills: data.recurring_bills,
     app_settings: data.app_settings,
     budgets: data.budgets,
+    error_logs: data.error_logs,
   };
 
   return payload;

@@ -17,6 +17,7 @@ import separateBudgetsSql from './012_separate_budgets.sql?raw';
 import enhanceWalletsSql from './013_enhance_wallets.sql?raw';
 import walletAccountTypeExtrasSql from './014_wallet_account_type_extras.sql?raw';
 import budgetAccountTypeSql from './015_budget_account_type_scope.sql?raw';
+import errorLogsSql from './016_error_logs.sql?raw';
 
 const MIGRATIONS = [
   { version: 1,  name: '001_init',                          sql: initSql },
@@ -34,6 +35,7 @@ const MIGRATIONS = [
   { version: 13, name: '013_enhance_wallets',               sql: enhanceWalletsSql },
   { version: 14, name: '014_wallet_account_type_extras',    sql: walletAccountTypeExtrasSql },
   { version: 15, name: '015_budget_account_type_scope',     sql: budgetAccountTypeSql },
+  { version: 16, name: '016_error_logs',                    sql: errorLogsSql },
 ];
 
 /**

@@ -4,14 +4,15 @@ import { ITransactionRepository } from '../repositories/transaction.repository';
 import { appRepositories } from '@/core/repositories/app-repositories';
 import { IWalletRepository } from '@/modules/wallets/repositories/wallet.repository';
 import { DB_NAME } from '@/core/db/sqlite/connection';
-import { runInTransaction } from '@/core/db/sqlite/transaction';
+import { sqliteTransactionRunner, TransactionRunner } from '@/core/db/transaction-runner';
 import { ReceiptStorageService } from '@/core/files/receipt-storage';
 import { Capacitor } from '@capacitor/core';
 
 export class CreateTransactionUseCase {
   constructor(
     private repository: ITransactionRepository,
-    private walletRepository: IWalletRepository = appRepositories.wallet
+    private walletRepository: IWalletRepository = appRepositories.wallet,
+    private runTransaction: TransactionRunner = sqliteTransactionRunner
   ) {}
 
   async execute(input: CreateTransactionInput, receiptBase64?: string) {
@@ -47,7 +48,7 @@ export class CreateTransactionUseCase {
     else if (input.type === 'expense' || input.type === 'transfer') delta = -input.amount;
 
     try {
-      const transaction = await runInTransaction(async () => {
+      const transaction = await this.runTransaction(async () => {
         const tx = await this.repository.create({
           ...input,
           receipt_path: savedReceiptPath || input.receipt_path,

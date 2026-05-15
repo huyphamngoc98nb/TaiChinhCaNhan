@@ -110,8 +110,9 @@ Before releasing a production build, verify the following:
 
 ## Security
 
-The local SQLite database is currently opened without encryption. See `docs/security.md` for the
-SQLCipher decision record and the work required before enabling encrypted native storage.
+Native SQLite is configured for SQLCipher encryption and is gated by PIN/biometric verification
+before database initialization. See `docs/security.md` for the security model and remaining release
+hardening work.
 
 ## Shared State
 

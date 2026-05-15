@@ -9,9 +9,9 @@ export interface SQLiteEncryptionConfig {
 }
 
 export const SQLITE_ENCRYPTION_CONFIG: SQLiteEncryptionConfig = {
-  encrypted: false,
-  mode: 'no-encryption',
-  requiresNativeSecret: false,
+  encrypted: true,
+  mode: 'secret',
+  requiresNativeSecret: true,
 };
 
 export function getSQLiteEncryptionConfig(): SQLiteEncryptionConfig {

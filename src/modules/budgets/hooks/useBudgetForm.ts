@@ -4,9 +4,9 @@ import {
   BudgetPeriod,
   AccountType,
 } from '../domain/budget.model';
-import { SQLiteBudgetRepository } from '../repositories/sqlite-budget.repository';
 import { UpsertCategoryBudgetUseCase } from '../services/upsert-category-budget';
 import { useToast } from '@/shared/components/Toast/ToastContext';
+import { appRepositories } from '@/core/repositories/app-repositories';
 
 export type BudgetScopeType = 'global' | 'account_type';
 
@@ -21,8 +21,10 @@ export function useBudgetForm(onSuccess?: () => void) {
   const [validationError, setValidationError] = useState<string | null>(null);
   const toast = useToast();
 
-  const repository = useMemo(() => new SQLiteBudgetRepository(), []);
-  const upsertUseCase = useMemo(() => new UpsertCategoryBudgetUseCase(repository), [repository]);
+  const upsertUseCase = useMemo(
+    () => new UpsertCategoryBudgetUseCase(appRepositories.budget),
+    []
+  );
 
   const open = useCallback((category: CategoryBudget) => {
     setSelectedCategory(category);

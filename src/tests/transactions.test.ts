@@ -5,6 +5,10 @@ import { UpdateTransactionUseCase } from '../modules/transactions/services/updat
 import { TransactionValidationError } from '../modules/transactions/domain/transaction.schema';
 import { ReceiptStorageService } from '../core/files/receipt-storage';
 import * as connection from '../core/db/sqlite/connection';
+import { immediateTransactionRunner } from '@/core/db/transaction-runner';
+import { InMemoryTransactionRepository } from './fakes/in-memory-transaction.repository';
+import { InMemoryWalletRepository } from './fakes/in-memory-wallet.repository';
+import type { Wallet } from '@/modules/wallets/repositories/wallet.repository';
 
 // Mock dependencies
 vi.mock('../core/db/sqlite/connection', () => ({
@@ -37,8 +41,6 @@ vi.mock('@/core/telemetry/logger', () => ({
 describe('Transaction Module QA Tests', () => {
   let mockDb: any;
   let repository: SQLiteTransactionRepository;
-  let createUseCase: CreateTransactionUseCase;
-  let updateUseCase: UpdateTransactionUseCase;
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -49,8 +51,6 @@ describe('Transaction Module QA Tests', () => {
     vi.mocked(connection.getDbConnection).mockResolvedValue(mockDb);
     
     repository = new SQLiteTransactionRepository();
-    createUseCase = new CreateTransactionUseCase(repository);
-    updateUseCase = new UpdateTransactionUseCase(repository);
   });
 
   const walletRow = {
@@ -69,7 +69,7 @@ describe('Transaction Module QA Tests', () => {
     due_day: null,
     created_at: 0,
     updated_at: 0,
-  };
+  } satisfies Wallet;
 
   describe('Repository Layer', () => {
     it('create() inserts correct values and maps note/receipt to null if empty', async () => {
@@ -125,15 +125,34 @@ describe('Transaction Module QA Tests', () => {
     };
 
     it('CreateTransactionUseCase validates input before executing', async () => {
+      const transactionRepository = new InMemoryTransactionRepository();
+      const walletRepository = new InMemoryWalletRepository([walletRow]);
+      const createUseCase = new CreateTransactionUseCase(
+        transactionRepository,
+        walletRepository,
+        immediateTransactionRunner
+      );
       const invalidInput = { ...validCreateInput, amount: -10 };
       await expect(createUseCase.execute(invalidInput)).rejects.toThrow(TransactionValidationError);
       expect(mockDb.run).not.toHaveBeenCalled();
     });
 
     it('CreateTransactionUseCase cleans up receipt file if DB insert fails', async () => {
+      class FailingTransactionRepository extends InMemoryTransactionRepository {
+        override async create(): Promise<never> {
+          throw new Error('DB Error');
+        }
+      }
+
+      const transactionRepository = new FailingTransactionRepository();
+      const walletRepository = new InMemoryWalletRepository([walletRow]);
+      const createUseCase = new CreateTransactionUseCase(
+        transactionRepository,
+        walletRepository,
+        immediateTransactionRunner
+      );
+
       vi.mocked(ReceiptStorageService.saveReceipt).mockResolvedValue('path/to/receipt.jpg');
-      mockDb.query.mockResolvedValueOnce({ values: [walletRow] });
-      mockDb.run.mockRejectedValue(new Error('DB Error'));
 
       await expect(createUseCase.execute(validCreateInput, 'base64data')).rejects.toThrow('DB Error');
       
@@ -142,8 +161,24 @@ describe('Transaction Module QA Tests', () => {
     });
 
     it('UpdateTransactionUseCase deletes old receipt if new one is successfully saved', async () => {
-      const oldTx = { ...validCreateInput, id: 'tx-1', receipt_path: 'old.jpg', created_at: 0, updated_at: 0, deleted_at: null };
-      mockDb.query.mockResolvedValue({ values: [oldTx] });
+      const oldTx = {
+        ...validCreateInput,
+        id: 'tx-1',
+        note: null,
+        receipt_path: 'old.jpg',
+        to_wallet_id: null,
+        created_at: 0,
+        updated_at: 0,
+        deleted_at: null,
+      };
+      const transactionRepository = new InMemoryTransactionRepository([oldTx]);
+      const walletRepository = new InMemoryWalletRepository([walletRow]);
+      const updateUseCase = new UpdateTransactionUseCase(
+        transactionRepository,
+        walletRepository,
+        immediateTransactionRunner
+      );
+
       vi.mocked(ReceiptStorageService.saveReceipt).mockResolvedValue('new.jpg');
 
       await updateUseCase.execute('tx-1', { amount: 60 }, 'newBase64');

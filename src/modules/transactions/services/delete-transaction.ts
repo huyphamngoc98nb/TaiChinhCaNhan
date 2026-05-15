@@ -2,13 +2,14 @@ import { ITransactionRepository } from '../repositories/transaction.repository';
 import { appRepositories } from '@/core/repositories/app-repositories';
 import { IWalletRepository } from '@/modules/wallets/repositories/wallet.repository';
 import { DB_NAME } from '@/core/db/sqlite/connection';
-import { runInTransaction } from '@/core/db/sqlite/transaction';
+import { sqliteTransactionRunner, TransactionRunner } from '@/core/db/transaction-runner';
 import { Capacitor } from '@capacitor/core';
 
 export class DeleteTransactionUseCase {
   constructor(
     private repository: ITransactionRepository,
-    private walletRepository: IWalletRepository = appRepositories.wallet
+    private walletRepository: IWalletRepository = appRepositories.wallet,
+    private runTransaction: TransactionRunner = sqliteTransactionRunner
   ) {}
 
   async execute(id: string) {
@@ -29,7 +30,7 @@ export class DeleteTransactionUseCase {
     if (transaction.type === 'income') delta = -transaction.amount;
     else if (transaction.type === 'expense') delta = transaction.amount;
 
-    await runInTransaction(async () => {
+    await this.runTransaction(async () => {
       await this.repository.softDelete(id, now);
 
       // Atomic delta update — no race condition

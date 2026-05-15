@@ -5,6 +5,8 @@ import { logger } from '@/core/telemetry/logger';
 import { initDatabaseConnection } from '@/core/db/sqlite/connection';
 import { runMigrations } from '@/core/db/migrations/migration-runner';
 import { seedDefaultData } from '@/core/db/seed/default-categories';
+import { authService } from '@/core/auth/auth.service';
+import { AppUnlock } from './AppUnlock';
 
 interface AppBootstrapProps {
   children: ReactNode;
@@ -13,10 +15,13 @@ interface AppBootstrapProps {
 let globalInitPromise: Promise<void> | null = null;
 
 export function AppBootstrap({ children }: AppBootstrapProps) {
+  const [isUnlocked, setIsUnlocked] = useState(() => !authService.requiresUnlock());
   const [isReady, setIsReady] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
+    if (!isUnlocked) return;
+
     let isMounted = true;
 
     async function initializeApp() {
@@ -49,10 +54,14 @@ export function AppBootstrap({ children }: AppBootstrapProps) {
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [isUnlocked]);
 
   if (error) {
     return <ErrorScreen error={error} onRetry={() => window.location.reload()} />;
+  }
+
+  if (!isUnlocked) {
+    return <AppUnlock onUnlocked={() => setIsUnlocked(true)} />;
   }
 
   if (!isReady) {

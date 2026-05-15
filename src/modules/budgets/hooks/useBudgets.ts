@@ -1,8 +1,8 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { CategoryBudget, BudgetProgress, resolveBudgetScope } from '../domain/budget.model';
-import { SQLiteBudgetRepository } from '../repositories/sqlite-budget.repository';
 import { GetBudgetSettingsUseCase } from '../services/get-budget-settings';
 import { ListBudgetAlertsUseCase } from '../services/list-budget-alerts';
+import { appRepositories } from '@/core/repositories/app-repositories';
 
 export function useBudgets() {
   const [categories, setCategories] = useState<CategoryBudget[]>([]);
@@ -10,9 +10,14 @@ export function useBudgets() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const repository = useMemo(() => new SQLiteBudgetRepository(), []);
-  const getSettingsUseCase = useMemo(() => new GetBudgetSettingsUseCase(repository), [repository]);
-  const listAlertsUseCase = useMemo(() => new ListBudgetAlertsUseCase(repository), [repository]);
+  const getSettingsUseCase = useMemo(
+    () => new GetBudgetSettingsUseCase(appRepositories.budget),
+    []
+  );
+  const listAlertsUseCase = useMemo(
+    () => new ListBudgetAlertsUseCase(appRepositories.budget),
+    []
+  );
 
   const load = useCallback(async () => {
     setIsLoading(true);

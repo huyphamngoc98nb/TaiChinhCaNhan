@@ -15,6 +15,7 @@ interface LegacyRestorableBackupPayload {
   recurring_bills: BackupRow[];
   app_settings: BackupRow[];
   budgets?: BackupRow[];
+  error_logs?: BackupRow[];
 }
 
 type RestorableBackupPayload = BackupPayload | LegacyRestorableBackupPayload;
@@ -30,7 +31,15 @@ export async function restoreDatabase(payload: RestorableBackupPayload): Promise
     logger.info('Starting database restore...');
     
     // 1. Prepare deletion statements
-    const tables = ['transactions', 'recurring_bills', 'budgets', 'categories', 'wallets', 'app_settings'];
+    const tables = [
+      'transactions',
+      'recurring_bills',
+      'budgets',
+      'categories',
+      'wallets',
+      'app_settings',
+      'error_logs',
+    ];
     const deleteStatements = tables.map(table => ({
       statement: `DELETE FROM ${table}`,
       values: []
@@ -149,6 +158,22 @@ export async function restoreDatabase(payload: RestorableBackupPayload): Promise
       insertStatements.push({
         statement: `INSERT INTO app_settings (key, value, updated_at) VALUES (?, ?, ?)`,
         values: [row.key, row.value, row.updated_at]
+      });
+    });
+
+    // Error Logs
+    (payload.error_logs ?? []).forEach((row) => {
+      insertStatements.push({
+        statement: `INSERT INTO error_logs (id, level, message, context, stack, metadata_json, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+        values: [
+          row.id,
+          row.level,
+          row.message,
+          value(row, 'context'),
+          value(row, 'stack'),
+          value(row, 'metadata_json'),
+          row.created_at,
+        ],
       });
     });
 

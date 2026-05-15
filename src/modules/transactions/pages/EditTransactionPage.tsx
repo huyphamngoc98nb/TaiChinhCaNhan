@@ -1,11 +1,9 @@
 import { useNavigate, useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { Transaction } from '../domain/transaction.model';
-import { SQLiteTransactionRepository } from '../repositories/sqlite-transaction.repository';
 import { TransactionForm } from '../components/TransactionForm';
 import { useLanguage } from '@/shared/context/LanguageContext';
-
-const repo = new SQLiteTransactionRepository();
+import { appRepositories } from '@/core/repositories/app-repositories';
 
 export function EditTransactionPage() {
   const { id } = useParams<{ id: string }>();
@@ -16,7 +14,7 @@ export function EditTransactionPage() {
 
   useEffect(() => {
     if (id) {
-      repo.getById(id).then(tx => {
+      appRepositories.transaction.getById(id).then(tx => {
         setTransaction(tx);
         setLoading(false);
       });

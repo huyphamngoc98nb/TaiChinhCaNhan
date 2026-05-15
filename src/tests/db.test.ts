@@ -80,6 +80,7 @@ describe('Database SQLite Tests', () => {
     expectExecuteContaining('ALTER TABLE transactions ADD COLUMN receipt_path');
     expectExecuteContaining('CREATE TABLE IF NOT EXISTS budgets');
     expectExecuteContaining('ALTER TABLE budgets ADD COLUMN account_type_scope');
+    expectExecuteContaining('CREATE TABLE IF NOT EXISTS error_logs');
 
     // Each migration is bookmarked with an INSERT
     expectMigrationMarked(1, '001_init');
@@ -87,14 +88,15 @@ describe('Database SQLite Tests', () => {
     expectMigrationMarked(3, '003_transactions_soft_delete');
     expectMigrationMarked(4, '004_transactions_receipt_path');
     expectMigrationMarked(15, '015_budget_account_type_scope');
+    expectMigrationMarked(16, '016_error_logs');
   });
 
   it('wraps each migration in a transaction (beginTransaction / commitTransaction)', async () => {
     await runMigrations();
 
     // 4 migrations → 4 begin + 4 commit calls
-    expect(mockDb.beginTransaction).toHaveBeenCalledTimes(15);
-    expect(mockDb.commitTransaction).toHaveBeenCalledTimes(15);
+    expect(mockDb.beginTransaction).toHaveBeenCalledTimes(16);
+    expect(mockDb.commitTransaction).toHaveBeenCalledTimes(16);
     expect(mockDb.rollbackTransaction).not.toHaveBeenCalled();
   });
 
@@ -103,7 +105,7 @@ describe('Database SQLite Tests', () => {
   // -------------------------------------------------------------------------
   it('skips all migrations when DB already at latest version', async () => {
     mockDb.query.mockResolvedValueOnce({
-      values: Array.from({ length: 15 }, (_value, index) => ({ version: index + 1 })),
+      values: Array.from({ length: 16 }, (_value, index) => ({ version: index + 1 })),
     });
 
     await runMigrations();
@@ -130,7 +132,7 @@ describe('Database SQLite Tests', () => {
     // Migrations 3 & 4 should run
     expectExecuteContaining('ALTER TABLE transactions ADD COLUMN deleted_at');
     expectExecuteContaining('ALTER TABLE transactions ADD COLUMN receipt_path');
-    expect(mockDb.beginTransaction).toHaveBeenCalledTimes(13);
+    expect(mockDb.beginTransaction).toHaveBeenCalledTimes(14);
   });
 
   // -------------------------------------------------------------------------

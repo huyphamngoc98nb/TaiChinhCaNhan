@@ -30,5 +30,10 @@ describe('SQLite encryption config', () => {
     vi.mocked(Capacitor.getPlatform).mockReturnValue('android');
 
     expect(getSQLiteEncryptionConfig()).toEqual(SQLITE_ENCRYPTION_CONFIG);
+    expect(getSQLiteEncryptionConfig()).toEqual({
+      encrypted: true,
+      mode: 'secret',
+      requiresNativeSecret: true,
+    });
   });
 });

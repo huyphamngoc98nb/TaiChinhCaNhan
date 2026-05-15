@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { SQLiteReportRepository } from '../repositories/sqlite-report.repository';
 import { GetCashflowSummaryUseCase } from '../services/get-cashflow-summary';
 import { GetCategorySummaryUseCase } from '../services/get-category-summary';
 import { GetPeriodSummaryUseCase } from '../services/get-period-summary';
@@ -15,6 +14,7 @@ import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '@/shared/constants/routes';
 import { FileText } from 'lucide-react';
 import { useLanguage } from '@/shared/context/LanguageContext';
+import { appRepositories } from '@/core/repositories/app-repositories';
 
 export const ReportsPage = () => {
   const navigate = useNavigate();
@@ -37,7 +37,7 @@ export const ReportsPage = () => {
       setLoading(true);
       setError(null);
       try {
-        const repo = new SQLiteReportRepository();
+        const repo = appRepositories.report;
         const range = buildDateRange(preset);
 
         const [cashflowRes, expensesRes, periodRes] = await Promise.all([
