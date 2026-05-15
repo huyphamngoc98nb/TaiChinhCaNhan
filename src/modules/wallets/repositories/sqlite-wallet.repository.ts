@@ -1,52 +1,13 @@
 import { getDbConnection } from '@/core/db/sqlite/connection';
+import type {
+  AccountType,
+  CreateWalletInput,
+  IWalletRepository,
+  UpdateWalletInput,
+  Wallet,
+} from './wallet.repository';
 
-export type AccountType = 'cash' | 'bank' | 'credit_card' | 'e_wallet' | 'investment' | 'other';
-
-export interface Wallet {
-  id: string;
-  name: string;
-  currency: string;
-  balance: number;
-  account_type: AccountType;
-  icon: string | null;
-  color: string | null;
-  sort_order: number;
-  is_active: 0 | 1;
-  exclude_from_total: 0 | 1;
-  credit_limit: number | null;
-  statement_day: number | null;
-  due_day: number | null;
-  created_at: number;
-  updated_at: number;
-}
-
-export interface CreateWalletInput {
-  name: string;
-  currency: string;
-  balance: number;
-  account_type: AccountType;
-  icon?: string | null;
-  color?: string | null;
-  sort_order?: number;
-  exclude_from_total?: 0 | 1;
-  credit_limit?: number | null;
-  statement_day?: number | null;
-  due_day?: number | null;
-}
-
-export interface UpdateWalletInput {
-  name?: string;
-  currency?: string;
-  account_type?: AccountType;
-  icon?: string | null;
-  color?: string | null;
-  sort_order?: number;
-  is_active?: 0 | 1;
-  exclude_from_total?: 0 | 1;
-  credit_limit?: number | null;
-  statement_day?: number | null;
-  due_day?: number | null;
-}
+export type { AccountType, CreateWalletInput, UpdateWalletInput, Wallet } from './wallet.repository';
 
 const WALLET_COLUMNS = `
   id, name, currency, balance,
@@ -76,7 +37,7 @@ function mapWallet(row: Record<string, unknown>): Wallet {
   };
 }
 
-export class SQLiteWalletRepository {
+export class SQLiteWalletRepository implements IWalletRepository {
   async getById(id: string): Promise<Wallet | null> {
     const db = await getDbConnection();
     const { values } = await db.query(

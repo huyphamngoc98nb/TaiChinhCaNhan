@@ -108,3 +108,14 @@ Before releasing a production build, verify the following:
 > [!WARNING]
 > Database restore is a destructive operation. Always export a fresh backup before performing a restore.
 
+## Security
+
+The local SQLite database is currently opened without encryption. See `docs/security.md` for the
+SQLCipher decision record and the work required before enabling encrypted native storage.
+
+## Shared State
+
+The app uses SQLite as the domain source of truth, feature hooks for async view state, and React
+Context only for provider-shaped UI concerns. Zustand is the preferred next step for cross-route
+client state when the app needs it, but should not duplicate SQLite rows in memory. See
+`docs/state-management.md`.

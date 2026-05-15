@@ -1,5 +1,6 @@
 import { Capacitor } from '@capacitor/core';
 import { sqlite, applyPragmas } from './pragmas';
+import { getSQLiteEncryptionConfig } from './encryption';
 import { logger } from '@/core/telemetry/logger';
 
 export const DB_NAME = 'taixiu_db';
@@ -19,6 +20,8 @@ export async function initDatabaseConnection() {
       logger.info('Jeep SQLite initialized for Web.');
     }
 
+    const encryption = getSQLiteEncryptionConfig();
+
     // Check connections
     const connections = await sqlite.checkConnectionsConsistency();
     const isConn = (await sqlite.isConnection(DB_NAME, false)).result;
@@ -27,7 +30,13 @@ export async function initDatabaseConnection() {
     if (connections.result && isConn) {
       db = await sqlite.retrieveConnection(DB_NAME, false);
     } else {
-      db = await sqlite.createConnection(DB_NAME, false, 'no-encryption', 1, false);
+      db = await sqlite.createConnection(
+        DB_NAME,
+        encryption.encrypted,
+        encryption.mode,
+        1,
+        false
+      );
     }
 
     await db.open();

@@ -1,0 +1,96 @@
+flowchart TD
+
+subgraph group_runtime["Runtime"]
+  node_main["main.tsx<br/>entry<br/>[main.tsx]"]
+  node_android["Capacitor Android<br/>native shell<br/>[MainActivity.java]"]
+  node_server["Server Package<br/>auxiliary runtime<br/>[index.ts]"]
+end
+
+subgraph group_app["App Shell"]
+  node_bootstrap["Bootstrap<br/>init flow<br/>[AppBootstrap.tsx]"]
+  node_provider["AppProvider<br/>composition<br/>[AppProvider.tsx]"]
+  node_router["Router<br/>navigation<br/>[index.tsx]"]
+  node_layouts["Layouts<br/>chrome<br/>[MainLayout.tsx]"]
+end
+
+subgraph group_core["Core Infra"]
+  node_db[("SQLite DB<br/>persistence<br/>[connection.ts]")]
+  node_migrations["Migrations<br/>schema"]
+  node_di["DI Wiring<br/>composition root<br/>[transactions.di.ts]"]
+  node_files["Receipt Storage<br/>device files<br/>[receipt-storage.ts]"]
+end
+
+subgraph group_features["Feature Modules"]
+  node_transactions["Transactions<br/>domain module<br/>[DashboardPage.tsx]"]
+  node_wallets["Wallets<br/>domain module<br/>[WalletsPage.tsx]"]
+  node_budgets["Budgets<br/>domain module"]
+  node_recurring["Recurring Bills<br/>domain module"]
+  node_reports["Reports<br/>analytics<br/>[ReportsPage.tsx]"]
+  node_exportmod["Export<br/>output pipeline<br/>[ExportPage.tsx]"]
+  node_backup["Backup<br/>restore pipeline<br/>[BackupPage.tsx]"]
+  node_settings["Settings<br/>preferences<br/>[SettingsPage.tsx]"]
+end
+
+subgraph group_shared["Shared"]
+  node_sharedui["Shared UI<br/>primitives<br/>[Toast.tsx]"]
+  node_sharedstate["Shared State<br/>contexts"]
+end
+
+node_main -->|"starts"| node_bootstrap
+node_bootstrap -->|"renders"| node_provider
+node_provider -->|"supplies"| node_router
+node_router -->|"uses"| node_layouts
+node_bootstrap -->|"initializes"| node_db
+node_db -->|"applies"| node_migrations
+node_di -->|"binds"| node_db
+node_di -->|"wires"| node_transactions
+node_di -->|"wires"| node_recurring
+node_di -->|"wires"| node_exportmod
+node_transactions -->|"persists"| node_db
+node_transactions -->|"stores receipts"| node_files
+node_transactions -->|"updates balances"| node_wallets
+node_budgets -->|"analyzes"| node_transactions
+node_recurring -->|"generates reminders"| node_transactions
+node_reports -->|"summarizes"| node_transactions
+node_exportmod -->|"builds from"| node_reports
+node_backup -->|"exports/restores"| node_db
+node_backup -->|"excludes assets"| node_files
+node_settings -->|"configures"| node_sharedstate
+node_sharedstate -->|"supports"| node_sharedui
+node_android -->|"hosts"| node_main
+node_server -.->|"adjacent"| node_db
+
+click node_main "https://github.com/huyphamngoc98nb/taixiucanhan/blob/main/src/main.tsx"
+click node_bootstrap "https://github.com/huyphamngoc98nb/taixiucanhan/blob/main/src/app/providers/AppBootstrap.tsx"
+click node_provider "https://github.com/huyphamngoc98nb/taixiucanhan/blob/main/src/app/providers/AppProvider.tsx"
+click node_router "https://github.com/huyphamngoc98nb/taixiucanhan/blob/main/src/app/router/index.tsx"
+click node_layouts "https://github.com/huyphamngoc98nb/taixiucanhan/blob/main/src/app/layouts/MainLayout.tsx"
+click node_db "https://github.com/huyphamngoc98nb/taixiucanhan/blob/main/src/core/db/sqlite/connection.ts"
+click node_migrations "https://github.com/huyphamngoc98nb/taixiucanhan/blob/main/src/core/db/migrations/migration-runner.ts"
+click node_di "https://github.com/huyphamngoc98nb/taixiucanhan/blob/main/src/core/di/transactions.di.ts"
+click node_files "https://github.com/huyphamngoc98nb/taixiucanhan/blob/main/src/core/files/receipt-storage.ts"
+click node_transactions "https://github.com/huyphamngoc98nb/taixiucanhan/blob/main/src/modules/transactions/pages/DashboardPage.tsx"
+click node_wallets "https://github.com/huyphamngoc98nb/taixiucanhan/blob/main/src/modules/wallets/pages/WalletsPage.tsx"
+click node_budgets "https://github.com/huyphamngoc98nb/taixiucanhan/blob/main/src/modules/budgets/pages/BudgetSettingsPage.tsx"
+click node_recurring "https://github.com/huyphamngoc98nb/taixiucanhan/blob/main/src/modules/recurring-bills/pages/RecurringBillsPage.tsx"
+click node_reports "https://github.com/huyphamngoc98nb/taixiucanhan/blob/main/src/modules/reports/pages/ReportsPage.tsx"
+click node_exportmod "https://github.com/huyphamngoc98nb/taixiucanhan/blob/main/src/modules/export/pages/ExportPage.tsx"
+click node_backup "https://github.com/huyphamngoc98nb/taixiucanhan/blob/main/src/modules/backup/pages/BackupPage.tsx"
+click node_settings "https://github.com/huyphamngoc98nb/taixiucanhan/blob/main/src/modules/settings/pages/SettingsPage.tsx"
+click node_sharedui "https://github.com/huyphamngoc98nb/taixiucanhan/blob/main/src/shared/components/Toast/Toast.tsx"
+click node_sharedstate "https://github.com/huyphamngoc98nb/taixiucanhan/blob/main/src/shared/context/LanguageContext.tsx"
+click node_android "https://github.com/huyphamngoc98nb/taixiucanhan/blob/main/android/app/src/main/java/com/taixiucanhan/app/MainActivity.java"
+click node_server "https://github.com/huyphamngoc98nb/taixiucanhan/blob/main/server/src/index.ts"
+
+classDef toneNeutral fill:#f8fafc,stroke:#334155,stroke-width:1.5px,color:#0f172a
+classDef toneBlue fill:#dbeafe,stroke:#2563eb,stroke-width:1.5px,color:#172554
+classDef toneAmber fill:#fef3c7,stroke:#d97706,stroke-width:1.5px,color:#78350f
+classDef toneMint fill:#dcfce7,stroke:#16a34a,stroke-width:1.5px,color:#14532d
+classDef toneRose fill:#ffe4e6,stroke:#e11d48,stroke-width:1.5px,color:#881337
+classDef toneIndigo fill:#e0e7ff,stroke:#4f46e5,stroke-width:1.5px,color:#312e81
+classDef toneTeal fill:#ccfbf1,stroke:#0f766e,stroke-width:1.5px,color:#134e4a
+class node_main,node_android,node_server toneBlue
+class node_bootstrap,node_provider,node_router,node_layouts toneAmber
+class node_db,node_migrations,node_di,node_files toneMint
+class node_transactions,node_wallets,node_budgets,node_recurring,node_reports,node_exportmod,node_backup,node_settings toneRose
+class node_sharedui,node_sharedstate toneIndigo

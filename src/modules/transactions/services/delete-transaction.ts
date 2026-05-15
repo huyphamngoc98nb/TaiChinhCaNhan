@@ -1,13 +1,15 @@
 import { ITransactionRepository } from '../repositories/transaction.repository';
-import { SQLiteWalletRepository } from '../../wallets/repositories/sqlite-wallet.repository';
+import { appRepositories } from '@/core/repositories/app-repositories';
+import { IWalletRepository } from '@/modules/wallets/repositories/wallet.repository';
 import { DB_NAME } from '@/core/db/sqlite/connection';
 import { runInTransaction } from '@/core/db/sqlite/transaction';
 import { Capacitor } from '@capacitor/core';
 
 export class DeleteTransactionUseCase {
-  private walletRepository = new SQLiteWalletRepository();
-
-  constructor(private repository: ITransactionRepository) {}
+  constructor(
+    private repository: ITransactionRepository,
+    private walletRepository: IWalletRepository = appRepositories.wallet
+  ) {}
 
   async execute(id: string) {
     // Bug #5 fix: use getByIdIncludeDeleted for idempotency check

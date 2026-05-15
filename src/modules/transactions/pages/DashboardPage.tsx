@@ -1,21 +1,11 @@
-import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { PlusCircle, PieChart, ChevronRight, Bell } from 'lucide-react';
-import { useBudgets } from '@/modules/budgets/hooks/useBudgets';
-import { useRecurringBills } from '@/modules/recurring-bills/hooks/useRecurringBills';
-import { useWallets } from '@/modules/wallets/hooks/useWallets';
 import { ROUTES } from '@/shared/constants/routes';
-import type { AccountType } from '@/modules/wallets/repositories/sqlite-wallet.repository';
+import { useDashboard } from '../hooks/useDashboard';
+import { formatVND } from '../services/build-dashboard-view-model';
+import type { AccountType } from '@/modules/wallets/repositories/wallet.repository';
 
 // ── helpers ────────────────────────────────────────────────────────────────────
-function formatVND(n: number): string {
-  if (Math.abs(n) >= 1_000_000_000)
-    return `${(n / 1_000_000_000).toFixed(1)} tỷ`;
-  if (Math.abs(n) >= 1_000_000)
-    return `${(n / 1_000_000).toFixed(1)} tr`;
-  return n.toLocaleString('vi-VN');
-}
-
 const ACCOUNT_TYPE_ICON: Record<AccountType, string> = {
   cash:        '💵',
   bank:        '🏦',
@@ -39,22 +29,20 @@ const STATUS_BG: Record<'safe' | 'warning' | 'exceeded', string> = {
 
 // ── component ────────────────────────────────────────────────────────────
 function DashboardPage() {
-  const { alerts, allProgress, isLoading: budgetLoading } = useBudgets();
-  const { reminders } = useRecurringBills();
-  const { wallets, totalBalance, loading: walletLoading } = useWallets();
+  const {
+    alerts,
+    budgetLoading,
+    hasAlerts,
+    hasBills,
+    overdueBillCount,
+    reminders,
+    showEmptyState,
+    topBudgets,
+    totalBalance,
+    walletLoading,
+    wallets,
+  } = useDashboard();
   const navigate = useNavigate();
-
-  // Top 5 budgets for mini-cards (warning/exceeded first)
-  const topBudgets = useMemo(() => {
-    const sorted = [...allProgress].sort((a, b) => {
-      const order = { exceeded: 0, warning: 1, safe: 2 };
-      return order[a.status] - order[b.status];
-    });
-    return sorted.slice(0, 5);
-  }, [allProgress]);
-
-  const hasAlerts = alerts.length > 0;
-  const hasBills  = reminders.length > 0;
 
   return (
     <div className="min-h-screen bg-[#F5F7FA] pb-24">
@@ -130,8 +118,8 @@ function DashboardPage() {
               {reminders.length} hoá đơn sắp đến hạn
             </p>
             <p className="text-[11px] text-amber-600">
-              {reminders.filter(r => r.status === 'overdue').length > 0
-                ? `${reminders.filter(r => r.status === 'overdue').length} đã quá hạn`
+              {overdueBillCount > 0
+                ? `${overdueBillCount} đã quá hạn`
                 : 'Nhấn để xem chi tiết'}
             </p>
           </div>
@@ -235,7 +223,7 @@ function DashboardPage() {
       )}
 
       {/* ── Empty state ──────────────────────────────────────────────────────── */}
-      {!walletLoading && wallets.length === 0 && topBudgets.length === 0 && !hasAlerts && (
+      {showEmptyState && (
         <div className="flex flex-col items-center justify-center mt-20 px-8 text-center space-y-4">
           <div className="text-6xl">👋</div>
           <h3 className="text-[18px] font-bold text-gray-900">Chào mừng!</h3>

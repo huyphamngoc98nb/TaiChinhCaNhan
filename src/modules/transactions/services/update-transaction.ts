@@ -1,16 +1,18 @@
 import { UpdateTransactionInput } from '../domain/transaction.model';
 import { validateUpdateTransaction, TransactionValidationError } from '../domain/transaction.schema';
 import { ITransactionRepository } from '../repositories/transaction.repository';
-import { SQLiteWalletRepository } from '../../wallets/repositories/sqlite-wallet.repository';
+import { appRepositories } from '@/core/repositories/app-repositories';
+import { IWalletRepository } from '@/modules/wallets/repositories/wallet.repository';
 import { DB_NAME } from '@/core/db/sqlite/connection';
 import { runInTransaction } from '@/core/db/sqlite/transaction';
 import { ReceiptStorageService } from '@/core/files/receipt-storage';
 import { Capacitor } from '@capacitor/core';
 
 export class UpdateTransactionUseCase {
-  private walletRepository = new SQLiteWalletRepository();
-
-  constructor(private repository: ITransactionRepository) {}
+  constructor(
+    private repository: ITransactionRepository,
+    private walletRepository: IWalletRepository = appRepositories.wallet
+  ) {}
 
   async execute(id: string, input: UpdateTransactionInput, newReceiptBase64?: string) {
     validateUpdateTransaction(input);

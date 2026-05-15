@@ -1,6 +1,5 @@
-import { validateBackupPayload } from './validate-backup-payload';
+import { assertBackupPayload } from './validate-backup-payload';
 import { restoreDatabase } from './restore-database';
-import { BackupPayload } from '../domain/backup.model';
 
 export async function importBackupJson(file: File): Promise<void> {
   return new Promise((resolve, reject) => {
@@ -11,12 +10,8 @@ export async function importBackupJson(file: File): Promise<void> {
         const text = e.target?.result as string;
         const payload = JSON.parse(text);
         
-        const validation = validateBackupPayload(payload);
-        if (!validation.isValid) {
-          throw new Error(validation.error || 'Invalid backup file');
-        }
-        
-        await restoreDatabase(payload as BackupPayload);
+        assertBackupPayload(payload);
+        await restoreDatabase(payload);
         resolve();
       } catch (error) {
         reject(error);

@@ -1,15 +1,36 @@
 import { getDbConnection } from '@/core/db/sqlite/connection';
-import { BackupPayload } from '../domain/backup.model';
+import { BackupPayload, BackupRow } from '../domain/backup.model';
 import { logger } from '@/core/telemetry/logger';
 
-export async function restoreDatabase(payload: BackupPayload): Promise<void> {
+interface LegacyRestorableBackupPayload {
+  metadata: {
+    version: string;
+    schema_version?: number;
+    exported_at: number;
+    app_version: string;
+  };
+  wallets: BackupRow[];
+  categories: BackupRow[];
+  transactions: BackupRow[];
+  recurring_bills: BackupRow[];
+  app_settings: BackupRow[];
+  budgets?: BackupRow[];
+}
+
+type RestorableBackupPayload = BackupPayload | LegacyRestorableBackupPayload;
+
+function value(row: BackupRow, key: string, fallback: unknown = null): unknown {
+  return row[key] ?? fallback;
+}
+
+export async function restoreDatabase(payload: RestorableBackupPayload): Promise<void> {
   const db = await getDbConnection();
   
   try {
     logger.info('Starting database restore...');
     
     // 1. Prepare deletion statements
-    const tables = ['transactions', 'recurring_bills', 'categories', 'wallets', 'app_settings'];
+    const tables = ['transactions', 'recurring_bills', 'budgets', 'categories', 'wallets', 'app_settings'];
     const deleteStatements = tables.map(table => ({
       statement: `DELETE FROM ${table}`,
       values: []
@@ -21,39 +42,110 @@ export async function restoreDatabase(payload: BackupPayload): Promise<void> {
     // Order matters for foreign keys: wallets -> categories -> transactions -> recurring_bills
     
     // Wallets
-    payload.wallets.forEach(row => {
+    payload.wallets.forEach((row) => {
       insertStatements.push({
-        statement: `INSERT INTO wallets (id, name, type, balance, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)`,
-        values: [row.id, row.name, row.type, row.balance, row.created_at, row.updated_at]
+        statement: `INSERT INTO wallets (
+          id, name, currency, balance, account_type, icon, color, sort_order,
+          is_active, exclude_from_total, credit_limit, statement_day, due_day,
+          created_at, updated_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        values: [
+          row.id,
+          row.name,
+          value(row, 'currency', 'VND'),
+          row.balance,
+          value(row, 'account_type', value(row, 'type', 'cash')),
+          value(row, 'icon'),
+          value(row, 'color'),
+          value(row, 'sort_order', 0),
+          value(row, 'is_active', 1),
+          value(row, 'exclude_from_total', 0),
+          value(row, 'credit_limit'),
+          value(row, 'statement_day'),
+          value(row, 'due_day'),
+          row.created_at,
+          row.updated_at,
+        ]
       });
     });
 
     // Categories
-    payload.categories.forEach(row => {
+    payload.categories.forEach((row) => {
       insertStatements.push({
-        statement: `INSERT INTO categories (id, name, type, icon, color, budget_amount, budget_period, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        values: [row.id, row.name, row.type, row.icon, row.color, row.budget_amount, row.budget_period, row.created_at, row.updated_at]
+        statement: `INSERT INTO categories (id, name, type, icon, color, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+        values: [row.id, row.name, row.type, value(row, 'icon'), value(row, 'color'), row.created_at, row.updated_at]
+      });
+    });
+
+    // Budgets
+    (payload.budgets ?? []).forEach((row) => {
+      insertStatements.push({
+        statement: `INSERT INTO budgets (
+          id, category_id, wallet_id, account_type_scope, amount, period,
+          start_date, end_date, is_active, created_at, updated_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        values: [
+          row.id,
+          row.category_id,
+          value(row, 'wallet_id'),
+          value(row, 'account_type_scope'),
+          row.amount,
+          row.period,
+          row.start_date,
+          value(row, 'end_date'),
+          value(row, 'is_active', 1),
+          row.created_at,
+          row.updated_at,
+        ]
       });
     });
 
     // Transactions
-    payload.transactions.forEach(row => {
+    payload.transactions.forEach((row) => {
       insertStatements.push({
-        statement: `INSERT INTO transactions (id, wallet_id, category_id, type, amount, note, receipt_path, transaction_date, created_at, updated_at, deleted_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        values: [row.id, row.wallet_id, row.category_id, row.type, row.amount, row.note, row.receipt_path, row.transaction_date, row.created_at, row.updated_at, row.deleted_at]
+        statement: `INSERT INTO transactions (
+          id, wallet_id, category_id, type, amount, note, receipt_path,
+          transaction_date, to_wallet_id, created_at, updated_at, deleted_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        values: [
+          row.id,
+          row.wallet_id,
+          row.category_id,
+          row.type,
+          row.amount,
+          value(row, 'note'),
+          value(row, 'receipt_path'),
+          row.transaction_date,
+          value(row, 'to_wallet_id'),
+          row.created_at,
+          row.updated_at,
+          value(row, 'deleted_at'),
+        ]
       });
     });
 
     // Recurring Bills
-    payload.recurring_bills.forEach(row => {
+    payload.recurring_bills.forEach((row) => {
       insertStatements.push({
         statement: `INSERT INTO recurring_bills (id, wallet_id, category_id, name, amount, frequency, next_due_date, reminder_days, is_active, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        values: [row.id, row.wallet_id, row.category_id, row.name, row.amount, row.frequency, row.next_due_date, row.reminder_days, row.is_active, row.created_at, row.updated_at]
+        values: [
+          row.id,
+          row.wallet_id,
+          row.category_id,
+          row.name,
+          row.amount,
+          row.frequency,
+          row.next_due_date,
+          value(row, 'reminder_days', 3),
+          value(row, 'is_active', 1),
+          row.created_at,
+          row.updated_at,
+        ]
       });
     });
 
     // App Settings
-    payload.app_settings.forEach(row => {
+    payload.app_settings.forEach((row) => {
       insertStatements.push({
         statement: `INSERT INTO app_settings (key, value, updated_at) VALUES (?, ?, ?)`,
         values: [row.key, row.value, row.updated_at]

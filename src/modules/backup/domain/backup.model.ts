@@ -1,16 +1,20 @@
 export interface BackupMetadata {
   version: string;
+  schema_version: number;
   exported_at: number;
   app_version: string;
 }
 
+export type BackupRow = Record<string, unknown>;
+
 export interface BackupPayload {
   metadata: BackupMetadata;
-  wallets: any[];
-  categories: any[];
-  transactions: any[];
-  recurring_bills: any[];
-  app_settings: any[];
+  wallets: BackupRow[];
+  categories: BackupRow[];
+  transactions: BackupRow[];
+  recurring_bills: BackupRow[];
+  app_settings: BackupRow[];
+  budgets: BackupRow[];
 }
 
 export interface ValidationResult {

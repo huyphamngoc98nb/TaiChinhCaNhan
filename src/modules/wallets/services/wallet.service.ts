@@ -1,10 +1,11 @@
 import { Capacitor } from '@capacitor/core';
-import {
-  SQLiteWalletRepository,
+import type {
   Wallet,
   CreateWalletInput,
   UpdateWalletInput,
-} from '../repositories/sqlite-wallet.repository';
+} from '../repositories/wallet.repository';
+import { appRepositories } from '@/core/repositories/app-repositories';
+import type { IWalletRepository } from '../repositories/wallet.repository';
 
 function generateId(): string {
   if (typeof crypto !== 'undefined' && crypto.randomUUID) {
@@ -22,11 +23,7 @@ async function persistWeb(): Promise<void> {
 }
 
 export class WalletService {
-  private readonly repo: SQLiteWalletRepository;
-
-  constructor(repo?: SQLiteWalletRepository) {
-    this.repo = repo ?? new SQLiteWalletRepository();
-  }
+  constructor(private readonly repo: IWalletRepository = appRepositories.wallet) {}
 
   async createWallet(data: CreateWalletInput): Promise<Wallet> {
     if (!data.name.trim()) {
