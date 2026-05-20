@@ -11,9 +11,10 @@ import { useCurrency } from '@/shared/context/CurrencyContext';
 interface Props {
   existing?: Transaction;
   onSuccess: () => void;
+  onDelete?: () => Promise<void>;
 }
 
-export function TransactionForm({ existing, onSuccess }: Props) {
+export function TransactionForm({ existing, onSuccess, onDelete }: Props) {
   const { formData, setFormData, setReceiptBase64, save, submitting, options } =
     useTransactionForm(existing);
   const { t } = useLanguage();
@@ -31,7 +32,7 @@ export function TransactionForm({ existing, onSuccess }: Props) {
   const transactionTypes: { id: TransactionType; label: string; active: string }[] = [
     { id: 'expense', label: t('form.type_expense'), active: 'bg-rose-500 text-white' },
     { id: 'income', label: t('form.type_income'), active: 'bg-emerald-500 text-white' },
-    { id: 'transfer', label: 'Chuyển khoản', active: 'bg-indigo-500 text-white' },
+    { id: 'transfer', label: t('transactions.transfer'), active: 'bg-indigo-500 text-white' },
   ];
 
   const handleTypeChange = (type: TransactionType) => {
@@ -94,7 +95,7 @@ export function TransactionForm({ existing, onSuccess }: Props) {
 
       {options.wallets.length > 0 && (
         <div className="space-y-1.5">
-          <p className="text-[13px] font-semibold text-gray-700">Ví</p>
+          <p className="text-[13px] font-semibold text-gray-700">{t('transactions.wallet')}</p>
           <DropdownList
             value={formData.wallet_id || ''}
             onChange={value => {
@@ -104,10 +105,10 @@ export function TransactionForm({ existing, onSuccess }: Props) {
               }
               setFormData(nextData);
             }}
-            ariaLabel="Ví"
-            placeholder="Chọn ví"
+            ariaLabel={t('transactions.wallet')}
+            placeholder={t('transactions.select_wallet')}
             options={[
-              { value: '', label: 'Chọn ví', disabled: true },
+              { value: '', label: t('transactions.select_wallet'), disabled: true },
               ...options.wallets.map((wallet: { id: string; name: string }) => ({
                 value: wallet.id,
                 label: wallet.name,
@@ -119,14 +120,14 @@ export function TransactionForm({ existing, onSuccess }: Props) {
 
       {formData.type === 'transfer' && options.wallets.length > 0 && (
         <div className="space-y-1.5">
-          <p className="text-[13px] font-semibold text-gray-700">Ví nhận</p>
+          <p className="text-[13px] font-semibold text-gray-700">{t('transactions.destination_wallet')}</p>
           <DropdownList
             value={formData.to_wallet_id || ''}
             onChange={value => setFormData({ ...formData, to_wallet_id: value, category_id: TRANSFER_CATEGORY_ID })}
-            ariaLabel="Ví nhận"
-            placeholder="Chọn ví nhận"
+            ariaLabel={t('transactions.destination_wallet')}
+            placeholder={t('transactions.select_destination_wallet')}
             options={[
-              { value: '', label: 'Chọn ví nhận', disabled: true },
+              { value: '', label: t('transactions.select_destination_wallet'), disabled: true },
               ...selectableDestinationWallets.map((wallet: { id: string; name: string }) => ({
                 value: wallet.id,
                 label: wallet.name,
@@ -170,7 +171,7 @@ export function TransactionForm({ existing, onSuccess }: Props) {
           value={formData.note || ''}
           onChange={e => setFormData({ ...formData, note: e.target.value })}
           rows={2}
-          placeholder="Ghi chú (tùy chọn)"
+          placeholder={t('form.note_placeholder')}
           className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-[12px]
             text-[14px] text-gray-800 resize-none focus:outline-none focus:border-indigo-400"
         />
@@ -191,6 +192,17 @@ export function TransactionForm({ existing, onSuccess }: Props) {
       >
         {submitting ? t('form.saving') : t('form.save')}
       </button>
+
+      {existing && onDelete && (
+        <button
+          type="button"
+          disabled={submitting}
+          onClick={onDelete}
+          className="w-full h-[48px] rounded-[14px] border border-red-200 text-red-500 text-[14px] font-semibold transition-all active:scale-[0.98] disabled:opacity-50"
+        >
+          {t('transactions.delete_confirm_btn')}
+        </button>
+      )}
     </form>
   );
 }

@@ -2,7 +2,6 @@ import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { useTransactions } from '../hooks/useTransactions';
 import { TransactionList } from '../components/TransactionList';
-import { useConfirm } from '@/shared/components/ConfirmDialog/ConfirmContext';
 import { useLanguage } from '@/shared/context/LanguageContext';
 import { DropdownList } from '@/shared/components/DropdownList';
 
@@ -10,25 +9,11 @@ export type ViewType = 'day' | 'month' | 'year';
 
 export function TransactionsPage() {
   const navigate = useNavigate();
-  const { transactions, loading, filter, setFilter, remove } = useTransactions();
-  const { confirm } = useConfirm();
+  const { transactions, loading, filter, setFilter } = useTransactions();
   const { t } = useLanguage();
   const [viewType, setViewType] = useState<ViewType>('day');
 
   const handleEdit = (id: string) => navigate(`/transactions/${id}/edit`);
-
-  const handleDelete = async (id: string) => {
-    const ok = await confirm({
-      title: t('transactions.delete_confirm_title'),
-      message: t('transactions.delete_confirm_msg'),
-      confirmText: t('transactions.delete_confirm_btn'),
-      cancelText: t('common.cancel'),
-    });
-
-    if (ok) {
-      await remove(id);
-    }
-  };
 
   const viewLabels: Record<ViewType, string> = {
     day: t('transactions.view_day'),
@@ -105,8 +90,7 @@ export function TransactionsPage() {
       <TransactionList
         transactions={transactions}
         loading={loading}
-        onEdit={handleEdit}
-        onDelete={handleDelete}
+        onSelect={handleEdit}
         viewType={viewType}
       />
     </div>

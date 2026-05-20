@@ -56,10 +56,10 @@ export function MainLayout() {
 
         confirmingExitRef.current = true;
         const shouldExit = await confirm({
-          title: 'Thoát ứng dụng?',
-          message: 'Bạn có chắc muốn thoát ứng dụng không?',
-          confirmText: 'Thoát',
-          cancelText: 'Ở lại',
+          title: t('app.exit_title'),
+          message: t('app.exit_message'),
+          confirmText: t('app.exit_confirm'),
+          cancelText: t('app.stay'),
         });
         confirmingExitRef.current = false;
 
@@ -82,7 +82,7 @@ export function MainLayout() {
 
   const menuItems = [
     { icon: <Wallet size={22} />, label: t('wallets.title'), route: ROUTES.WALLETS },
-    { icon: <Tags size={22} />, label: 'Danh mục', route: ROUTES.CATEGORIES },
+    { icon: <Tags size={22} />, label: t('categories.title'), route: ROUTES.CATEGORIES },
     { icon: <BarChart3 size={22} />, label: t('navigation.reports'), route: ROUTES.REPORTS },
     { icon: <RefreshCcw size={22} />, label: t('recurring_bills.title'), route: ROUTES.RECURRING_BILLS },
     { icon: <Download size={22} />, label: t('reports.export'), route: ROUTES.EXPORT },

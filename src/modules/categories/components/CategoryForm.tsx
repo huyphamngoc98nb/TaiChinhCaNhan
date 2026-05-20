@@ -1,6 +1,7 @@
 import { FormEvent, useEffect, useState } from 'react';
 import type { Category, CategoryInput, CategoryType } from '../domain/category.model';
 import { CATEGORY_ICON_PRESETS, CategoryIcon } from './CategoryIcon';
+import { useLanguage } from '@/shared/context/LanguageContext';
 
 interface Props {
   existing?: Category;
@@ -15,10 +16,12 @@ const COLOR_PRESETS = [
 ];
 
 export function CategoryForm({ existing, defaultType, onSave, onCancel }: Props) {
+  const { t } = useLanguage();
   const [name, setName] = useState(existing?.name ?? '');
   const [type, setType] = useState<CategoryType>(existing?.type ?? defaultType);
   const [icon, setIcon] = useState(existing?.icon ?? '');
   const [color, setColor] = useState(existing?.color ?? COLOR_PRESETS[0]);
+  const [description, setDescription] = useState(existing?.description ?? '');
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
@@ -33,7 +36,7 @@ export function CategoryForm({ existing, defaultType, onSave, onCancel }: Props)
     setError(null);
 
     if (!name.trim()) {
-      setError('Tên danh mục không được để trống.');
+      setError(t('categories.name_required'));
       return;
     }
 
@@ -44,9 +47,10 @@ export function CategoryForm({ existing, defaultType, onSave, onCancel }: Props)
         type,
         icon: icon.trim() || null,
         color,
+        description: description.trim() || null,
       });
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Lưu danh mục thất bại.');
+      setError(err instanceof Error ? err.message : t('categories.save_failed'));
     } finally {
       setSaving(false);
     }
@@ -56,10 +60,10 @@ export function CategoryForm({ existing, defaultType, onSave, onCancel }: Props)
     <form onSubmit={handleSubmit} className="space-y-5">
       <div>
         <h3 className="text-[18px] font-bold text-gray-900">
-          {existing ? 'Sửa danh mục' : 'Thêm danh mục'}
+          {existing ? t('categories.edit') : t('categories.add')}
         </h3>
         <p className="text-[12px] text-gray-500 mt-1">
-          Quản lý nhóm thu nhập và chi tiêu dùng khi ghi giao dịch.
+          {t('categories.subtitle')}
         </p>
       </div>
 
@@ -70,21 +74,21 @@ export function CategoryForm({ existing, defaultType, onSave, onCancel }: Props)
       )}
 
       <div className="space-y-1.5">
-        <p className="text-[13px] font-semibold text-gray-700">Tên danh mục *</p>
+        <p className="text-[13px] font-semibold text-gray-700">{t('categories.name')} *</p>
         <input
           value={name}
           onChange={(event) => setName(event.target.value)}
-          placeholder="VD: Lương, Ăn uống, Di chuyển..."
+          placeholder={t('categories.name_placeholder')}
           className="w-full h-[48px] bg-gray-50 border border-gray-200 rounded-[14px] px-4 text-[14px] text-gray-900 outline-none focus:border-indigo-400 transition-colors"
         />
       </div>
 
       <div className="space-y-1.5">
-        <p className="text-[13px] font-semibold text-gray-700">Loại</p>
+        <p className="text-[13px] font-semibold text-gray-700">{t('categories.type')}</p>
         <div className="grid grid-cols-2 gap-2">
           {[
-            { id: 'expense' as const, label: 'Chi tiêu' },
-            { id: 'income' as const, label: 'Thu nhập' },
+            { id: 'expense' as const, label: t('categories.expense_type') },
+            { id: 'income' as const, label: t('categories.income_type') },
           ].map((item) => (
             <button
               key={item.id}
@@ -103,14 +107,19 @@ export function CategoryForm({ existing, defaultType, onSave, onCancel }: Props)
       </div>
 
       <div className="space-y-1.5">
-        <p className="text-[13px] font-semibold text-gray-700">Biểu tượng</p>
-        <input
-          value={icon}
-          onChange={(event) => setIcon(event.target.value)}
-          placeholder="Nhập icon hoặc từ khóa"
-          className="w-full h-[48px] bg-gray-50 border border-gray-200 rounded-[14px] px-4 text-[14px] text-gray-900 outline-none focus:border-indigo-400 transition-colors"
-        />
-        <div className="flex flex-wrap gap-2 pt-1">
+        <div className="flex items-center justify-between">
+          <p className="text-[13px] font-semibold text-gray-700">{t('categories.icon')}</p>
+          {icon && (
+            <button
+              type="button"
+              onClick={() => setIcon('')}
+              className="text-[12px] font-semibold text-gray-400"
+            >
+              {t('categories.clear_icon')}
+            </button>
+          )}
+        </div>
+        <div className="flex flex-wrap gap-2">
           {iconPresets.map((preset) => (
             <button
               key={preset.value}
@@ -128,7 +137,18 @@ export function CategoryForm({ existing, defaultType, onSave, onCancel }: Props)
       </div>
 
       <div className="space-y-1.5">
-        <p className="text-[13px] font-semibold text-gray-700">Màu sắc</p>
+        <p className="text-[13px] font-semibold text-gray-700">{t('categories.icon_description')}</p>
+        <textarea
+          value={description}
+          onChange={(event) => setDescription(event.target.value)}
+          rows={3}
+          placeholder={t('categories.description_placeholder')}
+          className="w-full bg-gray-50 border border-gray-200 rounded-[14px] px-4 py-3 text-[14px] text-gray-900 outline-none focus:border-indigo-400 transition-colors resize-none"
+        />
+      </div>
+
+      <div className="space-y-1.5">
+        <p className="text-[13px] font-semibold text-gray-700">{t('categories.color')}</p>
         <div className="flex flex-wrap gap-2">
           {COLOR_PRESETS.map((preset) => (
             <button
@@ -141,7 +161,7 @@ export function CategoryForm({ existing, defaultType, onSave, onCancel }: Props)
                 borderColor: color === preset ? '#111827' : 'transparent',
                 transform: color === preset ? 'scale(1.12)' : 'scale(1)',
               }}
-              aria-label={`Chọn màu ${preset}`}
+              aria-label={`${t('categories.choose_color')} ${preset}`}
             />
           ))}
         </div>
@@ -153,7 +173,7 @@ export function CategoryForm({ existing, defaultType, onSave, onCancel }: Props)
           onClick={onCancel}
           className="flex-1 h-[52px] rounded-[14px] border border-gray-200 text-gray-600 text-[15px] font-semibold active:scale-[0.98] transition-all"
         >
-          Hủy
+          {t('common.cancel')}
         </button>
         <button
           type="submit"
@@ -162,7 +182,7 @@ export function CategoryForm({ existing, defaultType, onSave, onCancel }: Props)
             saving ? 'opacity-50' : 'shadow-lg shadow-indigo-500/20'
           }`}
         >
-          {saving ? 'Đang lưu...' : 'Lưu danh mục'}
+          {saving ? t('common.saving') : t('categories.save')}
         </button>
       </div>
     </form>

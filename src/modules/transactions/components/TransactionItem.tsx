@@ -1,17 +1,16 @@
 import { Transaction } from '../domain/transaction.model';
-import { ArrowLeftRight, Edit2, Trash2, Paperclip } from 'lucide-react';
+import { ArrowLeftRight, Paperclip } from 'lucide-react';
 import { useLanguage } from '@/shared/context/LanguageContext';
 import { useCurrency } from '@/shared/context/CurrencyContext';
 import { CategoryIcon } from '@/modules/categories/components/CategoryIcon';
 
 interface Props {
   transaction: Transaction;
-  onEdit: (id: string) => void;
-  onDelete: (id: string) => void;
+  onSelect: (id: string) => void;
   showDate?: boolean;
 }
 
-export function TransactionItem({ transaction, onEdit, onDelete, showDate = false }: Props) {
+export function TransactionItem({ transaction, onSelect, showDate = false }: Props) {
   const { language } = useLanguage();
   const { formatAmount } = useCurrency();
   const locale = language === 'vi' ? 'vi-VN' : 'en-US';
@@ -38,21 +37,28 @@ export function TransactionItem({ transaction, onEdit, onDelete, showDate = fals
     });
 
   return (
-    <div style={{
-      padding: '16px',
+    <button
+      type="button"
+      onClick={() => onSelect(transaction.id)}
+      style={{
+      padding: '10px 12px',
       background: 'var(--surface)',
-      borderRadius: '12px',
+      borderRadius: '10px',
       border: '1px solid var(--border)',
+      width: '100%',
       display: 'flex',
       justifyContent: 'space-between',
       alignItems: 'center',
       boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
-    }}>
-      <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+      textAlign: 'left',
+      cursor: 'pointer',
+    }}
+    >
+      <div style={{ display: 'flex', gap: '10px', alignItems: 'center', minWidth: 0 }}>
         <div style={{
-          width: '40px',
-          height: '40px',
-          borderRadius: '10px',
+          width: '34px',
+          height: '34px',
+          borderRadius: '9px',
           background: isTransfer
             ? 'rgba(79, 70, 229, 0.1)'
             : `${categoryColor}1A`,
@@ -61,75 +67,45 @@ export function TransactionItem({ transaction, onEdit, onDelete, showDate = fals
           alignItems: 'center',
           justifyContent: 'center',
           fontSize: '1.2rem',
+          flexShrink: 0,
         }}>
           {isTransfer ? (
-            <ArrowLeftRight size={20} color="#4f46e5" />
+            <ArrowLeftRight size={17} color="#4f46e5" />
           ) : (
             <CategoryIcon
               icon={transaction.category_icon}
               name={transaction.category_name ?? transaction.category_id}
               type={isExpense ? 'expense' : 'income'}
-              size={20}
+              size={17}
             />
           )}
         </div>
-        <div>
-          <div style={{ fontWeight: '600', fontSize: '1rem', color: 'var(--text)' }}>
+        <div style={{ minWidth: 0 }}>
+          <div style={{ fontWeight: '600', fontSize: '0.9rem', color: 'var(--text)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
             {title}
           </div>
-          <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '4px' }}>
+          <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '4px' }}>
             {showDate ? formatDateShort(transaction.transaction_date) : formatTime(transaction.transaction_date)}
             {transaction.receipt_path && <><span style={{ opacity: 0.5 }}>-</span> <Paperclip size={12} /></>}
           </div>
           {transaction.note && (
-            <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: '2px', fontStyle: 'italic' }}>
+            <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '1px', fontStyle: 'italic', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
               "{transaction.note}"
             </div>
           )}
         </div>
       </div>
 
-      <div style={{ textAlign: 'right', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '8px' }}>
+      <div style={{ textAlign: 'right', marginLeft: '12px' }}>
         <div style={{
           fontWeight: '700',
-          fontSize: '1.1rem',
+          fontSize: '0.95rem',
           color: amountColor,
+          whiteSpace: 'nowrap',
         }}>
           {amountPrefix}{formatAmount(transaction.amount, locale)}
         </div>
-        <div style={{ display: 'flex', gap: '4px' }}>
-          <button
-            onClick={() => onEdit(transaction.id)}
-            style={{
-              padding: '6px',
-              borderRadius: '6px',
-              border: 'none',
-              background: 'transparent',
-              cursor: 'pointer',
-              color: 'var(--text-muted)',
-              display: 'flex',
-            }}
-            title="Edit"
-          >
-            <Edit2 size={16} />
-          </button>
-          <button
-            onClick={() => onDelete(transaction.id)}
-            style={{
-              padding: '6px',
-              borderRadius: '6px',
-              border: 'none',
-              background: 'transparent',
-              cursor: 'pointer',
-              color: '#f43f5e',
-              display: 'flex',
-            }}
-            title="Delete"
-          >
-            <Trash2 size={16} />
-          </button>
-        </div>
       </div>
-    </div>
+    </button>
   );
 }

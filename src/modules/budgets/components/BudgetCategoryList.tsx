@@ -136,7 +136,7 @@ export function BudgetCategoryList({ categories, allProgress, onItemClick }: Pro
           <span className={`min-w-0 flex-1 truncate text-[14px] font-medium ${
             selectedCategory ? 'text-gray-900' : 'text-gray-400'
           }`}>
-            {selectedCategory ? selectedCategory.category_name : 'Chọn danh mục'}
+            {selectedCategory ? selectedCategory.category_name : t('budgets.select_category')}
           </span>
           <ChevronDown
             size={18}
@@ -153,7 +153,7 @@ export function BudgetCategoryList({ categories, allProgress, onItemClick }: Pro
                   value={query}
                   onChange={(event) => setQuery(event.target.value)}
                   autoFocus
-                  placeholder="Tìm danh mục"
+                  placeholder={t('budgets.search_placeholder')}
                   className="h-full min-w-0 flex-1 bg-transparent text-[14px] text-gray-900 outline-none placeholder:text-gray-400"
                 />
               </div>
@@ -194,7 +194,7 @@ export function BudgetCategoryList({ categories, allProgress, onItemClick }: Pro
                 ))
               ) : (
                 <div className="px-4 py-6 text-center text-[13px] text-gray-500">
-                  Không tìm thấy danh mục phù hợp
+                  {t('budgets.no_matching_categories')}
                 </div>
               )}
             </div>
@@ -233,7 +233,7 @@ export function BudgetCategoryList({ categories, allProgress, onItemClick }: Pro
         </div>
       ) : (
         <div className="rounded-[8px] border border-dashed border-gray-300 bg-white px-4 py-5 text-center text-[13px] text-gray-500">
-          Chưa có ngân sách nào được thiết lập.
+          {t('budgets.no_budgets_configured')}
         </div>
       )}
     </div>

@@ -81,8 +81,8 @@ export async function restoreDatabase(payload: RestorableBackupPayload): Promise
     // Categories
     payload.categories.forEach((row) => {
       insertStatements.push({
-        statement: `INSERT INTO categories (id, name, type, icon, color, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)`,
-        values: [row.id, row.name, row.type, value(row, 'icon'), value(row, 'color'), row.created_at, row.updated_at]
+        statement: `INSERT INTO categories (id, name, type, icon, color, description, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+        values: [row.id, row.name, row.type, value(row, 'icon'), value(row, 'color'), value(row, 'description'), row.created_at, row.updated_at]
       });
     });
 

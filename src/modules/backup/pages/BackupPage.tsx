@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Download, Upload, AlertCircle, ShieldCheck } from 'lucide-react';
 import { useToast } from '@/shared/components/Toast/ToastContext';
 import { useConfirm } from '@/shared/components/ConfirmDialog/ConfirmContext';
+import { useLanguage } from '@/shared/context/LanguageContext';
 import { exportBackupJson } from '../services/export-backup-json';
 import { importBackupJson } from '../services/import-backup-json';
 
@@ -10,6 +11,7 @@ export function BackupPage() {
   const navigate = useNavigate();
   const toast = useToast();
   const { confirm } = useConfirm();
+  const { t } = useLanguage();
   const [loading, setLoading] = useState(false);
 
   const handleExport = async () => {
@@ -27,9 +29,9 @@ export function BackupPage() {
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
       
-      toast.success('Backup exported successfully');
+      toast.success(t('backup.export_success'));
     } catch (error: any) {
-      toast.error('Failed to export backup: ' + error.message);
+      toast.error(`${t('backup.export_failed')} ${error.message}`);
     } finally {
       setLoading(false);
     }
@@ -40,10 +42,10 @@ export function BackupPage() {
     if (!file) return;
 
     const ok = await confirm({
-      title: 'Restore Backup?',
-      message: 'This will DELETE all current data and replace it with the backup content. This action cannot be undone.',
-      confirmText: 'Yes, Restore Now',
-      cancelText: 'Cancel'
+      title: t('backup.restore_confirm_title'),
+      message: t('backup.restore_confirm_msg'),
+      confirmText: t('backup.restore_confirm_btn'),
+      cancelText: t('common.cancel')
     });
 
     if (!ok) {
@@ -54,10 +56,10 @@ export function BackupPage() {
     setLoading(true);
     try {
       await importBackupJson(file);
-      toast.success('Data restored successfully! The app will now reload.');
+      toast.success(t('backup.restore_success'));
       setTimeout(() => window.location.reload(), 2000);
     } catch (error: any) {
-      toast.error('Restore failed: ' + error.message);
+      toast.error(`${t('backup.restore_failed')} ${error.message}`);
       event.target.value = ''; // Reset input
     } finally {
       setLoading(false);
@@ -73,7 +75,7 @@ export function BackupPage() {
         >
           <ArrowLeft size={24} />
         </button>
-        <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', margin: 0 }}>Backup & Restore</h2>
+        <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', margin: 0 }}>{t('backup.title')}</h2>
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
@@ -84,8 +86,8 @@ export function BackupPage() {
               <Download size={24} />
             </div>
             <div>
-              <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: '600' }}>Export Backup</h3>
-              <p style={{ margin: '2px 0 0', fontSize: '0.85rem', color: 'var(--text-muted)' }}>Save your data to a JSON file</p>
+              <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: '600' }}>{t('backup.export_title')}</h3>
+              <p style={{ margin: '2px 0 0', fontSize: '0.85rem', color: 'var(--text-muted)' }}>{t('backup.export_desc')}</p>
             </div>
           </div>
           <button
@@ -104,7 +106,7 @@ export function BackupPage() {
               opacity: loading ? 0.7 : 1
             }}
           >
-            {loading ? 'Processing...' : 'Generate Backup File'}
+            {loading ? t('common.processing') : t('backup.export_button')}
           </button>
         </div>
 
@@ -115,8 +117,8 @@ export function BackupPage() {
               <Upload size={24} />
             </div>
             <div>
-              <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: '600' }}>Restore Backup</h3>
-              <p style={{ margin: '2px 0 0', fontSize: '0.85rem', color: 'var(--text-muted)' }}>Import data from a previous backup</p>
+              <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: '600' }}>{t('backup.restore_title')}</h3>
+              <p style={{ margin: '2px 0 0', fontSize: '0.85rem', color: 'var(--text-muted)' }}>{t('backup.restore_desc')}</p>
             </div>
           </div>
           
@@ -147,7 +149,7 @@ export function BackupPage() {
                 pointerEvents: 'none'
               }}
             >
-              {loading ? 'Processing...' : 'Select Backup File'}
+              {loading ? t('common.processing') : t('backup.restore_button')}
             </button>
           </div>
 
@@ -162,7 +164,7 @@ export function BackupPage() {
           }}>
             <AlertCircle size={18} color="#f43f5e" style={{ flexShrink: 0, marginTop: '2px' }} />
             <p style={{ margin: 0, fontSize: '0.8rem', color: '#be123c', lineHeight: '1.4' }}>
-              Restoring will overwrite your current data. Please ensure you have a backup of your current state if needed.
+              {t('backup.warning')}
             </p>
           </div>
         </div>
@@ -171,12 +173,12 @@ export function BackupPage() {
         <div style={{ padding: '0 8px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-muted)', marginBottom: '12px' }}>
             <ShieldCheck size={16} />
-            <span style={{ fontSize: '0.85rem', fontWeight: '600' }}>Local Security</span>
+            <span style={{ fontSize: '0.85rem', fontWeight: '600' }}>{t('backup.local_security')}</span>
           </div>
           <ul style={{ margin: 0, paddingLeft: '20px', fontSize: '0.8rem', color: 'var(--text-muted)', lineHeight: '1.6' }}>
-            <li>Your data never leaves your device during export.</li>
-            <li>Backup files are standard JSON format.</li>
-            <li>Receipt image files are NOT included in this backup; only their file names are preserved.</li>
+            <li>{t('backup.security_1')}</li>
+            <li>{t('backup.security_2')}</li>
+            <li>{t('backup.security_3')}</li>
           </ul>
         </div>
       </div>

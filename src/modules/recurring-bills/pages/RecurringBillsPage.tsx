@@ -6,11 +6,13 @@ import { RecurringBillForm } from '../components/RecurringBillForm';
 import { RecurringBill } from '../domain/recurring-bill.model';
 import { useConfirm } from '@/shared/components/ConfirmDialog/ConfirmContext';
 import { useToast } from '@/shared/components/Toast/ToastContext';
+import { useLanguage } from '@/shared/context/LanguageContext';
 
 export function RecurringBillsPage() {
   const { bills, loading, error, create, update, remove, toggleActive, advanceDueDate } = useRecurringBills();
   const { confirm } = useConfirm();
   const toast = useToast();
+  const { t } = useLanguage();
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState<RecurringBill | null>(null);
 
@@ -18,15 +20,15 @@ export function RecurringBillsPage() {
     try {
       if (editing) {
         await update(editing.id, data);
-        toast.success('Bill updated successfully');
+        toast.success(t('recurring_bills.update_success'));
       } else {
         await create(data);
-        toast.success('Bill added successfully');
+        toast.success(t('recurring_bills.add_success'));
       }
       setShowForm(false);
       setEditing(null);
     } catch (e: any) {
-      toast.error(e.message || 'Failed to save bill');
+      toast.error(e.message || t('recurring_bills.save_failed'));
       throw e;
     }
   };
@@ -38,35 +40,35 @@ export function RecurringBillsPage() {
 
   const handleDelete = async (bill: RecurringBill) => {
     const ok = await confirm({
-      title: 'Delete Recurring Bill',
-      message: `Delete "${bill.name}"? This cannot be undone.`,
-      confirmText: 'Yes, Delete',
-      cancelText: 'Cancel',
+      title: t('recurring_bills.delete_confirm_title'),
+      message: `${t('recurring_bills.delete_confirm_msg')} ${bill.name}`,
+      confirmText: t('recurring_bills.delete_confirm_btn'),
+      cancelText: t('common.cancel'),
     });
     if (!ok) return;
     try {
       await remove(bill.id);
-      toast.success('Bill deleted');
+      toast.success(t('recurring_bills.delete_success'));
     } catch (e: any) {
-      toast.error(e.message || 'Failed to delete bill');
+      toast.error(e.message || t('recurring_bills.delete_failed'));
     }
   };
 
   const handleToggle = async (bill: RecurringBill) => {
     try {
       await toggleActive(bill);
-      toast.info(bill.is_active === 1 ? 'Bill paused' : 'Bill resumed');
+      toast.info(bill.is_active === 1 ? t('recurring_bills.bill_paused') : t('recurring_bills.bill_resumed'));
     } catch (e: any) {
-      toast.error(e.message || 'Failed to update bill');
+      toast.error(e.message || t('recurring_bills.update_failed'));
     }
   };
 
   const handleAdvance = async (bill: RecurringBill) => {
     try {
       await advanceDueDate(bill);
-      toast.success(`"${bill.name}" marked as paid — next due date advanced`);
+      toast.success(${bill.name} );
     } catch (e: any) {
-      toast.error(e.message || 'Failed to advance due date');
+      toast.error(e.message || t('recurring_bills.advance_failed'));
     }
   };
 
@@ -80,9 +82,9 @@ export function RecurringBillsPage() {
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
         <div>
-          <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', color: 'var(--text)' }}>Recurring Bills</h2>
+          <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', color: 'var(--text)' }}>{t('recurring_bills.title')}</h2>
           <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)', marginTop: '2px' }}>
-            Monthly bills · {bills.filter(b => b.is_active === 1).length} active
+            {t('recurring_bills.subtitle')} - {bills.filter(b => b.is_active === 1).length} {t('recurring_bills.active_count')}
           </p>
         </div>
         {!showForm && (
@@ -95,7 +97,7 @@ export function RecurringBillsPage() {
               boxShadow: '0 4px 6px -1px rgba(14,165,233,0.2)',
             }}
           >
-            <Plus size={18} /> Add
+            <Plus size={18} /> {t('recurring_bills.add')}
           </button>
         )}
       </div>
@@ -110,7 +112,7 @@ export function RecurringBillsPage() {
       {showForm && (
         <div style={{ background: 'var(--surface)', borderRadius: '16px', border: '1px solid var(--border)', padding: '20px', marginBottom: '24px', boxShadow: '0 4px 12px rgba(0,0,0,0.06)' }}>
           <h3 style={{ marginBottom: '16px', fontWeight: '700', color: 'var(--text)' }}>
-            {editing ? 'Edit Bill' : 'New Monthly Bill'}
+            {editing ? t('recurring_bills.edit') : t('recurring_bills.new')}
           </h3>
           <RecurringBillForm
             existing={editing ?? undefined}
@@ -122,7 +124,7 @@ export function RecurringBillsPage() {
 
       {/* List */}
       {loading ? (
-        <div style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '40px 0' }}>Loading bills…</div>
+        <div style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '40px 0' }}>{t('common.loading')}</div>
       ) : (
         <RecurringBillList
           bills={bills}

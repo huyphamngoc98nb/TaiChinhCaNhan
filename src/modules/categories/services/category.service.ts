@@ -31,6 +31,7 @@ function normalizeInput(input: CategoryInput): CategoryInput {
     type: input.type,
     icon: input.icon?.trim() || null,
     color: input.color || null,
+    description: input.description?.trim() || null,
   };
 }
 

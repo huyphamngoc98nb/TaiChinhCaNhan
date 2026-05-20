@@ -12,8 +12,8 @@ export function CategoryList({ categories, onEdit, onDelete }: Props) {
   if (categories.length === 0) {
     return (
       <div className="text-center text-gray-400 py-12">
-        <p className="text-[15px] font-semibold text-gray-500">Chưa có danh mục</p>
-        <p className="text-[13px] mt-1">Thêm danh mục để phân loại giao dịch.</p>
+        <p className="text-[15px] font-semibold text-gray-500">Chua co danh muc</p>
+        <p className="text-[13px] mt-1">Them danh muc de phan loai giao dich.</p>
       </div>
     );
   }
@@ -37,15 +37,15 @@ export function CategoryList({ categories, onEdit, onDelete }: Props) {
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-[15px] font-semibold text-gray-900 truncate">{category.name}</p>
-            <p className="text-[12px] text-gray-500">
-              {category.type === 'income' ? 'Thu nhập' : 'Chi tiêu'}
+            <p className="text-[12px] text-gray-500 truncate">
+              {category.description || (category.type === 'income' ? 'Thu nhap' : 'Chi tieu')}
             </p>
           </div>
           <button
             type="button"
             onClick={() => onEdit(category)}
             className="w-9 h-9 rounded-full bg-gray-50 text-gray-500 flex items-center justify-center active:bg-gray-100"
-            aria-label={`Sửa ${category.name}`}
+            aria-label={`Sua ${category.name}`}
           >
             <Pencil size={16} />
           </button>
@@ -53,7 +53,7 @@ export function CategoryList({ categories, onEdit, onDelete }: Props) {
             type="button"
             onClick={() => onDelete(category)}
             className="w-9 h-9 rounded-full bg-red-50 text-red-500 flex items-center justify-center active:bg-red-100"
-            aria-label={`Xóa ${category.name}`}
+            aria-label={`Xoa ${category.name}`}
           >
             <Trash2 size={16} />
           </button>

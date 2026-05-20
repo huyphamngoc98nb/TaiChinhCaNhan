@@ -13,6 +13,7 @@ CREATE TABLE IF NOT EXISTS categories (
   type TEXT NOT NULL CHECK (type IN ('income', 'expense')),
   icon TEXT,
   color TEXT,
+  description TEXT,
   created_at INTEGER NOT NULL,
   updated_at INTEGER NOT NULL,
   UNIQUE(name, type)

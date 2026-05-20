@@ -6,12 +6,11 @@ import { useCurrency } from '@/shared/context/CurrencyContext';
 interface Props {
   transactions: Transaction[];
   loading: boolean;
-  onEdit: (id: string) => void;
-  onDelete: (id: string) => void;
+  onSelect: (id: string) => void;
   viewType?: 'day' | 'month' | 'year';
 }
 
-export function TransactionList({ transactions, loading, onEdit, onDelete, viewType = 'day' }: Props) {
+export function TransactionList({ transactions, loading, onSelect, viewType = 'day' }: Props) {
   const { t, language } = useLanguage();
   const { formatAmount } = useCurrency();
   const locale = language === 'vi' ? 'vi-VN' : 'en-US';
@@ -91,8 +90,7 @@ export function TransactionList({ transactions, loading, onEdit, onDelete, viewT
               <TransactionItem
                 key={tx.id}
                 transaction={tx}
-                onEdit={onEdit}
-                onDelete={onDelete}
+                onSelect={onSelect}
                 showDate={viewType !== 'day'}
               />
             ))}

@@ -8,11 +8,13 @@ import type { Category, CategoryInput, CategoryType } from '../domain/category.m
 import { CategoryForm } from '../components/CategoryForm';
 import { CategoryList } from '../components/CategoryList';
 import { useCategories } from '../hooks/useCategories';
+import { useLanguage } from '@/shared/context/LanguageContext';
 
 export function CategoriesPage() {
   const navigate = useNavigate();
   const confirm = useConfirm();
   const toast = useToast();
+  const { t } = useLanguage();
   const {
     categories,
     loading,
@@ -52,17 +54,17 @@ export function CategoriesPage() {
 
   async function handleDelete(category: Category) {
     const ok = await confirm.confirm({
-      title: 'Xóa danh mục',
-      message: `Xóa "${category.name}"? Chỉ xóa được khi danh mục chưa có giao dịch, hóa đơn hoặc ngân sách.`,
-      confirmText: 'Xóa',
-      cancelText: 'Hủy',
+      title: t('categories.delete_confirm_title'),
+      message: `${t('categories.delete_confirm_msg')} ${category.name}`,
+      confirmText: t('categories.delete_confirm_btn'),
+      cancelText: t('common.cancel'),
     });
     if (!ok) return;
 
     try {
       await deleteCategory(category.id);
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Xóa danh mục thất bại.');
+      toast.error(err instanceof Error ? err.message : t('categories.delete_failed'));
     }
   }
 
@@ -77,15 +79,15 @@ export function CategoriesPage() {
           <ArrowLeft size={20} />
         </button>
         <div className="flex-1 min-w-0">
-          <h1 className="text-[20px] font-bold text-gray-900">Danh mục</h1>
-          <p className="text-[12px] text-gray-500">Quản lý danh mục thu nhập và chi tiêu</p>
+          <h1 className="text-[20px] font-bold text-gray-900">{t('categories.title')}</h1>
+          <p className="text-[12px] text-gray-500">{t('categories.subtitle')}</p>
         </div>
         <button
           type="button"
           onClick={openCreate}
           className="w-10 h-10 rounded-full bg-indigo-500 text-white flex items-center justify-center active:scale-[0.96] transition-transform"
           style={{ boxShadow: '0 6px 14px rgba(99,102,241,0.28)' }}
-          aria-label="Thêm danh mục"
+          aria-label={t('categories.add')}
         >
           <Plus size={20} />
         </button>
@@ -94,8 +96,8 @@ export function CategoriesPage() {
       <div className="px-4 pb-24">
         <div className="flex bg-gray-100 p-1 rounded-[12px] h-[48px] mb-4">
           {[
-            { id: 'expense' as const, label: 'Chi tiêu' },
-            { id: 'income' as const, label: 'Thu nhập' },
+            { id: 'expense' as const, label: t('categories.expense_type') },
+            { id: 'income' as const, label: t('categories.income_type') },
           ].map((item) => (
             <button
               key={item.id}
@@ -121,8 +123,8 @@ export function CategoriesPage() {
         ) : categories.length === 0 ? (
           <div className="text-center text-gray-400 py-12">
             <Tags size={36} className="mx-auto mb-3 text-gray-300" />
-            <p className="text-[15px] font-semibold text-gray-500">Chưa có danh mục</p>
-            <p className="text-[13px] mt-1">Thêm danh mục để bắt đầu phân loại giao dịch.</p>
+            <p className="text-[15px] font-semibold text-gray-500">{t('categories.no_categories')}</p>
+            <p className="text-[13px] mt-1">{t('categories.no_categories_hint')}</p>
           </div>
         ) : (
           <CategoryList

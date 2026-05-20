@@ -96,14 +96,14 @@ describe('Database SQLite Tests', () => {
     expectMigrationMarked(17, '017_budget_single_active_scope');
     expectMigrationMarked(18, '018_budget_single_active_category');
     expectMigrationMarked(19, '019_transfer_category');
+    expectMigrationMarked(20, '020_category_description');
   });
 
   it('wraps each migration in a transaction (beginTransaction / commitTransaction)', async () => {
     await runMigrations();
 
-    // 4 migrations → 4 begin + 4 commit calls
-    expect(mockDb.beginTransaction).toHaveBeenCalledTimes(19);
-    expect(mockDb.commitTransaction).toHaveBeenCalledTimes(19);
+    expect(mockDb.beginTransaction).toHaveBeenCalledTimes(20);
+    expect(mockDb.commitTransaction).toHaveBeenCalledTimes(20);
     expect(mockDb.rollbackTransaction).not.toHaveBeenCalled();
   });
 
@@ -112,7 +112,7 @@ describe('Database SQLite Tests', () => {
   // -------------------------------------------------------------------------
   it('skips all migrations when DB already at latest version', async () => {
     mockDb.query.mockResolvedValueOnce({
-      values: Array.from({ length: 19 }, (_value, index) => ({ version: index + 1 })),
+      values: Array.from({ length: 20 }, (_value, index) => ({ version: index + 1 })),
     });
 
     await runMigrations();
@@ -139,7 +139,7 @@ describe('Database SQLite Tests', () => {
     // Migrations 3 & 4 should run
     expectExecuteContaining('ALTER TABLE transactions ADD COLUMN deleted_at');
     expectExecuteContaining('ALTER TABLE transactions ADD COLUMN receipt_path');
-    expect(mockDb.beginTransaction).toHaveBeenCalledTimes(17);
+    expect(mockDb.beginTransaction).toHaveBeenCalledTimes(18);
   });
 
   // -------------------------------------------------------------------------

@@ -3,6 +3,7 @@ import { DateRangePreset } from '../services/build-date-range';
 import { ReportGranularity } from '../domain/report.model';
 import { useLanguage } from '@/shared/context/LanguageContext';
 import { DropdownList } from '@/shared/components/DropdownList';
+import { BarChart3, CalendarRange } from 'lucide-react';
 
 interface Props {
   preset: DateRangePreset;
@@ -15,14 +16,19 @@ export const DateRangePicker: React.FC<Props> = ({ preset, granularity, onPreset
   const { t } = useLanguage();
 
   return (
-    <div className="flex flex-col space-y-4 sm:flex-row sm:space-y-0 sm:space-x-4 mb-6 bg-white p-4 rounded-lg shadow border border-gray-100">
-      <div className="flex-1">
-        <p className="block text-sm font-medium text-gray-700 mb-1">{t('reports.period_label')}</p>
+    <div className="mb-5 grid grid-cols-2 gap-2 rounded-[14px] border border-gray-100 bg-white p-2 shadow-sm">
+      <div className="min-w-0">
+        <div className="mb-1 flex items-center gap-1.5 px-1 text-[11px] font-semibold uppercase text-gray-400">
+          <CalendarRange size={13} />
+          <span className="truncate">{t('reports.period_label')}</span>
+        </div>
         <DropdownList
           value={preset}
           onChange={onPresetChange}
           ariaLabel={t('reports.period_label')}
-          buttonClassName="bg-white"
+          buttonClassName="min-h-0 h-[42px] rounded-[10px] bg-gray-50 px-3 text-[13px] shadow-none"
+          menuClassName="rounded-[12px]"
+          optionClassName="min-h-[38px] text-[13px]"
           options={[
             { value: 'this_week', label: t('reports.period_this_week') },
             { value: 'this_month', label: t('reports.period_this_month') },
@@ -31,13 +37,18 @@ export const DateRangePicker: React.FC<Props> = ({ preset, granularity, onPreset
           ]}
         />
       </div>
-      <div className="flex-1">
-        <p className="block text-sm font-medium text-gray-700 mb-1">{t('reports.granularity_label')}</p>
+      <div className="min-w-0">
+        <div className="mb-1 flex items-center gap-1.5 px-1 text-[11px] font-semibold uppercase text-gray-400">
+          <BarChart3 size={13} />
+          <span className="truncate">{t('reports.granularity_label')}</span>
+        </div>
         <DropdownList
           value={granularity}
           onChange={onGranularityChange}
           ariaLabel={t('reports.granularity_label')}
-          buttonClassName="bg-white"
+          buttonClassName="min-h-0 h-[42px] rounded-[10px] bg-gray-50 px-3 text-[13px] shadow-none"
+          menuClassName="rounded-[12px]"
+          optionClassName="min-h-[38px] text-[13px]"
           options={[
             { value: 'day', label: t('reports.granularity_day') },
             { value: 'week', label: t('reports.granularity_week') },

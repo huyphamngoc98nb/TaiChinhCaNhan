@@ -53,6 +53,7 @@ const BACKUP_SCHEMAS: Record<string, Record<string, SectionSchema>> = {
         type: { type: 'string', required: true, enum: CATEGORY_TYPES },
         icon: { type: 'string', nullable: true },
         color: { type: 'string', nullable: true },
+        description: { type: 'string', nullable: true },
         created_at: { type: 'number', required: true },
         updated_at: { type: 'number', required: true },
       },

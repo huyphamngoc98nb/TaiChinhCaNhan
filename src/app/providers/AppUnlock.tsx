@@ -1,6 +1,7 @@
 import { FormEvent, useEffect, useState } from 'react';
 import { Delete } from 'lucide-react';
 import { authService } from '@/core/auth/auth.service';
+import { useLanguage } from '@/shared/context/LanguageContext';
 
 interface AppUnlockProps {
   onUnlocked: () => void;
@@ -12,6 +13,7 @@ const PIN_KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'];
 type UnlockMode = 'loading' | 'setup' | 'confirm' | 'unlock';
 
 export function AppUnlock({ onUnlocked }: AppUnlockProps) {
+  const { t } = useLanguage();
   const [pin, setPin] = useState('');
   const [firstPin, setFirstPin] = useState('');
   const [mode, setMode] = useState<UnlockMode>('loading');
@@ -132,7 +134,7 @@ export function AppUnlock({ onUnlocked }: AppUnlockProps) {
           setPin('');
           setFirstPin('');
           setMode('setup');
-          setError('PIN confirmation does not match. Please create your PIN again.');
+          setError(t('app_lock.confirm_mismatch'));
           return;
         }
         await authService.setupPin(pin);
@@ -143,7 +145,7 @@ export function AppUnlock({ onUnlocked }: AppUnlockProps) {
       setFirstPin('');
       onUnlocked();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Unable to unlock app.');
+      setError(err instanceof Error ? err.message : t('app_lock.unlock_error'));
     } finally {
       setSubmitting(false);
     }
@@ -156,14 +158,14 @@ export function AppUnlock({ onUnlocked }: AppUnlockProps) {
         className="w-full max-w-sm rounded-[18px] bg-white p-5 shadow-sm border border-gray-100"
       >
         <h1 className="text-[22px] font-bold text-gray-900 mb-2">
-          {mode === 'setup' ? 'Create PIN' : mode === 'confirm' ? 'Confirm PIN' : 'Unlock data'}
+          {mode === 'setup' ? t('app_lock.setup_title') : mode === 'confirm' ? t('app_lock.confirm_title') : t('app_lock.unlock_title')}
         </h1>
         <p className="text-[13px] text-gray-500 mb-6">
           {mode === 'setup'
-            ? 'Set a PIN to protect your encrypted database.'
+            ? t('app_lock.setup_desc')
             : mode === 'confirm'
-              ? 'Enter the same PIN again to confirm.'
-              : 'Enter your PIN to continue.'}
+              ? t('app_lock.confirm_desc')
+              : t('app_lock.unlock_desc')}
         </p>
 
         <input
@@ -179,7 +181,7 @@ export function AppUnlock({ onUnlocked }: AppUnlockProps) {
           minLength={PIN_MIN_LENGTH}
           className="sr-only"
           disabled={submitting}
-          aria-label={mode === 'unlock' ? 'PIN' : 'New PIN'}
+          aria-label={mode === 'unlock' ? 'PIN' : t('app_lock.new_pin')}
         />
 
         <div className="flex h-12 items-center justify-center gap-3" aria-hidden="true">
@@ -205,7 +207,7 @@ export function AppUnlock({ onUnlocked }: AppUnlockProps) {
               onClick={() => appendPinDigit(digit)}
               disabled={submitting}
               className="flex aspect-square items-center justify-center rounded-[8px] border border-gray-200 bg-gray-50 text-[24px] font-semibold text-gray-900 transition active:scale-[0.98] active:bg-gray-100 disabled:opacity-50"
-              aria-label={`Enter ${digit}`}
+              aria-label={`${t('app_lock.enter_digit')} ${digit}`}
             >
               {digit}
             </button>
@@ -218,7 +220,7 @@ export function AppUnlock({ onUnlocked }: AppUnlockProps) {
             onClick={() => appendPinDigit('0')}
             disabled={submitting}
             className="flex aspect-square items-center justify-center rounded-[8px] border border-gray-200 bg-gray-50 text-[24px] font-semibold text-gray-900 transition active:scale-[0.98] active:bg-gray-100 disabled:opacity-50"
-            aria-label="Enter 0"
+            aria-label={`${t('app_lock.enter_digit')} 0`}
           >
             0
           </button>
@@ -228,7 +230,7 @@ export function AppUnlock({ onUnlocked }: AppUnlockProps) {
             onClick={removePinDigit}
             disabled={submitting || pin.length === 0}
             className="flex aspect-square items-center justify-center rounded-[8px] border border-gray-200 bg-white text-gray-700 transition active:scale-[0.98] active:bg-gray-100 disabled:opacity-40"
-            aria-label="Delete digit"
+            aria-label={t('app_lock.delete_digit')}
           >
             <Delete size={24} strokeWidth={2.2} />
           </button>
@@ -240,12 +242,12 @@ export function AppUnlock({ onUnlocked }: AppUnlockProps) {
           className="mt-5 h-12 w-full rounded-[8px] bg-indigo-500 text-[14px] font-semibold text-white disabled:opacity-50"
         >
           {submitting
-            ? 'Verifying...'
+            ? t('app_lock.verifying')
             : mode === 'setup'
-              ? 'Continue'
+              ? t('app_lock.continue')
               : mode === 'confirm'
-                ? 'Create PIN'
-                : 'Unlock'}
+                ? t('app_lock.setup_title')
+                : t('app_lock.unlock_title')}
         </button>
       </form>
     </div>

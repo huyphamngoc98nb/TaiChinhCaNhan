@@ -14,6 +14,7 @@ function mapCategory(row: Record<string, unknown>): Category {
     type: row.type as CategoryType,
     icon: (row.icon as string | null) ?? null,
     color: (row.color as string | null) ?? null,
+    description: (row.description as string | null) ?? null,
     created_at: Number(row.created_at ?? 0),
     updated_at: Number(row.updated_at ?? 0),
   };
@@ -26,7 +27,7 @@ export class SQLiteCategoryRepository {
     const params = type ? [type] : [];
     const { values } = await db.query(
       `
-        SELECT id, name, type, icon, color, created_at, updated_at
+        SELECT id, name, type, icon, color, description, created_at, updated_at
         FROM categories
         WHERE id <> ?
           ${where}
@@ -41,8 +42,8 @@ export class SQLiteCategoryRepository {
     const db = await getDbConnection();
     await db.run(
       `
-        INSERT INTO categories (id, name, type, icon, color, created_at, updated_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO categories (id, name, type, icon, color, description, created_at, updated_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
       `,
       [
         id,
@@ -50,6 +51,7 @@ export class SQLiteCategoryRepository {
         input.type,
         input.icon ?? null,
         input.color ?? null,
+        input.description ?? null,
         now,
         now,
       ],
@@ -61,7 +63,7 @@ export class SQLiteCategoryRepository {
     await db.run(
       `
         UPDATE categories
-        SET name = ?, type = ?, icon = ?, color = ?, updated_at = ?
+        SET name = ?, type = ?, icon = ?, color = ?, description = ?, updated_at = ?
         WHERE id = ? AND id <> ?
       `,
       [
@@ -69,6 +71,7 @@ export class SQLiteCategoryRepository {
         input.type,
         input.icon ?? null,
         input.color ?? null,
+        input.description ?? null,
         now,
         id,
         TRANSFER_CATEGORY_ID,

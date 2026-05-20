@@ -7,6 +7,7 @@ import {
 import { UpsertCategoryBudgetUseCase } from '../services/upsert-category-budget';
 import { useToast } from '@/shared/components/Toast/ToastContext';
 import { appRepositories } from '@/core/repositories/app-repositories';
+import { useLanguage } from '@/shared/context/LanguageContext';
 
 export type BudgetScopeType = 'global' | 'account_type';
 type EditableCategoryBudget = CategoryBudget & {
@@ -23,6 +24,7 @@ export function useBudgetForm(onSuccess?: () => void) {
   const [isSaving, setIsSaving] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
   const toast = useToast();
+  const { t } = useLanguage();
 
   const upsertUseCase = useMemo(
     () => new UpsertCategoryBudgetUseCase(appRepositories.budget),
@@ -49,7 +51,7 @@ export function useBudgetForm(onSuccess?: () => void) {
 
     const parsedAmount = parseFloat(amount);
     if (isNaN(parsedAmount) || parsedAmount <= 0) {
-      setValidationError('Số tiền ngân sách phải lớn hơn 0');
+      setValidationError(t('budgets.amount_required'));
       return;
     }
 
@@ -61,11 +63,11 @@ export function useBudgetForm(onSuccess?: () => void) {
         period,
         scopeType === 'account_type' ? accountTypeScope : null
       );
-      toast.success('Đã lưu ngân sách ✓');
+      toast.success(t('budgets.budget_updated'));
       onSuccess?.();
       close();
     } catch (e: unknown) {
-      const msg = e instanceof Error ? e.message : 'Không thể lưu ngân sách';
+      const msg = e instanceof Error ? e.message : t('budgets.save_failed');
       setValidationError(msg);
     } finally {
       setIsSaving(false);
@@ -78,11 +80,11 @@ export function useBudgetForm(onSuccess?: () => void) {
     setIsSaving(true);
     try {
       await upsertUseCase.execute(selectedCategory.category_id, null, null, null);
-      toast.success('Đã xoá giới hạn ngân sách');
+      toast.success(t('budgets.budget_removed'));
       onSuccess?.();
       close();
     } catch (e: unknown) {
-      const msg = e instanceof Error ? e.message : 'Không thể xoá ngân sách';
+      const msg = e instanceof Error ? e.message : t('budgets.save_failed');
       setValidationError(msg);
     } finally {
       setIsSaving(false);

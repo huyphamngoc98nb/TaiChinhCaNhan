@@ -2,12 +2,14 @@ import { useState, useEffect, useCallback } from 'react';
 import { Transaction, TransactionFilter } from '../domain/transaction.model';
 import { listTransactionsUseCase, deleteTransactionUseCase } from '@/core/di/transactions.di';
 import { useToast } from '@/shared/components/Toast/ToastContext';
+import { useLanguage } from '@/shared/context/LanguageContext';
 
 export function useTransactions(initialFilter?: TransactionFilter) {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<TransactionFilter>(initialFilter || {});
   const toast = useToast();
+  const { t } = useLanguage();
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -29,10 +31,10 @@ export function useTransactions(initialFilter?: TransactionFilter) {
     try {
       await deleteTransactionUseCase.execute(id);
       setTransactions(prev => prev.filter(t => t.id !== id));
-      toast.success('Transaction deleted successfully');
+      toast.success(t('transactions.delete_success'));
     } catch (e: any) {
       console.error('Failed to delete transaction', e);
-      toast.error(e.message || 'Failed to delete transaction');
+      toast.error(e.message || t('transactions.delete_failed'));
       throw e;
     }
   };

@@ -3,6 +3,7 @@ import { CreateTransactionInput, UpdateTransactionInput, Transaction } from '../
 import { getDbConnection } from '@/core/db/sqlite/connection';
 import { createTransactionUseCase, updateTransactionUseCase } from '@/core/di/transactions.di';
 import { useToast } from '@/shared/components/Toast/ToastContext';
+import { useLanguage } from '@/shared/context/LanguageContext';
 
 export const TRANSFER_CATEGORY_ID = 'cat-transfer';
 
@@ -46,6 +47,7 @@ export function useTransactionForm(existing?: Transaction) {
   const [submitting, setSubmitting] = useState(false);
   const [options, setOptions] = useState<{ wallets: any[], categories: any[] }>({ wallets: [], categories: [] });
   const toast = useToast();
+  const { t } = useLanguage();
 
   // Save draft to localStorage
   useEffect(() => {
@@ -88,11 +90,11 @@ export function useTransactionForm(existing?: Transaction) {
 
       if (existing) {
         await updateTransactionUseCase.execute(existing.id, payload as UpdateTransactionInput, receiptBase64);
-        toast.success('Transaction updated successfully');
+        toast.success(t('transactions.update_success'));
       } else {
         await createTransactionUseCase.execute(payload as CreateTransactionInput, receiptBase64);
         localStorage.removeItem('transaction_draft'); // Clear draft on success
-        toast.success('Transaction added successfully');
+        toast.success(t('transactions.add_success'));
       }
       return true;
     } catch (e: any) {
