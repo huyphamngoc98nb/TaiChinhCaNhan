@@ -1,5 +1,7 @@
-import { useState } from 'react';
-import { Outlet, NavLink, useNavigate } from 'react-router-dom';
+import { useEffect, useRef, useState } from 'react';
+import { App as CapacitorApp } from '@capacitor/app';
+import { Capacitor } from '@capacitor/core';
+import { Outlet, NavLink, useLocation, useNavigate } from 'react-router-dom';
 import {
   Home,
   List,
@@ -16,13 +18,67 @@ import {
   Tags,
 } from 'lucide-react';
 import { ROUTES } from '@/shared/constants/routes';
+import { useConfirm } from '@/shared/components/ConfirmDialog/ConfirmContext';
 import { useLanguage } from '@/shared/context/LanguageContext';
 import './MainLayout.css';
 
 export function MainLayout() {
   const { t } = useLanguage();
+  const { confirm } = useConfirm();
+  const location = useLocation();
   const navigate = useNavigate();
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const drawerOpenRef = useRef(drawerOpen);
+  const confirmingExitRef = useRef(false);
+
+  useEffect(() => {
+    drawerOpenRef.current = drawerOpen;
+  }, [drawerOpen]);
+
+  useEffect(() => {
+    if (Capacitor.getPlatform() !== 'android') return;
+
+    let removeListener: (() => Promise<void>) | undefined;
+
+    async function registerBackButton() {
+      const listener = await CapacitorApp.addListener('backButton', async ({ canGoBack }) => {
+        if (drawerOpenRef.current) {
+          setDrawerOpen(false);
+          return;
+        }
+
+        if (canGoBack && location.pathname !== ROUTES.HOME) {
+          navigate(-1);
+          return;
+        }
+
+        if (confirmingExitRef.current) return;
+
+        confirmingExitRef.current = true;
+        const shouldExit = await confirm({
+          title: 'Thoát ứng dụng?',
+          message: 'Bạn có chắc muốn thoát ứng dụng không?',
+          confirmText: 'Thoát',
+          cancelText: 'Ở lại',
+        });
+        confirmingExitRef.current = false;
+
+        if (shouldExit) {
+          await CapacitorApp.exitApp();
+        }
+      });
+
+      removeListener = () => listener.remove();
+    }
+
+    void registerBackButton();
+
+    return () => {
+      if (removeListener) {
+        void removeListener();
+      }
+    };
+  }, [confirm, location.pathname, navigate]);
 
   const menuItems = [
     { icon: <Wallet size={22} />, label: t('wallets.title'), route: ROUTES.WALLETS },

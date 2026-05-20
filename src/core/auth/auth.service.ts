@@ -4,6 +4,7 @@ import { CapacitorSQLite } from '@capacitor-community/sqlite';
 import { Preferences } from '@capacitor/preferences';
 import { sqlite } from '@/core/db/sqlite/pragmas';
 import { getSQLiteEncryptionConfig } from '@/core/db/sqlite/encryption';
+import { nativeBiometric } from './native-biometric';
 
 export interface AuthResult {
   authenticated: boolean;
@@ -23,9 +24,18 @@ type BiometricListenerPlugin = typeof CapacitorSQLite & {
 };
 
 const BIOMETRIC_UNLOCK_KEY = 'biometric_unlock_enabled';
+const BIOMETRIC_UNLOCK_SUPPORTED_PLATFORMS = new Set(['android', 'ios']);
 
 function isNativePlatform(): boolean {
   return Capacitor.getPlatform() !== 'web';
+}
+
+function isBiometricUnlockSupportedPlatform(): boolean {
+  return BIOMETRIC_UNLOCK_SUPPORTED_PLATFORMS.has(Capacitor.getPlatform());
+}
+
+function isAndroidPlatform(): boolean {
+  return Capacitor.getPlatform() === 'android';
 }
 
 export class AuthService {
@@ -34,12 +44,15 @@ export class AuthService {
   }
 
   async isBiometricUnlockAvailable(): Promise<boolean> {
-    if (!this.requiresUnlock()) return false;
+    if (!this.requiresUnlock() || !isBiometricUnlockSupportedPlatform()) return false;
+    if (isAndroidPlatform()) {
+      return (await nativeBiometric.isAvailable()).available === true;
+    }
     return (await sqlite.isInConfigBiometricAuth()).result === true;
   }
 
   async isBiometricUnlockEnabled(): Promise<boolean> {
-    if (!this.requiresUnlock()) return false;
+    if (!this.requiresUnlock() || !isBiometricUnlockSupportedPlatform()) return false;
     const { value } = await Preferences.get({ key: BIOMETRIC_UNLOCK_KEY });
     return value === 'true';
   }
@@ -47,6 +60,16 @@ export class AuthService {
   async setBiometricUnlockEnabled(enabled: boolean): Promise<void> {
     if (enabled && !(await this.isBiometricUnlockAvailable())) {
       throw new Error('Biometric unlock is not available on this device.');
+    }
+
+    if (enabled && isAndroidPlatform()) {
+      const result = await nativeBiometric.authenticate({
+        title: 'Enable biometric unlock',
+        subtitle: 'Verify to use biometrics for app unlock',
+      });
+      if (!result.authenticated) {
+        throw new Error('Biometric verification failed.');
+      }
     }
 
     await Preferences.set({
@@ -117,6 +140,20 @@ export class AuthService {
       return null;
     }
 
+    if (isAndroidPlatform()) {
+      const secretStored = (await sqlite.isSecretStored()).result === true;
+      if (!secretStored) {
+        return null;
+      }
+
+      const result = await nativeBiometric.authenticate({
+        title: 'Unlock Expense Tracker',
+        subtitle: 'Verify before opening your encrypted database',
+      });
+
+      return result.authenticated ? { authenticated: true, createdSecret: false } : null;
+    }
+
     const biometricEnabled = (await sqlite.isInConfigBiometricAuth()).result === true;
     if (!biometricEnabled) {
       return null;
@@ -133,7 +170,10 @@ export class AuthService {
   async onBiometricResult(
     listener: (event: BiometricAuthEvent) => void,
   ): Promise<PluginListenerHandle | null> {
-    if (!this.requiresUnlock()) {
+    if (!this.requiresUnlock() || !isBiometricUnlockSupportedPlatform()) {
+      return null;
+    }
+    if (isAndroidPlatform()) {
       return null;
     }
 
