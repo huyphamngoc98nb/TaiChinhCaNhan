@@ -4,7 +4,6 @@ const config: CapacitorConfig = {
   appId: 'com.taixiucanhan.app',
   appName: 'Expense Tracker',
   webDir: 'dist',
-  bundledWebRuntime: false,
   plugins: {
     CapacitorSQLite: {
       iosDatabaseLocation: 'Library/CapacitorDatabase',
