@@ -50,15 +50,17 @@ function renderWalletList(wallets: Wallet[]) {
 }
 
 describe('WalletList', () => {
-  it('shows only wallets with a non-zero balance', async () => {
+  it('shows active wallets even when their balance is zero', async () => {
     renderWalletList([
       wallet({ id: 'cash', name: 'Cash', balance: 100000 }),
       wallet({ id: 'zero', name: 'Zero balance', balance: 0 }),
       wallet({ id: 'string-zero', name: 'String zero balance', balance: '0' as unknown as number }),
+      wallet({ id: 'inactive', name: 'Inactive wallet', balance: 50000, is_active: 0 }),
     ]);
 
     expect(await screen.findByText('Cash')).toBeTruthy();
-    expect(screen.queryByText('Zero balance')).toBeNull();
-    expect(screen.queryByText('String zero balance')).toBeNull();
+    expect(await screen.findByText('Zero balance')).toBeTruthy();
+    expect(await screen.findByText('String zero balance')).toBeTruthy();
+    expect(screen.queryByText('Inactive wallet')).toBeNull();
   });
 });
