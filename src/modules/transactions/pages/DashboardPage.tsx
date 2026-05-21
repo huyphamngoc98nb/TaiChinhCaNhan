@@ -8,6 +8,7 @@ import { useTransactionSummary } from '../hooks/useTransactionSummary';
 import { useWalletBalances } from '../hooks/useWalletBalances';
 import { formatVND } from '../services/build-dashboard-view-model';
 import type { AccountType } from '@/modules/wallets/repositories/wallet.repository';
+import { filterWalletsWithValue } from '@/modules/wallets/services/wallet-selectors';
 import { useLanguage } from '@/shared/context/LanguageContext';
 
 // ── helpers ────────────────────────────────────────────────────────────────────
@@ -62,7 +63,7 @@ function DashboardPage() {
   const [showAmounts, setShowAmounts] = useState(() => {
     return localStorage.getItem('dashboard_show_amounts') !== 'false';
   });
-  const valuedWallets = wallets.filter((wallet) => Number(wallet.balance || 0) !== 0);
+  const valuedWallets = filterWalletsWithValue(wallets);
   const showEmptyState =
     !walletLoading &&
     wallets.length === 0 &&

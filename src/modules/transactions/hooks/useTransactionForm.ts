@@ -62,7 +62,12 @@ export function useTransactionForm(existing?: Transaction) {
       try {
         const db = await getDbConnection();
         const { values: wallets } = await db.query(
-          'SELECT id, name FROM wallets WHERE is_active = 1 AND balance <> 0 ORDER BY sort_order ASC, name ASC'
+          `SELECT id, name
+           FROM wallets
+           WHERE is_active = 1
+             AND balance <> 0
+             AND TRIM(name) <> ''
+           ORDER BY sort_order ASC, name ASC`
         );
         const { values: categories } = await db.query('SELECT id, name, type FROM categories');
         

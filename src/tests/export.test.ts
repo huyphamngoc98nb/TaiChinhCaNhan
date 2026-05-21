@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { BuildExportDatasetUseCase } from '@/modules/export/services/build-export-dataset';
 import { exportToCsv } from '@/modules/export/services/export-excel';
+import { exportErrorLogsToJson } from '@/modules/export/services/export-error-logs';
 
 describe('Export Module Tests', () => {
   describe('BuildExportDatasetUseCase', () => {
@@ -52,6 +53,35 @@ describe('Export Module Tests', () => {
       const dataset: any = { rawTransactions: [] };
       const csv = exportToCsv(dataset);
       expect(csv).toBe('Date,Wallet,Category,Type,Amount,Note');
+    });
+  });
+
+  describe('Error Log JSON Export', () => {
+    it('exports structured error logs with parsed metadata', () => {
+      const json = exportErrorLogsToJson([
+        {
+          id: 'err_1',
+          level: 'error',
+          message: 'Boom',
+          context: 'GlobalErrorBoundary',
+          stack: 'stacktrace',
+          metadata_json: JSON.stringify({ route: '/dashboard' }),
+          created_at: new Date('2024-01-01T00:00:00.000Z').getTime(),
+        },
+      ]);
+
+      const payload = JSON.parse(json);
+
+      expect(payload.schema_version).toBe(1);
+      expect(payload.count).toBe(1);
+      expect(payload.logs[0]).toMatchObject({
+        id: 'err_1',
+        level: 'error',
+        message: 'Boom',
+        context: 'GlobalErrorBoundary',
+        metadata: { route: '/dashboard' },
+        created_at_iso: '2024-01-01T00:00:00.000Z',
+      });
     });
   });
 });

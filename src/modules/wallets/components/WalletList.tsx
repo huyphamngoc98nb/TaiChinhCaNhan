@@ -3,6 +3,7 @@ import { Wallet, AccountType } from '../repositories/sqlite-wallet.repository';
 import { WalletCard } from './WalletCard';
 import { useCurrency } from '@/shared/context/CurrencyContext';
 import { useLanguage } from '@/shared/context/LanguageContext';
+import { filterWalletsWithValue } from '../services/wallet-selectors';
 
 interface Props {
   wallets: Wallet[];
@@ -37,7 +38,7 @@ export function WalletList({
   };
 
   const visibleWallets = useMemo(
-    () => wallets.filter((wallet) => Number(wallet.balance) !== 0),
+    () => filterWalletsWithValue(wallets),
     [wallets]
   );
 

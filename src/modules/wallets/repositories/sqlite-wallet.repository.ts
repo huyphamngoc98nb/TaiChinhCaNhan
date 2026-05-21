@@ -57,7 +57,10 @@ export class SQLiteWalletRepository implements IWalletRepository {
   async getAllActive(): Promise<Wallet[]> {
     const db = await getDbConnection();
     const { values } = await db.query(
-      `SELECT ${WALLET_COLUMNS} FROM wallets ORDER BY sort_order ASC, created_at ASC`
+      `SELECT ${WALLET_COLUMNS}
+       FROM wallets
+       WHERE is_active = 1
+       ORDER BY sort_order ASC, created_at ASC`
     );
     return (values ?? []).map((row) => mapWallet(row as Record<string, unknown>));
   }

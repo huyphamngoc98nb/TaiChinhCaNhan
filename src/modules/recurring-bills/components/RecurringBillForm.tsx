@@ -6,6 +6,7 @@ import type {
 } from '../domain/recurring-bill.model';
 import { useCategories } from '@/modules/categories/hooks/useCategories';
 import { useWallets } from '@/modules/wallets/hooks/useWallets';
+import { filterWalletsWithValue } from '@/modules/wallets/services/wallet-selectors';
 import { CurrencyAmountInput } from '@/shared/components/CurrencyAmountInput';
 import { DropdownList } from '@/shared/components/DropdownList';
 import type { CurrencyCode } from '@/shared/context/CurrencyContext';
@@ -29,6 +30,10 @@ export function RecurringBillForm({ existing, onSave, onCancel }: Props) {
   const { t } = useLanguage();
   const { wallets } = useWallets();
   const { categories } = useCategories();
+  const selectableWallets = useMemo(
+    () => filterWalletsWithValue(wallets).filter(wallet => wallet.name.trim()),
+    [wallets],
+  );
   const expenseCategories = useMemo(
     () => categories.filter(category => category.type === 'expense'),
     [categories],
@@ -42,7 +47,7 @@ export function RecurringBillForm({ existing, onSave, onCancel }: Props) {
   const [reminderDays, setReminderDays] = useState(String(existing?.reminder_days ?? 3));
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
-  const selectedWallet = wallets.find(wallet => wallet.id === walletId);
+  const selectedWallet = selectableWallets.find(wallet => wallet.id === walletId);
   const selectedCurrency = (selectedWallet?.currency ?? 'VND') as CurrencyCode;
 
   async function handleSubmit(event: FormEvent) {
@@ -60,7 +65,7 @@ export function RecurringBillForm({ existing, onSave, onCancel }: Props) {
       setError(t('recurring_bills.validation_amount'));
       return;
     }
-    if (!walletId) {
+    if (!walletId || !selectableWallets.some(wallet => wallet.id === walletId)) {
       setError(t('recurring_bills.validation_wallet'));
       return;
     }
@@ -129,7 +134,7 @@ export function RecurringBillForm({ existing, onSave, onCancel }: Props) {
           onChange={setWalletId}
           ariaLabel={t('recurring_bills.wallet')}
           placeholder={t('recurring_bills.select_wallet')}
-          options={wallets.map(wallet => ({
+          options={selectableWallets.map(wallet => ({
             value: wallet.id,
             label: wallet.name,
           }))}

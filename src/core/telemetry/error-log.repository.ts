@@ -1,6 +1,8 @@
 import { getDbConnection, isDatabaseReady } from '@/core/db/sqlite/connection';
 import type { LogLevel, StructuredLogEntry } from './logger';
 
+const PENDING_LOGS_KEY = 'tai_xiu_pending_error_logs';
+
 export interface ErrorLogRecord {
   id: string;
   level: LogLevel;
@@ -18,10 +20,34 @@ function generateId(): string {
   return `err_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
 }
 
-export class ErrorLogRepository {
-  async append(entry: StructuredLogEntry): Promise<void> {
-    if (!(await isDatabaseReady())) return;
+function canUseLocalStorage() {
+  try {
+    return typeof window !== 'undefined' && typeof window.localStorage !== 'undefined';
+  } catch {
+    return false;
+  }
+}
 
+function readPendingLogs(): StructuredLogEntry[] {
+  if (!canUseLocalStorage()) return [];
+
+  try {
+    const raw = window.localStorage.getItem(PENDING_LOGS_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
+function writePendingLogs(entries: StructuredLogEntry[]) {
+  if (!canUseLocalStorage()) return;
+  window.localStorage.setItem(PENDING_LOGS_KEY, JSON.stringify(entries.slice(-100)));
+}
+
+export class ErrorLogRepository {
+  private async insert(entry: StructuredLogEntry): Promise<void> {
     const db = await getDbConnection();
     await db.run(
       `INSERT INTO error_logs
@@ -37,6 +63,26 @@ export class ErrorLogRepository {
         entry.created_at,
       ]
     );
+  }
+
+  private async flushPending(): Promise<void> {
+    const pending = readPendingLogs();
+    if (pending.length === 0) return;
+
+    for (const entry of pending) {
+      await this.insert(entry);
+    }
+    writePendingLogs([]);
+  }
+
+  async append(entry: StructuredLogEntry): Promise<void> {
+    if (!(await isDatabaseReady())) {
+      writePendingLogs([...readPendingLogs(), entry]);
+      return;
+    }
+
+    await this.flushPending();
+    await this.insert(entry);
   }
 
   async list(limit = 200): Promise<ErrorLogRecord[]> {

@@ -1,10 +1,14 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, FileText, Table, Share2, Calendar } from 'lucide-react';
+import { ArrowLeft, Bug, FileText, Table, Share2, Calendar } from 'lucide-react';
 import { useToast } from '@/shared/components/Toast/ToastContext';
 import { buildExportDatasetUseCase } from '@/core/di/export.di';
+import { logger } from '@/core/telemetry/logger';
+import { errorLogRepository } from '@/core/telemetry/error-log.repository';
 import { exportToPdf } from '../services/export-pdf';
 import { exportToCsv } from '../services/export-excel';
+import { exportErrorLogsToJson } from '../services/export-error-logs';
+import { saveErrorLogFile } from '../services/save-error-log-file';
 import { shareFile } from '../services/share-file';
 
 export function ExportPage() {
@@ -51,8 +55,40 @@ export function ExportPage() {
       }
 
       toast.success(`${format.toUpperCase()} export complete`);
-    } catch (error: any) {
-      toast.error(`Export failed: ${error.message}`);
+    } catch (error: unknown) {
+      logger.error('Report export failed', error, {
+        context: 'ExportPage',
+        metadata: { format },
+      });
+      const message = error instanceof Error ? error.message : String(error);
+      toast.error(`Export failed: ${message}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleExportErrorLogs = async () => {
+    setLoading(true);
+    try {
+      const logs = await errorLogRepository.list(500);
+      const content = exportErrorLogsToJson(logs);
+      const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+      const saved = await saveErrorLogFile(`error_logs_${timestamp}.json`, content);
+
+      if (!saved) {
+        toast.info('Log export cancelled');
+        return;
+      }
+
+      if (logs.length === 0) {
+        toast.info('No error logs found. Exported an empty JSON log file.');
+      } else {
+        toast.success('Error logs exported as JSON');
+      }
+    } catch (error: unknown) {
+      logger.error('Error log export failed', error, { context: 'ExportPage' });
+      const message = error instanceof Error ? error.message : String(error);
+      toast.error(`Log export failed: ${message}`);
     } finally {
       setLoading(false);
     }
@@ -133,6 +169,20 @@ export function ExportPage() {
           <div style={{ flex: 1 }}>
             <div style={{ fontWeight: '700', fontSize: '1.1rem' }}>Excel (CSV)</div>
             <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Raw transaction data spreadsheet</div>
+          </div>
+          <Share2 size={20} color="var(--border)" />
+        </div>
+
+        <div
+          style={cardStyle}
+          onClick={() => !loading && handleExportErrorLogs()}
+        >
+          <div style={{ padding: '12px', background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', borderRadius: '12px' }}>
+            <Bug size={28} />
+          </div>
+          <div style={{ flex: 1 }}>
+            <div style={{ fontWeight: '700', fontSize: '1.1rem' }}>Error Logs (JSON)</div>
+            <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Saved app errors and diagnostic metadata</div>
           </div>
           <Share2 size={20} color="var(--border)" />
         </div>

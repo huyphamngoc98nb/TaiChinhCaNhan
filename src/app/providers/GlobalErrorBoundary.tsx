@@ -25,7 +25,7 @@ export class GlobalErrorBoundary extends Component<
   componentDidCatch(error: Error, info: ErrorInfo) {
     logger.error('Unhandled React render error', error, {
       context: 'GlobalErrorBoundary',
-      componentStack: info.componentStack,
+      metadata: { componentStack: info.componentStack },
     });
   }
 

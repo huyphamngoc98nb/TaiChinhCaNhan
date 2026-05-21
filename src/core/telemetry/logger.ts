@@ -18,7 +18,25 @@ interface LogOptions {
 }
 
 function isLogOptions(value: unknown): value is LogOptions {
-  return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
+  return (
+    value !== null &&
+    typeof value === 'object' &&
+    !Array.isArray(value) &&
+    !(value instanceof Error) &&
+    ('context' in value || 'metadata' in value)
+  );
+}
+
+function toSafeLogValue(value: unknown): unknown {
+  if (value === undefined) return undefined;
+  if (value === null) return null;
+  if (['string', 'number', 'boolean'].includes(typeof value)) return value;
+
+  try {
+    return JSON.parse(JSON.stringify(value));
+  } catch {
+    return String(value);
+  }
 }
 
 function normalizeError(error: unknown): { stack?: string; metadata?: Record<string, unknown> } {
@@ -36,9 +54,17 @@ function normalizeError(error: unknown): { stack?: string; metadata?: Record<str
 
   return {
     metadata: {
-      value: typeof error === 'string' ? error : JSON.stringify(error),
+      value: toSafeLogValue(error),
     },
   };
+}
+
+function normalizeMetadata(metadata?: Record<string, unknown>) {
+  if (!metadata) return undefined;
+
+  return Object.fromEntries(
+    Object.entries(metadata).map(([key, value]) => [key, toSafeLogValue(value)])
+  );
 }
 
 class Logger {
@@ -69,7 +95,7 @@ class Logger {
       stack: normalizedError.stack,
       metadata: {
         ...normalizedError.metadata,
-        ...maybeOptions?.metadata,
+        ...normalizeMetadata(maybeOptions?.metadata),
       },
       created_at: Date.now(),
     };
