@@ -22,6 +22,7 @@ import budgetSingleActiveScopeSql from './017_budget_single_active_scope.sql?raw
 import budgetSingleActiveCategorySql from './018_budget_single_active_category.sql?raw';
 import transferCategorySql from './019_transfer_category.sql?raw';
 import categoryDescriptionSql from './020_category_description.sql?raw';
+import removeUnusedSeedWalletsSql from './021_remove_unused_seed_wallets.sql?raw';
 
 const MIGRATIONS = [
   { version: 1,  name: '001_init',                          sql: initSql },
@@ -44,6 +45,7 @@ const MIGRATIONS = [
   { version: 18, name: '018_budget_single_active_category',  sql: budgetSingleActiveCategorySql },
   { version: 19, name: '019_transfer_category',              sql: transferCategorySql },
   { version: 20, name: '020_category_description',            sql: categoryDescriptionSql },
+  { version: 21, name: '021_remove_unused_seed_wallets',       sql: removeUnusedSeedWalletsSql },
 ];
 
 /**

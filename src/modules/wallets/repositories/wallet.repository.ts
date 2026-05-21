@@ -46,13 +46,20 @@ export interface UpdateWalletInput {
   due_day?: number | null;
 }
 
+export interface WalletReferenceCounts {
+  transactions: number;
+  recurringBills: number;
+  budgets: number;
+}
+
 export interface IWalletRepository {
   getById(id: string): Promise<Wallet | null>;
   getAllActive(): Promise<Wallet[]>;
   getTotalBalance(): Promise<number>;
   create(id: string, data: CreateWalletInput, now: number): Promise<void>;
   update(id: string, data: UpdateWalletInput, now: number): Promise<void>;
-  archive(id: string, now: number): Promise<void>;
+  getReferenceCounts(id: string): Promise<WalletReferenceCounts>;
+  delete(id: string): Promise<void>;
   updateBalance(id: string, newBalance: number, updatedAt: number): Promise<void>;
   updateBalanceDelta(id: string, delta: number, updatedAt: number): Promise<void>;
 }

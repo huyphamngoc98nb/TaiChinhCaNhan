@@ -21,14 +21,13 @@ export class InMemoryWalletRepository implements IWalletRepository {
 
   async getAllActive(): Promise<Wallet[]> {
     return Array.from(this.wallets.values())
-      .filter((wallet) => wallet.is_active === 1)
       .sort((a, b) => a.sort_order - b.sort_order || a.created_at - b.created_at)
       .map((wallet) => ({ ...wallet }));
   }
 
   async getTotalBalance(): Promise<number> {
     return Array.from(this.wallets.values())
-      .filter((wallet) => wallet.is_active === 1 && wallet.exclude_from_total === 0)
+      .filter((wallet) => wallet.exclude_from_total === 0)
       .reduce((total, wallet) => total + wallet.balance, 0);
   }
 
@@ -63,8 +62,12 @@ export class InMemoryWalletRepository implements IWalletRepository {
     });
   }
 
-  async archive(id: string, now: number): Promise<void> {
-    await this.update(id, { is_active: 0 }, now);
+  async getReferenceCounts(): Promise<{ transactions: number; recurringBills: number; budgets: number }> {
+    return { transactions: 0, recurringBills: 0, budgets: 0 };
+  }
+
+  async delete(id: string): Promise<void> {
+    this.wallets.delete(id);
   }
 
   async updateBalance(id: string, newBalance: number, updatedAt: number): Promise<void> {

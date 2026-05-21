@@ -1,6 +1,7 @@
-import { FormEvent, useEffect, useState } from 'react';
+import { FormEvent, useEffect, useMemo, useState } from 'react';
 import type { Category, CategoryInput, CategoryType } from '../domain/category.model';
-import { CATEGORY_ICON_PRESETS, CategoryIcon } from './CategoryIcon';
+import { CategoryIcon, getCategoryIconPresets, getLocalizedCategoryDescription } from './CategoryIcon';
+import { CategoryIconPicker } from './CategoryIconPicker';
 import { useLanguage } from '@/shared/context/LanguageContext';
 
 interface Props {
@@ -16,20 +17,30 @@ const COLOR_PRESETS = [
 ];
 
 export function CategoryForm({ existing, defaultType, onSave, onCancel }: Props) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [name, setName] = useState(existing?.name ?? '');
   const [type, setType] = useState<CategoryType>(existing?.type ?? defaultType);
   const [icon, setIcon] = useState(existing?.icon ?? '');
   const [color, setColor] = useState(existing?.color ?? COLOR_PRESETS[0]);
-  const [description, setDescription] = useState(existing?.description ?? '');
+  const [description, setDescription] = useState(
+    getLocalizedCategoryDescription(existing?.icon, existing?.description, language) ?? '',
+  );
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [iconPickerOpen, setIconPickerOpen] = useState(false);
 
   useEffect(() => {
     if (!existing) setType(defaultType);
   }, [defaultType, existing]);
 
-  const iconPresets = CATEGORY_ICON_PRESETS.filter((preset) => preset.type === type || preset.type === 'all');
+  const iconPresets = useMemo(
+    () => getCategoryIconPresets(language).filter((preset) => preset.type === type || preset.type === 'all'),
+    [language, type],
+  );
+
+  useEffect(() => {
+    setDescription((current) => getLocalizedCategoryDescription(icon, current, language) ?? current);
+  }, [icon, language]);
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();
@@ -57,6 +68,7 @@ export function CategoryForm({ existing, defaultType, onSave, onCancel }: Props)
   }
 
   return (
+    <>
     <form onSubmit={handleSubmit} className="space-y-5">
       <div>
         <h3 className="text-[18px] font-bold text-gray-900">
@@ -118,6 +130,27 @@ export function CategoryForm({ existing, defaultType, onSave, onCancel }: Props)
               {t('categories.clear_icon')}
             </button>
           )}
+        </div>
+        <div className="flex items-center gap-3 rounded-[14px] border border-gray-200 bg-gray-50 p-3">
+          <div
+            className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[12px] bg-white text-gray-700"
+            style={{ color: color || '#6366F1' }}
+          >
+            <CategoryIcon icon={icon} name={name || t('categories.icon')} type={type} size={22} />
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="text-[13px] font-semibold text-gray-900">{t('categories.selected_icon')}</p>
+            <p className="truncate text-[12px] text-gray-500">
+              {icon || t('categories.no_icon_selected')}
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setIconPickerOpen(true)}
+            className="h-10 shrink-0 rounded-[10px] bg-indigo-500 px-3 text-[12px] font-semibold text-white active:scale-[0.98]"
+          >
+            {t('categories.view_more_icons')}
+          </button>
         </div>
         <div className="flex flex-wrap gap-2">
           {iconPresets.map((preset) => (
@@ -186,5 +219,13 @@ export function CategoryForm({ existing, defaultType, onSave, onCancel }: Props)
         </button>
       </div>
     </form>
+    <CategoryIconPicker
+      isOpen={iconPickerOpen}
+      type={type}
+      selectedIcon={icon}
+      onSelect={setIcon}
+      onClose={() => setIconPickerOpen(false)}
+    />
+    </>
   );
 }

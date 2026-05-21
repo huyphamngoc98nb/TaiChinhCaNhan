@@ -6,6 +6,7 @@ import type {
   IWalletRepository,
   UpdateWalletInput,
   Wallet,
+  WalletReferenceCounts,
 } from './wallet.repository';
 
 export type { AccountType, CreateWalletInput, UpdateWalletInput, Wallet } from './wallet.repository';
@@ -52,17 +53,17 @@ export class SQLiteWalletRepository implements IWalletRepository {
     return mapWallet(values[0] as Record<string, unknown>);
   }
 
-  /** Returns all active wallets ordered by sort_order. */
+  /** Returns wallets ordered by sort_order. */
   async getAllActive(): Promise<Wallet[]> {
     const db = await getDbConnection();
     const { values } = await db.query(
-      `SELECT ${WALLET_COLUMNS} FROM wallets WHERE is_active = 1 ORDER BY sort_order ASC, created_at ASC`
+      `SELECT ${WALLET_COLUMNS} FROM wallets ORDER BY sort_order ASC, created_at ASC`
     );
     return (values ?? []).map((row) => mapWallet(row as Record<string, unknown>));
   }
 
   /**
-   * Sum of balances for wallets that are active AND not excluded from total.
+   * Sum of balances for wallets that are not excluded from total.
    * Credit-card wallets hold negative balances (amount owed), so they correctly
    * reduce net worth when summed.
    */
@@ -71,7 +72,7 @@ export class SQLiteWalletRepository implements IWalletRepository {
     const { values } = await db.query(
       `SELECT COALESCE(SUM(balance), 0) AS total
        FROM wallets
-       WHERE is_active = 1 AND exclude_from_total = 0`
+       WHERE exclude_from_total = 0`
     );
     return (values?.[0]?.total as number) ?? 0;
   }
@@ -135,14 +136,34 @@ export class SQLiteWalletRepository implements IWalletRepository {
     await db.run(`UPDATE wallets SET ${sets.join(', ')} WHERE id = ?`, values, !isManagedTransactionActive());
   }
 
-  /** Soft-deactivate: sets is_active = 0. Row is never hard-deleted. */
-  async archive(id: string, now: number): Promise<void> {
+  async getReferenceCounts(id: string): Promise<WalletReferenceCounts> {
     const db = await getDbConnection();
-    await db.run(
-      'UPDATE wallets SET is_active = 0, updated_at = ? WHERE id = ?',
-      [now, id],
-      !isManagedTransactionActive()
+    const transactions = await db.query(
+      `SELECT COUNT(*) AS count
+       FROM transactions
+       WHERE deleted_at IS NULL
+         AND (wallet_id = ? OR to_wallet_id = ?)`,
+      [id, id]
     );
+    const recurringBills = await db.query(
+      'SELECT COUNT(*) AS count FROM recurring_bills WHERE wallet_id = ? AND is_active != -1',
+      [id]
+    );
+    const budgets = await db.query(
+      'SELECT COUNT(*) AS count FROM budgets WHERE wallet_id = ? AND is_active = 1',
+      [id]
+    );
+
+    return {
+      transactions: Number(transactions.values?.[0]?.count ?? 0),
+      recurringBills: Number(recurringBills.values?.[0]?.count ?? 0),
+      budgets: Number(budgets.values?.[0]?.count ?? 0),
+    };
+  }
+
+  async delete(id: string): Promise<void> {
+    const db = await getDbConnection();
+    await db.run('DELETE FROM wallets WHERE id = ?', [id], !isManagedTransactionActive());
   }
 
   /**

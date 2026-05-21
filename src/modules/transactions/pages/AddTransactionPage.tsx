@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { TransactionForm } from '../components/TransactionForm';
 import { useLanguage } from '@/shared/context/LanguageContext';
+import { ROUTES } from '@/shared/constants/routes';
 
 export function AddTransactionPage() {
   const navigate = useNavigate();
@@ -24,7 +25,7 @@ export function AddTransactionPage() {
 
       {/* Form */}
       <div className="px-4 pb-24">
-        <TransactionForm onSuccess={() => navigate('/')} />
+        <TransactionForm onSuccess={() => navigate(ROUTES.TRANSACTIONS)} />
       </div>
     </div>
   );

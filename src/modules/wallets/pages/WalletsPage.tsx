@@ -4,10 +4,16 @@ import { WalletList } from '../components/WalletList';
 import { WalletForm } from '../components/WalletForm';
 import { BottomSheet } from '@/shared/components/BottomSheet';
 import { Wallet, CreateWalletInput, UpdateWalletInput } from '../repositories/sqlite-wallet.repository';
+import { useConfirm } from '@/shared/components/ConfirmDialog/ConfirmContext';
+import { useToast } from '@/shared/components/Toast/ToastContext';
+import { useLanguage } from '@/shared/context/LanguageContext';
 
 export function WalletsPage() {
-  const { wallets, totalBalance, loading, error, createWallet, updateWallet, archiveWallet } =
+  const { wallets, totalBalance, loading, error, createWallet, updateWallet, deleteWallet } =
     useWallets();
+  const { confirm } = useConfirm();
+  const toast = useToast();
+  const { t } = useLanguage();
 
   const [sheetOpen, setSheetOpen]         = useState(false);
   const [editTarget, setEditTarget]       = useState<Wallet | undefined>(undefined);
@@ -30,10 +36,20 @@ export function WalletsPage() {
     }
   }
 
-  async function handleArchive() {
-    if (editTarget) {
-      await archiveWallet(editTarget.id);
-    }
+  async function handleDelete(): Promise<boolean> {
+    if (!editTarget) return false;
+
+    const ok = await confirm({
+      title: t('wallets.delete_confirm_title'),
+      message: `${t('wallets.delete_confirm_msg')} ${editTarget.name}`,
+      confirmText: t('common.delete'),
+      cancelText: t('common.cancel'),
+    });
+    if (!ok) return false;
+
+    await deleteWallet(editTarget.id);
+    toast.success(t('wallets.delete_success'));
+    return true;
   }
 
   return (
@@ -52,7 +68,7 @@ export function WalletsPage() {
           existing={editTarget}
           onSave={handleSave}
           onClose={() => setSheetOpen(false)}
-          onArchive={editTarget ? handleArchive : undefined}
+          onDelete={editTarget ? handleDelete : undefined}
         />
       </BottomSheet>
     </>

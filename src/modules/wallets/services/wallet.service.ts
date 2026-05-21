@@ -62,13 +62,18 @@ export class WalletService {
     return wallet;
   }
 
-  /** Soft-deactivate: wallet is hidden from active lists but preserved in DB. */
-  async archiveWallet(id: string): Promise<void> {
-    await this.repo.archive(id, Date.now());
+  async deleteWallet(id: string): Promise<void> {
+    const counts = await this.repo.getReferenceCounts(id);
+    const totalReferences = counts.transactions + counts.recurringBills + counts.budgets;
+    if (totalReferences > 0) {
+      throw new Error('Cannot delete a wallet that is used by transactions, bills, or budgets.');
+    }
+
+    await this.repo.delete(id);
     await persistWeb();
   }
 
-  /** Net worth = sum of balances for wallets that are active and not excluded. */
+  /** Net worth = sum of balances for wallets that are not excluded. */
   async getNetWorth(): Promise<number> {
     return this.repo.getTotalBalance();
   }

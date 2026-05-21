@@ -1,6 +1,8 @@
 import { Pencil, Trash2 } from 'lucide-react';
 import type { Category } from '../domain/category.model';
 import { CategoryIcon } from './CategoryIcon';
+import { useLanguage } from '@/shared/context/LanguageContext';
+import { getLocalizedCategoryDescription } from './CategoryIcon';
 
 interface Props {
   categories: Category[];
@@ -9,18 +11,23 @@ interface Props {
 }
 
 export function CategoryList({ categories, onEdit, onDelete }: Props) {
+  const { t, language } = useLanguage();
+
   if (categories.length === 0) {
     return (
       <div className="text-center text-gray-400 py-12">
-        <p className="text-[15px] font-semibold text-gray-500">Chua co danh muc</p>
-        <p className="text-[13px] mt-1">Them danh muc de phan loai giao dich.</p>
+        <p className="text-[15px] font-semibold text-gray-500">{t('categories.no_categories')}</p>
+        <p className="text-[13px] mt-1">{t('categories.no_categories_hint')}</p>
       </div>
     );
   }
 
   return (
     <div className="space-y-3">
-      {categories.map((category) => (
+      {categories.map((category) => {
+        const description = getLocalizedCategoryDescription(category.icon, category.description, language);
+
+        return (
         <div
           key={category.id}
           className="bg-white rounded-[14px] px-4 py-3 flex items-center gap-3"
@@ -38,14 +45,14 @@ export function CategoryList({ categories, onEdit, onDelete }: Props) {
           <div className="flex-1 min-w-0">
             <p className="text-[15px] font-semibold text-gray-900 truncate">{category.name}</p>
             <p className="text-[12px] text-gray-500 truncate">
-              {category.description || (category.type === 'income' ? 'Thu nhap' : 'Chi tieu')}
+              {description || (category.type === 'income' ? t('categories.income_type') : t('categories.expense_type'))}
             </p>
           </div>
           <button
             type="button"
             onClick={() => onEdit(category)}
             className="w-9 h-9 rounded-full bg-gray-50 text-gray-500 flex items-center justify-center active:bg-gray-100"
-            aria-label={`Sua ${category.name}`}
+            aria-label={`${t('common.edit')} ${category.name}`}
           >
             <Pencil size={16} />
           </button>
@@ -53,12 +60,13 @@ export function CategoryList({ categories, onEdit, onDelete }: Props) {
             type="button"
             onClick={() => onDelete(category)}
             className="w-9 h-9 rounded-full bg-red-50 text-red-500 flex items-center justify-center active:bg-red-100"
-            aria-label={`Xoa ${category.name}`}
+            aria-label={`${t('common.delete')} ${category.name}`}
           >
             <Trash2 size={16} />
           </button>
         </div>
-      ))}
+        );
+      })}
     </div>
   );
 }

@@ -9,7 +9,7 @@ interface UseWalletsReturn {
   error: string | null;
   createWallet: (data: CreateWalletInput) => Promise<Wallet>;
   updateWallet: (id: string, data: UpdateWalletInput) => Promise<Wallet>;
-  archiveWallet: (id: string) => Promise<void>;
+  deleteWallet: (id: string) => Promise<void>;
   refresh: () => Promise<void>;
 }
 
@@ -61,9 +61,9 @@ export function useWallets(): UseWalletsReturn {
     [service, load]
   );
 
-  const archiveWallet = useCallback(
+  const deleteWallet = useCallback(
     async (id: string): Promise<void> => {
-      await service.archiveWallet(id);
+      await service.deleteWallet(id);
       await load();
     },
     [service, load]
@@ -76,7 +76,7 @@ export function useWallets(): UseWalletsReturn {
     error,
     createWallet,
     updateWallet,
-    archiveWallet,
+    deleteWallet,
     refresh: load,
   };
 }

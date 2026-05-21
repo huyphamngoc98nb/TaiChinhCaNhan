@@ -3,6 +3,7 @@ import { Transaction, TransactionFilter } from '../domain/transaction.model';
 import { listTransactionsUseCase, deleteTransactionUseCase } from '@/core/di/transactions.di';
 import { useToast } from '@/shared/components/Toast/ToastContext';
 import { useLanguage } from '@/shared/context/LanguageContext';
+import { localizeTransactionError } from '../services/transaction-error-messages';
 
 export function useTransactions(initialFilter?: TransactionFilter) {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -32,9 +33,9 @@ export function useTransactions(initialFilter?: TransactionFilter) {
       await deleteTransactionUseCase.execute(id);
       setTransactions(prev => prev.filter(t => t.id !== id));
       toast.success(t('transactions.delete_success'));
-    } catch (e: any) {
+    } catch (e: unknown) {
       console.error('Failed to delete transaction', e);
-      toast.error(e.message || t('transactions.delete_failed'));
+      toast.error(localizeTransactionError(e, t));
       throw e;
     }
   };

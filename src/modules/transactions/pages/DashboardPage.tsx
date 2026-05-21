@@ -62,6 +62,7 @@ function DashboardPage() {
   const [showAmounts, setShowAmounts] = useState(() => {
     return localStorage.getItem('dashboard_show_amounts') !== 'false';
   });
+  const valuedWallets = wallets.filter((wallet) => Number(wallet.balance || 0) !== 0);
   const showEmptyState =
     !walletLoading &&
     wallets.length === 0 &&
@@ -115,7 +116,7 @@ function DashboardPage() {
         )}
 
         <div className="flex gap-2 flex-wrap">
-          {wallets.slice(0, 4).map(w => (
+          {valuedWallets.slice(0, 4).map(w => (
             <div
               key={w.id}
               className="flex items-center gap-1.5 bg-white/15 rounded-full px-3 py-1"
@@ -127,9 +128,9 @@ function DashboardPage() {
               <span className="text-white/70 text-[11px]">{displayAmount(w.balance)}</span>
             </div>
           ))}
-          {wallets.length > 4 && (
+          {valuedWallets.length > 4 && (
             <div className="flex items-center bg-white/15 rounded-full px-3 py-1">
-              <span className="text-white/70 text-[11px]">+{wallets.length - 4} {t('dashboard.wallet_count_suffix')}</span>
+              <span className="text-white/70 text-[11px]">+{valuedWallets.length - 4} {t('dashboard.wallet_count_suffix')}</span>
             </div>
           )}
         </div>

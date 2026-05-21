@@ -4,6 +4,7 @@ import { getDbConnection } from '@/core/db/sqlite/connection';
 import { createTransactionUseCase, updateTransactionUseCase } from '@/core/di/transactions.di';
 import { useToast } from '@/shared/components/Toast/ToastContext';
 import { useLanguage } from '@/shared/context/LanguageContext';
+import { localizeTransactionError } from '../services/transaction-error-messages';
 
 export const TRANSFER_CATEGORY_ID = 'cat-transfer';
 
@@ -60,7 +61,9 @@ export function useTransactionForm(existing?: Transaction) {
     async function loadOptions() {
       try {
         const db = await getDbConnection();
-        const { values: wallets } = await db.query('SELECT id, name FROM wallets WHERE is_active = 1 ORDER BY sort_order ASC, name ASC');
+        const { values: wallets } = await db.query(
+          'SELECT id, name FROM wallets WHERE is_active = 1 AND balance <> 0 ORDER BY sort_order ASC, name ASC'
+        );
         const { values: categories } = await db.query('SELECT id, name, type FROM categories');
         
         const loadedWallets = wallets || [];
@@ -97,9 +100,8 @@ export function useTransactionForm(existing?: Transaction) {
         toast.success(t('transactions.add_success'));
       }
       return true;
-    } catch (e: any) {
-      const msg = e.errors ? e.errors.join(', ') : e.message;
-      toast.error(msg);
+    } catch (e: unknown) {
+      toast.error(localizeTransactionError(e, t));
       return false;
     } finally {
       setSubmitting(false);

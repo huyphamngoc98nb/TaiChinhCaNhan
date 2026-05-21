@@ -4,6 +4,7 @@ import { runInTransaction } from '../core/db/sqlite/transaction';
 import { seedDefaultData } from '../core/db/seed/default-categories';
 import { SQLiteTransactionRepository } from '../modules/transactions/repositories/sqlite-transaction.repository';
 import { SQLiteWalletRepository } from '../modules/wallets/repositories/sqlite-wallet.repository';
+import { SQLiteCategoryRepository } from '../modules/categories/repositories/sqlite-category.repository';
 import * as connection from '../core/db/sqlite/connection';
 
 // Mock the DB connection and logger
@@ -85,6 +86,8 @@ describe('Database SQLite Tests', () => {
     expectExecuteContaining('ALTER TABLE budgets ADD COLUMN account_type_scope');
     expectExecuteContaining('CREATE TABLE IF NOT EXISTS error_logs');
     expectExecuteContaining('CREATE INDEX IF NOT EXISTS idx_budgets_active_scope');
+    expectExecuteContaining("DELETE FROM wallets");
+    expectExecuteContaining("'wallet-cash-1', 'wallet-bank-1', 'wallet-ewallet-1', 'wallet-cc-1'");
 
     // Each migration is bookmarked with an INSERT
     expectMigrationMarked(1, '001_init');
@@ -97,13 +100,14 @@ describe('Database SQLite Tests', () => {
     expectMigrationMarked(18, '018_budget_single_active_category');
     expectMigrationMarked(19, '019_transfer_category');
     expectMigrationMarked(20, '020_category_description');
+    expectMigrationMarked(21, '021_remove_unused_seed_wallets');
   });
 
   it('wraps each migration in a transaction (beginTransaction / commitTransaction)', async () => {
     await runMigrations();
 
-    expect(mockDb.beginTransaction).toHaveBeenCalledTimes(20);
-    expect(mockDb.commitTransaction).toHaveBeenCalledTimes(20);
+    expect(mockDb.beginTransaction).toHaveBeenCalledTimes(21);
+    expect(mockDb.commitTransaction).toHaveBeenCalledTimes(21);
     expect(mockDb.rollbackTransaction).not.toHaveBeenCalled();
   });
 
@@ -112,7 +116,7 @@ describe('Database SQLite Tests', () => {
   // -------------------------------------------------------------------------
   it('skips all migrations when DB already at latest version', async () => {
     mockDb.query.mockResolvedValueOnce({
-      values: Array.from({ length: 20 }, (_value, index) => ({ version: index + 1 })),
+      values: Array.from({ length: 21 }, (_value, index) => ({ version: index + 1 })),
     });
 
     await runMigrations();
@@ -139,7 +143,7 @@ describe('Database SQLite Tests', () => {
     // Migrations 3 & 4 should run
     expectExecuteContaining('ALTER TABLE transactions ADD COLUMN deleted_at');
     expectExecuteContaining('ALTER TABLE transactions ADD COLUMN receipt_path');
-    expect(mockDb.beginTransaction).toHaveBeenCalledTimes(18);
+    expect(mockDb.beginTransaction).toHaveBeenCalledTimes(19);
   });
 
   // -------------------------------------------------------------------------
@@ -282,51 +286,146 @@ describe('Database SQLite Tests', () => {
   // -------------------------------------------------------------------------
   // Seed – happy path and idempotency
   // -------------------------------------------------------------------------
-  it('seed inserts default wallet and all 6 categories when DB is empty', async () => {
-    await seedDefaultData();
-
-    // Wallet inserted
-    expect(mockDb.run).toHaveBeenCalledWith(
-      expect.stringContaining('INSERT INTO wallets'),
-      expect.arrayContaining(['wallet-cash-1'])
-    );
-
-    // Categories inserted – spot-check first and last
-    expect(mockDb.run).toHaveBeenCalledWith(
-      expect.stringContaining('INSERT INTO categories'),
-      expect.arrayContaining(['cat-inc-1'])
-    );
-    expect(mockDb.run).toHaveBeenCalledWith(
-      expect.stringContaining('INSERT INTO categories'),
-      expect.arrayContaining(['cat-exp-4'])
-    );
-  });
-
-  it('seed does NOT insert wallet if one already exists', async () => {
-    // First query (wallets) returns a result; second (categories) returns empty
-    mockDb.query
-      .mockResolvedValueOnce({ values: [{ id: 'wallet-existing' }] })
-      .mockResolvedValueOnce({ values: [] });
-
+  it('seed inserts default categories when DB is empty', async () => {
     await seedDefaultData();
 
     const walletInserts = (mockDb.run as ReturnType<typeof vi.fn>).mock.calls
       .filter((args: any[]) => args[0]?.includes('INSERT INTO wallets'));
-
     expect(walletInserts.length).toBe(0);
+
+    // Categories inserted – spot-check first and last
+    expect(mockDb.run).toHaveBeenCalledWith(
+      expect.stringContaining('INSERT OR IGNORE INTO categories'),
+      expect.arrayContaining(['cat-inc-1'])
+    );
+    expect(mockDb.run).toHaveBeenCalledWith(
+      expect.stringContaining('INSERT OR IGNORE INTO categories'),
+      expect.arrayContaining(['cat-exp-4'])
+    );
   });
 
-  it('seed does NOT insert categories if any already exist', async () => {
-    // First query (wallets) empty; second (categories) returns a result
+  it('seed does NOT insert categories when both income and expense categories already exist', async () => {
     mockDb.query
-      .mockResolvedValueOnce({ values: [] })
-      .mockResolvedValueOnce({ values: [{ id: 'cat-existing' }] });
+      .mockResolvedValueOnce({ values: [{ id: 'cat-income-existing' }] })
+      .mockResolvedValueOnce({ values: [{ id: 'cat-expense-existing' }] });
 
     await seedDefaultData();
 
     const categoryInserts = (mockDb.run as ReturnType<typeof vi.fn>).mock.calls
-      .filter((args: any[]) => args[0]?.includes('INSERT INTO categories'));
+      .filter((args: any[]) => args[0]?.includes('INSERT OR IGNORE INTO categories'));
 
     expect(categoryInserts.length).toBe(0);
+  });
+
+  it('seed inserts income defaults when only income categories are missing', async () => {
+    mockDb.query
+      .mockResolvedValueOnce({ values: [] })
+      .mockResolvedValueOnce({ values: [{ id: 'cat-expense-existing' }] });
+
+    await seedDefaultData();
+
+    const categoryInserts = (mockDb.run as ReturnType<typeof vi.fn>).mock.calls
+      .filter((args: any[]) => args[0]?.includes('INSERT OR IGNORE INTO categories'));
+
+    expect(categoryInserts.map((args: any[]) => args[1][0])).toEqual(['cat-inc-1', 'cat-inc-2']);
+  });
+
+  it('seed inserts expense defaults when only the transfer category exists', async () => {
+    mockDb.query
+      .mockResolvedValueOnce({ values: [{ id: 'cat-income-existing' }] })
+      .mockResolvedValueOnce({ values: [] });
+
+    await seedDefaultData();
+
+    const insertedCategoryIds = (mockDb.run as ReturnType<typeof vi.fn>).mock.calls
+      .filter((args: any[]) => args[0]?.includes('INSERT OR IGNORE INTO categories'))
+      .map((args: any[]) => args[1][0]);
+
+    expect(insertedCategoryIds).toEqual([
+      'cat-exp-1',
+      'cat-exp-2',
+      'cat-exp-3',
+      'cat-exp-4',
+      'cat-transfer',
+    ]);
+  });
+
+  it('category repository persists selected icon on create and update', async () => {
+    const repository = new SQLiteCategoryRepository();
+
+    await repository.create('cat-custom', {
+      name: 'Custom',
+      type: 'expense',
+      icon: 'coffee',
+      color: '#f59e0b',
+      description: null,
+    }, 1000);
+
+    expect(mockDb.run).toHaveBeenCalledWith(
+      expect.stringContaining('INSERT INTO categories'),
+      expect.arrayContaining(['cat-custom', 'Custom', 'expense', 'coffee', '#f59e0b', null, 1000, 1000]),
+    );
+
+    await repository.update('cat-custom', {
+      name: 'Custom',
+      type: 'expense',
+      icon: 'receipt',
+      color: '#f59e0b',
+      description: null,
+    }, 2000);
+
+    expect(mockDb.run).toHaveBeenCalledWith(
+      expect.stringContaining('UPDATE categories'),
+      expect.arrayContaining(['Custom', 'expense', 'receipt', '#f59e0b', null, 2000, 'cat-custom']),
+    );
+  });
+
+  it('wallet repository counts references before delete and deletes by id', async () => {
+    const walletRepository = new SQLiteWalletRepository();
+    mockDb.query
+      .mockResolvedValueOnce({ values: [{ count: 2 }] })
+      .mockResolvedValueOnce({ values: [{ count: 1 }] })
+      .mockResolvedValueOnce({ values: [{ count: 0 }] });
+
+    const counts = await walletRepository.getReferenceCounts('w-1');
+
+    expect(counts).toEqual({ transactions: 2, recurringBills: 1, budgets: 0 });
+    expect(mockDb.query).toHaveBeenCalledWith(
+      expect.stringContaining('FROM transactions'),
+      ['w-1', 'w-1']
+    );
+    expect(mockDb.query).toHaveBeenCalledWith(
+      'SELECT COUNT(*) AS count FROM recurring_bills WHERE wallet_id = ? AND is_active != -1',
+      ['w-1']
+    );
+    expect(mockDb.query).toHaveBeenCalledWith(
+      'SELECT COUNT(*) AS count FROM budgets WHERE wallet_id = ? AND is_active = 1',
+      ['w-1']
+    );
+
+    await walletRepository.delete('w-1');
+
+    expect(mockDb.run).toHaveBeenCalledWith(
+      'DELETE FROM wallets WHERE id = ?',
+      ['w-1'],
+      true
+    );
+  });
+
+  it('category repository clears icon by persisting null', async () => {
+    const repository = new SQLiteCategoryRepository();
+
+    await repository.update('cat-custom', {
+      name: 'Custom',
+      type: 'income',
+      icon: null,
+      color: '#10b981',
+      description: null,
+    }, 3000);
+
+    expect(mockDb.run).toHaveBeenCalledWith(
+      expect.stringContaining('UPDATE categories'),
+      expect.arrayContaining(['Custom', 'income', null, '#10b981', null, 3000, 'cat-custom']),
+    );
   });
 });

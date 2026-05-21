@@ -9,6 +9,7 @@ import { deleteTransactionUseCase } from '@/core/di/transactions.di';
 import { useConfirm } from '@/shared/components/ConfirmDialog/ConfirmContext';
 import { useToast } from '@/shared/components/Toast/ToastContext';
 import { ROUTES } from '@/shared/constants/routes';
+import { localizeTransactionError } from '../services/transaction-error-messages';
 
 export function EditTransactionPage() {
   const { id } = useParams<{ id: string }>();
@@ -46,8 +47,7 @@ export function EditTransactionPage() {
       toast.success(t('transactions.delete_success'));
       navigate(ROUTES.TRANSACTIONS);
     } catch (err) {
-      const message = err instanceof Error ? err.message : t('transactions.delete_failed');
-      toast.error(message);
+      toast.error(localizeTransactionError(err, t));
     }
   };
 
@@ -68,7 +68,7 @@ export function EditTransactionPage() {
       <div className="px-4 pb-24">
         <TransactionForm
           existing={transaction}
-          onSuccess={() => navigate(-1)}
+          onSuccess={() => navigate(ROUTES.TRANSACTIONS)}
           onDelete={handleDelete}
         />
       </div>

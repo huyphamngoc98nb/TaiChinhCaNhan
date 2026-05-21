@@ -11,7 +11,7 @@ interface Props {
   existing?: Wallet;
   onSave: (data: CreateWalletInput | UpdateWalletInput) => Promise<void>;
   onClose: () => void;
-  onArchive?: () => Promise<void>;
+  onDelete?: () => Promise<boolean>;
 }
 
 const EMOJI_PRESETS = ['💼', '🏦', '💸', '📱', '📊', '💳', '🏠', '💵', '🧾', '🎆'];
@@ -23,7 +23,7 @@ const ACCOUNT_TYPES: AccountType[] = [
   'cash', 'bank', 'credit_card', 'e_wallet', 'investment', 'other',
 ];
 
-export function WalletForm({ existing, onSave, onClose, onArchive }: Props) {
+export function WalletForm({ existing, onSave, onClose, onDelete }: Props) {
   const isEdit = !!existing;
   const { t, language } = useLanguage();
   const accountTypeLabels: Record<AccountType, string> = {
@@ -98,14 +98,15 @@ export function WalletForm({ existing, onSave, onClose, onArchive }: Props) {
     }
   }
 
-  async function handleArchive() {
-    if (!onArchive) return;
+  async function handleDelete() {
+    if (!onDelete) return;
     setSaving(true);
+    setError(null);
     try {
-      await onArchive();
-      onClose();
+      const deleted = await onDelete();
+      if (deleted) onClose();
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : t('wallets.archive_failed'));
+      setError(err instanceof Error ? err.message : t('wallets.delete_failed'));
     } finally {
       setSaving(false);
     }
@@ -300,14 +301,14 @@ export function WalletForm({ existing, onSave, onClose, onArchive }: Props) {
             {saving ? t('wallets.saving') : isEdit ? t('wallets.save_changes') : t('wallets.create_account')}
           </button>
 
-          {isEdit && onArchive && (
+          {isEdit && onDelete && (
             <button
               type="button"
               disabled={saving}
-              onClick={handleArchive}
-              className="w-full h-[48px] rounded-[14px] border border-red-200 text-red-500 text-[14px] font-semibold transition-all active:scale-[0.98]"
+              onClick={handleDelete}
+              className="w-full h-[48px] rounded-[14px] border border-red-200 text-red-500 text-[14px] font-semibold transition-all active:scale-[0.98] disabled:opacity-50"
             >
-              {t('wallets.archive_account')}
+              {t('wallets.delete_wallet')}
             </button>
           )}
         </div>
