@@ -51,14 +51,14 @@ export function TransactionList({ transactions, loading, onSelect, viewType = 'd
   });
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
       {groups.map((group) => (
         <div key={group.label}>
           <div style={{
             fontSize: '0.9rem',
             fontWeight: 'bold',
             color: 'var(--text)',
-            marginBottom: '12px',
+            marginBottom: '10px',
             paddingBottom: '8px',
             borderBottom: '1px solid var(--border)',
           }}>
@@ -85,7 +85,7 @@ export function TransactionList({ transactions, loading, onSelect, viewType = 'd
             </div>
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
             {group.items.map(tx => (
               <TransactionItem
                 key={tx.id}

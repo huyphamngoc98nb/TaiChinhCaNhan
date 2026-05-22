@@ -41,11 +41,12 @@ export function TransactionItem({ transaction, onSelect, showDate = false }: Pro
       type="button"
       onClick={() => onSelect(transaction.id)}
       style={{
-      padding: '10px 12px',
+      padding: '8px 10px',
       background: 'var(--surface)',
       borderRadius: '10px',
       border: '1px solid var(--border)',
       width: '100%',
+      minHeight: '56px',
       display: 'flex',
       justifyContent: 'space-between',
       alignItems: 'center',
@@ -54,10 +55,10 @@ export function TransactionItem({ transaction, onSelect, showDate = false }: Pro
       cursor: 'pointer',
     }}
     >
-      <div style={{ display: 'flex', gap: '10px', alignItems: 'center', minWidth: 0 }}>
+      <div style={{ display: 'flex', gap: '8px', alignItems: 'center', minWidth: 0 }}>
         <div style={{
-          width: '34px',
-          height: '34px',
+          width: '32px',
+          height: '32px',
           borderRadius: '9px',
           background: isTransfer
             ? 'rgba(79, 70, 229, 0.1)'
@@ -70,36 +71,38 @@ export function TransactionItem({ transaction, onSelect, showDate = false }: Pro
           flexShrink: 0,
         }}>
           {isTransfer ? (
-            <ArrowLeftRight size={17} color="#4f46e5" />
+            <ArrowLeftRight size={16} color="#4f46e5" />
           ) : (
             <CategoryIcon
               icon={transaction.category_icon}
               name={transaction.category_name ?? transaction.category_id}
               type={isExpense ? 'expense' : 'income'}
-              size={17}
+              size={16}
             />
           )}
         </div>
         <div style={{ minWidth: 0 }}>
-          <div style={{ fontWeight: '600', fontSize: '0.9rem', color: 'var(--text)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+          <div style={{ fontWeight: '600', fontSize: '0.9rem', lineHeight: '1.25', color: 'var(--text)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
             {title}
           </div>
-          <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '4px' }}>
+          <div style={{ fontSize: '0.72rem', lineHeight: '1.3', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '4px', minWidth: 0, marginTop: '2px' }}>
             {showDate ? formatDateShort(transaction.transaction_date) : formatTime(transaction.transaction_date)}
-            {transaction.receipt_path && <><span style={{ opacity: 0.5 }}>-</span> <Paperclip size={12} /></>}
+            {transaction.note && (
+              <>
+                <span style={{ opacity: 0.5 }}>-</span>
+                <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{transaction.note}</span>
+              </>
+            )}
+            {transaction.receipt_path && <><span style={{ opacity: 0.5 }}>-</span> <Paperclip size={12} style={{ flexShrink: 0 }} /></>}
           </div>
-          {transaction.note && (
-            <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '1px', fontStyle: 'italic', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-              "{transaction.note}"
-            </div>
-          )}
         </div>
       </div>
 
-      <div style={{ textAlign: 'right', marginLeft: '12px' }}>
+      <div style={{ textAlign: 'right', marginLeft: '10px' }}>
         <div style={{
           fontWeight: '700',
           fontSize: '0.95rem',
+          lineHeight: '1.25',
           color: amountColor,
           whiteSpace: 'nowrap',
         }}>
