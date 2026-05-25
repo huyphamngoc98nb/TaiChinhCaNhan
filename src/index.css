@@ -10,6 +10,8 @@
   --text-muted: #64748b;
   --border: #e2e8f0;
   --surface: #ffffff;
+  --visual-viewport-height: 100dvh;
+  --keyboard-inset-bottom: 0px;
 }
 
 * {
@@ -23,6 +25,25 @@ body {
   background-color: var(--bg);
   color: var(--text);
   -webkit-font-smoothing: antialiased;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  overflow: hidden;
+}
+
+input,
+textarea,
+select {
+  scroll-margin-top: 24px;
+  scroll-margin-bottom: calc(96px + env(safe-area-inset-bottom) + var(--keyboard-inset-bottom));
+}
+
+.keyboard-safe-bottom-sheet {
+  max-height: min(85dvh, calc(var(--visual-viewport-height) - 24px));
+  padding-bottom: calc(32px + env(safe-area-inset-bottom) + var(--keyboard-inset-bottom));
 }
 
 /* Minimal Utilities */

@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Download, Upload, AlertCircle, ShieldCheck } from 'lucide-react';
 import { useToast } from '@/shared/components/Toast/ToastContext';
 import { useConfirm } from '@/shared/components/ConfirmDialog/ConfirmContext';
 import { useLanguage } from '@/shared/context/LanguageContext';
+import { resumeAppLock, suspendAppLock } from '@/app/providers/app-lock-events';
+import { ROUTES } from '@/shared/constants/routes';
 import { exportBackupJson } from '../services/export-backup-json';
 import { importBackupJson } from '../services/import-backup-json';
 import { saveBackupFile } from '../services/save-backup-file';
@@ -14,6 +16,14 @@ export function BackupPage() {
   const { confirm } = useConfirm();
   const { t } = useLanguage();
   const [loading, setLoading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const restoreInProgressRef = useRef(false);
+
+  useEffect(() => {
+    return () => {
+      resumeAppLock();
+    };
+  }, []);
 
   const handleExport = async () => {
     setLoading(true);
@@ -24,6 +34,7 @@ export function BackupPage() {
 
       if (saved) {
         toast.success(t('backup.export_success'));
+        navigate(ROUTES.HOME, { replace: true });
       }
     } catch (error: any) {
       toast.error(`${t('backup.export_failed')} ${error.message}`);
@@ -32,9 +43,8 @@ export function BackupPage() {
     }
   };
 
-  const handleImport = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
+  const handleSelectBackupFile = async () => {
+    if (loading) return;
 
     const ok = await confirm({
       title: t('backup.restore_confirm_title'),
@@ -43,21 +53,47 @@ export function BackupPage() {
       cancelText: t('common.cancel')
     });
 
-    if (!ok) {
-      event.target.value = ''; // Reset input
+    if (ok) {
+      suspendAppLock();
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+        window.addEventListener('focus', () => {
+          window.setTimeout(() => {
+            if (!restoreInProgressRef.current && !fileInputRef.current?.files?.length) {
+              resumeAppLock();
+            }
+          }, 1000);
+        }, { once: true });
+        fileInputRef.current.click();
+      }
+    }
+  };
+
+  const handleImport = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) {
+      resumeAppLock();
       return;
     }
 
+    restoreInProgressRef.current = true;
     setLoading(true);
     try {
       await importBackupJson(file);
       toast.success(t('backup.restore_success'));
-      setTimeout(() => window.location.reload(), 2000);
+      event.target.value = '';
+      restoreInProgressRef.current = false;
+      resumeAppLock();
+      navigate(ROUTES.HOME, { replace: true });
     } catch (error: any) {
       toast.error(`${t('backup.restore_failed')} ${error.message}`);
       event.target.value = ''; // Reset input
+      resumeAppLock();
     } finally {
       setLoading(false);
+      if (!fileInputRef.current?.files?.length) {
+        restoreInProgressRef.current = false;
+      }
     }
   };
 
@@ -117,21 +153,19 @@ export function BackupPage() {
             </div>
           </div>
           
-          <div style={{ position: 'relative' }}>
+          <div>
             <input
+              ref={fileInputRef}
               type="file"
               accept="application/json,text/json,.json,*/*"
               onChange={handleImport}
               disabled={loading}
-              style={{
-                position: 'absolute',
-                inset: 0,
-                opacity: 0,
-                cursor: 'pointer',
-                width: '100%'
-              }}
+              style={{ display: 'none' }}
             />
             <button
+              type="button"
+              onClick={() => void handleSelectBackupFile()}
+              disabled={loading}
               style={{
                 width: '100%',
                 padding: '14px',
@@ -141,7 +175,8 @@ export function BackupPage() {
                 borderRadius: '12px',
                 fontWeight: '700',
                 fontSize: '1rem',
-                pointerEvents: 'none'
+                cursor: loading ? 'not-allowed' : 'pointer',
+                opacity: loading ? 0.7 : 1
               }}
             >
               {loading ? t('common.processing') : t('backup.restore_button')}

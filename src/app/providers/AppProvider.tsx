@@ -6,8 +6,11 @@ import { ConfirmProvider } from '@/shared/components/ConfirmDialog/ConfirmContex
 import { LanguageProvider } from '@/shared/context/LanguageContext';
 import { CurrencyProvider } from '@/shared/context/CurrencyContext';
 import { GlobalErrorBoundary } from './GlobalErrorBoundary';
+import { useKeyboardSafeFocus } from '@/shared/hooks/useKeyboardSafeFocus';
 
 export function AppProvider() {
+  useKeyboardSafeFocus();
+
   return (
     <GlobalErrorBoundary>
       <LanguageProvider>

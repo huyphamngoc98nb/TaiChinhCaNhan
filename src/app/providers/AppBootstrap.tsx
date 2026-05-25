@@ -9,6 +9,7 @@ import { runMigrations } from '@/core/db/migrations/migration-runner';
 import { seedDefaultData } from '@/core/db/seed/default-categories';
 import { authService } from '@/core/auth/auth.service';
 import { AppUnlock } from './AppUnlock';
+import { APP_LOCK_RESUME_EVENT, APP_LOCK_SUSPEND_EVENT } from './app-lock-events';
 
 interface AppBootstrapProps {
   children: ReactNode;
@@ -25,6 +26,7 @@ export function AppBootstrap({ children }: AppBootstrapProps) {
   const [error, setError] = useState<Error | null>(null);
   const idleTimerRef = useRef<ReturnType<typeof window.setTimeout> | null>(null);
   const isUnlockedRef = useRef(isUnlocked);
+  const appLockSuspendedRef = useRef(false);
 
   useEffect(() => {
     isUnlockedRef.current = isUnlocked;
@@ -38,14 +40,19 @@ export function AppBootstrap({ children }: AppBootstrapProps) {
   }, []);
 
   const lockApp = useCallback(() => {
-    if (!authService.requiresUnlock() || !isUnlockedRef.current) return;
+    if (!authService.requiresUnlock() || appLockSuspendedRef.current || !isUnlockedRef.current) return;
     clearIdleTimer();
     setIsReady(false);
     setIsUnlocked(false);
   }, [clearIdleTimer]);
 
   const resetIdleTimer = useCallback(() => {
-    if (!authService.requiresUnlock() || Capacitor.getPlatform() === 'web' || !isUnlockedRef.current) {
+    if (
+      !authService.requiresUnlock() ||
+      appLockSuspendedRef.current ||
+      Capacitor.getPlatform() === 'web' ||
+      !isUnlockedRef.current
+    ) {
       clearIdleTimer();
       return;
     }
@@ -53,6 +60,25 @@ export function AppBootstrap({ children }: AppBootstrapProps) {
     clearIdleTimer();
     idleTimerRef.current = window.setTimeout(lockApp, MOBILE_IDLE_LOCK_TIMEOUT_MS);
   }, [clearIdleTimer, lockApp]);
+
+  useEffect(() => {
+    const suspendAppLock = () => {
+      appLockSuspendedRef.current = true;
+      clearIdleTimer();
+    };
+    const resumeAppLock = () => {
+      appLockSuspendedRef.current = false;
+      resetIdleTimer();
+    };
+
+    window.addEventListener(APP_LOCK_SUSPEND_EVENT, suspendAppLock);
+    window.addEventListener(APP_LOCK_RESUME_EVENT, resumeAppLock);
+
+    return () => {
+      window.removeEventListener(APP_LOCK_SUSPEND_EVENT, suspendAppLock);
+      window.removeEventListener(APP_LOCK_RESUME_EVENT, resumeAppLock);
+    };
+  }, [clearIdleTimer, resetIdleTimer]);
 
   useEffect(() => {
     if (!isUnlocked) return;
