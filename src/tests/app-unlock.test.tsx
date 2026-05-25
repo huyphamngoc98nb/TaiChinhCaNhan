@@ -64,12 +64,10 @@ describe('AppUnlock', () => {
     expect(await screen.findByRole('heading', { name: 'Create PIN' })).toBeTruthy();
 
     enterPin('123456');
-    fireEvent.click(screen.getByRole('button', { name: 'Continue' }));
 
     expect(await screen.findByRole('heading', { name: 'Confirm PIN' })).toBeTruthy();
 
     enterPin('123456');
-    fireEvent.click(screen.getByRole('button', { name: 'Create PIN' }));
 
     await waitFor(() => {
       expect(authServiceMock.setupPin).toHaveBeenCalledWith('123456');

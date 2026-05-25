@@ -9,13 +9,15 @@ interface ToastContextType {
 }
 
 const ToastContext = createContext<ToastContextType | undefined>(undefined);
+const MAX_VISIBLE_TOASTS = 3;
+let nextToastId = 1;
 
 export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [toasts, setToasts] = useState<{ id: number; message: string; type: ToastType }[]>([]);
 
   const showToast = useCallback((message: string, type: ToastType = 'info') => {
-    const id = Date.now();
-    setToasts(prev => [...prev, { id, message, type }]);
+    const id = nextToastId++;
+    setToasts(prev => [...prev, { id, message, type }].slice(-MAX_VISIBLE_TOASTS));
   }, []);
 
   const success = useCallback((message: string) => showToast(message, 'success'), [showToast]);
