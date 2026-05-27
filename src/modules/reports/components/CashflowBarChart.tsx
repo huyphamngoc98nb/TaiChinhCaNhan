@@ -3,6 +3,7 @@ import { Area, AreaChart, Bar, BarChart, CartesianGrid, ResponsiveContainer, Too
 import { PeriodSummary } from '../domain/report.model';
 import { useLanguage } from '@/shared/context/LanguageContext';
 import { useCurrency } from '@/shared/context/CurrencyContext';
+import { getAppLocale } from '@/shared/utils/locale';
 
 interface Props {
   data: PeriodSummary[];
@@ -12,14 +13,28 @@ export const CashflowBarChart: React.FC<Props> = ({ data }) => {
   const { t, language } = useLanguage();
   const { formatAmount } = useCurrency();
   const [view, setView] = React.useState<'cashflow' | 'balance'>('cashflow');
-  const locale = language === 'vi' ? 'vi-VN' : 'en-US';
+  const locale = getAppLocale(language);
 
   const fmtTooltip = (value: any) => formatAmount(Number(value || 0), locale);
   const formatPeriod = (period: unknown) => {
     const value = String(period ?? '');
     const parts = value.split('-');
-    if (parts.length === 3) return `${parts[2]}/${parts[1]}`;
-    if (parts.length === 2) return `${parts[1]}/${parts[0].slice(2)}`;
+    if (parts.length === 3) {
+      const [year, month, day] = parts.map(Number);
+      return new Date(year, month - 1, day).toLocaleDateString(locale, {
+        day: '2-digit',
+        month: '2-digit',
+      });
+    }
+    if (parts.length === 2) {
+      const [year, month] = parts.map(Number);
+      if (month >= 1 && month <= 12) {
+        return new Date(year, month - 1, 1).toLocaleDateString(locale, {
+          month: 'short',
+          year: '2-digit',
+        });
+      }
+    }
     return value;
   };
 

@@ -18,8 +18,8 @@ interface Props {
   setScopeType: (val: BudgetScopeType) => void;
   accountTypeScope: AccountType;
   setAccountTypeScope: (val: AccountType) => void;
-  onSave: () => Promise<void>;
-  onRemove: () => Promise<void>;
+  onSave: () => void;
+  onRemove: () => void;
   onClose: () => void;
   isSaving: boolean;
   error: string | null;
@@ -65,6 +65,7 @@ export function BudgetEditForm({
         </div>
         <button
           onClick={onClose}
+          aria-label={t('common.close')}
           className="w-11 h-11 flex items-center justify-center text-gray-400 bg-gray-100 rounded-full active:bg-gray-200 transition-colors"
         >
           <X size={20} />
@@ -131,7 +132,7 @@ export function BudgetEditForm({
         </div>
 
         {/* Remove Link */}
-        {category.budget_amount !== null && (
+        {category.budget_amount !== null && category.budget_amount > 0 && (
           <button
             onClick={async () => {
               const ok = await confirm({

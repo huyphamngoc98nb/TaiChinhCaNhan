@@ -9,6 +9,8 @@ import { useToast } from '@/shared/components/Toast/ToastContext';
 import { appRepositories } from '@/core/repositories/app-repositories';
 import { useLanguage } from '@/shared/context/LanguageContext';
 
+const MAX_BUDGET_AMOUNT = 999_000_000_000; // 999 billion
+
 export type BudgetScopeType = 'global' | 'account_type';
 type EditableCategoryBudget = CategoryBudget & {
   budget_account_type_scope?: AccountType | null;
@@ -52,6 +54,10 @@ export function useBudgetForm(onSuccess?: () => void) {
     const parsedAmount = parseFloat(amount);
     if (isNaN(parsedAmount) || parsedAmount <= 0) {
       setValidationError(t('budgets.amount_required'));
+      return;
+    }
+    if (parsedAmount > MAX_BUDGET_AMOUNT) {
+      setValidationError(t('budgets.amount_too_large'));
       return;
     }
 

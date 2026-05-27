@@ -16,6 +16,7 @@ import { AlertTriangle, CalendarDays, FileText, TrendingDown, TrendingUp, Wallet
 import { useLanguage } from '@/shared/context/LanguageContext';
 import { useCurrency } from '@/shared/context/CurrencyContext';
 import { appRepositories } from '@/core/repositories/app-repositories';
+import { getAppLocale } from '@/shared/utils/locale';
 
 const EXPENSE_DONUT_COLORS = ['#E11D48', '#F97316', '#F59E0B', '#A855F7', '#EC4899', '#64748B'];
 const INCOME_DONUT_COLORS = ['#059669', '#14B8A6', '#0EA5E9', '#6366F1', '#84CC16', '#64748B'];
@@ -24,7 +25,7 @@ export const ReportsPage = () => {
   const navigate = useNavigate();
   const { t, language } = useLanguage();
   const { formatAmount } = useCurrency();
-  const locale = language === 'vi' ? 'vi-VN' : 'en-US';
+  const locale = getAppLocale(language);
 
   const [preset, setPreset] = useState<DateRangePreset>('this_month');
   const [granularity, setGranularity] = useState<ReportGranularity>('day');
@@ -58,8 +59,22 @@ export const ReportsPage = () => {
 
   const formatPeriodLabel = (period: string) => {
     const parts = period.split('-');
-    if (parts.length === 3) return `${parts[2]}/${parts[1]}`;
-    if (parts.length === 2) return `${parts[1]}/${parts[0].slice(2)}`;
+    if (parts.length === 3) {
+      const [year, month, day] = parts.map(Number);
+      return new Date(year, month - 1, day).toLocaleDateString(locale, {
+        day: '2-digit',
+        month: '2-digit',
+      });
+    }
+    if (parts.length === 2) {
+      const [year, month] = parts.map(Number);
+      if (month >= 1 && month <= 12) {
+        return new Date(year, month - 1, 1).toLocaleDateString(locale, {
+          month: 'short',
+          year: 'numeric',
+        });
+      }
+    }
     return period;
   };
 

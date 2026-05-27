@@ -3,6 +3,7 @@ import { TransactionValidationError } from '../domain/transaction.schema';
 import type { IWalletRepository } from '@/modules/wallets/repositories/wallet.repository';
 import { appRepositories } from '@/core/repositories/app-repositories';
 import { CreateTransactionUseCase } from './create-transaction';
+import { SyncCreditCardStatementUseCase } from '@/modules/wallets/services/sync-credit-card-statement';
 
 export interface CreateCreditCardPaymentInput {
   from_wallet_id: string;
@@ -60,6 +61,11 @@ export class CreateCreditCardPaymentUseCase {
       transaction_date: input.transaction_date,
     };
 
-    return this.createTransaction.execute(payload);
+    const transaction = await this.createTransaction.execute(payload);
+    await new SyncCreditCardStatementUseCase(this.walletRepository).execute(
+      targetWallet,
+      input.transaction_date
+    );
+    return transaction;
   }
 }

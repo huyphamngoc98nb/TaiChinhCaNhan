@@ -44,7 +44,7 @@ export class UpsertCategoryBudgetUseCase {
   }
 }
 
-function computeStartDate(period: BudgetPeriod): number {
+export function computeStartDate(period: BudgetPeriod): number {
   const d = new Date();
   if (period === 'monthly') {
     d.setDate(1);

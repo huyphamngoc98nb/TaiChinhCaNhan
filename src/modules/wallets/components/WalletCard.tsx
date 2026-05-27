@@ -1,7 +1,8 @@
 import { Wallet, AccountType } from '../repositories/sqlite-wallet.repository';
 import { useCurrency } from '@/shared/context/CurrencyContext';
 import { useLanguage } from '@/shared/context/LanguageContext';
-import { getCreditCardStatementPeriod } from '../services/credit-card.service';
+import { useCreditCardSummary } from '../hooks/useCreditCardSummary';
+import { getAppLocale } from '@/shared/utils/locale';
 
 interface Props {
   wallet: Wallet;
@@ -26,9 +27,18 @@ export const ACCOUNT_TYPE_ICONS: Record<AccountType, string> = {
   other:       '💼',
 };
 
+function formatDayMonth(value: number, locale: string): string {
+  return new Intl.DateTimeFormat(locale, {
+    day: '2-digit',
+    month: '2-digit',
+  }).format(new Date(value));
+}
+
 export function WalletCard({ wallet, onClick }: Props) {
   const { formatAmount } = useCurrency();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  const locale = getAppLocale(language);
+  const { summary, loading: summaryLoading } = useCreditCardSummary(wallet);
   const accountTypeLabels: Record<AccountType, string> = {
     cash: t('wallets.account_cash'),
     bank: t('wallets.account_bank'),
@@ -42,14 +52,18 @@ export function WalletCard({ wallet, onClick }: Props) {
   const displayIcon = wallet.icon && wallet.icon.trim() !== '' ? wallet.icon : defaultIcon;
   const bgColor     = wallet.color ?? '#6366F1';
 
-  const availableCredit =
-    wallet.account_type === 'credit_card' && wallet.credit_limit != null
-      ? wallet.credit_limit + Math.min(wallet.balance, 0)
-      : null;
-  const outstandingBalance =
-    wallet.account_type === 'credit_card' ? Math.max(0, -wallet.balance) : null;
-  const statementPeriod =
-    wallet.account_type === 'credit_card' ? getCreditCardStatementPeriod(wallet) : null;
+  const isCreditCard = wallet.account_type === 'credit_card';
+  const outstandingBalance = isCreditCard
+    ? summary?.outstandingBalance ?? Math.max(0, -wallet.balance)
+    : null;
+  const availableCredit = summary?.availableCredit ?? null;
+  const statementPeriod = summary?.period ?? null;
+  const usagePercent =
+    isCreditCard && wallet.credit_limit != null && wallet.credit_limit > 0
+      ? Math.min(100, Math.max(0, ((outstandingBalance ?? 0) / wallet.credit_limit) * 100))
+      : 0;
+  const usageColor =
+    usagePercent > 80 ? '#ef4444' : usagePercent >= 50 ? '#f59e0b' : '#10b981';
 
   return (
     <div
@@ -102,30 +116,55 @@ export function WalletCard({ wallet, onClick }: Props) {
       </div>
 
       {/* Credit card extras */}
-      {wallet.account_type === 'credit_card' && wallet.credit_limit != null && (
-        <div className="mt-3 pt-3 border-t border-gray-100 flex gap-4">
-          <div>
-            <p className="text-[11px] text-gray-400">{t('wallets.credit_limit')}</p>
-            <p className="text-[13px] font-semibold text-gray-700 tabular-nums">
-              {formatAmount(wallet.credit_limit)}
-            </p>
+      {isCreditCard && (
+        <div className="mt-3 pt-3 border-t border-gray-100 space-y-3">
+          <div className="grid grid-cols-2 gap-3">
+            {wallet.credit_limit != null && (
+              <div>
+                <p className="text-[11px] text-gray-400">{t('wallets.credit_limit')}</p>
+                <p className="text-[13px] font-semibold text-gray-700 tabular-nums">
+                  {formatAmount(wallet.credit_limit)}
+                </p>
+              </div>
+            )}
+            {availableCredit != null && (
+              <div>
+                <p className="text-[11px] text-gray-400">Hạn mức còn lại</p>
+                <p
+                  className="text-[13px] font-semibold tabular-nums"
+                  style={{ color: availableCredit < 0 ? '#ef4444' : '#10b981' }}
+                >
+                  {formatAmount(availableCredit)}
+                </p>
+              </div>
+            )}
+            {statementPeriod && (
+              <div className="col-span-2">
+                <p className="text-[11px] text-gray-400">Ngày sao kê / đến hạn</p>
+                <p className="text-[13px] font-semibold text-gray-700">
+                  {formatDayMonth(statementPeriod.closingAt, locale)} / {formatDayMonth(statementPeriod.dueAt, locale)}
+                </p>
+              </div>
+            )}
           </div>
-          <div>
-            <p className="text-[11px] text-gray-400">{t('wallets.available')}</p>
-            <p
-              className="text-[13px] font-semibold tabular-nums"
-              style={{ color: (availableCredit ?? 0) < 0 ? '#ef4444' : '#10b981' }}
-            >
-              {formatAmount(availableCredit ?? 0)}
-            </p>
-          </div>
-          {statementPeriod && (
+          {wallet.credit_limit != null && wallet.credit_limit > 0 && (
             <div>
-              <p className="text-[11px] text-gray-400">{t('wallets.next_due_date')}</p>
-              <p className="text-[13px] font-semibold text-gray-700">
-                {new Date(statementPeriod.dueAt).toLocaleDateString()}
-              </p>
+              <div className="mb-1 flex items-center justify-between">
+                <p className="text-[11px] text-gray-400">Đã dùng hạn mức</p>
+                <p className="text-[11px] font-semibold text-gray-600 tabular-nums">
+                  {Math.round(usagePercent)}%
+                </p>
+              </div>
+              <div className="h-2 rounded-full bg-gray-100 overflow-hidden">
+                <div
+                  className="h-full rounded-full transition-[width]"
+                  style={{ width: `${usagePercent}%`, backgroundColor: usageColor }}
+                />
+              </div>
             </div>
+          )}
+          {summaryLoading && (
+            <p className="text-[11px] text-gray-400">Đang cập nhật...</p>
           )}
         </div>
       )}

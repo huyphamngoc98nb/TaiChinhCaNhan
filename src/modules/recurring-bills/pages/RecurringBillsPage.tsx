@@ -1,41 +1,21 @@
-import { useState } from 'react';
-import { Plus } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { useRecurringBills } from '../hooks/useRecurringBills';
 import { RecurringBillList } from '../components/RecurringBillList';
-import { RecurringBillForm } from '../components/RecurringBillForm';
 import { RecurringBill } from '../domain/recurring-bill.model';
 import { useConfirm } from '@/shared/components/ConfirmDialog/ConfirmContext';
 import { useToast } from '@/shared/components/Toast/ToastContext';
 import { useLanguage } from '@/shared/context/LanguageContext';
+import { ROUTES } from '@/shared/constants/routes';
 
 export function RecurringBillsPage() {
-  const { bills, loading, error, create, update, remove, toggleActive, advanceDueDate } = useRecurringBills();
+  const { bills, loading, error, remove, toggleActive, advanceDueDate } = useRecurringBills();
+  const navigate = useNavigate();
   const { confirm } = useConfirm();
   const toast = useToast();
   const { t } = useLanguage();
-  const [showForm, setShowForm] = useState(false);
-  const [editing, setEditing] = useState<RecurringBill | null>(null);
-
-  const handleSave = async (data: any) => {
-    try {
-      if (editing) {
-        await update(editing.id, data);
-        toast.success(t('recurring_bills.update_success'));
-      } else {
-        await create(data);
-        toast.success(t('recurring_bills.add_success'));
-      }
-      setShowForm(false);
-      setEditing(null);
-    } catch (e: any) {
-      toast.error(e.message || t('recurring_bills.save_failed'));
-      throw e;
-    }
-  };
 
   const handleEdit = (bill: RecurringBill) => {
-    setEditing(bill);
-    setShowForm(true);
+    navigate(`/recurring-bills/${bill.id}/edit`);
   };
 
   const handleDelete = async (bill: RecurringBill) => {
@@ -72,11 +52,6 @@ export function RecurringBillsPage() {
     }
   };
 
-  const handleCancel = () => {
-    setShowForm(false);
-    setEditing(null);
-  };
-
   return (
     <div style={{ padding: '16px', paddingBottom: '90px' }}>
       {/* Header */}
@@ -87,38 +62,24 @@ export function RecurringBillsPage() {
             {t('recurring_bills.subtitle')} - {bills.filter(b => b.is_active === 1).length} {t('recurring_bills.active_count')}
           </p>
         </div>
-        {!showForm && (
-          <button
-            onClick={() => { setEditing(null); setShowForm(true); }}
-            style={{
-              display: 'flex', alignItems: 'center', gap: '6px',
-              padding: '10px 16px', background: 'var(--primary)', color: 'white',
-              border: 'none', borderRadius: '10px', fontWeight: '600', cursor: 'pointer',
-              boxShadow: '0 4px 6px -1px rgba(14,165,233,0.2)',
-            }}
-          >
-            <Plus size={18} /> {t('recurring_bills.add')}
-          </button>
-        )}
+        <button
+          onClick={() => navigate(ROUTES.RECURRING_BILLS_NEW)}
+          aria-label={t('recurring_bills.add')}
+          title={t('recurring_bills.add')}
+          style={{
+            width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center',
+            background: 'var(--primary)', color: 'white',
+            border: 'none', borderRadius: '10px', fontSize: '1.4rem', fontWeight: '700', cursor: 'pointer',
+            boxShadow: '0 4px 6px -1px rgba(14,165,233,0.2)',
+          }}
+        >
+          +
+        </button>
       </div>
 
       {error && (
         <div style={{ padding: '12px', background: 'rgba(244,63,94,0.08)', borderRadius: '10px', color: '#be123c', marginBottom: '16px', fontSize: '0.88rem' }}>
           {error}
-        </div>
-      )}
-
-      {/* Form panel */}
-      {showForm && (
-        <div style={{ background: 'var(--surface)', borderRadius: '16px', border: '1px solid var(--border)', padding: '20px', marginBottom: '24px', boxShadow: '0 4px 12px rgba(0,0,0,0.06)' }}>
-          <h3 style={{ marginBottom: '16px', fontWeight: '700', color: 'var(--text)' }}>
-            {editing ? t('recurring_bills.edit') : t('recurring_bills.new')}
-          </h3>
-          <RecurringBillForm
-            existing={editing ?? undefined}
-            onSave={handleSave}
-            onCancel={handleCancel}
-          />
         </div>
       )}
 

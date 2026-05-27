@@ -3,6 +3,7 @@ import { Transaction } from '../domain/transaction.model';
 import { TransactionItem } from './TransactionItem';
 import { useLanguage } from '@/shared/context/LanguageContext';
 import { useCurrency } from '@/shared/context/CurrencyContext';
+import { getAppLocale } from '@/shared/utils/locale';
 
 interface Props {
   transactions: Transaction[];
@@ -44,7 +45,7 @@ export function TransactionList({
 }: Props) {
   const { t, language } = useLanguage();
   const { formatAmount } = useCurrency();
-  const locale = language === 'vi' ? 'vi-VN' : 'en-US';
+  const locale = getAppLocale(language);
   const [expandedMonthKey, setExpandedMonthKey] = useState<string | null>(() => {
     const now = new Date();
     return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;

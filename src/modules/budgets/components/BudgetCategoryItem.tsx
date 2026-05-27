@@ -111,14 +111,17 @@ export function BudgetCategoryItem({ category, progress, onClick }: Props) {
         {!isSet ? (
           <button
             className="w-full flex items-center justify-center rounded-lg bg-transparent"
+            aria-label={t('budgets.set_budget')}
+            title={t('budgets.set_budget')}
             style={{
               height: '36px',
               border: '1px dashed rgba(99,102,241,0.4)',
               color: '#6366F1',
-              fontSize: '13px',
+              fontSize: '20px',
+              fontWeight: 700,
             }}
           >
-            {t('budgets.set_budget')}
+            +
           </button>
         ) : (
           <div className="flex justify-end">

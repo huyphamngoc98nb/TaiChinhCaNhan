@@ -56,6 +56,21 @@ export interface WalletReferenceCounts {
   budgets: number;
 }
 
+export type CreditCardStatementStatus = 'open' | 'closed' | 'partial' | 'paid' | 'overdue';
+
+export interface UpsertCreditCardStatementInput {
+  wallet_id: string;
+  period_start: number;
+  period_end: number;
+  closing_at: number;
+  due_at: number;
+  statement_balance: number;
+  paid_amount: number;
+  remaining_amount: number;
+  status: CreditCardStatementStatus;
+  now: number;
+}
+
 export interface IWalletRepository {
   getById(id: string): Promise<Wallet | null>;
   getAllActive(): Promise<Wallet[]>;
@@ -63,6 +78,8 @@ export interface IWalletRepository {
   getTotalBalance(): Promise<number>;
   getCreditCardOutstandingBalance(walletId: string): Promise<number>;
   getCreditCardStatementBalance(walletId: string, startDate: number, endDate: number): Promise<number>;
+  getPaidAmountForStatement(walletId: string, periodStart: number, dueAt: number): Promise<number>;
+  upsertCreditCardStatement(data: UpsertCreditCardStatementInput): Promise<void>;
   getCreditCardAvailableCredit(walletId: string): Promise<number | null>;
   listUpcomingCreditCardDuePayments(asOf: number, throughDate: number): Promise<
     {

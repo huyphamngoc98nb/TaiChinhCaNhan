@@ -98,9 +98,11 @@ export function WalletList({
       {/* Add wallet button */}
       <button
         onClick={onAddClick}
-        className="w-full h-12 rounded-2xl border-2 border-dashed border-indigo-300 text-indigo-500 text-[14px] font-semibold mb-5 hover:bg-indigo-50 transition-colors"
+        aria-label={t('wallets.add_account')}
+        title={t('wallets.add_account')}
+        className="w-full h-12 rounded-2xl border-2 border-dashed border-indigo-300 text-indigo-500 text-[22px] font-bold mb-5 hover:bg-indigo-50 transition-colors"
       >
-        {t('wallets.add_account')}
+        +
       </button>
 
       {/* Grouped wallet cards */}

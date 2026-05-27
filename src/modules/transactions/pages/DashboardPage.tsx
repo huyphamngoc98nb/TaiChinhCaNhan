@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
-import { PlusCircle, PieChart, ChevronRight, Bell, Eye, EyeOff } from 'lucide-react';
+import { PieChart, ChevronRight, Bell, Eye, EyeOff } from 'lucide-react';
 import { ROUTES } from '@/shared/constants/routes';
 import { useBudgetAnalysis } from '../hooks/useBudgetAnalysis';
 import { useRecurringReminders } from '../hooks/useRecurringReminders';
@@ -170,10 +170,11 @@ function DashboardPage() {
       <div className="flex gap-3 mx-4 mt-4">
         <button
           onClick={() => navigate(ROUTES.TRANSACTIONS_NEW)}
-          className="flex-1 flex items-center justify-center gap-2 h-[48px] bg-indigo-500 text-white rounded-[14px] text-[13px] font-semibold shadow-md shadow-indigo-300/40 active:scale-95 transition-transform"
+          aria-label={t('dashboard.add_transaction')}
+          title={t('dashboard.add_transaction')}
+          className="flex-1 flex items-center justify-center h-[48px] bg-indigo-500 text-white rounded-[14px] text-[22px] font-bold shadow-md shadow-indigo-300/40 active:scale-95 transition-transform"
         >
-          <PlusCircle size={17} />
-          {t('dashboard.add_transaction')}
+          +
         </button>
         <button
           onClick={() => navigate(ROUTES.BUDGETS)}

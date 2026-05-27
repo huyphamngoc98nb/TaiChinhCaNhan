@@ -8,6 +8,8 @@ export const ROUTES = {
   REPORTS: '/reports',
   BUDGETS: '/budgets',
   RECURRING_BILLS: '/recurring-bills',
+  RECURRING_BILLS_NEW: '/recurring-bills/new',
+  RECURRING_BILLS_EDIT: '/recurring-bills/:id/edit',
   BACKUP: '/backup',
   EXPORT: '/export',
   WALLETS: '/wallets',

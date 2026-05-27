@@ -3,6 +3,7 @@ import { ArrowLeftRight, Paperclip } from 'lucide-react';
 import { useLanguage } from '@/shared/context/LanguageContext';
 import { useCurrency } from '@/shared/context/CurrencyContext';
 import { CategoryIcon } from '@/modules/categories/components/CategoryIcon';
+import { getAppLocale } from '@/shared/utils/locale';
 
 interface Props {
   transaction: Transaction;
@@ -13,7 +14,7 @@ interface Props {
 export function TransactionItem({ transaction, onSelect, showDate = false }: Props) {
   const { language } = useLanguage();
   const { formatAmount } = useCurrency();
-  const locale = language === 'vi' ? 'vi-VN' : 'en-US';
+  const locale = getAppLocale(language);
   const isExpense = transaction.type === 'expense';
   const isTransfer = transaction.type === 'transfer';
   const amountColor = isTransfer ? '#4f46e5' : isExpense ? '#e11d48' : '#059669';

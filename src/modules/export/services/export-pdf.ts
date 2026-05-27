@@ -9,11 +9,11 @@ declare module 'jspdf' {
   }
 }
 
-export async function exportToPdf(dataset: ExportDataset): Promise<string> {
+export async function exportToPdf(dataset: ExportDataset, locale: string): Promise<string> {
   const doc = new jsPDF();
   const { range, cashflow, expensesByCategory, rawTransactions } = dataset;
 
-  const formatDate = (ms: number) => new Date(ms).toLocaleDateString();
+  const formatDate = (ms: number) => new Date(ms).toLocaleDateString(locale);
 
   // Header
   doc.setFontSize(22);
@@ -22,7 +22,7 @@ export async function exportToPdf(dataset: ExportDataset): Promise<string> {
   doc.setFontSize(10);
   doc.setTextColor(100);
   doc.text(`Period: ${formatDate(range.startDate)} - ${formatDate(range.endDate)}`, 14, 30);
-  doc.text(`Exported on: ${new Date().toLocaleString()}`, 14, 35);
+  doc.text(`Exported on: ${new Date().toLocaleString(locale)}`, 14, 35);
 
   // Cashflow Summary
   doc.setFontSize(16);

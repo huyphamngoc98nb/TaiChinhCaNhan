@@ -8,6 +8,7 @@ import { useWallets } from '@/modules/wallets/hooks/useWallets';
 import { useCategories } from '@/modules/categories/hooks/useCategories';
 import { AdvancedTransactionFilterSheet } from '../components/AdvancedTransactionFilterSheet';
 import type { TransactionFilter } from '../domain/transaction.model';
+import { getAppLocale } from '@/shared/utils/locale';
 
 export type ViewType = 'day' | 'month' | 'year';
 
@@ -37,7 +38,7 @@ export function TransactionsPage() {
     title?: string;
   } | null>(null);
   const isDayDetail = Boolean(drilldownSnapshot);
-  const locale = language === 'vi' ? 'vi-VN' : 'en-US';
+  const locale = getAppLocale(language);
 
   const handleEdit = (id: string) => navigate(`/transactions/${id}/edit`);
   const handleBack = () => {

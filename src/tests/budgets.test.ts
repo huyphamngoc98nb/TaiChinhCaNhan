@@ -188,12 +188,13 @@ describe('SQLiteBudgetRepository upsert behavior', () => {
     const [deactivateSql, deactivateParams] = mockDb.run.mock.calls[0];
     expect(deactivateSql).toContain('UPDATE budgets');
     expect(deactivateSql).not.toContain('AND period');
-    expect(deactivateSql).not.toContain('account_type_scope = ?');
+    expect(deactivateSql).toContain('wallet_id IS NULL');
+    expect(deactivateSql).toContain('account_type_scope = ?');
     expect(deactivateParams).toEqual([
       expect.any(Number),
       'cat-food',
-      null,
-      null,
+      'credit_card',
+      'credit_card',
     ]);
 
     const [insertSql, insertParams] = mockDb.run.mock.calls[1];

@@ -7,6 +7,7 @@ import type {
   UpdateWalletInput,
   Wallet,
   WalletReferenceCounts,
+  UpsertCreditCardStatementInput,
 } from './wallet.repository';
 
 export type { AccountType, CreateWalletInput, UpdateWalletInput, Wallet } from './wallet.repository';
@@ -41,6 +42,13 @@ function mapWallet(row: Record<string, unknown>): Wallet {
     created_at: row.created_at as number,
     updated_at: row.updated_at as number,
   };
+}
+
+function generateId(): string {
+  if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+    return crypto.randomUUID();
+  }
+  return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`;
 }
 
 export class SQLiteWalletRepository implements IWalletRepository {
@@ -126,6 +134,60 @@ export class SQLiteWalletRepository implements IWalletRepository {
       [walletId, startDate, endDate]
     );
     return Number(values?.[0]?.statement_balance ?? 0);
+  }
+
+  async getPaidAmountForStatement(
+    walletId: string,
+    periodStart: number,
+    dueAt: number
+  ): Promise<number> {
+    const db = await getDbConnection();
+    const { values } = await db.query(
+      `SELECT COALESCE(SUM(t.amount), 0) AS paid_amount
+       FROM transactions t
+       WHERE t.to_wallet_id = ?
+         AND t.type = 'transfer'
+         AND t.deleted_at IS NULL
+         AND t.transaction_date >= ?
+         AND t.transaction_date <= ?`,
+      [walletId, periodStart, dueAt]
+    );
+    return Number(values?.[0]?.paid_amount ?? 0);
+  }
+
+  async upsertCreditCardStatement(data: UpsertCreditCardStatementInput): Promise<void> {
+    const db = await getDbConnection();
+    await db.run(
+      `INSERT OR REPLACE INTO credit_card_statements
+         (id, wallet_id, period_start, period_end, closing_at, due_at,
+          statement_balance, paid_amount, remaining_amount, status, created_at, updated_at)
+       VALUES (
+         COALESCE(
+           (SELECT id FROM credit_card_statements
+            WHERE wallet_id = ? AND period_start = ? AND period_end = ?),
+           ?
+         ),
+         ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+       )`,
+      [
+        data.wallet_id,
+        data.period_start,
+        data.period_end,
+        generateId(),
+        data.wallet_id,
+        data.period_start,
+        data.period_end,
+        data.closing_at,
+        data.due_at,
+        data.statement_balance,
+        data.paid_amount,
+        data.remaining_amount,
+        data.status,
+        data.now,
+        data.now,
+      ],
+      !isManagedTransactionActive()
+    );
   }
 
   async getCreditCardAvailableCredit(walletId: string): Promise<number | null> {

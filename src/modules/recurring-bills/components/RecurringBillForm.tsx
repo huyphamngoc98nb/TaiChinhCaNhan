@@ -1,4 +1,4 @@
-import { FormEvent, useMemo, useState } from 'react';
+import { FormEvent, useEffect, useMemo, useRef, useState } from 'react';
 import type {
   CreateRecurringBillInput,
   RecurringBill,
@@ -11,6 +11,7 @@ import { CurrencyAmountInput } from '@/shared/components/CurrencyAmountInput';
 import { DropdownList } from '@/shared/components/DropdownList';
 import type { CurrencyCode } from '@/shared/context/CurrencyContext';
 import { useLanguage } from '@/shared/context/LanguageContext';
+import { getAppLocale } from '@/shared/utils/locale';
 
 interface Props {
   existing?: RecurringBill;
@@ -18,16 +19,61 @@ interface Props {
   onCancel: () => void;
 }
 
-function toDateInput(timestamp: number): string {
-  return new Date(timestamp).toISOString().slice(0, 10);
+function startOfLocalDay(timestamp: number): number {
+  const date = new Date(timestamp);
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
 }
 
-function fromDateInput(value: string): number {
-  return new Date(`${value}T00:00:00`).getTime();
+function isValidDateParts(year: number, month: number, day: number): boolean {
+  const date = new Date(year, month - 1, day);
+  return (
+    date.getFullYear() === year &&
+    date.getMonth() === month - 1 &&
+    date.getDate() === day
+  );
+}
+
+function parseDueDate(value: string, language: 'en' | 'vi'): number | null {
+  const trimmed = value.trim();
+  const isoMatch = /^(\d{4})-(\d{1,2})-(\d{1,2})$/.exec(trimmed);
+
+  if (isoMatch) {
+    const [, yearText, monthText, dayText] = isoMatch;
+    const year = Number(yearText);
+    const month = Number(monthText);
+    const day = Number(dayText);
+    return isValidDateParts(year, month, day)
+      ? new Date(year, month - 1, day).getTime()
+      : null;
+  }
+
+  const parts = trimmed.split(/[\/.-]/).map(part => Number(part));
+  if (parts.length !== 3 || parts.some(part => !Number.isInteger(part))) {
+    return null;
+  }
+
+  const [first, second, year] = parts;
+  const day = language === 'vi' ? first : second;
+  const month = language === 'vi' ? second : first;
+
+  if (!isValidDateParts(year, month, day)) {
+    return null;
+  }
+
+  return new Date(year, month - 1, day).getTime();
+}
+
+function formatDueDate(timestamp: number, locale: string): string {
+  return new Intl.DateTimeFormat(locale, {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+  }).format(new Date(timestamp));
 }
 
 export function RecurringBillForm({ existing, onSave, onCancel }: Props) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  const locale = getAppLocale(language);
   const { wallets } = useWallets();
   const { categories } = useCategories();
   const selectableWallets = useMemo(
@@ -43,12 +89,25 @@ export function RecurringBillForm({ existing, onSave, onCancel }: Props) {
   const [amount, setAmount] = useState(existing?.amount?.toString() ?? '');
   const [walletId, setWalletId] = useState(existing?.wallet_id ?? '');
   const [categoryId, setCategoryId] = useState(existing?.category_id ?? '');
-  const [dueDate, setDueDate] = useState(toDateInput(existing?.next_due_date ?? Date.now()));
+  const [dueDateTimestamp, setDueDateTimestamp] = useState(
+    startOfLocalDay(existing?.next_due_date ?? Date.now()),
+  );
+  const [dueDateText, setDueDateText] = useState(() =>
+    formatDueDate(startOfLocalDay(existing?.next_due_date ?? Date.now()), locale),
+  );
   const [reminderDays, setReminderDays] = useState(String(existing?.reminder_days ?? 3));
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const previousLocaleRef = useRef(locale);
   const selectedWallet = selectableWallets.find(wallet => wallet.id === walletId);
   const selectedCurrency = (selectedWallet?.currency ?? 'VND') as CurrencyCode;
+
+  useEffect(() => {
+    if (previousLocaleRef.current !== locale) {
+      setDueDateText(formatDueDate(dueDateTimestamp, locale));
+      previousLocaleRef.current = locale;
+    }
+  }, [dueDateTimestamp, locale]);
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();
@@ -73,7 +132,8 @@ export function RecurringBillForm({ existing, onSave, onCancel }: Props) {
       setError(t('recurring_bills.validation_category'));
       return;
     }
-    if (!dueDate || Number.isNaN(fromDateInput(dueDate))) {
+    const parsedDueDate = parseDueDate(dueDateText, language);
+    if (parsedDueDate === null) {
       setError(t('recurring_bills.validation_due_date'));
       return;
     }
@@ -86,7 +146,7 @@ export function RecurringBillForm({ existing, onSave, onCancel }: Props) {
         wallet_id: walletId,
         category_id: categoryId,
         frequency: 'monthly',
-        next_due_date: fromDateInput(dueDate),
+        next_due_date: parsedDueDate,
         reminder_days: Number.isFinite(parsedReminderDays) && parsedReminderDays >= 0
           ? parsedReminderDays
           : 0,
@@ -159,9 +219,25 @@ export function RecurringBillForm({ existing, onSave, onCancel }: Props) {
         <label className="block space-y-1.5">
           <span className="text-[13px] font-semibold text-gray-700">{t('recurring_bills.due_date')}</span>
           <input
-            type="date"
-            value={dueDate}
-            onChange={event => setDueDate(event.target.value)}
+            type="text"
+            inputMode="numeric"
+            value={dueDateText}
+            onChange={event => {
+              const nextText = event.target.value;
+              setDueDateText(nextText);
+              const parsed = parseDueDate(nextText, language);
+              if (parsed !== null) {
+                setDueDateTimestamp(parsed);
+              }
+            }}
+            onBlur={() => {
+              const parsed = parseDueDate(dueDateText, language);
+              if (parsed !== null) {
+                setDueDateTimestamp(parsed);
+                setDueDateText(formatDueDate(parsed, locale));
+              }
+            }}
+            placeholder={language === 'vi' ? 'dd/mm/yyyy' : 'mm/dd/yyyy'}
             className="h-[48px] w-full rounded-[12px] border border-gray-200 bg-gray-50 px-3 text-[14px] font-medium text-gray-900 outline-none transition-colors focus:border-indigo-400"
           />
         </label>

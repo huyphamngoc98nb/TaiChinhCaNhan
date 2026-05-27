@@ -1,12 +1,22 @@
 import type {
   CreateWalletInput,
   IWalletRepository,
+  UpsertCreditCardStatementInput,
   UpdateWalletInput,
   Wallet,
 } from '@/modules/wallets/repositories/wallet.repository';
 
+interface StoredStatement extends UpsertCreditCardStatementInput {
+  id: string;
+  created_at: number;
+  updated_at: number;
+}
+
 export class InMemoryWalletRepository implements IWalletRepository {
   private wallets = new Map<string, Wallet>();
+  private statementBalances = new Map<string, number>();
+  private paidAmounts = new Map<string, number>();
+  private statements = new Map<string, StoredStatement>();
 
   constructor(initialWallets: Wallet[] = []) {
     initialWallets.forEach((wallet) => {
@@ -44,8 +54,53 @@ export class InMemoryWalletRepository implements IWalletRepository {
     return Math.max(0, -wallet.balance);
   }
 
-  async getCreditCardStatementBalance(): Promise<number> {
-    return 0;
+  setCreditCardStatementBalance(
+    walletId: string,
+    startDate: number,
+    endDate: number,
+    amount: number
+  ): void {
+    this.statementBalances.set(`${walletId}:${startDate}:${endDate}`, amount);
+  }
+
+  setPaidAmountForStatement(walletId: string, periodStart: number, dueAt: number, amount: number): void {
+    this.paidAmounts.set(`${walletId}:${periodStart}:${dueAt}`, amount);
+  }
+
+  getStatement(
+    walletId: string,
+    periodStart: number,
+    periodEnd: number
+  ): StoredStatement | undefined {
+    const statement = this.statements.get(`${walletId}:${periodStart}:${periodEnd}`);
+    return statement ? { ...statement } : undefined;
+  }
+
+  async getCreditCardStatementBalance(
+    walletId: string,
+    startDate: number,
+    endDate: number
+  ): Promise<number> {
+    return this.statementBalances.get(`${walletId}:${startDate}:${endDate}`) ?? 0;
+  }
+
+  async getPaidAmountForStatement(
+    walletId: string,
+    periodStart: number,
+    dueAt: number
+  ): Promise<number> {
+    return this.paidAmounts.get(`${walletId}:${periodStart}:${dueAt}`) ?? 0;
+  }
+
+  async upsertCreditCardStatement(data: UpsertCreditCardStatementInput): Promise<void> {
+    const key = `${data.wallet_id}:${data.period_start}:${data.period_end}`;
+    const existing = this.statements.get(key);
+    this.statements.set(key, {
+      ...data,
+      id: existing?.id ?? `statement-${this.statements.size + 1}`,
+      created_at: existing?.created_at ?? data.now,
+      updated_at: data.now,
+    });
   }
 
   async getCreditCardAvailableCredit(walletId: string): Promise<number | null> {

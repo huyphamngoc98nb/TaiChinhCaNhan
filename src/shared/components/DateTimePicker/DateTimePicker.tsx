@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Calendar, Clock, ChevronDown } from 'lucide-react';
 import { useLanguage } from '@/shared/context/LanguageContext';
-import type { TranslationPath } from '@/shared/constants/translations';
+import { getAppLocale } from '@/shared/utils/locale';
 
 // ─── types ───────────────────────────────────────────────────────────────
 type QuickMode = 'today' | 'yesterday' | 'custom';
@@ -33,27 +33,15 @@ function buildTimestamp(dateStr: string, timeStr: string): number {
   return new Date(`${dateStr}T${timeStr}`).getTime();
 }
 
-const WEEKDAY_KEYS = [
-  'date_time.weekday_sunday',
-  'date_time.weekday_monday',
-  'date_time.weekday_tuesday',
-  'date_time.weekday_wednesday',
-  'date_time.weekday_thursday',
-  'date_time.weekday_friday',
-  'date_time.weekday_saturday',
-] as const satisfies readonly TranslationPath[];
-
-function formatPreview(ts: number, t: (path: TranslationPath) => string): string {
-  const d  = new Date(ts);
-  const wd = t(WEEKDAY_KEYS[d.getDay()]);
-  const mo = String(d.getMonth() + 1);
-  const dd = d.getDate();
-  const yy = d.getFullYear();
-  const hh = d.getHours();
-  const mm = String(d.getMinutes()).padStart(2, '0');
-  const period = hh >= 12 ? t('date_time.pm') : t('date_time.am');
-  const h12  = hh % 12 || 12;
-  return `${wd}, ${dd} ${t('date_time.preview_month')} ${mo}, ${yy} ${t('date_time.preview_at')} ${h12}:${mm} ${period}`;
+function formatPreview(ts: number, locale: string): string {
+  return new Intl.DateTimeFormat(locale, {
+    weekday: 'short',
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  }).format(new Date(ts));
 }
 
 /** Detect if today or yesterday relative to now */
@@ -74,7 +62,8 @@ function detectMode(ts: number): QuickMode {
 
 // ─── component ───────────────────────────────────────────────────────────
 export function DateTimePicker({ value, onChange, label }: Props) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  const locale = getAppLocale(language);
   const [mode, setMode]       = useState<QuickMode>(() => detectMode(value));
   const [dateStr, setDateStr] = useState(() => toDateInput(value));
   const [timeStr, setTimeStr] = useState(() => toTimeInput(value));
@@ -179,7 +168,7 @@ export function DateTimePicker({ value, onChange, label }: Props) {
 
       {/* Preview */}
       <p className="text-[11px] text-gray-400 ml-0.5">
-        📅 {formatPreview(buildTimestamp(dateStr, timeStr), t)}
+        📅 {formatPreview(buildTimestamp(dateStr, timeStr), locale)}
       </p>
     </div>
   );

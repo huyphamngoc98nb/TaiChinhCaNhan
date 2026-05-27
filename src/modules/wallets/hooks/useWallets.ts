@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Wallet, CreateWalletInput, UpdateWalletInput } from '../repositories/sqlite-wallet.repository';
 import { WalletService } from '../services/wallet.service';
+import { SyncCreditCardStatementUseCase } from '../services/sync-credit-card-statement';
+import { appRepositories } from '@/core/repositories/app-repositories';
 
 interface UseWalletsReturn {
   wallets: Wallet[];
@@ -20,6 +22,10 @@ export function useWallets(): UseWalletsReturn {
   const [error, setError] = useState<string | null>(null);
 
   const service = useMemo(() => new WalletService(), []);
+  const statementSync = useMemo(
+    () => new SyncCreditCardStatementUseCase(appRepositories.wallet),
+    []
+  );
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -29,6 +35,11 @@ export function useWallets(): UseWalletsReturn {
         service.getAllActive(),
         service.getNetWorth(),
       ]);
+      await Promise.all(
+        active
+          .filter((wallet) => wallet.account_type === 'credit_card')
+          .map((wallet) => statementSync.execute(wallet))
+      );
       setWallets(active);
       setTotalBalance(total);
     } catch (e: unknown) {
@@ -37,7 +48,7 @@ export function useWallets(): UseWalletsReturn {
     } finally {
       setLoading(false);
     }
-  }, [service]);
+  }, [service, statementSync]);
 
   useEffect(() => {
     load();

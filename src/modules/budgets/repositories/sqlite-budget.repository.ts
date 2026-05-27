@@ -1,6 +1,7 @@
 import { IBudgetRepository } from './budget.repository';
 import { Budget, BudgetWithCategory, BudgetPeriod, CreateBudgetDto, AccountType } from '../domain/budget.model';
 import { getDbConnection } from '@/core/db/sqlite/connection';
+import { computeStartDate } from '../services/upsert-category-budget';
 
 /**
  * MINOR-2 fix: bỏ Math.random() fallback — không đảm bảo uniqueness.
@@ -115,13 +116,14 @@ export class SQLiteBudgetRepository implements IBudgetRepository {
       SET is_active = 0, updated_at = ?
       WHERE category_id = ?
         AND is_active   = 1
-        AND (wallet_id = ? OR (wallet_id IS NULL AND ? IS NULL))
+        AND wallet_id IS NULL
+        AND (account_type_scope = ? OR (account_type_scope IS NULL AND ? IS NULL))
     `;
     await db.run(deactivateSql, [
       now,
       dto.category_id,
-      dto.wallet_id ?? null,
-      dto.wallet_id ?? null,
+      accountTypeScope,
+      accountTypeScope,
     ]);
 
     const insertSql = `
@@ -201,6 +203,13 @@ export class SQLiteBudgetRepository implements IBudgetRepository {
     return (values?.[0]?.total as number) ?? 0;
   }
 
+  /**
+   * Returns one budget row per category for the global scope only
+   * (wallet_id IS NULL AND account_type_scope IS NULL).
+   * Categories that have budgets only under a specific account_type_scope
+   * will appear with budget_amount = null.
+   * Used by BudgetSettingsPage to render the category list.
+   */
   async getAllCategoryBudgets(): Promise<any[]> {
     const db = await getDbConnection();
     const sql = `
@@ -229,6 +238,9 @@ export class SQLiteBudgetRepository implements IBudgetRepository {
     const db = await getDbConnection();
     const now = Date.now();
     
+    // Deactivates all budget rows for this category that are not wallet-scoped.
+    // Intentionally covers both global (account_type_scope IS NULL) and
+    // account_type-scoped rows — this method is only called on full budget removal.
     await db.run(
       'UPDATE budgets SET is_active = 0, updated_at = ? WHERE category_id = ? AND wallet_id IS NULL AND is_active = 1',
       [now, categoryId]
@@ -236,14 +248,7 @@ export class SQLiteBudgetRepository implements IBudgetRepository {
     
     if (amount !== null && period !== null) {
       const id = generateId();
-      const d = new Date();
-      if (period === 'monthly') {
-        d.setDate(1); d.setHours(0,0,0,0);
-      } else {
-        const day = d.getDay() || 7;
-        d.setDate(d.getDate() - day + 1); d.setHours(0,0,0,0);
-      }
-      const start_date = d.getTime();
+      const start_date = computeStartDate(period);
       
       await db.run(
         'INSERT INTO budgets (id, category_id, wallet_id, account_type_scope, amount, period, start_date, is_active, created_at, updated_at) VALUES (?, ?, NULL, NULL, ?, ?, ?, 1, ?, ?)',
