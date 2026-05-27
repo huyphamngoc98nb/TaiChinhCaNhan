@@ -9,6 +9,7 @@ import { useCurrency } from '@/shared/context/CurrencyContext';
 import { CategoryIcon } from '@/modules/categories/components/CategoryIcon';
 
 interface Props {
+  isNew?: false;
   category: CategoryBudget;
   amount: string;
   setAmount: (val: string) => void;
@@ -26,6 +27,7 @@ interface Props {
 }
 
 export function BudgetEditForm({
+  isNew = false,
   category,
   amount,
   setAmount,
@@ -44,6 +46,7 @@ export function BudgetEditForm({
   const { t } = useLanguage();
   const { confirm } = useConfirm();
   const { currency } = useCurrency();
+  void isNew;
 
   return (
     <div className="flex flex-col h-full">

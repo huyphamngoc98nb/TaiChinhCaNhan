@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom';
+import { Plus } from 'lucide-react';
 import { useRecurringBills } from '../hooks/useRecurringBills';
 import { RecurringBillList } from '../components/RecurringBillList';
 import { RecurringBill } from '../domain/recurring-bill.model';
@@ -66,14 +67,9 @@ export function RecurringBillsPage() {
           onClick={() => navigate(ROUTES.RECURRING_BILLS_NEW)}
           aria-label={t('recurring_bills.add')}
           title={t('recurring_bills.add')}
-          style={{
-            width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center',
-            background: 'var(--primary)', color: 'white',
-            border: 'none', borderRadius: '10px', fontSize: '1.4rem', fontWeight: '700', cursor: 'pointer',
-            boxShadow: '0 4px 6px -1px rgba(14,165,233,0.2)',
-          }}
+          className="w-10 h-10 rounded-full bg-indigo-500 text-white shadow-lg shadow-indigo-500/30 flex items-center justify-center text-[24px] font-light active:scale-95 transition-transform flex-shrink-0"
         >
-          +
+          <Plus size={24} />
         </button>
       </div>
 

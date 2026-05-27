@@ -1,12 +1,14 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Wallet } from 'lucide-react';
+import { Plus, Wallet } from 'lucide-react';
 import { useLanguage } from '@/shared/context/LanguageContext';
 import { useBudgets } from '../hooks/useBudgets';
+import { useBudgetAddForm } from '../hooks/useBudgetAddForm';
 import { useBudgetForm } from '../hooks/useBudgetForm';
 import { BudgetSummaryStats } from '../components/BudgetSummaryStats';
 import { BudgetAlertsPanel } from '../components/BudgetAlertsPanel';
 import { BudgetCategoryList } from '../components/BudgetCategoryList';
+import { BudgetAddSheet } from '../components/BudgetAddSheet';
 import { BudgetEditForm } from '../components/BudgetEditForm';
 import { BudgetByAccountTypeSummary } from '../components/BudgetByAccountTypeSummary';
 import { BottomSheet } from '@/shared/components/BottomSheet';
@@ -30,24 +32,8 @@ export function BudgetSettingsPage() {
     refresh,
   } = useBudgets();
 
-  const {
-    isOpen,
-    selectedCategory,
-    open,
-    close,
-    amount,
-    setAmount,
-    period,
-    setPeriod,
-    scopeType,
-    setScopeType,
-    accountTypeScope,
-    setAccountTypeScope,
-    handleSave,
-    handleRemove,
-    isSaving,
-    validationError,
-  } = useBudgetForm(refresh);
+  const addForm = useBudgetAddForm(refresh);
+  const editForm = useBudgetForm(refresh);
 
   const [activeTab, setActiveTab] = useState<ScopeTab>('all');
 
@@ -94,13 +80,19 @@ export function BudgetSettingsPage() {
   return (
     <div className="min-h-screen bg-[#F5F7FA]" style={{ padding: '0 16px' }}>
       {/* Header */}
-      <header className="pt-10 pb-2 flex items-center justify-between">
-        <div className="flex flex-col">
-          <h1 className="text-[24px] font-bold text-gray-900 leading-tight">{t('budgets.title')}</h1>
-          <p className="text-[12px] text-gray-500 font-medium">{t('budgets.subtitle')}</p>
-        </div>
-        <div className="bg-indigo-500 rounded-full px-3 py-1.5 text-white text-[12px] font-bold">
-          {t('budgets.this_month')}
+      <header className="pt-10 pb-2">
+        <div className="flex items-start justify-between gap-2">
+          <div>
+            <h1 className="text-[24px] font-bold text-gray-900 leading-tight">{t('budgets.title')}</h1>
+            <p className="text-[12px] text-gray-500 font-medium mt-1">{t('budgets.subtitle')}</p>
+          </div>
+          <button
+            onClick={addForm.open}
+            aria-label={t('budgets.add_budget')}
+            className="w-10 h-10 rounded-full bg-indigo-500 text-white shadow-lg shadow-indigo-500/30 flex items-center justify-center text-[24px] font-light active:scale-95 transition-transform flex-shrink-0 mt-0"
+          >
+            <Plus size={24} />
+          </button>
         </div>
       </header>
 
@@ -143,35 +135,55 @@ export function BudgetSettingsPage() {
         {/* Content */}
         {activeTab === 'all' ? (
           <BudgetCategoryList
-            categories={categories}
             allProgress={allProgress}
-            onItemClick={open}
+            onItemClick={editForm.open}
           />
         ) : (
           <BudgetByAccountTypeSummary progresses={progressByScope.byAccountType} />
         )}
       </div>
 
-      {/* Bottom Sheet */}
-      <BottomSheet isOpen={isOpen} onClose={close}>
-        {selectedCategory && (
+      {/* Edit Sheet */}
+      <BottomSheet isOpen={editForm.isOpen} onClose={editForm.close}>
+        {editForm.selectedCategory && (
           <BudgetEditForm
-            category={selectedCategory}
-            amount={amount}
-            setAmount={setAmount}
-            period={period}
-            setPeriod={setPeriod}
-            scopeType={scopeType}
-            setScopeType={setScopeType}
-            accountTypeScope={accountTypeScope}
-            setAccountTypeScope={setAccountTypeScope}
-            onSave={handleSave}
-            onRemove={handleRemove}
-            onClose={close}
-            isSaving={isSaving}
-            error={validationError}
+            category={editForm.selectedCategory}
+            amount={editForm.amount}
+            setAmount={editForm.setAmount}
+            period={editForm.period}
+            setPeriod={editForm.setPeriod}
+            scopeType={editForm.scopeType}
+            setScopeType={editForm.setScopeType}
+            accountTypeScope={editForm.accountTypeScope}
+            setAccountTypeScope={editForm.setAccountTypeScope}
+            onSave={editForm.handleSave}
+            onRemove={editForm.handleRemove}
+            onClose={editForm.close}
+            isSaving={editForm.isSaving}
+            error={editForm.validationError}
           />
         )}
+      </BottomSheet>
+
+      {/* Add Sheet */}
+      <BottomSheet isOpen={addForm.isOpen} onClose={addForm.close}>
+        <BudgetAddSheet
+          categories={categories}
+          selectedCategory={addForm.selectedCategory}
+          setSelectedCategory={addForm.setSelectedCategory}
+          amount={addForm.amount}
+          setAmount={addForm.setAmount}
+          period={addForm.period}
+          setPeriod={addForm.setPeriod}
+          scopeType={addForm.scopeType}
+          setScopeType={addForm.setScopeType}
+          accountTypeScope={addForm.accountTypeScope}
+          setAccountTypeScope={addForm.setAccountTypeScope}
+          onSave={addForm.handleSave}
+          onClose={addForm.close}
+          isSaving={addForm.isSaving}
+          error={addForm.error}
+        />
       </BottomSheet>
     </div>
   );
