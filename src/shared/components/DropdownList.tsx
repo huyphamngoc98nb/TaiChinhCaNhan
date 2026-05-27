@@ -36,6 +36,7 @@ export function DropdownList<T extends string>({
   const id = useId();
   const rootRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
   const [isOpen, setIsOpen] = useState(false);
   const [menuStyle, setMenuStyle] = useState<React.CSSProperties>({});
 
@@ -48,15 +49,19 @@ export function DropdownList<T extends string>({
     const rect = buttonRef.current?.getBoundingClientRect();
     if (!rect) return;
 
-    const spaceBelow = window.innerHeight - rect.bottom;
-    const maxHeight = Math.min(280, Math.max(180, window.innerHeight - 32));
-    const openUp = spaceBelow < 220 && rect.top > spaceBelow;
+    const margin = 16;
+    const gap = 6;
+    const spaceBelow = window.innerHeight - rect.bottom - margin;
+    const spaceAbove = rect.top - margin;
+    const openUp = spaceBelow < 220 && spaceAbove > spaceBelow;
+    const availableSpace = openUp ? spaceAbove : spaceBelow;
+    const maxHeight = Math.min(280, Math.max(160, availableSpace));
 
     setMenuStyle({
       position: 'fixed',
       left: rect.left,
       top: openUp ? undefined : rect.bottom + 6,
-      bottom: openUp ? window.innerHeight - rect.top + 6 : undefined,
+      bottom: openUp ? window.innerHeight - rect.top + gap : undefined,
       width: rect.width,
       maxHeight,
       zIndex: 9999,
@@ -72,16 +77,23 @@ export function DropdownList<T extends string>({
         setIsOpen(false);
       }
     };
+    const handleScroll = (event: Event) => {
+      const target = event.target as Node | null;
+      if (target && menuRef.current?.contains(target)) {
+        return;
+      }
+      setIsOpen(false);
+    };
     const handleClose = () => setIsOpen(false);
 
     document.addEventListener('pointerdown', handlePointerDown);
     window.addEventListener('resize', handleClose);
-    window.addEventListener('scroll', handleClose, true);
+    window.addEventListener('scroll', handleScroll, true);
 
     return () => {
       document.removeEventListener('pointerdown', handlePointerDown);
       window.removeEventListener('resize', handleClose);
-      window.removeEventListener('scroll', handleClose, true);
+      window.removeEventListener('scroll', handleScroll, true);
     };
   }, [isOpen]);
 
@@ -120,11 +132,12 @@ export function DropdownList<T extends string>({
 
       {isOpen && (
         <div
+          ref={menuRef}
           id={`${id}-listbox`}
           role="listbox"
           aria-label={ariaLabel}
           style={menuStyle}
-          className={`overflow-y-auto rounded-[14px] border border-gray-200 bg-white p-1 shadow-xl shadow-gray-900/12 ${menuClassName}`}
+          className={`overscroll-contain overflow-y-auto rounded-[14px] border border-gray-200 bg-white p-1 shadow-xl shadow-gray-900/12 ${menuClassName}`}
         >
           {options.map(option => {
             const isSelected = option.value === value;

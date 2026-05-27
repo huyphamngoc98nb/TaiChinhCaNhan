@@ -27,11 +27,11 @@ export function BottomSheet({ isOpen, onClose, children }: Props) {
       />
       
       {/* Sheet */}
-      <div className="keyboard-safe-bottom-sheet relative w-full max-w-md bg-white rounded-t-[24px] p-6 shadow-2xl animate-in slide-in-from-bottom duration-300 ease-out overflow-y-auto">
+      <div className="keyboard-safe-bottom-sheet relative flex w-full max-w-md flex-col bg-white rounded-t-[24px] p-6 shadow-2xl animate-in slide-in-from-bottom duration-300 ease-out overflow-y-auto">
         {/* Drag Handle */}
         <div className="w-8 h-1 bg-gray-200 rounded-full mx-auto mb-6" onClick={onClose} />
         
-        <div className="pb-8">
+        <div className="min-h-0 flex-1 pb-8">
           {children}
         </div>
       </div>

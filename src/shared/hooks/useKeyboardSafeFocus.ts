@@ -24,6 +24,8 @@ export function useKeyboardSafeFocus() {
       const viewportOffsetTop = viewport?.offsetTop ?? 0;
       const keyboardInset = Math.max(0, window.innerHeight - viewportHeight - viewportOffsetTop);
 
+      document.documentElement.style.setProperty('--visual-viewport-height', `${viewportHeight}px`);
+      document.documentElement.style.setProperty('--keyboard-inset-bottom', `${keyboardInset}px`);
       document.body.classList.toggle('keyboard-open', keyboardInset > 80);
     };
 
@@ -77,6 +79,8 @@ export function useKeyboardSafeFocus() {
       window.removeEventListener('resize', handleViewportChange);
       viewport?.removeEventListener('resize', handleViewportChange);
       viewport?.removeEventListener('scroll', handleViewportChange);
+      document.documentElement.style.removeProperty('--visual-viewport-height');
+      document.documentElement.style.removeProperty('--keyboard-inset-bottom');
       document.body.classList.remove('keyboard-open');
     };
   }, []);

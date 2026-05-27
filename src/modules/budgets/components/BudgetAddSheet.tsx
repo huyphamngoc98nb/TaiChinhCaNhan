@@ -55,7 +55,7 @@ export function BudgetAddSheet({
   }
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex h-full min-h-0 flex-col">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex min-w-0 items-center space-x-3">
@@ -88,7 +88,7 @@ export function BudgetAddSheet({
         </div>
 
         {/* Form Body */}
-        <div className="flex-1 space-y-6">
+        <div className="min-h-0 flex-1 space-y-6 overflow-y-auto pb-4 pr-1">
           {error && (
             <div className="px-4 py-3 bg-red-50 border border-red-200 rounded-[12px] text-[13px] text-red-600 font-medium">
               {error}
@@ -163,7 +163,7 @@ export function BudgetAddSheet({
         </div>
 
         {/* Footer */}
-        <div className="mt-8 pt-4 border-t border-gray-100">
+        <div className="mt-4 shrink-0 pt-4 border-t border-gray-100">
           <button
             onClick={onSave}
             disabled={isSaving || !selectedCategory}
