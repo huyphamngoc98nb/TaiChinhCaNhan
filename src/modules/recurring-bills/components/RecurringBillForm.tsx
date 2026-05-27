@@ -1,4 +1,4 @@
-import { FormEvent, useEffect, useMemo, useRef, useState } from 'react';
+import { FormEvent, useMemo, useState } from 'react';
 import type {
   CreateRecurringBillInput,
   RecurringBill,
@@ -11,7 +11,6 @@ import { CurrencyAmountInput } from '@/shared/components/CurrencyAmountInput';
 import { DropdownList } from '@/shared/components/DropdownList';
 import type { CurrencyCode } from '@/shared/context/CurrencyContext';
 import { useLanguage } from '@/shared/context/LanguageContext';
-import { getAppLocale } from '@/shared/utils/locale';
 
 interface Props {
   existing?: RecurringBill;
@@ -22,6 +21,14 @@ interface Props {
 function startOfLocalDay(timestamp: number): number {
   const date = new Date(timestamp);
   return new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
+}
+
+function toDateInput(timestamp: number): string {
+  const date = new Date(timestamp);
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
 }
 
 function isValidDateParts(year: number, month: number, day: number): boolean {
@@ -63,17 +70,8 @@ function parseDueDate(value: string, language: 'en' | 'vi'): number | null {
   return new Date(year, month - 1, day).getTime();
 }
 
-function formatDueDate(timestamp: number, locale: string): string {
-  return new Intl.DateTimeFormat(locale, {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-  }).format(new Date(timestamp));
-}
-
 export function RecurringBillForm({ existing, onSave, onCancel }: Props) {
   const { t, language } = useLanguage();
-  const locale = getAppLocale(language);
   const { wallets } = useWallets();
   const { categories } = useCategories();
   const selectableWallets = useMemo(
@@ -89,25 +87,14 @@ export function RecurringBillForm({ existing, onSave, onCancel }: Props) {
   const [amount, setAmount] = useState(existing?.amount?.toString() ?? '');
   const [walletId, setWalletId] = useState(existing?.wallet_id ?? '');
   const [categoryId, setCategoryId] = useState(existing?.category_id ?? '');
-  const [dueDateTimestamp, setDueDateTimestamp] = useState(
-    startOfLocalDay(existing?.next_due_date ?? Date.now()),
-  );
   const [dueDateText, setDueDateText] = useState(() =>
-    formatDueDate(startOfLocalDay(existing?.next_due_date ?? Date.now()), locale),
+    toDateInput(startOfLocalDay(existing?.next_due_date ?? Date.now())),
   );
   const [reminderDays, setReminderDays] = useState(String(existing?.reminder_days ?? 3));
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
-  const previousLocaleRef = useRef(locale);
   const selectedWallet = selectableWallets.find(wallet => wallet.id === walletId);
   const selectedCurrency = (selectedWallet?.currency ?? 'VND') as CurrencyCode;
-
-  useEffect(() => {
-    if (previousLocaleRef.current !== locale) {
-      setDueDateText(formatDueDate(dueDateTimestamp, locale));
-      previousLocaleRef.current = locale;
-    }
-  }, [dueDateTimestamp, locale]);
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();
@@ -219,25 +206,17 @@ export function RecurringBillForm({ existing, onSave, onCancel }: Props) {
         <label className="block space-y-1.5">
           <span className="text-[13px] font-semibold text-gray-700">{t('recurring_bills.due_date')}</span>
           <input
-            type="text"
-            inputMode="numeric"
+            type="date"
             value={dueDateText}
             onChange={event => {
-              const nextText = event.target.value;
-              setDueDateText(nextText);
-              const parsed = parseDueDate(nextText, language);
-              if (parsed !== null) {
-                setDueDateTimestamp(parsed);
-              }
+              setDueDateText(event.target.value);
             }}
             onBlur={() => {
               const parsed = parseDueDate(dueDateText, language);
               if (parsed !== null) {
-                setDueDateTimestamp(parsed);
-                setDueDateText(formatDueDate(parsed, locale));
+                setDueDateText(toDateInput(parsed));
               }
             }}
-            placeholder={language === 'vi' ? 'dd/mm/yyyy' : 'mm/dd/yyyy'}
             className="h-[48px] w-full rounded-[12px] border border-gray-200 bg-gray-50 px-3 text-[14px] font-medium text-gray-900 outline-none transition-colors focus:border-indigo-400"
           />
         </label>
