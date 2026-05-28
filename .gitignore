@@ -9,5 +9,4 @@ private_key.pem
 
 # Artifacts tạm thời trong quá trình build bundle
 artifacts/
-graphify-out/
 dist/
