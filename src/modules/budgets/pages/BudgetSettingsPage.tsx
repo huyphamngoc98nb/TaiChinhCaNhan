@@ -12,6 +12,7 @@ import { BudgetAddSheet } from '../components/BudgetAddSheet';
 import { BudgetEditForm } from '../components/BudgetEditForm';
 import { BudgetByAccountTypeSummary } from '../components/BudgetByAccountTypeSummary';
 import { BottomSheet } from '@/shared/components/BottomSheet';
+import { BackButton } from '@/shared/components/BackButton';
 import { SkeletonCard } from '@/shared/components/SkeletonCard/SkeletonCard';
 import { ErrorScreen } from '@/shared/components/ErrorScreen';
 import { ROUTES } from '@/shared/constants/routes';
@@ -79,27 +80,31 @@ export function BudgetSettingsPage() {
 
   return (
     <div className="min-h-screen bg-[#F5F7FA]" style={{ padding: '0 16px' }}>
-      {/* Header */}
-      <header className="pt-10 pb-2">
-        <div className="flex items-start justify-between gap-2">
-          <div>
-            <h1 className="text-[24px] font-bold text-gray-900 leading-tight">{t('budgets.title')}</h1>
-            <p className="text-[12px] text-gray-500 font-medium mt-1">{t('budgets.subtitle')}</p>
+      <div className="sticky top-0 z-20 -mx-4 bg-[#F5F7FA] px-4 pb-4 shadow-[0_1px_0_rgba(15,23,42,0.06)]">
+        {/* Header */}
+        <header className="pt-4 pb-4">
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex min-w-0 flex-1 items-center gap-3">
+              <BackButton onClick={() => navigate(ROUTES.HOME)} ariaLabel={t('common.back')} />
+              <h1 className="min-w-0 truncate text-[20px] font-bold leading-tight text-gray-900">
+                {t('budgets.title')}
+              </h1>
+            </div>
+            <button
+              onClick={addForm.open}
+              aria-label={t('budgets.add_budget')}
+              className="w-10 h-10 rounded-full bg-indigo-500 text-white shadow-lg shadow-indigo-500/30 flex items-center justify-center text-[24px] font-light active:scale-95 transition-transform flex-shrink-0 mt-0"
+            >
+              <Plus size={24} />
+            </button>
           </div>
-          <button
-            onClick={addForm.open}
-            aria-label={t('budgets.add_budget')}
-            className="w-10 h-10 rounded-full bg-indigo-500 text-white shadow-lg shadow-indigo-500/30 flex items-center justify-center text-[24px] font-light active:scale-95 transition-transform flex-shrink-0 mt-0"
-          >
-            <Plus size={24} />
-          </button>
-        </div>
-      </header>
+        </header>
 
-      <div className="space-y-6 pb-20">
         {/* Summary Stats */}
         <BudgetSummaryStats stats={summaryStats} />
+      </div>
 
+      <div className="space-y-6 pb-20 pt-4">
         {/* Alerts Panel */}
         <BudgetAlertsPanel alerts={alerts} />
 

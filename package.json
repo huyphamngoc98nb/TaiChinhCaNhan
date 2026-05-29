@@ -10,6 +10,7 @@
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
     "test": "vitest run",
+    "test:ui": "playwright test",
     "postinstall": "copyfiles -u 3 node_modules/sql.js/dist/sql-wasm.wasm public/assets"
   },
   "dependencies": {
@@ -38,6 +39,7 @@
   },
   "devDependencies": {
     "@capacitor/cli": "^6.2.1",
+    "@playwright/test": "^1.60.0",
     "@types/node": "^20.12.7",
     "@types/react": "^18.2.66",
     "@types/react-dom": "^18.2.22",

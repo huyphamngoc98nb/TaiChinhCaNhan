@@ -51,7 +51,7 @@ export function BudgetEditForm({
   return (
     <div className="flex flex-col h-full">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-6 pt-4">
         <div className="flex items-center space-x-3">
           <div
             className="w-8 h-8 rounded-full flex items-center justify-center text-lg"

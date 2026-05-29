@@ -225,30 +225,36 @@ export function TransactionForm({
     </>
   );
 
+  const typeSelector = (
+    <div className="flex h-[48px] rounded-[12px] bg-gray-100 p-1">
+      {transactionTypes.map(type => (
+        <button
+          key={type.id}
+          type="button"
+          onClick={() => handleTypeChange(type.id)}
+          className={`flex-1 rounded-[9px] text-[14px] font-semibold transition-all ${
+            formData.type === type.id ? `${type.active} shadow-sm` : 'text-gray-500'
+          }`}
+        >
+          {type.label}
+        </button>
+      ))}
+    </div>
+  );
+
+  const typeSelectorWrapperClass = scrollFields
+    ? 'sticky top-[76px] z-20 -mx-4 shrink-0 bg-[#F5F7FA] px-4 pb-3 pt-1 shadow-[0_1px_0_rgba(15,23,42,0.06)]'
+    : pinTypeSelector
+      ? 'sticky top-[96px] z-20 -mx-4 mb-1 bg-[#F5F7FA] px-4 pb-3 shadow-sm'
+      : 'shrink-0';
+
   return (
     <form
       onSubmit={handleSubmit}
       className={scrollFields ? 'flex h-full min-h-0 flex-col' : 'space-y-5'}
     >
-      <div
-        className={`flex bg-gray-100 p-1 rounded-[12px] h-[48px] shrink-0 ${
-          pinTypeSelector
-            ? 'sticky top-[96px] z-20 -mx-4 mb-1 px-1 bg-gray-100 shadow-sm'
-            : ''
-        }`}
-      >
-        {transactionTypes.map(type => (
-          <button
-            key={type.id}
-            type="button"
-            onClick={() => handleTypeChange(type.id)}
-            className={`flex-1 rounded-[9px] text-[14px] font-semibold transition-all ${
-              formData.type === type.id ? `${type.active} shadow-sm` : 'text-gray-500'
-            }`}
-          >
-            {type.label}
-          </button>
-        ))}
+      <div className={typeSelectorWrapperClass}>
+        {typeSelector}
       </div>
 
       {scrollFields ? (

@@ -56,7 +56,7 @@ export function BudgetAddSheet({
   return (
     <div className="flex h-full min-h-0 flex-col overflow-hidden">
       {/* Header */}
-      <div className="mb-6 flex shrink-0 items-center justify-between gap-3">
+      <div className="mb-6 flex shrink-0 items-center justify-between gap-3 pt-4">
         <div className="flex min-w-0 items-center gap-3">
           <BackButton onClick={onClose} ariaLabel={t('common.back')} />
           <div className="flex min-w-0 items-center gap-2">
