@@ -5,8 +5,8 @@
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\package.json": {
-    "mtime": 1779246575.4388468,
-    "ast_hash": "195f020f645252d420dd100f50545046",
+    "mtime": 1780025343.0640738,
+    "ast_hash": "3e65352737c3777b202aec89f0d4fbcf",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\postcss.config.js": {
@@ -180,8 +180,8 @@
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\app\\providers\\AppBootstrap.tsx": {
-    "mtime": 1779672234.8502398,
-    "ast_hash": "aa94b3375df76c1b8740a5448890960e",
+    "mtime": 1780025530.8392663,
+    "ast_hash": "96449425c6cadb2421e8d07a94e7d082",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\app\\providers\\AppProvider.tsx": {
@@ -1417,6 +1417,46 @@
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\shared\\utils\\route-parent.ts": {
     "mtime": 1779963358.2635624,
     "ast_hash": "5738f4a08b3da1530ee8f100dd91d9e3",
+    "semantic_hash": ""
+  },
+  "D:\\Personal Project\\TaiXiuCaNhan\\playwright.config.ts": {
+    "mtime": 1780023388.2313833,
+    "ast_hash": "3ee57e3cef8dc44787ff6843e9b2e4e6",
+    "semantic_hash": ""
+  },
+  "D:\\Personal Project\\TaiXiuCaNhan\\playwright-report\\results.json": {
+    "mtime": 1780023691.4308183,
+    "ast_hash": "a84a80ec03359422d53a572d090a4054",
+    "semantic_hash": ""
+  },
+  "D:\\Personal Project\\TaiXiuCaNhan\\src\\tests\\add-transaction.qa.spec.ts": {
+    "mtime": 1780025568.2209349,
+    "ast_hash": "f530b4037e3455eb49059c48ced783ea",
+    "semantic_hash": ""
+  },
+  "D:\\Personal Project\\TaiXiuCaNhan\\src\\tests\\generate-bug-report.js": {
+    "mtime": 1780023356.8452022,
+    "ast_hash": "2e40790c21f19614f2d8b0f156ac2daf",
+    "semantic_hash": ""
+  },
+  "D:\\Personal Project\\TaiXiuCaNhan\\src\\tests\\generate-bug-report.ts": {
+    "mtime": 1780025477.56054,
+    "ast_hash": "c6fe766fc1fc2953f8f0dec8b25f0ce1",
+    "semantic_hash": ""
+  },
+  "D:\\Personal Project\\TaiXiuCaNhan\\bug_report.md": {
+    "mtime": 1780023691.6509678,
+    "ast_hash": "a7c7b2239b73e11591693f3a87aefafc",
+    "semantic_hash": ""
+  },
+  "D:\\Personal Project\\TaiXiuCaNhan\\test-results\\src-tests-add-transaction.-88640-orm-iPhone-12-Layout-and-UX-iPhone-12\\error-context.md": {
+    "mtime": 1780023728.7643352,
+    "ast_hash": "cd79d624eefeb477fdb65feeb7f2b04f",
+    "semantic_hash": ""
+  },
+  "D:\\Personal Project\\TaiXiuCaNhan\\test-results\\src-tests-add-transaction.-88640-orm-iPhone-12-Layout-and-UX-iPhone-12\\test-failed-1.png": {
+    "mtime": 1780023728.7460947,
+    "ast_hash": "32f56f7aff1a8fa33cd317e467b97db3",
     "semantic_hash": ""
   }
 }

@@ -24,7 +24,7 @@ export function AppBootstrap({ children }: AppBootstrapProps) {
   const [isUnlocked, setIsUnlocked] = useState(() => !authService.requiresUnlock());
   const [isReady, setIsReady] = useState(false);
   const [error, setError] = useState<Error | null>(null);
-  const idleTimerRef = useRef<ReturnType<typeof window.setTimeout> | null>(null);
+  const idleTimerRef = useRef<number | null>(null);
   const isUnlockedRef = useRef(isUnlocked);
   const appLockSuspendedRef = useRef(false);
 

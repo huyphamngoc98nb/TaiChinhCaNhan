@@ -1,15 +1,5 @@
 import { test, expect } from '@playwright/test';
 
-// Helper to check if elements overlap
-function isOverlapping(rect1: { x: number, y: number, width: number, height: number }, rect2: { x: number, y: number, width: number, height: number }) {
-  return !(
-    rect1.x + rect1.width <= rect2.x ||
-    rect2.x + rect2.width <= rect1.x ||
-    rect1.y + rect1.height <= rect2.y ||
-    rect2.y + rect2.height <= rect1.y
-  );
-}
-
 // Function to run the QA test sequence for a given viewport
 async function runQATestForViewport(page: any, viewportName: string, w: number, h: number) {
   console.log(`\n==================================================`);
@@ -25,6 +15,9 @@ async function runQATestForViewport(page: any, viewportName: string, w: number, 
   // Check if we need to create wallets (if not present)
   const noWalletsText = page.locator('text=No accounts yet, Chưa có tài khoản');
   const addBtn = page.locator('button:has-text("+")');
+  if (await noWalletsText.isVisible().catch(() => false)) {
+    console.log('No wallets empty state is visible.');
+  }
   
   if (await addBtn.isVisible()) {
     console.log('Creating wallets for testing...');
@@ -103,7 +96,9 @@ async function runQATestForViewport(page: any, viewportName: string, w: number, 
   // 5. Scroll from top to bottom
   console.log('Scrolling down to the bottom of the form...');
   // Since formScrollContainer is the container with overflow-y-auto, scroll it
-  await formScrollContainer.evaluate(node => node.scrollTop = node.scrollHeight);
+  await formScrollContainer.evaluate((node: HTMLElement) => {
+    node.scrollTop = node.scrollHeight;
+  });
   await page.waitForTimeout(500); // wait for scroll animation/repaint
 
   // Get positions after scrolling
