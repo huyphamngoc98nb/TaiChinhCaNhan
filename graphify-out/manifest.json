@@ -180,8 +180,8 @@
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\app\\providers\\AppBootstrap.tsx": {
-    "mtime": 1780027664.817859,
-    "ast_hash": "85fa97dbffeffcd75ec1e4bac6b6f031",
+    "mtime": 1780044326.5306933,
+    "ast_hash": "73e5c079e99bfcd2104a192efa77747a",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\app\\providers\\AppProvider.tsx": {
@@ -415,8 +415,8 @@
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\modules\\backup\\pages\\BackupPage.tsx": {
-    "mtime": 1780027671.351501,
-    "ast_hash": "dbfb419dab3ea7b53cb0a4806174a97e",
+    "mtime": 1780045777.5725076,
+    "ast_hash": "c29f393c060cd39db6afc434ce1a9363",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\modules\\backup\\services\\export-backup-json.ts": {
@@ -1060,8 +1060,8 @@
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\shared\\constants\\translations.ts": {
-    "mtime": 1779867731.5565844,
-    "ast_hash": "5ff47d44434940d9b572dd35b7c927d8",
+    "mtime": 1780045501.1765103,
+    "ast_hash": "1683e777bcc543e32e842d4172eb69f4",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\shared\\context\\CurrencyContext.tsx": {
@@ -1080,8 +1080,8 @@
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\tests\\app-bootstrap-lock.test.tsx": {
-    "mtime": 1780027681.8295262,
-    "ast_hash": "577d6b9f23d73b1d52535b7b1d893861",
+    "mtime": 1780045653.2860062,
+    "ast_hash": "7c31543bbf4372a166e245f1b68c5b1d",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\tests\\app-unlock.test.tsx": {
@@ -1457,6 +1457,16 @@
   "D:\\Personal Project\\TaiXiuCaNhan\\test-results\\src-tests-add-transaction.-88640-orm-iPhone-12-Layout-and-UX-iPhone-12\\test-failed-1.png": {
     "mtime": 1780023728.7460947,
     "ast_hash": "32f56f7aff1a8fa33cd317e467b97db3",
+    "semantic_hash": ""
+  },
+  "D:\\Personal Project\\TaiXiuCaNhan\\src\\modules\\backup\\services\\auto-backup.service.ts": {
+    "mtime": 1780044310.7793906,
+    "ast_hash": "eaf2553c79f41cce0db102f35d56aca8",
+    "semantic_hash": ""
+  },
+  "D:\\Personal Project\\TaiXiuCaNhan\\src\\tests\\auto-backup.test.ts": {
+    "mtime": 1780045544.2478805,
+    "ast_hash": "2f083f7e0846d19e9275db216da3579d",
     "semantic_hash": ""
   }
 }

@@ -8,6 +8,7 @@ import { initDatabaseConnection } from '@/core/db/sqlite/connection';
 import { runMigrations } from '@/core/db/migrations/migration-runner';
 import { seedDefaultData } from '@/core/db/seed/default-categories';
 import { authService } from '@/core/auth/auth.service';
+import { runAutoBackupIfDue } from '@/modules/backup/services/auto-backup.service';
 import { AppUnlock } from './AppUnlock';
 import {
   APP_LOCK_FORCE_UNLOCK_EVENT,
@@ -41,6 +42,10 @@ export function AppBootstrap({ children }: AppBootstrapProps) {
       window.clearTimeout(idleTimerRef.current);
       idleTimerRef.current = null;
     }
+  }, []);
+
+  const triggerAutoBackupCheck = useCallback(() => {
+    void runAutoBackupIfDue();
   }, []);
 
   const lockApp = useCallback(() => {
@@ -108,7 +113,10 @@ export function AppBootstrap({ children }: AppBootstrapProps) {
         }
 
         await globalInitPromise;
-        if (isMounted) setIsReady(true);
+        if (isMounted) {
+          setIsReady(true);
+          triggerAutoBackupCheck();
+        }
       } catch (err) {
         logger.error('AppBootstrap: Initialization failed', err);
         if (isMounted) setError(err instanceof Error ? err : new Error(String(err)));
@@ -122,7 +130,39 @@ export function AppBootstrap({ children }: AppBootstrapProps) {
     return () => {
       isMounted = false;
     };
-  }, [isUnlocked]);
+  }, [isUnlocked, triggerAutoBackupCheck]);
+
+  useEffect(() => {
+    if (!isReady || !isUnlocked) return;
+
+    let removeAppStateListener: (() => Promise<void>) | undefined;
+    const listenerOptions: AddEventListenerOptions = { capture: true, passive: true };
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        triggerAutoBackupCheck();
+      }
+    };
+
+    async function registerAppStateListener() {
+      const listener = await CapacitorApp.addListener('appStateChange', ({ isActive }) => {
+        if (isActive) {
+          triggerAutoBackupCheck();
+        }
+      });
+
+      removeAppStateListener = () => listener.remove();
+    }
+
+    document.addEventListener('visibilitychange', handleVisibilityChange, listenerOptions);
+    void registerAppStateListener();
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange, listenerOptions);
+      if (removeAppStateListener) {
+        void removeAppStateListener();
+      }
+    };
+  }, [isReady, isUnlocked, triggerAutoBackupCheck]);
 
   useEffect(() => {
     if (!authService.requiresUnlock() || Capacitor.getPlatform() === 'web') return;

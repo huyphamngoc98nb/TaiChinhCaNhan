@@ -23,12 +23,16 @@ const seedMock = vi.hoisted(() => ({
   seedDefaultData: vi.fn(),
 }));
 
+const autoBackupMock = vi.hoisted(() => ({
+  runAutoBackupIfDue: vi.fn(),
+}));
+
 const capacitorMock = vi.hoisted(() => ({
   getPlatform: vi.fn(),
 }));
 
 const appListeners = vi.hoisted(() => ({
-  appStateChange: null as ((event: { isActive: boolean }) => void) | null,
+  appStateChange: [] as Array<(event: { isActive: boolean }) => void>,
 }));
 
 vi.mock('@/core/auth/auth.service', () => ({
@@ -38,6 +42,7 @@ vi.mock('@/core/auth/auth.service', () => ({
 vi.mock('@/core/db/sqlite/connection', () => sqliteConnectionMock);
 vi.mock('@/core/db/migrations/migration-runner', () => migrationsMock);
 vi.mock('@/core/db/seed/default-categories', () => seedMock);
+vi.mock('@/modules/backup/services/auto-backup.service', () => autoBackupMock);
 
 vi.mock('@capacitor/core', () => ({
   Capacitor: capacitorMock,
@@ -47,9 +52,13 @@ vi.mock('@capacitor/app', () => ({
   App: {
     addListener: vi.fn(async (eventName: string, callback: (event: { isActive: boolean }) => void) => {
       if (eventName === 'appStateChange') {
-        appListeners.appStateChange = callback;
+        appListeners.appStateChange.push(callback);
       }
-      return { remove: vi.fn(async () => undefined) };
+      return {
+        remove: vi.fn(async () => {
+          appListeners.appStateChange = appListeners.appStateChange.filter((item) => item !== callback);
+        }),
+      };
     }),
   },
 }));
@@ -81,11 +90,15 @@ async function flushPromises() {
   });
 }
 
+function emitAppStateChange(event: { isActive: boolean }) {
+  appListeners.appStateChange.forEach((callback) => callback(event));
+}
+
 describe('AppBootstrap app lock', () => {
   beforeEach(() => {
     vi.useFakeTimers();
     vi.clearAllMocks();
-    appListeners.appStateChange = null;
+    appListeners.appStateChange = [];
     authServiceMock.requiresUnlock.mockReturnValue(true);
     authServiceMock.hasStoredSecret.mockResolvedValue(true);
     authServiceMock.isBiometricUnlockEnabled.mockResolvedValue(false);
@@ -112,7 +125,7 @@ describe('AppBootstrap app lock', () => {
 
     expect(screen.getByText('Unlocked app')).toBeTruthy();
     act(() => {
-      appListeners.appStateChange?.({ isActive: false });
+      emitAppStateChange({ isActive: false });
     });
 
     expect(screen.getByText('PIN screen')).toBeTruthy();
@@ -130,14 +143,14 @@ describe('AppBootstrap app lock', () => {
 
     act(() => {
       suspendAppLock();
-      appListeners.appStateChange?.({ isActive: false });
+      emitAppStateChange({ isActive: false });
     });
 
     expect(screen.getByText('Unlocked app')).toBeTruthy();
 
     act(() => {
       resumeAppLock();
-      appListeners.appStateChange?.({ isActive: false });
+      emitAppStateChange({ isActive: false });
     });
 
     expect(screen.getByText('PIN screen')).toBeTruthy();
@@ -157,7 +170,7 @@ describe('AppBootstrap app lock', () => {
     expect(screen.getByText('Unlocked app')).toBeTruthy();
 
     act(() => {
-      appListeners.appStateChange?.({ isActive: false });
+      emitAppStateChange({ isActive: false });
     });
 
     expect(screen.getByText('PIN screen')).toBeTruthy();
@@ -175,7 +188,7 @@ describe('AppBootstrap app lock', () => {
     expect(screen.getByText('Unlocked app')).toBeTruthy();
 
     act(() => {
-      appListeners.appStateChange?.({ isActive: false });
+      emitAppStateChange({ isActive: false });
     });
     expect(screen.getByText('PIN screen')).toBeTruthy();
 
