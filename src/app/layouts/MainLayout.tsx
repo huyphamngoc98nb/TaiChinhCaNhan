@@ -47,9 +47,24 @@ const CONTEXTUAL_ADD_ROUTES: Array<{
   { route: ROUTES.RECURRING_BILLS, addRoute: { to: ROUTES.RECURRING_BILLS_NEW, navIndex: 4 } },
 ];
 
+const DASHBOARD_WITH_DRAWER_BACK_ROUTES = new Set<string>([
+  ROUTES.BUDGETS,
+  ROUTES.REPORTS,
+  ROUTES.WALLETS,
+  ROUTES.RECURRING_BILLS,
+  ROUTES.SETTINGS,
+  ROUTES.BACKUP,
+  ROUTES.EXPORT,
+  ROUTES.CATEGORIES,
+]);
+
 function matchesRouteContext(pathname: string, route: string, exact = false) {
   if (exact) return pathname === route;
   return pathname === route || pathname.startsWith(`${route}/`);
+}
+
+function shouldBackToDashboardWithDrawer(pathname: string): boolean {
+  return DASHBOARD_WITH_DRAWER_BACK_ROUTES.has(pathname);
 }
 
 function getContextualAddRoute(pathname: string): ContextualAddRoute {
@@ -66,6 +81,7 @@ export function MainLayout() {
   const location = useLocation();
   const navigate = useNavigate();
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [openDrawerOnHome, setOpenDrawerOnHome] = useState(false);
   const [slideDirection, setSlideDirection] = useState<'left' | 'right' | 'none'>('none');
   const drawerOpenRef = useRef(drawerOpen);
   const confirmingExitRef = useRef(false);
@@ -73,6 +89,13 @@ export function MainLayout() {
   useEffect(() => {
     drawerOpenRef.current = drawerOpen;
   }, [drawerOpen]);
+
+  useEffect(() => {
+    if (location.pathname !== ROUTES.HOME || !openDrawerOnHome) return;
+
+    setDrawerOpen(true);
+    setOpenDrawerOnHome(false);
+  }, [location.pathname, openDrawerOnHome]);
 
   useEffect(() => {
     if (Capacitor.getPlatform() !== 'android') return;
@@ -89,6 +112,13 @@ export function MainLayout() {
           }
 
           if (consumeAppBackButton()) {
+            return;
+          }
+
+          if (shouldBackToDashboardWithDrawer(location.pathname)) {
+            setOpenDrawerOnHome(true);
+            setSlideDirection('right');
+            navigate(ROUTES.HOME);
             return;
           }
 
