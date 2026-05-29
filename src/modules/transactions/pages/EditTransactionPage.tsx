@@ -52,20 +52,17 @@ export function EditTransactionPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F5F7FA]">
-      <div className="sticky top-0 z-30 flex items-center gap-3 bg-[#F5F7FA] px-4 pt-10 pb-4">
-        <BackButton onClick={() => navigate(ROUTES.TRANSACTIONS)} ariaLabel={t('common.back')} />
-        <h2 className="text-[18px] font-bold text-gray-900">{t('transactions.edit')}</h2>
-      </div>
-
-      <div className="px-4 pb-24">
-        <TransactionForm
-          existing={transaction}
-          pinTypeSelector
-          onSuccess={() => navigate(ROUTES.TRANSACTIONS)}
-          onDelete={handleDelete}
-        />
-      </div>
-    </div>
+    <TransactionForm
+      existing={transaction}
+      header={
+        <>
+          <BackButton onClick={() => navigate(ROUTES.TRANSACTIONS)} ariaLabel={t('common.back')} />
+          <h2 className="transaction-form-title">{t('transactions.edit')}</h2>
+        </>
+      }
+      pinTypeSelector
+      onSuccess={() => navigate(ROUTES.TRANSACTIONS)}
+      onDelete={handleDelete}
+    />
   );
 }

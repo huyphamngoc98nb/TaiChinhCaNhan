@@ -92,3 +92,42 @@ body.keyboard-open .bottom-nav {
   box-shadow: 0 1px 3px rgba(0,0,0,0.1);
   margin-bottom: 16px;
 }
+
+.transaction-form-page {
+  min-height: 100%;
+  background: #F5F7FA;
+}
+
+.transaction-form-sticky-shell {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  background: #F5F7FA;
+  padding: calc(16px + env(safe-area-inset-top)) 16px 12px;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.04);
+}
+
+.transaction-form-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-bottom: 12px;
+}
+
+.transaction-form-title {
+  margin: 0;
+  color: #111827;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.transaction-form-type-switcher {
+  position: relative;
+  z-index: 1;
+}
+
+.transaction-form-content {
+  padding: 20px 16px 24px;
+}

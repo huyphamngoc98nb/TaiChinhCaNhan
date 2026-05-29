@@ -1,4 +1,4 @@
-import { FocusEvent, FormEvent, useState } from 'react';
+import { FocusEvent, FormEvent, ReactNode, useState } from 'react';
 import { Transaction, TransactionType } from '../domain/transaction.model';
 import { TRANSFER_CATEGORY_ID, useTransactionForm } from '../hooks/useTransactionForm';
 import { ReceiptCapture } from './ReceiptCapture';
@@ -12,16 +12,16 @@ interface Props {
   existing?: Transaction;
   onSuccess: () => void;
   onDelete?: () => Promise<void>;
+  header?: ReactNode;
   pinTypeSelector?: boolean;
-  scrollFields?: boolean;
 }
 
 export function TransactionForm({
   existing,
   onSuccess,
   onDelete,
+  header,
   pinTypeSelector = false,
-  scrollFields = false,
 }: Props) {
   const { formData, setFormData, setReceiptBase64, save, submitting, options } =
     useTransactionForm(existing);
@@ -242,28 +242,35 @@ export function TransactionForm({
     </div>
   );
 
-  const typeSelectorWrapperClass = scrollFields
-    ? 'sticky top-[76px] z-20 -mx-4 shrink-0 bg-[#F5F7FA] px-4 pb-3 pt-1 shadow-[0_1px_0_rgba(15,23,42,0.06)]'
-    : pinTypeSelector
-      ? 'sticky top-[96px] z-20 -mx-4 mb-1 bg-[#F5F7FA] px-4 pb-3 shadow-sm'
-      : 'shrink-0';
+  if (header || pinTypeSelector) {
+    return (
+      <form onSubmit={handleSubmit} className="transaction-form-page">
+        <div className="transaction-form-sticky-shell">
+          {header && (
+            <div className="transaction-form-header">
+              {header}
+            </div>
+          )}
+
+          <div className="transaction-form-type-switcher">
+            {typeSelector}
+          </div>
+        </div>
+
+        <div className="transaction-form-content space-y-5">
+          {fields}
+        </div>
+      </form>
+    );
+  }
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className={scrollFields ? 'flex h-full min-h-0 flex-col' : 'space-y-5'}
-    >
-      <div className={typeSelectorWrapperClass}>
+    <form onSubmit={handleSubmit} className="space-y-5">
+      <div className="shrink-0">
         {typeSelector}
       </div>
 
-      {scrollFields ? (
-        <div className="mt-5 min-h-0 flex-1 space-y-5 overflow-y-auto pb-24">
-          {fields}
-        </div>
-      ) : (
-        fields
-      )}
+      {fields}
     </form>
   );
 }
