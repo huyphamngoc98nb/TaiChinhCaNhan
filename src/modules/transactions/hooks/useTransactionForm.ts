@@ -7,41 +7,54 @@ import { useLanguage } from '@/shared/context/LanguageContext';
 import { localizeTransactionError } from '../services/transaction-error-messages';
 
 export const TRANSFER_CATEGORY_ID = 'cat-transfer';
+const TRANSACTION_DRAFT_KEY = 'transaction_draft';
+const LEGACY_LAST_SUCCESSFUL_CREATE_KEY = 'transaction_last_successful_create';
+
+type CreateTransactionFormValues = Partial<CreateTransactionInput>;
+
+function clearStoredCreateTransactionState() {
+  localStorage.removeItem(TRANSACTION_DRAFT_KEY);
+  localStorage.removeItem(LEGACY_LAST_SUCCESSFUL_CREATE_KEY);
+}
+
+export function getDefaultCreateTransactionValues(defaultWalletId = ''): CreateTransactionFormValues {
+  return {
+    type: 'expense',
+    amount: 0,
+    category_id: '',
+    wallet_id: defaultWalletId,
+    note: '',
+    transaction_date: Date.now(),
+    receipt_path: undefined
+  };
+}
+
+export function getCreateTransactionInitialValues(): CreateTransactionFormValues {
+  clearStoredCreateTransactionState();
+
+  return getDefaultCreateTransactionValues();
+}
+
+export function getEditTransactionInitialValues(existing: Transaction): CreateTransactionFormValues {
+  return {
+    type: existing.type,
+    amount: existing.amount,
+    category_id: existing.category_id,
+    wallet_id: existing.wallet_id,
+    to_wallet_id: existing.to_wallet_id || undefined,
+    note: existing.note || '',
+    transaction_date: existing.transaction_date,
+    receipt_path: existing.receipt_path || undefined
+  };
+}
 
 export function useTransactionForm(existing?: Transaction) {
-  const [formData, setFormData] = useState<Partial<CreateTransactionInput>>(() => {
+  const [formData, setFormData] = useState<CreateTransactionFormValues>(() => {
     if (existing) {
-      return {
-        type: existing.type,
-        amount: existing.amount,
-        category_id: existing.category_id,
-        wallet_id: existing.wallet_id,
-        to_wallet_id: existing.to_wallet_id || undefined,
-        note: existing.note || '',
-        transaction_date: existing.transaction_date,
-        receipt_path: existing.receipt_path || undefined
-      };
-    }
-    
-    // Check for draft in localStorage
-    const saved = localStorage.getItem('transaction_draft');
-    if (saved) {
-      try {
-        return JSON.parse(saved);
-      } catch (e) {
-        console.error('Failed to parse draft', e);
-      }
+      return getEditTransactionInitialValues(existing);
     }
 
-    return {
-      type: 'expense',
-      amount: 0,
-      category_id: '',
-      wallet_id: '', 
-      note: '',
-      transaction_date: Date.now(),
-      receipt_path: undefined
-    };
+    return getCreateTransactionInitialValues();
   });
   
   const [receiptBase64, setReceiptBase64] = useState<string | undefined>();
@@ -49,13 +62,6 @@ export function useTransactionForm(existing?: Transaction) {
   const [options, setOptions] = useState<{ wallets: any[], categories: any[] }>({ wallets: [], categories: [] });
   const toast = useToast();
   const { t } = useLanguage();
-
-  // Save draft to localStorage
-  useEffect(() => {
-    if (!existing) {
-      localStorage.setItem('transaction_draft', JSON.stringify(formData));
-    }
-  }, [formData, existing]);
 
   useEffect(() => {
     async function loadOptions() {
@@ -101,7 +107,10 @@ export function useTransactionForm(existing?: Transaction) {
         toast.success(t('transactions.update_success'));
       } else {
         await createTransactionUseCase.execute(payload as CreateTransactionInput, receiptBase64);
-        localStorage.removeItem('transaction_draft'); // Clear draft on success
+        const defaultWalletId = options.wallets[0]?.id ?? '';
+        clearStoredCreateTransactionState();
+        setFormData(getDefaultCreateTransactionValues(defaultWalletId));
+        setReceiptBase64(undefined);
         toast.success(t('transactions.add_success'));
       }
       return true;

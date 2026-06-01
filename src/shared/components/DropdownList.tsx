@@ -20,6 +20,18 @@ interface DropdownListProps<T extends string> {
   menuClassName?: string;
   optionClassName?: string;
   disabled?: boolean;
+  openOnInputBlurPointerDown?: boolean;
+}
+
+function isEditableElement(element: Element | null): element is HTMLElement {
+  if (!(element instanceof HTMLElement)) return false;
+  const tagName = element.tagName.toLowerCase();
+
+  return (
+    tagName === 'input' ||
+    tagName === 'textarea' ||
+    element.isContentEditable
+  );
 }
 
 export function DropdownList<T extends string>({
@@ -33,11 +45,13 @@ export function DropdownList<T extends string>({
   menuClassName = '',
   optionClassName = '',
   disabled = false,
+  openOnInputBlurPointerDown = false,
 }: DropdownListProps<T>) {
   const id = useId();
   const rootRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
+  const ignoreNextClickRef = useRef(false);
   const [isOpen, setIsOpen] = useState(false);
   const [menuStyle, setMenuStyle] = useState<React.CSSProperties>({});
 
@@ -85,18 +99,25 @@ export function DropdownList<T extends string>({
       }
       setIsOpen(false);
     };
-    const handleClose = () => setIsOpen(false);
+    const handleResize = () => {
+      if (openOnInputBlurPointerDown) {
+        updateMenuPosition();
+        return;
+      }
+
+      setIsOpen(false);
+    };
 
     document.addEventListener('pointerdown', handlePointerDown);
-    window.addEventListener('resize', handleClose);
+    window.addEventListener('resize', handleResize);
     window.addEventListener('scroll', handleScroll, true);
 
     return () => {
       document.removeEventListener('pointerdown', handlePointerDown);
-      window.removeEventListener('resize', handleClose);
+      window.removeEventListener('resize', handleResize);
       window.removeEventListener('scroll', handleScroll, true);
     };
-  }, [isOpen]);
+  }, [isOpen, openOnInputBlurPointerDown]);
 
   useEffect(() => {
     if (!isOpen) return undefined;
@@ -115,6 +136,18 @@ export function DropdownList<T extends string>({
     buttonRef.current?.focus();
   };
 
+  const handleTriggerPointerDown = (event: React.PointerEvent<HTMLButtonElement>) => {
+    if (!openOnInputBlurPointerDown || disabled || event.pointerType === 'mouse') return;
+
+    const activeElement = document.activeElement;
+    if (!isEditableElement(activeElement) || buttonRef.current?.contains(activeElement)) return;
+
+    activeElement.blur();
+    updateMenuPosition();
+    setIsOpen(true);
+    ignoreNextClickRef.current = true;
+  };
+
   return (
     <div ref={rootRef} className={`relative ${className}`}>
       <button
@@ -125,7 +158,13 @@ export function DropdownList<T extends string>({
         aria-haspopup="listbox"
         aria-expanded={isOpen}
         aria-controls={`${id}-listbox`}
+        onPointerDown={handleTriggerPointerDown}
         onClick={() => {
+          if (ignoreNextClickRef.current) {
+            ignoreNextClickRef.current = false;
+            return;
+          }
+
           if (!disabled) {
             updateMenuPosition();
             setIsOpen((open) => !open);

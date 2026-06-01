@@ -10,7 +10,7 @@
     "semantic_hash": ""
   },
   "D:\\PersonalProject\\TaiXiuCaNhan\\android\\app\\capacitor.build.gradle": {
-    "mtime": 1780305387.8043976,
+    "mtime": 1780309918.4067702,
     "ast_hash": "32b21c5fd7ad9d9126d17b47ae905c0c",
     "semantic_hash": ""
   },
@@ -20,12 +20,12 @@
     "semantic_hash": ""
   },
   "D:\\PersonalProject\\TaiXiuCaNhan\\android\\app\\src\\main\\assets\\capacitor.config.json": {
-    "mtime": 1780305387.7581444,
+    "mtime": 1780309918.3560188,
     "ast_hash": "5faad82265b616885f2ca4175082f59a",
     "semantic_hash": ""
   },
   "D:\\PersonalProject\\TaiXiuCaNhan\\android\\app\\src\\main\\assets\\capacitor.plugins.json": {
-    "mtime": 1780305387.783562,
+    "mtime": 1780309918.3828473,
     "ast_hash": "f63e79d46b1f8b3fe5f4af0d8fcd322a",
     "semantic_hash": ""
   },
@@ -55,17 +55,17 @@
     "semantic_hash": ""
   },
   "D:\\PersonalProject\\TaiXiuCaNhan\\android\\capacitor-cordova-android-plugins\\build.gradle": {
-    "mtime": 1780305387.8137474,
+    "mtime": 1780309918.4085827,
     "ast_hash": "13a885b925f99b619845018a13d508d3",
     "semantic_hash": ""
   },
   "D:\\PersonalProject\\TaiXiuCaNhan\\android\\capacitor-cordova-android-plugins\\cordova.variables.gradle": {
-    "mtime": 1780305387.8137474,
+    "mtime": 1780309918.4085827,
     "ast_hash": "299becb7733b8720b74d289e3cb837f1",
     "semantic_hash": ""
   },
   "D:\\PersonalProject\\TaiXiuCaNhan\\android\\capacitor.settings.gradle": {
-    "mtime": 1780305387.8043976,
+    "mtime": 1780309918.4067702,
     "ast_hash": "7d20bbb6ddd9b895546d6342e84c45a4",
     "semantic_hash": ""
   },
@@ -815,8 +815,8 @@
     "semantic_hash": ""
   },
   "D:\\PersonalProject\\TaiXiuCaNhan\\src\\modules\\transactions\\components\\TransactionForm.tsx": {
-    "mtime": 1780055276.6101425,
-    "ast_hash": "548e017d1585b59fb7c31d9d2b273d9a",
+    "mtime": 1780308503.9190977,
+    "ast_hash": "dca432262cecf06ec48529607ff71450",
     "semantic_hash": ""
   },
   "D:\\PersonalProject\\TaiXiuCaNhan\\src\\modules\\transactions\\components\\TransactionItem.tsx": {
@@ -860,8 +860,8 @@
     "semantic_hash": ""
   },
   "D:\\PersonalProject\\TaiXiuCaNhan\\src\\modules\\transactions\\hooks\\useTransactionForm.ts": {
-    "mtime": 1779380572.8929324,
-    "ast_hash": "843d9d47eb5567c2aa53490ee11efdbd",
+    "mtime": 1780309746.4413247,
+    "ast_hash": "8132fc3a36dd52e5132c24cbcaf02e41",
     "semantic_hash": ""
   },
   "D:\\PersonalProject\\TaiXiuCaNhan\\src\\modules\\transactions\\hooks\\useTransactionSummary.ts": {
@@ -1040,8 +1040,8 @@
     "semantic_hash": ""
   },
   "D:\\PersonalProject\\TaiXiuCaNhan\\src\\shared\\components\\DropdownList.tsx": {
-    "mtime": 1779987859.5694964,
-    "ast_hash": "aef7cba3a0975805ef4225a8138cf8a6",
+    "mtime": 1780308487.631392,
+    "ast_hash": "68431ec94562db08b41f5897b700984e",
     "semantic_hash": ""
   },
   "D:\\PersonalProject\\TaiXiuCaNhan\\src\\shared\\components\\EmptyState.tsx": {
@@ -1487,6 +1487,16 @@
   "D:\\PersonalProject\\TaiXiuCaNhan\\test-results\\src-tests-add-transaction.-88640-orm-iPhone-12-Layout-and-UX-iPhone-12\\test-failed-1.png": {
     "mtime": 1780055276.6158361,
     "ast_hash": "32f56f7aff1a8fa33cd317e467b97db3",
+    "semantic_hash": ""
+  },
+  "D:\\PersonalProject\\TaiXiuCaNhan\\src\\tests\\transaction-form-values.test.ts": {
+    "mtime": 1780309974.1496158,
+    "ast_hash": "79dbc895b2f8f9ca8d9bad8c2052b4d3",
+    "semantic_hash": ""
+  },
+  "D:\\PersonalProject\\TaiXiuCaNhan\\src\\tests\\dropdown-list.test.tsx": {
+    "mtime": 1780308524.6345413,
+    "ast_hash": "bd16b4d827ff95a7702330d97b118933",
     "semantic_hash": ""
   }
 }

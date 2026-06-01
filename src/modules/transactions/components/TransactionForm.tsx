@@ -1,4 +1,4 @@
-import { FocusEvent, FormEvent, ReactNode, useState } from 'react';
+import { FocusEvent, FormEvent, PointerEvent, ReactNode, useState } from 'react';
 import { Transaction, TransactionType } from '../domain/transaction.model';
 import { TRANSFER_CATEGORY_ID, useTransactionForm } from '../hooks/useTransactionForm';
 import { ReceiptCapture } from './ReceiptCapture';
@@ -16,6 +16,16 @@ interface Props {
   pinTypeSelector?: boolean;
 }
 
+function blurActiveEditableElement() {
+  const activeElement = document.activeElement;
+  if (!(activeElement instanceof HTMLElement)) return;
+
+  const tagName = activeElement.tagName.toLowerCase();
+  if (tagName === 'input' || tagName === 'textarea' || activeElement.isContentEditable) {
+    activeElement.blur();
+  }
+}
+
 export function TransactionForm({
   existing,
   onSuccess,
@@ -30,11 +40,18 @@ export function TransactionForm({
   const [amountInput, setAmountInput] = useState(() => (
     formData.amount ? String(formData.amount) : ''
   ));
+  const [receiptInputKey, setReceiptInputKey] = useState(0);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     const ok = await save();
-    if (ok) onSuccess();
+    if (ok) {
+      if (!existing) {
+        setAmountInput('');
+        setReceiptInputKey(key => key + 1);
+      }
+      onSuccess();
+    }
   };
 
   const handleNoteFocus = (e: FocusEvent<HTMLInputElement>) => {
@@ -61,6 +78,16 @@ export function TransactionForm({
       category_id: type === 'transfer' ? TRANSFER_CATEGORY_ID : '',
       to_wallet_id: type === 'transfer' ? formData.to_wallet_id : undefined,
     });
+  };
+
+  const handleTypePointerDown = (
+    event: PointerEvent<HTMLButtonElement>,
+    type: TransactionType,
+  ) => {
+    if (event.pointerType === 'mouse') return;
+
+    blurActiveEditableElement();
+    handleTypeChange(type);
   };
 
   const selectableDestinationWallets = options.wallets.filter(
@@ -118,6 +145,7 @@ export function TransactionForm({
             }}
             ariaLabel={t('transactions.wallet')}
             placeholder={t('transactions.select_wallet')}
+            openOnInputBlurPointerDown
             options={[
               { value: '', label: t('transactions.select_wallet'), disabled: true },
               ...options.wallets.map((wallet: { id: string; name: string }) => ({
@@ -141,6 +169,7 @@ export function TransactionForm({
             onChange={value => setFormData({ ...formData, to_wallet_id: value, category_id: TRANSFER_CATEGORY_ID })}
             ariaLabel={t('transactions.destination_wallet')}
             placeholder={t('transactions.select_destination_wallet')}
+            openOnInputBlurPointerDown
             options={[
               { value: '', label: t('transactions.select_destination_wallet'), disabled: true },
               ...selectableDestinationWallets.map((wallet: { id: string; name: string; account_type?: string }) => ({
@@ -162,6 +191,7 @@ export function TransactionForm({
             onChange={value => setFormData({ ...formData, category_id: value })}
             ariaLabel={t('form.label_category')}
             placeholder={t('form.select_category')}
+            openOnInputBlurPointerDown
             options={[
               { value: '', label: t('form.select_category'), disabled: true },
               ...options.categories
@@ -197,6 +227,7 @@ export function TransactionForm({
       </div>
 
       <ReceiptCapture
+        key={receiptInputKey}
         existingPath={formData.receipt_path}
         onImageSelected={setReceiptBase64}
       />
@@ -231,6 +262,7 @@ export function TransactionForm({
         <button
           key={type.id}
           type="button"
+          onPointerDown={event => handleTypePointerDown(event, type.id)}
           onClick={() => handleTypeChange(type.id)}
           className={`flex-1 rounded-[9px] text-[14px] font-semibold transition-all ${
             formData.type === type.id ? `${type.active} shadow-sm` : 'text-gray-500'
