@@ -168,6 +168,16 @@ export class SQLiteLoanRepository implements ILoanRepository {
     return (res.changes?.changes ?? 0) > 0;
   }
 
+  async hardDeleteLoan(id: string): Promise<boolean> {
+    const db = await getDbConnection();
+    await db.run(
+      'DELETE FROM loans WHERE id = ?',
+      [id],
+      !isManagedTransactionActive()
+    );
+    return true;
+  }
+
   async createPayment(
     data: CreateLoanPaymentInput & { id: string; created_at: number }
   ): Promise<LoanPayment> {

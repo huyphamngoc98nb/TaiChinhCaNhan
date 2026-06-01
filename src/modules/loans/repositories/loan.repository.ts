@@ -16,6 +16,7 @@ export interface ILoanRepository {
   listLoans(filter: LoanFilter): Promise<LoanWithSummary[]>;
   updateLoanStatus(id: string, status: LoanStatus, updated_at: number): Promise<Loan | null>;
   softDeleteLoan(id: string, deleted_at: number): Promise<boolean>;
+  hardDeleteLoan(id: string): Promise<boolean>;
   createPayment(data: CreateLoanPaymentInput & { id: string; created_at: number }): Promise<LoanPayment>;
   listPayments(loan_id: string): Promise<LoanPayment[]>;
   getTotalPaid(loan_id: string): Promise<number>;

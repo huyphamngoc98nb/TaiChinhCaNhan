@@ -41,6 +41,7 @@ function isOverdue(loan: LoanWithSummary): boolean {
 }
 
 export function LoanCard({ loan, onPress }: LoanCardProps) {
+  const isDeleted = loan.deleted_at != null;
   const progress = Math.min(100, Math.max(0, (loan.paid_amount / loan.principal) * 100));
   const overdue = isOverdue(loan);
   const typeClass = loan.type === 'lend'
@@ -57,7 +58,9 @@ export function LoanCard({ loan, onPress }: LoanCardProps) {
     <button
       type="button"
       onClick={() => onPress(loan.id)}
-      className="w-full rounded-[14px] border border-gray-200 bg-white p-4 text-left shadow-sm active:scale-[0.99] transition-all"
+      className={`w-full rounded-[14px] border border-gray-200 bg-white p-4 text-left shadow-sm active:scale-[0.99] transition-all ${
+        isDeleted ? 'opacity-60' : ''
+      }`}
     >
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
@@ -75,6 +78,11 @@ export function LoanCard({ loan, onPress }: LoanCardProps) {
           <span className={`rounded-full px-2.5 py-1 text-[11px] font-bold ${statusClass}`}>
             {STATUS_LABELS[loan.status]}
           </span>
+          {isDeleted && (
+            <span className="rounded-full bg-gray-100 px-2.5 py-1 text-[11px] font-bold text-gray-500">
+              Đã ẩn
+            </span>
+          )}
         </div>
       </div>
 

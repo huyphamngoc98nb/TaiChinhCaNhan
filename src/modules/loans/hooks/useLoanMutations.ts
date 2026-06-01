@@ -4,6 +4,10 @@ import type { CreateLoanInput, CreateLoanPaymentInput, Loan, LoanPayment } from 
 import { addLoanPayment as addLoanPaymentService } from '../services/add-loan-payment';
 import { cancelLoan as cancelLoanService } from '../services/cancel-loan';
 import { createLoan as createLoanService } from '../services/create-loan';
+import {
+  deleteLoan as deleteLoanService,
+  type DeleteLoanMode,
+} from '../services/delete-loan';
 
 function toError(err: unknown): Error {
   return err instanceof Error ? err : new Error(String(err));
@@ -68,5 +72,25 @@ export function useLoanMutations() {
     }
   }, []);
 
-  return { createLoan, addPayment, cancelLoan, loading, error };
+  const deleteLoan = useCallback(async (
+    loanId: string,
+    mode: DeleteLoanMode,
+    force = false
+  ): Promise<void> => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      await deleteLoanService(loanId, mode, loanMutationDeps, { force });
+      emitLoanEvent('loan:deleted', { loanId, mode });
+    } catch (err) {
+      const nextError = toError(err);
+      setError(nextError);
+      throw nextError;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  return { createLoan, addPayment, cancelLoan, deleteLoan, loading, error };
 }

@@ -99,6 +99,7 @@ function makeDeps() {
       listLoans: vi.fn(),
       updateLoanStatus: vi.fn(),
       softDeleteLoan: vi.fn(),
+      hardDeleteLoan: vi.fn(),
       createPayment: vi.fn(),
       listPayments: vi.fn(),
       getTotalPaid: vi.fn(),
