@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { validateBackupPayload } from '@/modules/backup/services/validate-backup-payload';
 import { importBackupJson } from '@/modules/backup/services/import-backup-json';
 import { restoreDatabase } from '@/modules/backup/services/restore-database';
+import { exportBackupJson } from '@/modules/backup/services/export-backup-json';
 import * as connection from '@/core/db/sqlite/connection';
 
 vi.mock('@/core/db/sqlite/connection', () => ({
@@ -30,12 +31,93 @@ describe('Backup Module Tests', () => {
       recurring_bills: [],
       app_settings: [],
       budgets: [],
-      error_logs: []
+      error_logs: [],
+      loans: [],
+      loan_payments: [],
     };
 
     it('validates a correct payload', () => {
       const result = validateBackupPayload(validPayload);
       expect(result.isValid).toBe(true);
+    });
+
+    it('validates loan rows for lend and borrow backups', () => {
+      const result = validateBackupPayload({
+        ...validPayload,
+        loans: [
+          {
+            id: 'loan-lend',
+            wallet_id: 'wallet-1',
+            type: 'lend',
+            contact_name: 'Alice',
+            contact_info: null,
+            principal: 1000,
+            due_date: '2026-06-30',
+            note: null,
+            status: 'active',
+            created_at: 1,
+            updated_at: 1,
+            deleted_at: null,
+            skip_transaction: 0,
+          },
+          {
+            id: 'loan-borrow',
+            wallet_id: null,
+            type: 'borrow',
+            contact_name: 'Bob',
+            contact_info: null,
+            principal: 2000,
+            due_date: null,
+            note: 'Personal debt',
+            status: 'settled',
+            created_at: 2,
+            updated_at: 3,
+            deleted_at: null,
+            skip_transaction: 1,
+          },
+        ],
+        loan_payments: [
+          {
+            id: 'loan-payment-1',
+            loan_id: 'loan-lend',
+            wallet_id: 'wallet-1',
+            amount: 500,
+            payment_date: 4,
+            note: null,
+            created_at: 4,
+          },
+        ],
+      });
+
+      expect(result.isValid).toBe(true);
+    });
+
+    it('exports loans and loan payments in the backup payload', async () => {
+      const rowsByTable: Record<string, unknown[]> = {
+        wallets: [],
+        categories: [],
+        transactions: [],
+        recurring_bills: [],
+        app_settings: [],
+        budgets: [],
+        error_logs: [],
+        loans: [{ id: 'loan-1', type: 'lend' }],
+        loan_payments: [{ id: 'loan-payment-1', loan_id: 'loan-1' }],
+      };
+      const mockDb = {
+        query: vi.fn(async (sql: string) => {
+          const table = sql.replace('SELECT * FROM ', '');
+          return { values: rowsByTable[table] ?? [] };
+        }),
+      };
+      vi.mocked(connection.getDbConnection).mockResolvedValue(mockDb as any);
+
+      const payload = await exportBackupJson();
+
+      expect(payload.loans).toEqual(rowsByTable.loans);
+      expect(payload.loan_payments).toEqual(rowsByTable.loan_payments);
+      expect(mockDb.query).toHaveBeenCalledWith('SELECT * FROM loans');
+      expect(mockDb.query).toHaveBeenCalledWith('SELECT * FROM loan_payments');
     });
 
     it('imports a JSON file object through the browser file API', async () => {
@@ -182,6 +264,30 @@ describe('Backup Module Tests', () => {
           metadata_json: null,
           created_at: 1,
         }],
+        loans: [{
+          id: 'loan-1',
+          wallet_id: 'wallet-1',
+          type: 'lend',
+          contact_name: 'Alice',
+          contact_info: null,
+          principal: 1000,
+          due_date: '2026-06-30',
+          note: null,
+          status: 'active',
+          created_at: 1,
+          updated_at: 2,
+          deleted_at: null,
+          skip_transaction: 0,
+        }],
+        loan_payments: [{
+          id: 'loan-payment-1',
+          loan_id: 'loan-1',
+          wallet_id: 'wallet-1',
+          amount: 250,
+          payment_date: 3,
+          note: null,
+          created_at: 3,
+        }],
       };
 
       await restoreDatabase(payload);
@@ -189,6 +295,8 @@ describe('Backup Module Tests', () => {
       const statements = mockDb.executeSet.mock.calls[0][0];
       expect(statements).toEqual(
         expect.arrayContaining([
+          expect.objectContaining({ statement: 'DELETE FROM loan_payments' }),
+          expect.objectContaining({ statement: 'DELETE FROM loans' }),
           expect.objectContaining({ statement: 'DELETE FROM budgets' }),
           expect.objectContaining({
             statement: expect.stringContaining('INSERT INTO wallets'),
@@ -201,6 +309,14 @@ describe('Backup Module Tests', () => {
           expect.objectContaining({
             statement: expect.stringContaining('INSERT INTO error_logs'),
             values: expect.arrayContaining(['err-1', 'error', 'Boom']),
+          }),
+          expect.objectContaining({
+            statement: expect.stringContaining('INSERT INTO loans'),
+            values: expect.arrayContaining(['loan-1', 'wallet-1', 'lend', 'Alice']),
+          }),
+          expect.objectContaining({
+            statement: expect.stringContaining('INSERT INTO loan_payments'),
+            values: expect.arrayContaining(['loan-payment-1', 'loan-1', 'wallet-1', 250]),
           }),
         ])
       );

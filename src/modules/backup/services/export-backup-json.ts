@@ -15,6 +15,8 @@ export async function exportBackupJson(): Promise<BackupPayload> {
     'app_settings',
     'budgets',
     'error_logs',
+    'loans',
+    'loan_payments',
   ];
   const data: Record<string, BackupRow[]> = {};
 
@@ -37,6 +39,8 @@ export async function exportBackupJson(): Promise<BackupPayload> {
     app_settings: data.app_settings,
     budgets: data.budgets,
     error_logs: data.error_logs,
+    loans: data.loans,
+    loan_payments: data.loan_payments,
   };
 
   return payload;

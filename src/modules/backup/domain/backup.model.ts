@@ -16,6 +16,8 @@ export interface BackupPayload {
   app_settings: BackupRow[];
   budgets: BackupRow[];
   error_logs: BackupRow[];
+  loans: BackupRow[];
+  loan_payments: BackupRow[];
 }
 
 export interface ValidationResult {

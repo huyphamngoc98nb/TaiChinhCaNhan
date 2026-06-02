@@ -20,6 +20,8 @@ const TRANSACTION_TYPES = ['income', 'expense', 'transfer'] as const;
 const CATEGORY_TYPES = ['income', 'expense'] as const;
 const BUDGET_PERIODS = ['weekly', 'monthly'] as const;
 const BILL_FREQUENCIES = ['daily', 'weekly', 'monthly', 'yearly'] as const;
+const LOAN_TYPES = ['lend', 'borrow'] as const;
+const LOAN_STATUSES = ['active', 'settled', 'cancelled'] as const;
 const ACTIVE_FLAGS = [0, 1] as const;
 const RECURRING_ACTIVE_FLAGS = [-1, 0, 1] as const;
 
@@ -124,6 +126,36 @@ const BACKUP_SCHEMAS: Record<string, Record<string, SectionSchema>> = {
         context: { type: 'string', nullable: true },
         stack: { type: 'string', nullable: true },
         metadata_json: { type: 'string', nullable: true },
+        created_at: { type: 'number', required: true },
+      },
+    },
+    loans: {
+      required: false,
+      fields: {
+        id: { type: 'string', required: true },
+        wallet_id: { type: 'string', nullable: true },
+        type: { type: 'string', required: true, enum: LOAN_TYPES },
+        contact_name: { type: 'string', required: true },
+        contact_info: { type: 'string', nullable: true },
+        principal: { type: 'number', required: true },
+        due_date: { type: 'string', nullable: true },
+        note: { type: 'string', nullable: true },
+        status: { type: 'string', required: true, enum: LOAN_STATUSES },
+        created_at: { type: 'number', required: true },
+        updated_at: { type: 'number', required: true },
+        deleted_at: { type: 'number', nullable: true },
+        skip_transaction: { type: 'number', required: true, enum: ACTIVE_FLAGS },
+      },
+    },
+    loan_payments: {
+      required: false,
+      fields: {
+        id: { type: 'string', required: true },
+        loan_id: { type: 'string', required: true },
+        wallet_id: { type: 'string', required: true },
+        amount: { type: 'number', required: true },
+        payment_date: { type: 'number', required: true },
+        note: { type: 'string', nullable: true },
         created_at: { type: 'number', required: true },
       },
     },

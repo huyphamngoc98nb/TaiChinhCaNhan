@@ -5,13 +5,8 @@
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\package.json": {
-    "mtime": 1780025343.0640738,
-    "ast_hash": "3e65352737c3777b202aec89f0d4fbcf",
-    "semantic_hash": ""
-  },
-  "D:\\Personal Project\\TaiXiuCaNhan\\playwright.config.ts": {
-    "mtime": 1780023388.2313833,
-    "ast_hash": "3ee57e3cef8dc44787ff6843e9b2e4e6",
+    "mtime": 1780383792.3646946,
+    "ast_hash": "78fe0d1839ca71d4c5ec58408d06e85a",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\postcss.config.js": {
@@ -25,8 +20,8 @@
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\tsconfig.json": {
-    "mtime": 1780368539.579468,
-    "ast_hash": "18a5ab9f5ca8402b83f5f698520022f1",
+    "mtime": 1780383792.6046999,
+    "ast_hash": "8fcf48326c8eb7babd50e67d30489a50",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\tsconfig.node.json": {
@@ -60,7 +55,7 @@
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\android\\capacitor.settings.gradle": {
-    "mtime": 1780370179.309387,
+    "mtime": 1780377734.2567153,
     "ast_hash": "7d20bbb6ddd9b895546d6342e84c45a4",
     "semantic_hash": ""
   },
@@ -85,7 +80,7 @@
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\android\\app\\capacitor.build.gradle": {
-    "mtime": 1780370179.3103895,
+    "mtime": 1780377734.2567153,
     "ast_hash": "3deacd894fa096455ce58f3b2df33e10",
     "semantic_hash": ""
   },
@@ -95,12 +90,12 @@
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\android\\app\\src\\main\\assets\\capacitor.config.json": {
-    "mtime": 1780370179.1026738,
+    "mtime": 1780377734.0065737,
     "ast_hash": "5faad82265b616885f2ca4175082f59a",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\android\\app\\src\\main\\assets\\capacitor.plugins.json": {
-    "mtime": 1780370179.2159345,
+    "mtime": 1780377734.1279309,
     "ast_hash": "f63e79d46b1f8b3fe5f4af0d8fcd322a",
     "semantic_hash": ""
   },
@@ -125,18 +120,13 @@
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\android\\capacitor-cordova-android-plugins\\build.gradle": {
-    "mtime": 1780370179.3123865,
+    "mtime": 1780377734.260043,
     "ast_hash": "2af61653d70c95d20802c8b5c433ba90",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\android\\capacitor-cordova-android-plugins\\cordova.variables.gradle": {
-    "mtime": 1780370179.3123865,
+    "mtime": 1780377734.260043,
     "ast_hash": "d2372a0ae9aa60abb8d03e7f06bf9194",
-    "semantic_hash": ""
-  },
-  "D:\\Personal Project\\TaiXiuCaNhan\\playwright-report\\results.json": {
-    "mtime": 1780023691.4308183,
-    "ast_hash": "a84a80ec03359422d53a572d090a4054",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\scripts\\check-translations.ts": {
@@ -440,8 +430,8 @@
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\modules\\backup\\domain\\backup.model.ts": {
-    "mtime": 1778812844.2732425,
-    "ast_hash": "93b00da2367e86c5fa16acb4cf34c451",
+    "mtime": 1780382696.3860102,
+    "ast_hash": "feaa1f94198f735b4a04107f7d636538",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\modules\\backup\\pages\\BackupPage.tsx": {
@@ -455,8 +445,8 @@
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\modules\\backup\\services\\export-backup-json.ts": {
-    "mtime": 1778812843.9807203,
-    "ast_hash": "c62a716f130a2cdb4ffb0e92be8130c0",
+    "mtime": 1780382706.0524912,
+    "ast_hash": "bba799b2ac8d5972732007d5303ea07e",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\modules\\backup\\services\\import-backup-json.ts": {
@@ -465,8 +455,8 @@
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\modules\\backup\\services\\restore-database.ts": {
-    "mtime": 1779266792.2809472,
-    "ast_hash": "6fec1250c5dfe778d0bbfd8412b32528",
+    "mtime": 1780382744.0851078,
+    "ast_hash": "b917ec24ebcbf2c6bf8df2756d705de9",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\modules\\backup\\services\\save-auto-backup-file.ts": {
@@ -480,8 +470,8 @@
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\modules\\backup\\services\\validate-backup-payload.ts": {
-    "mtime": 1779266797.5147002,
-    "ast_hash": "3addfba64f864bec169b75873361a81f",
+    "mtime": 1780382724.433627,
+    "ast_hash": "7b8d0ce534987342b401622feba367b5",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\modules\\budgets\\components\\BudgetAddSheet.tsx": {
@@ -1284,11 +1274,6 @@
     "ast_hash": "a0ba8dd4476ce46f6f2a0cd9965aa5b1",
     "semantic_hash": ""
   },
-  "D:\\Personal Project\\TaiXiuCaNhan\\src\\tests\\add-transaction.qa.spec.ts": {
-    "mtime": 1780025568.2209349,
-    "ast_hash": "f530b4037e3455eb49059c48ced783ea",
-    "semantic_hash": ""
-  },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\tests\\app-bootstrap-lock.test.tsx": {
     "mtime": 1780045653.2860062,
     "ast_hash": "7c31543bbf4372a166e245f1b68c5b1d",
@@ -1305,13 +1290,13 @@
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\tests\\auto-backup.test.ts": {
-    "mtime": 1780046322.4116528,
-    "ast_hash": "32666a237c6189503ed95d75c471f260",
+    "mtime": 1780382805.158066,
+    "ast_hash": "98cff24cc434b84bc7fb9f3836accc77",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\tests\\backup.test.ts": {
-    "mtime": 1779411575.504348,
-    "ast_hash": "2dd8e1dc4d2b70d11c44f55983968fab",
+    "mtime": 1780382796.6458695,
+    "ast_hash": "a2941bec7286230878b03bcc2c27769d",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\tests\\budgets.test.ts": {
@@ -1347,16 +1332,6 @@
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\tests\\export.test.ts": {
     "mtime": 1779411575.508697,
     "ast_hash": "e2242fa9d512f3d858ba1f1028947ea3",
-    "semantic_hash": ""
-  },
-  "D:\\Personal Project\\TaiXiuCaNhan\\src\\tests\\generate-bug-report.js": {
-    "mtime": 1780023356.8452022,
-    "ast_hash": "2e40790c21f19614f2d8b0f156ac2daf",
-    "semantic_hash": ""
-  },
-  "D:\\Personal Project\\TaiXiuCaNhan\\src\\tests\\generate-bug-report.ts": {
-    "mtime": 1780025477.56054,
-    "ast_hash": "c6fe766fc1fc2953f8f0dec8b25f0ce1",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\tests\\language-context.test.tsx": {
@@ -1444,11 +1419,6 @@
     "ast_hash": "752aa83aa64361ac32860f882dcff932",
     "semantic_hash": ""
   },
-  "D:\\Personal Project\\TaiXiuCaNhan\\bug_report.md": {
-    "mtime": 1780023691.6509678,
-    "ast_hash": "a7c7b2239b73e11591693f3a87aefafc",
-    "semantic_hash": ""
-  },
   "D:\\Personal Project\\TaiXiuCaNhan\\index.html": {
     "mtime": 1778057079.6426802,
     "ast_hash": "b82789a36af65f213e7712aef3a42943",
@@ -1477,11 +1447,6 @@
   "D:\\Personal Project\\TaiXiuCaNhan\\docs\\state-management.md": {
     "mtime": 1778811854.621892,
     "ast_hash": "309c66b3493ea928cecd66485e5d5dfe",
-    "semantic_hash": ""
-  },
-  "D:\\Personal Project\\TaiXiuCaNhan\\test-results\\src-tests-add-transaction.-88640-orm-iPhone-12-Layout-and-UX-iPhone-12\\error-context.md": {
-    "mtime": 1780023728.7643352,
-    "ast_hash": "cd79d624eefeb477fdb65feeb7f2b04f",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\android\\app\\src\\main\\res\\drawable\\splash.png": {
@@ -1612,11 +1577,6 @@
   "D:\\Personal Project\\TaiXiuCaNhan\\android\\app\\src\\main\\res\\mipmap-xxxhdpi\\ic_launcher_round.png": {
     "mtime": 1743440248.0,
     "ast_hash": "85addb4159ecd3f76f02fbacd5ec86de",
-    "semantic_hash": ""
-  },
-  "D:\\Personal Project\\TaiXiuCaNhan\\test-results\\src-tests-add-transaction.-88640-orm-iPhone-12-Layout-and-UX-iPhone-12\\test-failed-1.png": {
-    "mtime": 1780023728.7460947,
-    "ast_hash": "32f56f7aff1a8fa33cd317e467b97db3",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\tests\\loan-form.test.tsx": {

@@ -27,6 +27,5 @@
     }
   },
   "include": ["src"],
-  "exclude": ["src/**/*.qa.spec.ts"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

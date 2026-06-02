@@ -60,6 +60,8 @@ describe('auto backup service', () => {
       app_settings: [],
       budgets: [],
       error_logs: [],
+      loans: [],
+      loan_payments: [],
     });
     vi.mocked(saveAutoBackup.saveAutoBackupFile).mockResolvedValue(true);
   });

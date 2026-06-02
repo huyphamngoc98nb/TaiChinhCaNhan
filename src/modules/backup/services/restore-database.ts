@@ -16,6 +16,8 @@ interface LegacyRestorableBackupPayload {
   app_settings: BackupRow[];
   budgets?: BackupRow[];
   error_logs?: BackupRow[];
+  loans?: BackupRow[];
+  loan_payments?: BackupRow[];
 }
 
 type RestorableBackupPayload = BackupPayload | LegacyRestorableBackupPayload;
@@ -32,6 +34,8 @@ export async function restoreDatabase(payload: RestorableBackupPayload): Promise
     
     // 1. Prepare deletion statements
     const tables = [
+      'loan_payments',
+      'loans',
       'transactions',
       'recurring_bills',
       'budgets',
@@ -106,6 +110,49 @@ export async function restoreDatabase(payload: RestorableBackupPayload): Promise
           row.created_at,
           row.updated_at,
         ]
+      });
+    });
+
+    // Loans
+    (payload.loans ?? []).forEach((row) => {
+      insertStatements.push({
+        statement: `INSERT INTO loans (
+          id, wallet_id, type, contact_name, contact_info, principal,
+          due_date, note, status, created_at, updated_at, deleted_at, skip_transaction
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        values: [
+          row.id,
+          value(row, 'wallet_id'),
+          row.type,
+          row.contact_name,
+          value(row, 'contact_info'),
+          row.principal,
+          value(row, 'due_date'),
+          value(row, 'note'),
+          value(row, 'status', 'active'),
+          row.created_at,
+          row.updated_at,
+          value(row, 'deleted_at'),
+          value(row, 'skip_transaction', 0),
+        ],
+      });
+    });
+
+    // Loan Payments
+    (payload.loan_payments ?? []).forEach((row) => {
+      insertStatements.push({
+        statement: `INSERT INTO loan_payments (
+          id, loan_id, wallet_id, amount, payment_date, note, created_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+        values: [
+          row.id,
+          row.loan_id,
+          row.wallet_id,
+          row.amount,
+          row.payment_date,
+          value(row, 'note'),
+          row.created_at,
+        ],
       });
     });
 
