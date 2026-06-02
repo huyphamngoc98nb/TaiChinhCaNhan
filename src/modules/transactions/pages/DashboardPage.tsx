@@ -10,6 +10,7 @@ import { formatVND } from '../services/build-dashboard-view-model';
 import type { AccountType } from '@/modules/wallets/repositories/wallet.repository';
 import { filterWalletsWithValue } from '@/modules/wallets/services/wallet-selectors';
 import { useLanguage } from '@/shared/context/LanguageContext';
+import { CategoryIcon } from '@/modules/categories/components/CategoryIcon';
 
 // ── helpers ────────────────────────────────────────────────────────────────────
 const ACCOUNT_TYPE_ICON: Record<AccountType, string> = {
@@ -199,24 +200,27 @@ function DashboardPage() {
               {t('common.see_all')} <ChevronRight size={14} />
             </button>
           </div>
-          <div
-            className="flex gap-3 px-4 overflow-x-auto pb-1"
-            style={{ scrollbarWidth: 'none' }}
-          >
+          <div className="grid grid-cols-2 gap-3 px-4">
             {topBudgets.map(p => (
               <div
                 key={p.budget.category_id}
                 onClick={() => navigate(ROUTES.BUDGETS)}
-                className={`shrink-0 w-[148px] rounded-[18px] p-4 cursor-pointer active:scale-95 transition-transform ${
-                  STATUS_BG[p.status]
-                }`}
+                className={`rounded-[18px] p-4 cursor-pointer active:scale-95 transition-transform ${STATUS_BG[p.status]}`}
               >
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-[20px]">{p.budget.icon || '💰'}</span>
+                <div className="flex items-center justify-between mb-3">
+                  <div
+                    className={`w-10 h-10 rounded-full flex items-center justify-center text-[22px] bg-gradient-to-br ${STATUS_GRADIENT[p.status]} shadow-sm`}
+                  >
+                    <CategoryIcon
+                      icon={p.budget.icon}
+                      name={p.budget.category_name}
+                      type={p.budget.category_type}
+                      size={22}
+                      className="text-white leading-none"
+                    />
+                  </div>
                   <span
-                    className={`text-[10px] font-bold px-2 py-0.5 rounded-full bg-gradient-to-r ${
-                      STATUS_GRADIENT[p.status]
-                    } text-white`}
+                    className={`text-[10px] font-bold px-2 py-0.5 rounded-full bg-gradient-to-r ${STATUS_GRADIENT[p.status]} text-white`}
                   >
                     {Math.round(p.percentage * 100)}%
                   </span>
@@ -230,7 +234,7 @@ function DashboardPage() {
                     style={{ width: `${Math.min(p.percentage * 100, 100)}%` }}
                   />
                 </div>
-                <p className="text-[10px] text-gray-500 mt-1.5">
+                <p className="text-[10px] text-gray-500 mt-1.5 truncate">
                   {t('dashboard.remaining')} {displayAmount(Math.max(p.remaining_amount, 0))}
                 </p>
               </div>

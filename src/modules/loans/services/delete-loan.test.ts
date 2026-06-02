@@ -27,6 +27,7 @@ function loan(overrides: Partial<LoanWithSummary> = {}): LoanWithSummary {
 function makeRepo(overrides: Partial<ILoanRepository> = {}): ILoanRepository {
   return {
     createLoan: vi.fn(),
+    updateLoan: vi.fn(),
     getLoanById: vi.fn(async () => loan()),
     listLoans: vi.fn(async () => []),
     updateLoanStatus: vi.fn(),

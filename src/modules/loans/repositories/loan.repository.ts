@@ -6,12 +6,17 @@ import type {
   LoanPayment,
   LoanStatus,
   LoanWithSummary,
+  UpdateLoanInput,
 } from '../domain/loan.model';
 
 export interface ILoanRepository {
   createLoan(
     data: CreateLoanInput & { id: string; created_at: number; updated_at: number }
   ): Promise<Loan>;
+  updateLoan(
+    id: string,
+    data: UpdateLoanInput & { updated_at: number }
+  ): Promise<Loan | null>;
   getLoanById(id: string): Promise<Loan | null>;
   listLoans(filter: LoanFilter): Promise<LoanWithSummary[]>;
   updateLoanStatus(id: string, status: LoanStatus, updated_at: number): Promise<Loan | null>;

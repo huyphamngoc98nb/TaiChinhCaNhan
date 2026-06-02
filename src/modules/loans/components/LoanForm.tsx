@@ -1,12 +1,17 @@
-import { FormEvent, useEffect, useMemo, useState } from 'react';
+import { FormEvent, useEffect, useId, useMemo, useState } from 'react';
 import { CurrencyAmountInput } from '@/shared/components/CurrencyAmountInput';
+import { DateTimePicker } from '@/shared/components/DateTimePicker';
 import { DropdownList } from '@/shared/components/DropdownList';
 import { useWallets } from '@/modules/wallets/hooks/useWallets';
-import type { CreateLoanInput, LoanType } from '../domain/loan.model';
+import type { CreateLoanInput, Loan, LoanType } from '../domain/loan.model';
 
 interface LoanFormProps {
   onSubmit: (input: CreateLoanInput) => Promise<void>;
   loading: boolean;
+  initialLoan?: Loan;
+  title?: string;
+  description?: string;
+  submitLabel?: string;
 }
 
 const TYPE_OPTIONS: Array<{ id: LoanType; label: string; activeClass: string }> = [
@@ -14,16 +19,41 @@ const TYPE_OPTIONS: Array<{ id: LoanType; label: string; activeClass: string }> 
   { id: 'borrow', label: 'Vay nợ', activeClass: 'bg-blue-500 text-white' },
 ];
 
-export function LoanForm({ onSubmit, loading }: LoanFormProps) {
+function startOfLocalDay(timestamp: number): number {
+  const date = new Date(timestamp);
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
+}
+
+function dateStringToTimestamp(value?: string | null): number {
+  if (!value) return startOfLocalDay(Date.now());
+  return new Date(`${value}T00:00:00`).getTime();
+}
+
+function timestampToDateString(timestamp: number): string {
+  const date = new Date(startOfLocalDay(timestamp));
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${date.getFullYear()}-${month}-${day}`;
+}
+
+export function LoanForm({
+  onSubmit,
+  loading,
+  initialLoan,
+  title,
+  description,
+  submitLabel,
+}: LoanFormProps) {
   const { wallets, loading: walletsLoading } = useWallets();
-  const [type, setType] = useState<LoanType>('lend');
-  const [contactName, setContactName] = useState('');
-  const [contactInfo, setContactInfo] = useState('');
-  const [walletId, setWalletId] = useState('');
-  const [principal, setPrincipal] = useState('');
-  const [dueDate, setDueDate] = useState('');
-  const [note, setNote] = useState('');
-  const [skipTransaction, setSkipTransaction] = useState(false);
+  const skipTransactionId = useId();
+  const [type, setType] = useState<LoanType>(initialLoan?.type ?? 'lend');
+  const [contactName, setContactName] = useState(initialLoan?.contact_name ?? '');
+  const [contactInfo, setContactInfo] = useState(initialLoan?.contact_info ?? '');
+  const [walletId, setWalletId] = useState(initialLoan?.wallet_id ?? '');
+  const [principal, setPrincipal] = useState(initialLoan ? String(initialLoan.principal) : '');
+  const [dueDate, setDueDate] = useState(() => dateStringToTimestamp(initialLoan?.due_date));
+  const [note, setNote] = useState(initialLoan?.note ?? '');
+  const [skipTransaction, setSkipTransaction] = useState(initialLoan?.skip_transaction ?? false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -37,6 +67,14 @@ export function LoanForm({ onSubmit, loading }: LoanFormProps) {
     [wallets],
   );
 
+  function handleSkipTransactionChange(checked: boolean) {
+    setSkipTransaction(checked);
+    if (checked) {
+      setWalletId('');
+      setError(null);
+    }
+  }
+
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();
     setError(null);
@@ -48,13 +86,13 @@ export function LoanForm({ onSubmit, loading }: LoanFormProps) {
 
     try {
       await onSubmit({
-        wallet_id: skipTransaction ? undefined : walletId,
+        wallet_id: skipTransaction ? null : walletId,
         skip_transaction: skipTransaction,
         type,
         contact_name: contactName.trim(),
         contact_info: contactInfo.trim() || undefined,
         principal: Number(principal),
-        due_date: dueDate || undefined,
+        due_date: timestampToDateString(dueDate),
         note: note.trim() || undefined,
       });
     } catch (err) {
@@ -65,8 +103,10 @@ export function LoanForm({ onSubmit, loading }: LoanFormProps) {
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
       <div>
-        <h3 className="text-[18px] font-bold text-gray-900">Thêm khoản</h3>
-        <p className="mt-1 text-[12px] text-gray-500">Cho vay hoặc vay nợ cá nhân.</p>
+        <h3 className="text-[18px] font-bold text-gray-900">{title ?? 'Thêm khoản'}</h3>
+        <p className="mt-1 text-[12px] text-gray-500">
+          {description ?? 'Cho vay hoặc vay nợ cá nhân.'}
+        </p>
       </div>
 
       {error && (
@@ -139,15 +179,11 @@ export function LoanForm({ onSubmit, loading }: LoanFormProps) {
         />
       </div>
 
-      <div className="space-y-1.5">
-        <p className="text-[13px] font-semibold text-gray-700">Hạn trả</p>
-        <input
-          type="date"
-          value={dueDate}
-          onChange={(event) => setDueDate(event.target.value)}
-          className="h-[48px] w-full rounded-[12px] border border-gray-200 bg-gray-50 px-4 text-[14px] font-medium text-gray-900 outline-none focus:border-indigo-400"
-        />
-      </div>
+      <DateTimePicker
+        value={dueDate}
+        onChange={setDueDate}
+        label="Hạn trả"
+      />
 
       <div className="space-y-1.5">
         <p className="text-[13px] font-semibold text-gray-700">Ghi chú</p>
@@ -160,12 +196,17 @@ export function LoanForm({ onSubmit, loading }: LoanFormProps) {
       </div>
 
       <div className="space-y-2">
-        <label className="flex items-start gap-3 rounded-[12px] border border-gray-200 bg-gray-50 px-4 py-3">
+        <label
+          htmlFor={skipTransactionId}
+          className="flex cursor-pointer select-none items-start gap-3 rounded-[12px] border border-gray-200 bg-gray-50 px-4 py-3"
+        >
           <input
+            id={skipTransactionId}
             type="checkbox"
+            aria-label="Không tạo giao dịch"
             checked={skipTransaction}
-            onChange={(event) => setSkipTransaction(event.target.checked)}
-            className="mt-0.5 h-5 w-5 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+            onChange={(event) => handleSkipTransactionChange(event.target.checked)}
+            className="mt-0.5 h-5 w-5 cursor-pointer rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
           />
           <span className="min-w-0 flex-1">
             <span className="block text-[13px] font-bold text-gray-800">
@@ -192,7 +233,7 @@ export function LoanForm({ onSubmit, loading }: LoanFormProps) {
             : 'bg-blue-500 shadow-lg shadow-blue-300/40'
         } ${loading ? 'opacity-50' : ''}`}
       >
-        {loading ? 'Đang lưu...' : 'Lưu khoản'}
+        {loading ? 'Đang lưu...' : (submitLabel ?? 'Lưu khoản')}
       </button>
     </form>
   );

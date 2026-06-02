@@ -1,14 +1,15 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { CalendarDays, CircleDollarSign, Phone, Plus, Trash2 } from 'lucide-react';
+import { CalendarDays, CircleDollarSign, Pencil, Phone, Plus, Trash2 } from 'lucide-react';
 import { BackButton } from '@/shared/components/BackButton';
 import { BottomSheet } from '@/shared/components/BottomSheet';
 import { useConfirm } from '@/shared/components/ConfirmDialog/ConfirmContext';
 import { useToast } from '@/shared/components/Toast/ToastContext';
 import { loanRepository } from '@/core/di/loans.di';
 import { ROUTES } from '@/shared/constants/routes';
-import type { CreateLoanPaymentInput, LoanPayment, LoanStatus, LoanType, LoanWithSummary } from '../domain/loan.model';
+import type { CreateLoanPaymentInput, LoanPayment, LoanStatus, LoanType, LoanWithSummary, UpdateLoanInput } from '../domain/loan.model';
 import { PaymentForm } from '../components/PaymentForm';
+import { LoanForm } from '../components/LoanForm';
 import { useLoanMutations } from '../hooks/useLoanMutations';
 import { LoanHasPaymentsError, type DeleteLoanMode } from '../services/delete-loan';
 
@@ -58,12 +59,13 @@ export function LoanDetailPage({ loanId: loanIdProp }: LoanDetailPageProps = {})
   const navigate = useNavigate();
   const confirm = useConfirm();
   const toast = useToast();
-  const { addPayment, cancelLoan, deleteLoan, loading: mutationLoading } = useLoanMutations();
+  const { addPayment, cancelLoan, deleteLoan, updateLoan, loading: mutationLoading } = useLoanMutations();
   const [loan, setLoan] = useState<LoanWithSummary | null>(null);
   const [payments, setPayments] = useState<LoanPayment[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
   const [paymentOpen, setPaymentOpen] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
 
   const load = useCallback(async () => {
@@ -99,6 +101,15 @@ export function LoanDetailPage({ loanId: loanIdProp }: LoanDetailPageProps = {})
   async function handleAddPayment(input: CreateLoanPaymentInput) {
     await addPayment(input);
     setPaymentOpen(false);
+    await load();
+  }
+
+  async function handleUpdateLoan(input: UpdateLoanInput) {
+    if (!loan) return;
+
+    await updateLoan(loan.id, input);
+    toast.success('Đã cập nhật khoản vay.');
+    setEditOpen(false);
     await load();
   }
 
@@ -256,6 +267,16 @@ export function LoanDetailPage({ loanId: loanIdProp }: LoanDetailPageProps = {})
           )}
         </section>
 
+        <button
+          type="button"
+          onClick={() => setEditOpen(true)}
+          disabled={mutationLoading}
+          className="flex h-[48px] w-full items-center justify-center gap-2 rounded-[14px] border border-indigo-200 bg-white text-[14px] font-bold text-indigo-600 active:scale-[0.98] disabled:opacity-50"
+        >
+          <Pencil size={17} />
+          Sửa thông tin
+        </button>
+
         {loan.status === 'active' && (
           <div className="grid grid-cols-2 gap-3">
             <button
@@ -317,6 +338,19 @@ export function LoanDetailPage({ loanId: loanIdProp }: LoanDetailPageProps = {})
           )}
         </section>
       </div>
+
+      <BottomSheet isOpen={editOpen} onClose={() => setEditOpen(false)} fullScreenOnAndroid>
+        <div className="pb-[calc(32px+env(safe-area-inset-bottom))]">
+          <LoanForm
+            initialLoan={loan}
+            onSubmit={handleUpdateLoan}
+            loading={mutationLoading}
+            title="Sửa khoản"
+            description="Cập nhật thông tin khoản cho vay hoặc vay nợ."
+            submitLabel="Lưu thay đổi"
+          />
+        </div>
+      </BottomSheet>
 
       <BottomSheet isOpen={paymentOpen} onClose={() => setPaymentOpen(false)} fullScreenOnAndroid>
         <PaymentForm loan={loan} onSubmit={handleAddPayment} loading={mutationLoading} />

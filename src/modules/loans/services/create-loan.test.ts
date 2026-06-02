@@ -95,6 +95,7 @@ function makeDeps() {
   const deps: CreateLoanDeps = {
     loanRepo: {
       createLoan: loanCreateLoan,
+      updateLoan: vi.fn(),
       getLoanById: vi.fn(),
       listLoans: vi.fn(),
       updateLoanStatus: vi.fn(),

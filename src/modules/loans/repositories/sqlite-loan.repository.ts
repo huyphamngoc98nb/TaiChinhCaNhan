@@ -8,6 +8,7 @@ import type {
   LoanPayment,
   LoanStatus,
   LoanWithSummary,
+  UpdateLoanInput,
 } from '../domain/loan.model';
 import { mapToLoan, mapToLoanPayment, mapToLoanWithSummary } from '../domain/loan.mapper';
 import type { ILoanRepository } from './loan.repository';
@@ -112,6 +113,41 @@ export class SQLiteLoanRepository implements ILoanRepository {
     const { values } = await db.query(sql, [id]);
     if (!values || values.length === 0) return null;
     return mapToLoan(loanRowToArray(values[0]));
+  }
+
+  async updateLoan(
+    id: string,
+    data: UpdateLoanInput & { updated_at: number }
+  ): Promise<Loan | null> {
+    const db = await getDbConnection();
+    const sql = `
+      UPDATE loans
+      SET wallet_id = ?,
+          skip_transaction = ?,
+          type = ?,
+          contact_name = ?,
+          contact_info = ?,
+          principal = ?,
+          due_date = ?,
+          note = ?,
+          updated_at = ?
+      WHERE id = ? AND deleted_at IS NULL
+    `;
+    const values = [
+      data.wallet_id ?? null,
+      data.skip_transaction ? 1 : 0,
+      data.type,
+      data.contact_name,
+      data.contact_info ?? null,
+      data.principal,
+      data.due_date ?? null,
+      data.note ?? null,
+      data.updated_at,
+      id,
+    ];
+
+    await db.run(sql, values, !isManagedTransactionActive());
+    return this.getLoanById(id);
   }
 
   async listLoans(filter: LoanFilter): Promise<LoanWithSummary[]> {

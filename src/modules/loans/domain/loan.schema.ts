@@ -1,4 +1,4 @@
-import type { CreateLoanInput, CreateLoanPaymentInput, LoanType } from './loan.model';
+import type { CreateLoanInput, CreateLoanPaymentInput, LoanType, UpdateLoanInput } from './loan.model';
 
 const LOAN_TYPES: LoanType[] = ['lend', 'borrow'];
 
@@ -9,7 +9,7 @@ export class LoanValidationError extends Error {
   }
 }
 
-export function validateCreateLoan(input: CreateLoanInput): void {
+function validateLoanFields(input: CreateLoanInput | UpdateLoanInput): void {
   const errors: string[] = [];
   const skipTransaction = input.skip_transaction ?? false;
 
@@ -25,6 +25,14 @@ export function validateCreateLoan(input: CreateLoanInput): void {
   }
 
   if (errors.length > 0) throw new LoanValidationError(errors);
+}
+
+export function validateCreateLoan(input: CreateLoanInput): void {
+  validateLoanFields(input);
+}
+
+export function validateUpdateLoan(input: UpdateLoanInput): void {
+  validateLoanFields(input);
 }
 
 export function validateCreateLoanPayment(input: CreateLoanPaymentInput): void {

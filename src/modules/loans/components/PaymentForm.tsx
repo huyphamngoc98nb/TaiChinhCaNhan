@@ -1,5 +1,6 @@
 import { FormEvent, useEffect, useMemo, useState } from 'react';
 import { CurrencyAmountInput } from '@/shared/components/CurrencyAmountInput';
+import { DateTimePicker } from '@/shared/components/DateTimePicker';
 import { DropdownList } from '@/shared/components/DropdownList';
 import { useWallets } from '@/modules/wallets/hooks/useWallets';
 import type { CreateLoanPaymentInput, LoanWithSummary } from '../domain/loan.model';
@@ -10,15 +11,9 @@ interface PaymentFormProps {
   loading: boolean;
 }
 
-function todayInputValue(): string {
-  const today = new Date();
-  const month = String(today.getMonth() + 1).padStart(2, '0');
-  const day = String(today.getDate()).padStart(2, '0');
-  return `${today.getFullYear()}-${month}-${day}`;
-}
-
-function dateInputToMs(value: string): number {
-  return new Date(`${value}T00:00:00`).getTime();
+function startOfLocalDay(timestamp: number): number {
+  const date = new Date(timestamp);
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
 }
 
 function formatVnd(value: number): string {
@@ -33,7 +28,7 @@ export function PaymentForm({ loan, onSubmit, loading }: PaymentFormProps) {
   const { wallets, loading: walletsLoading } = useWallets();
   const [walletId, setWalletId] = useState(loan.wallet_id ?? '');
   const [amount, setAmount] = useState('');
-  const [paymentDate, setPaymentDate] = useState(todayInputValue);
+  const [paymentDate, setPaymentDate] = useState(() => startOfLocalDay(Date.now()));
   const [note, setNote] = useState('');
   const [error, setError] = useState<string | null>(null);
 
@@ -63,7 +58,7 @@ export function PaymentForm({ loan, onSubmit, loading }: PaymentFormProps) {
         loan_id: loan.id,
         wallet_id: walletId,
         amount: numericAmount,
-        payment_date: dateInputToMs(paymentDate),
+        payment_date: startOfLocalDay(paymentDate),
         note: note.trim() || undefined,
       });
     } catch (err) {
@@ -117,15 +112,11 @@ export function PaymentForm({ loan, onSubmit, loading }: PaymentFormProps) {
         <p className="text-[11px] font-medium text-gray-400">Tối đa {formatVnd(loan.remaining)}</p>
       </div>
 
-      <div className="space-y-1.5">
-        <p className="text-[13px] font-semibold text-gray-700">Ngày thanh toán</p>
-        <input
-          type="date"
-          value={paymentDate}
-          onChange={(event) => setPaymentDate(event.target.value)}
-          className="h-[48px] w-full rounded-[12px] border border-gray-200 bg-gray-50 px-4 text-[14px] font-medium text-gray-900 outline-none focus:border-indigo-400"
-        />
-      </div>
+      <DateTimePicker
+        value={paymentDate}
+        onChange={setPaymentDate}
+        label="Ngày thanh toán"
+      />
 
       <div className="space-y-1.5">
         <p className="text-[13px] font-semibold text-gray-700">Ghi chú</p>

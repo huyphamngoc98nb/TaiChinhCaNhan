@@ -45,6 +45,8 @@ export interface CreateLoanInput {
   note?: string;
 }
 
+export type UpdateLoanInput = CreateLoanInput;
+
 export interface CreateLoanPaymentInput {
   loan_id: string;
   wallet_id: string;

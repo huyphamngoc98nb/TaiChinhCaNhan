@@ -1,9 +1,10 @@
 import { useCallback, useState } from 'react';
 import { loanMutationDeps, loanServiceDeps } from '@/core/di/loans.di';
-import type { CreateLoanInput, CreateLoanPaymentInput, Loan, LoanPayment } from '../domain/loan.model';
+import type { CreateLoanInput, CreateLoanPaymentInput, Loan, LoanPayment, UpdateLoanInput } from '../domain/loan.model';
 import { addLoanPayment as addLoanPaymentService } from '../services/add-loan-payment';
 import { cancelLoan as cancelLoanService } from '../services/cancel-loan';
 import { createLoan as createLoanService } from '../services/create-loan';
+import { updateLoan as updateLoanService } from '../services/update-loan';
 import {
   deleteLoan as deleteLoanService,
   type DeleteLoanMode,
@@ -29,6 +30,23 @@ export function useLoanMutations() {
     try {
       const loan = await createLoanService(input, loanServiceDeps);
       emitLoanEvent('loan:created', loan);
+      return loan;
+    } catch (err) {
+      const nextError = toError(err);
+      setError(nextError);
+      throw nextError;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const updateLoan = useCallback(async (loanId: string, input: UpdateLoanInput): Promise<Loan> => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const loan = await updateLoanService(loanId, input, loanServiceDeps);
+      emitLoanEvent('loan:updated', loan);
       return loan;
     } catch (err) {
       const nextError = toError(err);
@@ -92,5 +110,5 @@ export function useLoanMutations() {
     }
   }, []);
 
-  return { createLoan, addPayment, cancelLoan, deleteLoan, loading, error };
+  return { createLoan, updateLoan, addPayment, cancelLoan, deleteLoan, loading, error };
 }
