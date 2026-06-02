@@ -19,7 +19,9 @@ const LOAN_PAYMENT_COLUMNS = `
 
 function loanRowToArray(row: unknown): unknown[] {
   if (Array.isArray(row)) {
-    return row.length >= 13 ? row : [...row, 0];
+    if (row.length >= 14) return row;
+    if (row.length === 13) return [...row, null];
+    return [...row, 0, null];
   }
 
   const record = row as Record<string, unknown>;
@@ -37,12 +39,15 @@ function loanRowToArray(row: unknown): unknown[] {
     record.updated_at,
     record.deleted_at,
     record.skip_transaction ?? 0,
+    record.linked_transaction_id ?? null,
   ];
 }
 
 function loanWithSummaryRowToArray(row: unknown): unknown[] {
   if (Array.isArray(row)) {
-    return row.length >= 16 ? row : [...row.slice(0, 12), 0, ...row.slice(12)];
+    if (row.length >= 17) return row;
+    if (row.length === 16) return [...row.slice(0, 13), null, ...row.slice(13)];
+    return [...row.slice(0, 12), 0, null, ...row.slice(12)];
   }
 
   const record = row as Record<string, unknown>;
@@ -77,9 +82,10 @@ export class SQLiteLoanRepository implements ILoanRepository {
     const sql = `
       INSERT INTO loans (
         id, wallet_id, type, contact_name, contact_info, principal,
-        due_date, note, status, created_at, updated_at, deleted_at, skip_transaction
+        due_date, note, status, created_at, updated_at, deleted_at, skip_transaction,
+        linked_transaction_id
       )
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
     const values = [
       data.id,
@@ -95,6 +101,7 @@ export class SQLiteLoanRepository implements ILoanRepository {
       data.updated_at,
       null,
       data.skip_transaction ? 1 : 0,
+      data.linked_transaction_id ?? null,
     ];
 
     await db.run(sql, values, !isManagedTransactionActive());
@@ -130,6 +137,7 @@ export class SQLiteLoanRepository implements ILoanRepository {
           principal = ?,
           due_date = ?,
           note = ?,
+          linked_transaction_id = ?,
           updated_at = ?
       WHERE id = ? AND deleted_at IS NULL
     `;
@@ -142,6 +150,7 @@ export class SQLiteLoanRepository implements ILoanRepository {
       data.principal,
       data.due_date ?? null,
       data.note ?? null,
+      data.linked_transaction_id ?? null,
       data.updated_at,
       id,
     ];

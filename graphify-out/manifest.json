@@ -345,8 +345,8 @@
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\core\\db\\migrations\\migration-runner.ts": {
-    "mtime": 1780368539.5371366,
-    "ast_hash": "94cd39a3f12d75f938e8dbb33def469f",
+    "mtime": 1780388502.2436872,
+    "ast_hash": "b259a4d7768f373fe3fa596e7c1111b7",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\core\\db\\seed\\default-categories.ts": {
@@ -455,8 +455,8 @@
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\modules\\backup\\services\\restore-database.ts": {
-    "mtime": 1780382744.0851078,
-    "ast_hash": "b917ec24ebcbf2c6bf8df2756d705de9",
+    "mtime": 1780388573.263576,
+    "ast_hash": "7a11e2f8f9a4168317ee6e715f0c90cb",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\modules\\backup\\services\\save-auto-backup-file.ts": {
@@ -470,8 +470,8 @@
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\modules\\backup\\services\\validate-backup-payload.ts": {
-    "mtime": 1780382724.433627,
-    "ast_hash": "7b8d0ce534987342b401622feba367b5",
+    "mtime": 1780388582.5122623,
+    "ast_hash": "4d9e8c1bbe163c266ef9b8bb8eb4884f",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\modules\\budgets\\components\\BudgetAddSheet.tsx": {
@@ -700,13 +700,13 @@
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\modules\\loans\\domain\\loan.mapper.ts": {
-    "mtime": 1780368539.5563219,
-    "ast_hash": "cb5182be6b969dcc1ed9dc9a716a855f",
+    "mtime": 1780388463.3516436,
+    "ast_hash": "908e672418baed02460bc717bb7e9168",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\modules\\loans\\domain\\loan.model.ts": {
-    "mtime": 1780371671.090485,
-    "ast_hash": "2f0c1754b713d315ac2cee4560165491",
+    "mtime": 1780388451.3971417,
+    "ast_hash": "e46239913a9d6577299c1ed4bceef3ef",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\modules\\loans\\domain\\loan.schema.ts": {
@@ -740,8 +740,8 @@
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\modules\\loans\\repositories\\sqlite-loan.repository.ts": {
-    "mtime": 1780371364.8031645,
-    "ast_hash": "cf670e98217a5d35115d93c7ab83a066",
+    "mtime": 1780388479.8680122,
+    "ast_hash": "829d7eed0a9c883bea625a342d6b0e08",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\modules\\loans\\services\\add-loan-payment.ts": {
@@ -755,13 +755,13 @@
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\modules\\loans\\services\\create-loan.test.ts": {
-    "mtime": 1780371577.5530586,
-    "ast_hash": "b47dac5b57476fd56cdc6588d9d782d8",
+    "mtime": 1780388765.1797504,
+    "ast_hash": "c1bc17cf0a128a9b98b9b5a96ca7d644",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\modules\\loans\\services\\create-loan.ts": {
-    "mtime": 1780368539.5637164,
-    "ast_hash": "58a3c2f37feb25ce486d9bc802abffa9",
+    "mtime": 1780388515.8135872,
+    "ast_hash": "ca5d0ec6ac13cd30590dd0de45c7170f",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\modules\\loans\\services\\delete-loan.test.ts": {
@@ -1585,13 +1585,18 @@
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\modules\\loans\\services\\update-loan.test.ts": {
-    "mtime": 1780371631.912376,
-    "ast_hash": "2c87ee5740e489c512ed523e215aa70e",
+    "mtime": 1780388661.2898862,
+    "ast_hash": "2b29922e9c682d77c1f46230de8d22b7",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\modules\\loans\\services\\update-loan.ts": {
-    "mtime": 1780371377.8219366,
-    "ast_hash": "befd735f0da4880cffcfdb34ce2f6efa",
+    "mtime": 1780388890.923769,
+    "ast_hash": "35101a4c620ef6e8b5ab1b84b4945b67",
+    "semantic_hash": ""
+  },
+  "D:\\Personal Project\\TaiXiuCaNhan\\src\\core\\db\\migrations\\025_loan_linked_transaction.sql": {
+    "mtime": 1780388491.8318365,
+    "ast_hash": "03774ed45af265cabc9ff9496e329022",
     "semantic_hash": ""
   }
 }

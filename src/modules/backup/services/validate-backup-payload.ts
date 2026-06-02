@@ -145,6 +145,7 @@ const BACKUP_SCHEMAS: Record<string, Record<string, SectionSchema>> = {
         updated_at: { type: 'number', required: true },
         deleted_at: { type: 'number', nullable: true },
         skip_transaction: { type: 'number', required: true, enum: ACTIVE_FLAGS },
+        linked_transaction_id: { type: 'string', nullable: true },
       },
     },
     loan_payments: {

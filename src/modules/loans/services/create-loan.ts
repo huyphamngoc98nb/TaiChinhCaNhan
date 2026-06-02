@@ -22,7 +22,7 @@ export interface CreateLoanDeps {
 
 export type LoanCategorySlug = 'cho_vay' | 'vay_no' | 'thu_no' | 'tra_no';
 
-const LOAN_CREATE_CATEGORY: Record<LoanType, { slug: LoanCategorySlug; type: CategoryType }> = {
+export const LOAN_CREATE_CATEGORY: Record<LoanType, { slug: LoanCategorySlug; type: CategoryType }> = {
   lend: { slug: 'cho_vay', type: 'expense' },
   borrow: { slug: 'vay_no', type: 'income' },
 };
@@ -126,6 +126,7 @@ export async function createLoan(input: CreateLoanInput, deps: CreateLoanDeps): 
       ...input,
       wallet_id: walletId,
       skip_transaction: skipTransaction,
+      linked_transaction_id: null,
       id: loanId,
       created_at: now,
       updated_at: now,
@@ -143,6 +144,21 @@ export async function createLoan(input: CreateLoanInput, deps: CreateLoanDeps): 
         created_at: now,
         updated_at: now,
       });
+
+      const updatedLoan = await deps.loanRepo.updateLoan(loanId, {
+        wallet_id: walletId,
+        skip_transaction: skipTransaction,
+        linked_transaction_id: transactionId,
+        type: input.type,
+        contact_name: input.contact_name,
+        contact_info: input.contact_info,
+        principal: input.principal,
+        due_date: input.due_date,
+        note: input.note,
+        updated_at: now,
+      });
+
+      return updatedLoan ?? loan;
     }
 
     return loan;

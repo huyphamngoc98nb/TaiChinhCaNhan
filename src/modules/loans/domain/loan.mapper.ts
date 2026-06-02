@@ -9,6 +9,7 @@ export function mapToLoan(row: unknown[]): Loan {
     id: row[0] as string,
     wallet_id: (row[1] as string | null) ?? null,
     skip_transaction: mapBooleanFlag(row[12]),
+    linked_transaction_id: (row[13] as string | null) ?? null,
     type: row[2] as Loan['type'],
     contact_name: row[3] as string,
     contact_info: (row[4] as string | null) ?? null,
@@ -36,12 +37,12 @@ export function mapToLoanPayment(row: unknown[]): LoanPayment {
 
 export function mapToLoanWithSummary(row: unknown[]): LoanWithSummary {
   const loan = mapToLoan(row);
-  const walletName = row[15] as string | null | undefined;
+  const walletName = row[16] as string | null | undefined;
 
   return {
     ...loan,
-    paid_amount: Number(row[13] ?? 0),
-    remaining: Number(row[14] ?? 0),
+    paid_amount: Number(row[14] ?? 0),
+    remaining: Number(row[15] ?? 0),
     ...(walletName == null ? {} : { wallet_name: walletName }),
   };
 }

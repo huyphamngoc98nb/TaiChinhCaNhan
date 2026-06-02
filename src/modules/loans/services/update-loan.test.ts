@@ -1,9 +1,21 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import type { Category } from '@/modules/categories/domain/category.model';
+import type { ITransactionRepository } from '@/modules/transactions/repositories/transaction.repository';
 import type { Wallet } from '@/modules/wallets/repositories/wallet.repository';
 import type { Loan, UpdateLoanInput } from '../domain/loan.model';
 import { LoanValidationError } from '../domain/loan.schema';
 import type { ILoanRepository } from '../repositories/loan.repository';
 import { updateLoan, type UpdateLoanDeps } from './update-loan';
+
+const generateUUIDMock = vi.hoisted(() => vi.fn<() => string>());
+
+vi.mock('@/core/db/transaction-runner', () => ({
+  sqliteTransactionRunner: async <T>(work: () => Promise<T>) => work(),
+}));
+
+vi.mock('@/shared/utils/generate-uuid', () => ({
+  generateUUID: generateUUIDMock,
+}));
 
 const wallet: Wallet = {
   id: 'wallet-1',
@@ -24,6 +36,21 @@ const wallet: Wallet = {
   updated_at: 0,
 };
 
+function category(id: string, slug: string, type: Category['type']): Category {
+  return {
+    id,
+    slug,
+    name: slug,
+    type,
+    icon: null,
+    color: null,
+    description: null,
+    is_system: 1,
+    created_at: 0,
+    updated_at: 0,
+  };
+}
+
 function input(overrides: Partial<UpdateLoanInput> = {}): UpdateLoanInput {
   return {
     wallet_id: wallet.id,
@@ -40,6 +67,7 @@ function makeLoan(data: Parameters<ILoanRepository['updateLoan']>[1], id = 'loan
     id,
     wallet_id: data.wallet_id ?? null,
     skip_transaction: data.skip_transaction ?? false,
+    linked_transaction_id: data.linked_transaction_id ?? null,
     type: data.type,
     contact_name: data.contact_name,
     contact_info: data.contact_info ?? null,
@@ -53,18 +81,67 @@ function makeLoan(data: Parameters<ILoanRepository['updateLoan']>[1], id = 'loan
   };
 }
 
-function makeDeps(walletOverride: Partial<Wallet> | null = wallet) {
+function makeExistingLoan(overrides: Partial<Loan> = {}): Loan {
+  return {
+    id: 'loan-1',
+    wallet_id: wallet.id,
+    skip_transaction: false,
+    linked_transaction_id: 'tx-existing',
+    type: 'lend',
+    contact_name: 'Nguyen Van A',
+    contact_info: null,
+    principal: 1_000_000,
+    due_date: null,
+    note: null,
+    status: 'active',
+    created_at: 0,
+    updated_at: 0,
+    deleted_at: null,
+    ...overrides,
+  };
+}
+
+function makeTransaction(data: Parameters<ITransactionRepository['create']>[0]) {
+  return {
+    id: data.id,
+    wallet_id: data.wallet_id,
+    category_id: data.category_id,
+    type: data.type,
+    amount: data.amount,
+    note: data.note ?? null,
+    receipt_path: data.receipt_path ?? null,
+    to_wallet_id: data.to_wallet_id ?? null,
+    transaction_date: data.transaction_date,
+    created_at: data.created_at,
+    updated_at: data.updated_at,
+    deleted_at: null,
+  };
+}
+
+function makeDeps(
+  walletOverride: Partial<Wallet> | null = wallet,
+  existingLoan: Loan | null = makeExistingLoan()
+) {
+  const categories: Record<string, Category> = {
+    cho_vay: category('cat-cho-vay', 'cho_vay', 'expense'),
+    vay_no: category('cat-vay-no', 'vay_no', 'income'),
+  };
   const loanUpdateLoan = vi.fn(
     async (id: string, data: Parameters<ILoanRepository['updateLoan']>[1]) =>
       makeLoan(data, id),
   );
+  const loanGetLoanById = vi.fn(async () => existingLoan);
   const walletGetById = vi.fn(async () => walletOverride);
+  const transactionCreate = vi.fn(async (data: Parameters<ITransactionRepository['create']>[0]) =>
+    makeTransaction(data)
+  );
+  const transactionSoftDelete = vi.fn(async () => true);
 
   const deps: UpdateLoanDeps = {
     loanRepo: {
       createLoan: vi.fn(),
       updateLoan: loanUpdateLoan,
-      getLoanById: vi.fn(),
+      getLoanById: loanGetLoanById,
       listLoans: vi.fn(),
       updateLoanStatus: vi.fn(),
       softDeleteLoan: vi.fn(),
@@ -76,19 +153,43 @@ function makeDeps(walletOverride: Partial<Wallet> | null = wallet) {
     walletRepo: {
       getById: walletGetById,
     } as unknown as UpdateLoanDeps['walletRepo'],
+    transactionRepo: {
+      create: transactionCreate,
+      update: vi.fn(),
+      softDelete: transactionSoftDelete,
+      getById: vi.fn(),
+      getByIdIncludeDeleted: vi.fn(),
+      list: vi.fn(),
+    },
+    categoryRepo: {
+      findBySlug: vi.fn(async (slug: string) => categories[slug] ?? null),
+      list: vi.fn(async (type) => Object.values(categories).filter((item) => item.type === type)),
+    },
   };
 
-  return { deps, loanUpdateLoan, walletGetById };
+  return {
+    deps,
+    loanUpdateLoan,
+    loanGetLoanById,
+    walletGetById,
+    transactionCreate,
+    transactionSoftDelete,
+  };
 }
 
 describe('updateLoan', () => {
   afterEach(() => {
     vi.restoreAllMocks();
+    generateUUIDMock.mockReset();
   });
 
   it('updates a loan without requiring a wallet when skip_transaction is true', async () => {
     vi.spyOn(Date, 'now').mockReturnValue(123);
-    const { deps, loanUpdateLoan, walletGetById } = makeDeps();
+    const { deps, loanUpdateLoan, walletGetById } = makeDeps(wallet, makeExistingLoan({
+      wallet_id: null,
+      skip_transaction: true,
+      linked_transaction_id: null,
+    }));
 
     const loan = await updateLoan('loan-1', input({
       wallet_id: null,
@@ -104,6 +205,90 @@ describe('updateLoan', () => {
     expect(loan).toEqual(expect.objectContaining({
       wallet_id: null,
       skip_transaction: true,
+    }));
+  });
+
+  it('soft-deletes the linked transaction when skip_transaction changes from false to true', async () => {
+    vi.spyOn(Date, 'now').mockReturnValue(456);
+    const { deps, loanUpdateLoan, transactionCreate, transactionSoftDelete } = makeDeps(
+      wallet,
+      makeExistingLoan({
+        skip_transaction: false,
+        linked_transaction_id: 'tx-123',
+      })
+    );
+
+    const loan = await updateLoan('loan-1', input({
+      wallet_id: null,
+      skip_transaction: true,
+    }), deps);
+
+    expect(transactionSoftDelete).toHaveBeenCalledWith('tx-123', 456);
+    expect(transactionCreate).not.toHaveBeenCalled();
+    expect(loanUpdateLoan).toHaveBeenCalledWith('loan-1', expect.objectContaining({
+      wallet_id: null,
+      skip_transaction: true,
+      linked_transaction_id: null,
+      updated_at: 456,
+    }));
+    expect(loan.linked_transaction_id).toBeNull();
+  });
+
+  it('creates a linked transaction when skip_transaction changes from true to false', async () => {
+    vi.spyOn(Date, 'now').mockReturnValue(789);
+    generateUUIDMock.mockReturnValueOnce('tx-new');
+    const { deps, loanUpdateLoan, transactionCreate, transactionSoftDelete } = makeDeps(
+      wallet,
+      makeExistingLoan({
+        wallet_id: null,
+        skip_transaction: true,
+        linked_transaction_id: null,
+      })
+    );
+
+    const loan = await updateLoan('loan-1', input({
+      wallet_id: wallet.id,
+      skip_transaction: false,
+      due_date: '2026-01-02',
+    }), deps);
+
+    expect(transactionSoftDelete).not.toHaveBeenCalled();
+    expect(transactionCreate).toHaveBeenCalledTimes(1);
+    expect(transactionCreate).toHaveBeenCalledWith(expect.objectContaining({
+      id: 'tx-new',
+      wallet_id: wallet.id,
+      category_id: 'cat-cho-vay',
+      type: 'expense',
+      amount: 1_000_000,
+      transaction_date: new Date('2026-01-02T00:00:00').getTime(),
+    }));
+    expect(loanUpdateLoan).toHaveBeenCalledWith('loan-1', expect.objectContaining({
+      wallet_id: wallet.id,
+      skip_transaction: false,
+      linked_transaction_id: 'tx-new',
+      updated_at: 789,
+    }));
+    expect(loan.linked_transaction_id).toBe('tx-new');
+  });
+
+  it('does not touch transactions when skip_transaction does not change', async () => {
+    vi.spyOn(Date, 'now').mockReturnValue(321);
+    const { deps, loanUpdateLoan, transactionCreate, transactionSoftDelete } = makeDeps(
+      wallet,
+      makeExistingLoan({
+        skip_transaction: false,
+        linked_transaction_id: 'tx-existing',
+      })
+    );
+
+    await updateLoan('loan-1', input({ contact_name: 'Tran Van B' }), deps);
+
+    expect(transactionCreate).not.toHaveBeenCalled();
+    expect(transactionSoftDelete).not.toHaveBeenCalled();
+    expect(loanUpdateLoan).toHaveBeenCalledWith('loan-1', expect.objectContaining({
+      contact_name: 'Tran Van B',
+      skip_transaction: false,
+      linked_transaction_id: 'tx-existing',
     }));
   });
 

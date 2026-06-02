@@ -62,6 +62,7 @@ function makeDeps() {
       id: data.id,
       wallet_id: data.wallet_id ?? null,
       skip_transaction: data.skip_transaction ?? false,
+      linked_transaction_id: data.linked_transaction_id ?? null,
       type: data.type,
       contact_name: data.contact_name,
       contact_info: data.contact_info ?? null,
@@ -70,6 +71,25 @@ function makeDeps() {
       note: data.note ?? null,
       status: 'active',
       created_at: data.created_at,
+      updated_at: data.updated_at,
+      deleted_at: null,
+    }),
+  );
+
+  const loanUpdateLoan = vi.fn(
+    async (id: string, data: Parameters<ILoanRepository['updateLoan']>[1]): Promise<Loan> => ({
+      id,
+      wallet_id: data.wallet_id ?? null,
+      skip_transaction: data.skip_transaction ?? false,
+      linked_transaction_id: data.linked_transaction_id ?? null,
+      type: data.type,
+      contact_name: data.contact_name,
+      contact_info: data.contact_info ?? null,
+      principal: data.principal,
+      due_date: data.due_date ?? null,
+      note: data.note ?? null,
+      status: 'active',
+      created_at: 0,
       updated_at: data.updated_at,
       deleted_at: null,
     }),
@@ -95,7 +115,7 @@ function makeDeps() {
   const deps: CreateLoanDeps = {
     loanRepo: {
       createLoan: loanCreateLoan,
-      updateLoan: vi.fn(),
+      updateLoan: loanUpdateLoan,
       getLoanById: vi.fn(),
       listLoans: vi.fn(),
       updateLoanStatus: vi.fn(),
@@ -137,7 +157,7 @@ function makeDeps() {
     },
   };
 
-  return { deps, loanCreateLoan, transactionCreate };
+  return { deps, loanCreateLoan, loanUpdateLoan, transactionCreate };
 }
 
 function baseInput(type: CreateLoanInput['type']): CreateLoanInput {
@@ -152,6 +172,7 @@ function baseInput(type: CreateLoanInput['type']): CreateLoanInput {
 describe('createLoan', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    generateUUIDMock.mockReset();
     generateUUIDMock
       .mockReturnValueOnce('loan-id')
       .mockReturnValueOnce('transaction-id');
@@ -189,8 +210,32 @@ describe('createLoan', () => {
     );
   });
 
+  it('creates a transaction when skip_transaction is false', async () => {
+    const { deps, loanCreateLoan, loanUpdateLoan, transactionCreate } = makeDeps();
+
+    const loan = await createLoan({
+      ...baseInput('lend'),
+      skip_transaction: false,
+    }, deps);
+
+    expect(loan).toEqual(expect.objectContaining({
+      wallet_id: wallet.id,
+      skip_transaction: false,
+      linked_transaction_id: 'transaction-id',
+    }));
+    expect(loanCreateLoan).toHaveBeenCalledWith(expect.objectContaining({
+      wallet_id: wallet.id,
+      skip_transaction: false,
+      linked_transaction_id: null,
+    }));
+    expect(transactionCreate).toHaveBeenCalledTimes(1);
+    expect(loanUpdateLoan).toHaveBeenCalledWith('loan-id', expect.objectContaining({
+      linked_transaction_id: 'transaction-id',
+    }));
+  });
+
   it('does not require a wallet or create a transaction when skip_transaction is true', async () => {
-    const { deps, loanCreateLoan, transactionCreate } = makeDeps();
+    const { deps, loanCreateLoan, loanUpdateLoan, transactionCreate } = makeDeps();
 
     const loan = await createLoan({
       type: 'lend',
@@ -210,6 +255,27 @@ describe('createLoan', () => {
       skip_transaction: true,
     }));
     expect(transactionCreate).not.toHaveBeenCalled();
+    expect(loanUpdateLoan).not.toHaveBeenCalled();
+  });
+
+  it('defaults skip_transaction to false and creates a transaction when omitted', async () => {
+    const { deps, loanCreateLoan, loanUpdateLoan, transactionCreate } = makeDeps();
+
+    const loan = await createLoan(baseInput('lend'), deps);
+
+    expect(loan).toEqual(expect.objectContaining({
+      wallet_id: wallet.id,
+      skip_transaction: false,
+      linked_transaction_id: 'transaction-id',
+    }));
+    expect(loanCreateLoan).toHaveBeenCalledWith(expect.objectContaining({
+      wallet_id: wallet.id,
+      skip_transaction: false,
+    }));
+    expect(transactionCreate).toHaveBeenCalledTimes(1);
+    expect(loanUpdateLoan).toHaveBeenCalledWith('loan-id', expect.objectContaining({
+      linked_transaction_id: 'transaction-id',
+    }));
   });
 
   it('throws LoanValidationError when wallet is missing and skip_transaction is false', async () => {

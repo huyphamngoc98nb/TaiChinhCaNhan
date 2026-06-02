@@ -6,6 +6,7 @@ export interface Loan {
   id: string;
   wallet_id: string | null;
   skip_transaction: boolean;
+  linked_transaction_id?: string | null;
   type: LoanType;
   contact_name: string;
   contact_info: string | null;
@@ -37,6 +38,7 @@ export interface LoanWithSummary extends Loan {
 export interface CreateLoanInput {
   wallet_id?: string | null;
   skip_transaction?: boolean;
+  linked_transaction_id?: string | null;
   type: LoanType;
   contact_name: string;
   contact_info?: string;

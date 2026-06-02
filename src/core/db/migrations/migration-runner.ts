@@ -27,6 +27,7 @@ import creditCardStatementsSql from './022_credit_card_statements.sql?raw';
 import loansSql from './023_loans.sql?raw';
 import loanCategoriesSql from './024_loan_categories.sql?raw';
 import loanSkipTransactionSql from './024_loan_skip_transaction.sql?raw';
+import loanLinkedTransactionSql from './025_loan_linked_transaction.sql?raw';
 
 const MIGRATIONS = [
   { version: 1,  name: '001_init',                          sql: initSql },
@@ -54,6 +55,7 @@ const MIGRATIONS = [
   { version: 23, name: '023_loans',                            sql: loansSql },
   { version: 24, name: '024_loan_categories',                  sql: loanCategoriesSql },
   { version: 25, name: '024_loan_skip_transaction',            sql: loanSkipTransactionSql },
+  { version: 26, name: '025_loan_linked_transaction',          sql: loanLinkedTransactionSql },
 ];
 
 async function markMigrationDone(
