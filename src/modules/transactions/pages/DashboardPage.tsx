@@ -6,6 +6,7 @@ import { useBudgetAnalysis } from '../hooks/useBudgetAnalysis';
 import { useRecurringReminders } from '../hooks/useRecurringReminders';
 import { useTransactionSummary } from '../hooks/useTransactionSummary';
 import { useWalletBalances } from '../hooks/useWalletBalances';
+import { useCreditCardAlerts } from '@/modules/wallets/hooks/useCreditCardAlerts';
 import { formatVND } from '../services/build-dashboard-view-model';
 import type { AccountType } from '@/modules/wallets/repositories/wallet.repository';
 import { filterWalletsWithValue } from '@/modules/wallets/services/wallet-selectors';
@@ -62,6 +63,7 @@ function DashboardPage() {
     wallets,
     loading: walletLoading,
   } = useWalletBalances();
+  const { alerts: creditCardAlerts } = useCreditCardAlerts(wallets);
   const navigate = useNavigate();
   const [showAmounts, setShowAmounts] = useState(() => {
     return localStorage.getItem('dashboard_show_amounts') !== 'false';
@@ -71,7 +73,33 @@ function DashboardPage() {
     !walletLoading &&
     wallets.length === 0 &&
     topBudgets.length === 0 &&
-    !hasAlerts;
+    !hasAlerts &&
+    creditCardAlerts.length === 0;
+  const primaryCreditCardAlert = creditCardAlerts[0];
+  const overdueCreditCardCount = creditCardAlerts.filter(
+    (alert) => alert.type === 'overdue'
+  ).length;
+  const creditCardAlertStyle =
+    primaryCreditCardAlert?.type === 'overdue'
+      ? {
+          bg: 'bg-red-50',
+          border: 'border-red-200',
+          icon: 'text-red-500',
+          text: 'text-red-600',
+        }
+      : primaryCreditCardAlert?.type === 'over_limit'
+        ? {
+            bg: 'bg-orange-50',
+            border: 'border-orange-200',
+            icon: 'text-orange-500',
+            text: 'text-orange-600',
+          }
+        : {
+            bg: 'bg-amber-50',
+            border: 'border-amber-200',
+            icon: 'text-amber-500',
+            text: 'text-amber-600',
+          };
 
   function toggleShowAmounts() {
     setShowAmounts(current => {
@@ -182,6 +210,29 @@ function DashboardPage() {
               {overdueBillCount > 0
                 ? `${overdueBillCount} ${t('dashboard.overdue_count')}`
                 : t('dashboard.tap_to_view_details')}
+            </p>
+          </div>
+          <ChevronRight size={16} className="text-gray-400" />
+        </div>
+      )}
+
+      {/* ── Credit card alert banner ────────────────────────────────────── */}
+      {primaryCreditCardAlert && (
+        <div
+          className={`mx-4 mt-4 flex items-center gap-3 rounded-[16px] border px-4 py-3 cursor-pointer active:scale-[0.98] transition-transform ${creditCardAlertStyle.bg} ${creditCardAlertStyle.border}`}
+          onClick={() => navigate(ROUTES.WALLETS)}
+        >
+          <Bell size={18} className={`${creditCardAlertStyle.icon} shrink-0`} />
+          <div className="flex-1">
+            <p className="text-[13px] font-semibold text-gray-900">
+              {creditCardAlerts.length} cảnh báo thẻ tín dụng
+            </p>
+            <p className={`text-[11px] ${creditCardAlertStyle.text}`}>
+              {overdueCreditCardCount > 0
+                ? `${overdueCreditCardCount} thẻ quá hạn thanh toán`
+                : primaryCreditCardAlert.type === 'due_soon'
+                  ? 'Có thẻ sắp đến hạn thanh toán'
+                  : 'Có thẻ đã dùng gần hết hạn mức'}
             </p>
           </div>
           <ChevronRight size={16} className="text-gray-400" />

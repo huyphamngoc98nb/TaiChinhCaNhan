@@ -147,6 +147,45 @@ export function WalletCard({ wallet, onClick }: Props) {
               </div>
             )}
           </div>
+          {/* Inline alert badge — chỉ hiện với credit card */}
+          {isCreditCard && (() => {
+            const asOf = Date.now();
+            const balance = outstandingBalance ?? 0;
+            const isOverdue =
+              statementPeriod != null && asOf > statementPeriod.dueAt && balance > 0;
+            const msPerDay = 86400000;
+            const daysLeft = statementPeriod
+              ? Math.ceil((statementPeriod.dueAt - asOf) / msPerDay)
+              : null;
+            const isDueSoon =
+              !isOverdue &&
+              daysLeft != null &&
+              daysLeft >= 0 &&
+              daysLeft <= 7 &&
+              balance > 0;
+
+            if (!isOverdue && !isDueSoon) return null;
+
+            return (
+              <div
+                className="flex items-center gap-1.5 px-2 py-1 rounded-lg text-[11px] font-semibold mb-2"
+                style={
+                  isOverdue
+                    ? { background: '#fef2f2', color: '#b91c1c' }
+                    : { background: '#fffbeb', color: '#92400e' }
+                }
+              >
+                <span>{isOverdue ? '🔴' : '🟡'}</span>
+                <span>
+                  {isOverdue
+                    ? 'Quá hạn thanh toán'
+                    : daysLeft === 0
+                      ? 'Đến hạn hôm nay'
+                      : `Còn ${daysLeft} ngày đến hạn`}
+                </span>
+              </div>
+            );
+          })()}
           {wallet.credit_limit != null && wallet.credit_limit > 0 && (
             <div>
               <div className="mb-1 flex items-center justify-between">

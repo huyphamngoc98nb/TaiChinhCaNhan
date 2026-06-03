@@ -61,15 +61,27 @@ describe('transaction create form values', () => {
   });
 
   it('builds clean default values for successful create reset', () => {
-    expect(getDefaultCreateTransactionValues('wallet-default')).toEqual({
+    expect(getDefaultCreateTransactionValues()).toEqual({
       type: 'expense',
       amount: 0,
       category_id: '',
-      wallet_id: 'wallet-default',
+      wallet_id: '',
       note: '',
       transaction_date: Date.now(),
       receipt_path: undefined,
     });
+  });
+
+  it('does not auto-select the first wallet when creating a transaction', async () => {
+    const { result } = renderHook(() => useTransactionForm());
+
+    await act(async () => {
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+
+    expect(result.current.options.wallets).toHaveLength(1);
+    expect(result.current.formData.wallet_id).toBe('');
   });
 
   it('does not reuse legacy last successful create values on new create', () => {
@@ -160,7 +172,7 @@ describe('transaction create form values', () => {
       type: 'expense',
       amount: 0,
       category_id: '',
-      wallet_id: 'wallet-default',
+      wallet_id: '',
       note: '',
       transaction_date: Date.now(),
       receipt_path: undefined,

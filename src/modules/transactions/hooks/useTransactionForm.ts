@@ -17,12 +17,12 @@ function clearStoredCreateTransactionState() {
   localStorage.removeItem(LEGACY_LAST_SUCCESSFUL_CREATE_KEY);
 }
 
-export function getDefaultCreateTransactionValues(defaultWalletId = ''): CreateTransactionFormValues {
+export function getDefaultCreateTransactionValues(): CreateTransactionFormValues {
   return {
     type: 'expense',
     amount: 0,
     category_id: '',
-    wallet_id: defaultWalletId,
+    wallet_id: '',
     note: '',
     transaction_date: Date.now(),
     receipt_path: undefined
@@ -82,10 +82,6 @@ export function useTransactionForm(existing?: Transaction) {
         
         setOptions({ wallets: loadedWallets, categories: loadedCategories });
 
-        // Auto-select first wallet if not editing and no draft wallet
-        if (!existing && loadedWallets.length > 0 && !formData.wallet_id) {
-          setFormData(prev => ({ ...prev, wallet_id: loadedWallets[0].id }));
-        }
       } catch (err) {
         console.error('Failed to load form options', err);
       }
@@ -107,9 +103,8 @@ export function useTransactionForm(existing?: Transaction) {
         toast.success(t('transactions.update_success'));
       } else {
         await createTransactionUseCase.execute(payload as CreateTransactionInput, receiptBase64);
-        const defaultWalletId = options.wallets[0]?.id ?? '';
         clearStoredCreateTransactionState();
-        setFormData(getDefaultCreateTransactionValues(defaultWalletId));
+        setFormData(getDefaultCreateTransactionValues());
         setReceiptBase64(undefined);
         toast.success(t('transactions.add_success'));
       }

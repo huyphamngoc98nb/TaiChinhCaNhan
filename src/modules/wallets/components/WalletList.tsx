@@ -1,8 +1,11 @@
 import { useMemo } from 'react';
 import { Wallet, AccountType } from '../repositories/sqlite-wallet.repository';
 import { WalletCard } from './WalletCard';
+import { CreditCardAlertsPanel } from './CreditCardAlertsPanel';
 import { useCurrency } from '@/shared/context/CurrencyContext';
 import { useLanguage } from '@/shared/context/LanguageContext';
+import { getAppLocale } from '@/shared/utils/locale';
+import { useCreditCardAlerts } from '../hooks/useCreditCardAlerts';
 import { filterActiveWallets } from '../services/wallet-selectors';
 
 interface Props {
@@ -25,7 +28,9 @@ export function WalletList({
   onWalletClick,
 }: Props) {
   const { formatAmount } = useCurrency();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  const locale = getAppLocale(language);
+  const { alerts, loading: alertsLoading } = useCreditCardAlerts(wallets);
   const accountTypeLabels: Record<AccountType, string> = {
     cash: t('wallets.account_cash'),
     bank: t('wallets.account_bank'),
@@ -92,6 +97,18 @@ export function WalletList({
           {t('wallets.excluded_hint')}
         </p>
       </div>
+
+      {/* Credit card alerts */}
+      <CreditCardAlertsPanel
+        alerts={alerts}
+        loading={alertsLoading}
+        onAlertPress={(walletId) => {
+          const wallet = wallets.find((w) => w.id === walletId);
+          if (wallet) onWalletClick?.(wallet);
+        }}
+        formatAmount={formatAmount}
+        locale={locale}
+      />
 
       {/* Grouped wallet cards */}
       {visibleWallets.length === 0 ? (
