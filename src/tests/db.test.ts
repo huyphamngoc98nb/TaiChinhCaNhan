@@ -101,12 +101,18 @@ describe('Database SQLite Tests', () => {
     expectExecuteContaining('CREATE INDEX IF NOT EXISTS idx_transactions_date');
     expectExecuteContaining('ALTER TABLE transactions ADD COLUMN deleted_at');
     expectExecuteContaining('ALTER TABLE transactions ADD COLUMN receipt_path');
+    expectExecuteContaining('ALTER TABLE transactions ADD COLUMN to_wallet_id TEXT');
+    expectNoExecuteContaining('ALTER TABLE transactions ADD COLUMN to_wallet_id TEXT REFERENCES');
     expectExecuteContaining('CREATE TABLE IF NOT EXISTS budgets');
     expectExecuteContaining('ALTER TABLE budgets ADD COLUMN account_type_scope');
     expectExecuteContaining('CREATE TABLE IF NOT EXISTS error_logs');
     expectExecuteContaining('CREATE INDEX IF NOT EXISTS idx_budgets_active_scope');
-    expectExecuteContaining("DELETE FROM wallets");
-    expectExecuteContaining("'wallet-cash-1', 'wallet-bank-1', 'wallet-ewallet-1', 'wallet-cc-1'");
+    expectNoExecuteContaining('DELETE FROM wallets');
+    expectNoExecuteContaining("'wallet-cash-1', 'wallet-bank-1', 'wallet-ewallet-1', 'wallet-cc-1'");
+    expectNoExecuteContaining('SELECT to_wallet_id');
+    expectNoExecuteContaining('transactions.wallet_id = wallets.id');
+    expectNoExecuteContaining('older.id');
+    expectNoExecuteContaining('newer.id');
     expectExecuteContaining('CREATE TABLE IF NOT EXISTS credit_card_statements');
     expectExecuteContaining('ALTER TABLE wallets ADD COLUMN annual_fee');
     expectExecuteContaining('CREATE TABLE IF NOT EXISTS loans');
@@ -234,7 +240,7 @@ describe('Database SQLite Tests', () => {
     await runMigrations();
 
     expectExecuteContaining('ALTER TABLE loans ADD COLUMN skip_transaction INTEGER NOT NULL DEFAULT 0');
-    expectExecuteContaining('linked_transaction_id TEXT REFERENCES transactions(id) ON DELETE SET NULL');
+    expectExecuteContaining('linked_transaction_id TEXT');
     expect(mockDb.run).toHaveBeenCalledWith(
       'UPDATE migrations SET name = ? WHERE version = ?',
       ['025_loan_skip_transaction', 25],

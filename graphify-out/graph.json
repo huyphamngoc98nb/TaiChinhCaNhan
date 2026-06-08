@@ -2797,7 +2797,7 @@
       "label": "runMigrationTransaction()",
       "file_type": "code",
       "source_file": "src/core/db/migrations/migration-runner.ts",
-      "source_location": "L164",
+      "source_location": "L165",
       "id": "migrations_migration_runner_runmigrationtransaction",
       "community": 48,
       "norm_label": "runmigrationtransaction()"
@@ -2806,7 +2806,7 @@
       "label": "buildLoanSkipTransactionSql()",
       "file_type": "code",
       "source_file": "src/core/db/migrations/migration-runner.ts",
-      "source_location": "L192",
+      "source_location": "L193",
       "id": "migrations_migration_runner_buildloanskiptransactionsql",
       "community": 48,
       "norm_label": "buildloanskiptransactionsql()"
@@ -2815,7 +2815,7 @@
       "label": "executeMigrationSql()",
       "file_type": "code",
       "source_file": "src/core/db/migrations/migration-runner.ts",
-      "source_location": "L248",
+      "source_location": "L249",
       "id": "migrations_migration_runner_executemigrationsql",
       "community": 48,
       "norm_label": "executemigrationsql()"
@@ -2824,7 +2824,7 @@
       "label": "normalizeLegacyLoanMigrationNames()",
       "file_type": "code",
       "source_file": "src/core/db/migrations/migration-runner.ts",
-      "source_location": "L259",
+      "source_location": "L260",
       "id": "migrations_migration_runner_normalizelegacyloanmigrationnames",
       "community": 48,
       "norm_label": "normalizelegacyloanmigrationnames()"
@@ -2833,7 +2833,7 @@
       "label": "repairLegacyLoanMigrationState()",
       "file_type": "code",
       "source_file": "src/core/db/migrations/migration-runner.ts",
-      "source_location": "L286",
+      "source_location": "L287",
       "id": "migrations_migration_runner_repairlegacyloanmigrationstate",
       "community": 48,
       "norm_label": "repairlegacyloanmigrationstate()"
@@ -2842,7 +2842,7 @@
       "label": "splitSqlStatements()",
       "file_type": "code",
       "source_file": "src/core/db/migrations/migration-runner.ts",
-      "source_location": "L328",
+      "source_location": "L329",
       "id": "migrations_migration_runner_splitsqlstatements",
       "community": 48,
       "norm_label": "splitsqlstatements()"
@@ -2851,7 +2851,7 @@
       "label": "runMigrations()",
       "file_type": "code",
       "source_file": "src/core/db/migrations/migration-runner.ts",
-      "source_location": "L386",
+      "source_location": "L387",
       "id": "migrations_migration_runner_runmigrations",
       "community": 48,
       "norm_label": "runmigrations()"
@@ -6489,7 +6489,7 @@
       "source_file": "src/modules/loans/hooks/useLoans.ts",
       "source_location": "L8",
       "id": "hooks_useloans_useloans",
-      "community": 130,
+      "community": 111,
       "norm_label": "useloans()"
     },
     {
@@ -6570,7 +6570,7 @@
       "source_file": "src/modules/loans/pages/LoanListPage.tsx",
       "source_location": "L1",
       "id": "src_modules_loans_pages_loanlistpage_tsx",
-      "community": 130,
+      "community": 111,
       "norm_label": "loanlistpage.tsx"
     },
     {
@@ -6579,7 +6579,7 @@
       "source_file": "src/modules/loans/pages/LoanListPage.tsx",
       "source_location": "L17",
       "id": "pages_loanlistpage_filtertab",
-      "community": 130,
+      "community": 111,
       "norm_label": "filtertab"
     },
     {
@@ -6588,7 +6588,7 @@
       "source_file": "src/modules/loans/pages/LoanListPage.tsx",
       "source_location": "L19",
       "id": "pages_loanlistpage_filter_tabs",
-      "community": 130,
+      "community": 111,
       "norm_label": "filter_tabs"
     },
     {
@@ -6597,7 +6597,7 @@
       "source_file": "src/modules/loans/pages/LoanListPage.tsx",
       "source_location": "L26",
       "id": "pages_loanlistpage_filterfromtab",
-      "community": 130,
+      "community": 111,
       "norm_label": "filterfromtab()"
     },
     {
@@ -6606,7 +6606,7 @@
       "source_file": "src/modules/loans/pages/LoanListPage.tsx",
       "source_location": "L32",
       "id": "pages_loanlistpage_swipeableloanrowprops",
-      "community": 130,
+      "community": 111,
       "norm_label": "swipeableloanrowprops"
     },
     {
@@ -6615,7 +6615,7 @@
       "source_file": "src/modules/loans/pages/LoanListPage.tsx",
       "source_location": "L39",
       "id": "pages_loanlistpage_swipeableloanrow",
-      "community": 130,
+      "community": 111,
       "norm_label": "swipeableloanrow()"
     },
     {
@@ -7092,7 +7092,7 @@
       "source_file": "src/modules/loans/services/delete-loan.ts",
       "source_location": "L4",
       "id": "services_delete_loan_deleteloanmode",
-      "community": 130,
+      "community": 111,
       "norm_label": "deleteloanmode"
     },
     {
@@ -7101,7 +7101,7 @@
       "source_file": "src/modules/loans/services/delete-loan.ts",
       "source_location": "L6",
       "id": "services_delete_loan_loanhaspaymentserror",
-      "community": 130,
+      "community": 111,
       "norm_label": "loanhaspaymentserror"
     },
     {
@@ -7110,7 +7110,7 @@
       "source_file": "src/modules/loans/services/delete-loan.ts",
       "source_location": "L7",
       "id": "services_delete_loan_loanhaspaymentserror_constructor",
-      "community": 130,
+      "community": 111,
       "norm_label": ".constructor()"
     },
     {
@@ -7137,7 +7137,7 @@
       "source_file": "src/modules/loans/services/delete-loan.ts",
       "source_location": "L25",
       "id": "services_delete_loan_deleteloan",
-      "community": 111,
+      "community": 76,
       "norm_label": "deleteloan()"
     },
     {
@@ -9693,7 +9693,7 @@
       "source_file": "src/modules/transactions/services/update-transaction.ts",
       "source_location": "L18",
       "id": "services_update_transaction_updatetransactionusecase_constructor",
-      "community": 11,
+      "community": 79,
       "norm_label": ".constructor()"
     },
     {
@@ -12517,7 +12517,7 @@
       "label": "legacyRows",
       "file_type": "code",
       "source_file": "src/tests/db.test.ts",
-      "source_location": "L204",
+      "source_location": "L210",
       "id": "tests_db_test_legacyrows",
       "community": 0,
       "norm_label": "legacyrows"
@@ -12526,7 +12526,7 @@
       "label": "repairedRows",
       "file_type": "code",
       "source_file": "src/tests/db.test.ts",
-      "source_location": "L211",
+      "source_location": "L217",
       "id": "tests_db_test_repairedrows",
       "community": 0,
       "norm_label": "repairedrows"
@@ -12535,7 +12535,7 @@
       "label": "loanColumnsWithLinkedOnly",
       "file_type": "code",
       "source_file": "src/tests/db.test.ts",
-      "source_location": "L215",
+      "source_location": "L221",
       "id": "tests_db_test_loancolumnswithlinkedonly",
       "community": 0,
       "norm_label": "loancolumnswithlinkedonly"
@@ -12544,7 +12544,7 @@
       "label": "statements",
       "file_type": "code",
       "source_file": "src/tests/db.test.ts",
-      "source_location": "L264",
+      "source_location": "L270",
       "id": "tests_db_test_statements",
       "community": 0,
       "norm_label": "statements"
@@ -12553,7 +12553,7 @@
       "label": "dbError",
       "file_type": "code",
       "source_file": "src/tests/db.test.ts",
-      "source_location": "L281",
+      "source_location": "L287",
       "id": "tests_db_test_dberror",
       "community": 0,
       "norm_label": "dberror"
@@ -12562,7 +12562,7 @@
       "label": "states",
       "file_type": "code",
       "source_file": "src/tests/db.test.ts",
-      "source_location": "L363",
+      "source_location": "L369",
       "id": "tests_db_test_states",
       "community": 0,
       "norm_label": "states"
@@ -12571,7 +12571,7 @@
       "label": "leakedDb",
       "file_type": "code",
       "source_file": "src/tests/db.test.ts",
-      "source_location": "L385",
+      "source_location": "L391",
       "id": "tests_db_test_leakeddb",
       "community": 0,
       "norm_label": "leakeddb"
@@ -12580,7 +12580,7 @@
       "label": "walletRepository",
       "file_type": "code",
       "source_file": "src/tests/db.test.ts",
-      "source_location": "L393",
+      "source_location": "L399",
       "id": "tests_db_test_walletrepository",
       "community": 0,
       "norm_label": "walletrepository"
@@ -12589,7 +12589,7 @@
       "label": "wallets",
       "file_type": "code",
       "source_file": "src/tests/db.test.ts",
-      "source_location": "L409",
+      "source_location": "L415",
       "id": "tests_db_test_wallets",
       "community": 0,
       "norm_label": "wallets"
@@ -12598,7 +12598,7 @@
       "label": "categories",
       "file_type": "code",
       "source_file": "src/tests/db.test.ts",
-      "source_location": "L430",
+      "source_location": "L436",
       "id": "tests_db_test_categories",
       "community": 0,
       "norm_label": "categories"
@@ -12607,7 +12607,7 @@
       "label": "transactions",
       "file_type": "code",
       "source_file": "src/tests/db.test.ts",
-      "source_location": "L431",
+      "source_location": "L437",
       "id": "tests_db_test_transactions",
       "community": 0,
       "norm_label": "transactions"
@@ -12616,7 +12616,7 @@
       "label": "cloneMap()",
       "file_type": "code",
       "source_file": "src/tests/db.test.ts",
-      "source_location": "L437",
+      "source_location": "L443",
       "id": "tests_db_test_clonemap",
       "community": 0,
       "norm_label": "clonemap()"
@@ -12625,7 +12625,7 @@
       "label": "wallet",
       "file_type": "code",
       "source_file": "src/tests/db.test.ts",
-      "source_location": "L462",
+      "source_location": "L468",
       "id": "tests_db_test_wallet",
       "community": 0,
       "norm_label": "wallet"
@@ -12634,7 +12634,7 @@
       "label": "transaction",
       "file_type": "code",
       "source_file": "src/tests/db.test.ts",
-      "source_location": "L476",
+      "source_location": "L482",
       "id": "tests_db_test_transaction",
       "community": 0,
       "norm_label": "transaction"
@@ -12643,7 +12643,7 @@
       "label": "id",
       "file_type": "code",
       "source_file": "src/tests/db.test.ts",
-      "source_location": "L519",
+      "source_location": "L525",
       "id": "tests_db_test_id",
       "community": 0,
       "norm_label": "id"
@@ -12652,7 +12652,7 @@
       "label": "walletService",
       "file_type": "code",
       "source_file": "src/tests/db.test.ts",
-      "source_location": "L530",
+      "source_location": "L536",
       "id": "tests_db_test_walletservice",
       "community": 0,
       "norm_label": "walletservice"
@@ -12661,7 +12661,7 @@
       "label": "transactionRepository",
       "file_type": "code",
       "source_file": "src/tests/db.test.ts",
-      "source_location": "L553",
+      "source_location": "L559",
       "id": "tests_db_test_transactionrepository",
       "community": 0,
       "norm_label": "transactionrepository"
@@ -12670,7 +12670,7 @@
       "label": "requiredTables",
       "file_type": "code",
       "source_file": "src/tests/db.test.ts",
-      "source_location": "L605",
+      "source_location": "L611",
       "id": "tests_db_test_requiredtables",
       "community": 0,
       "norm_label": "requiredtables"
@@ -12679,7 +12679,7 @@
       "label": "walletInserts",
       "file_type": "code",
       "source_file": "src/tests/db.test.ts",
-      "source_location": "L640",
+      "source_location": "L646",
       "id": "tests_db_test_walletinserts",
       "community": 0,
       "norm_label": "walletinserts"
@@ -12688,7 +12688,7 @@
       "label": "categoryInserts",
       "file_type": "code",
       "source_file": "src/tests/db.test.ts",
-      "source_location": "L662",
+      "source_location": "L668",
       "id": "tests_db_test_categoryinserts",
       "community": 0,
       "norm_label": "categoryinserts"
@@ -12697,7 +12697,7 @@
       "label": "insertedCategoryIds",
       "file_type": "code",
       "source_file": "src/tests/db.test.ts",
-      "source_location": "L688",
+      "source_location": "L694",
       "id": "tests_db_test_insertedcategoryids",
       "community": 0,
       "norm_label": "insertedcategoryids"
@@ -12706,7 +12706,7 @@
       "label": "repository",
       "file_type": "code",
       "source_file": "src/tests/db.test.ts",
-      "source_location": "L702",
+      "source_location": "L708",
       "id": "tests_db_test_repository",
       "community": 0,
       "norm_label": "repository"
@@ -16568,7 +16568,7 @@
       "file_type": "code",
       "source_file": "src/modules/loans/pages/LoanListPage.tsx",
       "source_location": "L1",
-      "community": 130,
+      "community": 111,
       "norm_label": "loanlistpage.tsx",
       "id": "pages_loanlistpage"
     },
@@ -90224,5 +90224,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "e435ef97c38cf22e6efd5f52c0e0b7f30b594fc8"
+  "built_at_commit": "08fd416f76b85bdb15d6be7fbf8fca31ed362b5d"
 }

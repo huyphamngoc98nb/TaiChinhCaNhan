@@ -42,15 +42,7 @@ SELECT
   created_at,
   updated_at
 FROM categories
-WHERE budget_amount IS NOT NULL
-  AND NOT EXISTS (
-    SELECT 1
-    FROM budgets existing
-    WHERE existing.category_id = categories.id
-      AND existing.wallet_id IS NULL
-      AND existing.amount = categories.budget_amount
-      AND existing.period = COALESCE(categories.budget_period, 'monthly')
-  );
+WHERE budget_amount IS NOT NULL;
 
 -- 4. Keep the old columns for compatibility with Android devices that ship
 -- SQLite < 3.35, where ALTER TABLE DROP COLUMN is not supported. Application

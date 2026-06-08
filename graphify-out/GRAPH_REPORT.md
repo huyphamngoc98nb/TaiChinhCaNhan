@@ -1,7 +1,7 @@
 # Graph Report - TaiXiuCaNhan  (2026-06-08)
 
 ## Corpus Check
-- 306 files · ~109,685 words
+- 306 files · ~109,437 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
@@ -10,7 +10,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `e435ef97`
+- Built from commit: `08fd416f`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -190,7 +190,7 @@ Cohesion: 0.18
 Nodes (23): ACCOUNT_TYPES, ACTIVE_FLAGS, BACKUP_SCHEMAS, BILL_FREQUENCIES, BUDGET_PERIODS, CATEGORY_TYPES, FieldRule, FieldType (+15 more)
 
 ### Community 11 - "Community 11"
-Cohesion: 0.16
+Cohesion: 0.18
 Nodes (10): ReceiptStorageService, UpdateTransactionUseCase, createUseCase, existingNoReceipt, existingWithReceipt, input, makeBaseInput(), mockDb (+2 more)
 
 ### Community 12 - "Community 12"
@@ -346,15 +346,15 @@ Cohesion: 0.31
 Nodes (8): baseInput(), category(), { deps, loanCreateLoan, loanUpdateLoan, transactionCreate }, { deps, loanCreateLoan, transactionCreate }, { deps, transactionCreate }, generateUUIDMock, makeDeps(), wallet
 
 ### Community 76 - "Community 76"
-Cohesion: 0.21
-Nodes (16): loanListDeps, loanMutationDeps, loanServiceDeps, UpdateLoanInput, emitLoanEvent(), toError(), useLoanMutations(), formatIsoDate() (+8 more)
+Cohesion: 0.20
+Nodes (17): loanListDeps, loanMutationDeps, loanServiceDeps, UpdateLoanInput, emitLoanEvent(), toError(), useLoanMutations(), formatIsoDate() (+9 more)
 
 ### Community 78 - "Community 78"
 Cohesion: 0.67
 Nodes (3): code:bash (python3 -m graphify.serve graphify-out/graph.json), code:json ({), Step 7d - MCP server (only if --mcp flag)
 
 ### Community 79 - "Community 79"
-Cohesion: 0.12
+Cohesion: 0.11
 Nodes (19): immediateTransactionRunner(), sqliteTransactionRunner(), TransactionRunner, DeleteTransactionUseCase, createUseCase, deleteUseCase, FailingTransactionRepository, input (+11 more)
 
 ### Community 82 - "Community 82"
@@ -430,8 +430,8 @@ Cohesion: 0.17
 Nodes (16): importBackupJson(), readBackupFile(), restoreDatabase(), assertBackupPayload(), normalizeBackupPayload(), file, invalid, legacyPayload (+8 more)
 
 ### Community 111 - "Community 111"
-Cohesion: 0.23
-Nodes (14): Loan, LoanFilter, LoanWithSummary, EMPTY_LOAN_FILTER, ILoanRepository, CancelLoanDeps, deleteLoan(), DeleteLoanDeps (+6 more)
+Cohesion: 0.17
+Nodes (21): Loan, LoanFilter, LoanWithSummary, EMPTY_LOAN_FILTER, useLoans(), FILTER_TABS, filterFromTab(), FilterTab (+13 more)
 
 ### Community 112 - "Community 112"
 Cohesion: 0.11
@@ -502,8 +502,8 @@ Cohesion: 0.29
 Nodes (5): ErrorScreen(), ErrorScreenProps, GlobalErrorBoundary, GlobalErrorBoundaryProps, GlobalErrorBoundaryState
 
 ### Community 130 - "Community 130"
-Cohesion: 0.19
-Nodes (17): formatDate(), formatVnd(), isOverdue(), LoanCard(), LoanCardProps, STATUS_LABELS, TYPE_LABELS, LoanStatus (+9 more)
+Cohesion: 0.38
+Nodes (9): formatDate(), formatVnd(), isOverdue(), LoanCard(), LoanCardProps, STATUS_LABELS, TYPE_LABELS, LoanStatus (+1 more)
 
 ### Community 131 - "Community 131"
 Cohesion: 0.47

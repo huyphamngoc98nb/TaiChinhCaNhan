@@ -1,5 +1,5 @@
-import React, { useCallback, useMemo, useState } from 'react';
-import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts';
+import React, { useMemo, useState } from 'react';
+import { Cell, Pie, PieChart, ResponsiveContainer } from 'recharts';
 import { useCurrency } from '@/shared/context/CurrencyContext';
 import { useLanguage } from '@/shared/context/LanguageContext';
 import { DonutItem, normalizeDonutData, RawDonutItem } from './normalize-donut-data';
@@ -96,15 +96,8 @@ export const ReportDonutCard: React.FC<ReportDonutCardProps> = ({
     [items, palette, t],
   );
   const total = useMemo(() => chartData.reduce((sum, item) => sum + item.amount, 0), [chartData]);
-  const selectedItem = useMemo(
-    () => chartData.find(item => item.id === selectedId) ?? null,
-    [chartData, selectedId],
-  );
 
-  const formatMoney = useCallback(
-    (value: number) => formatAmount(value, locale),
-    [formatAmount, locale],
-  );
+  const formatMoney = (value: number) => formatAmount(value, locale);
   const totalAmount = formatMoney(total);
   const legendInitialCount = 5;
   const legendItems = showAllLegend ? chartData : chartData.slice(0, legendInitialCount);
@@ -113,50 +106,6 @@ export const ReportDonutCard: React.FC<ReportDonutCardProps> = ({
   const legendToggleLabel = showAllLegend
     ? (language === 'vi' ? 'Thu gọn' : 'Show less')
     : (language === 'vi' ? `Xem thêm ${hiddenLegendCount} mục` : `Show ${hiddenLegendCount} more`);
-
-  const TooltipContent = useCallback(
-    ({ active, payload }: any) => {
-      const item = payload?.[0]?.payload as DonutItem | undefined;
-      if (!active || !item) return null;
-
-      return (
-        <div
-          style={{
-            background: 'white',
-            border: '1px solid #e5e7eb',
-            borderRadius: 10,
-            padding: '8px 12px',
-            boxShadow: '0 4px 12px rgba(0,0,0,0.10)',
-            maxWidth: 200,
-            pointerEvents: 'none',
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
-            <span
-              style={{
-                display: 'inline-block',
-                width: 10,
-                height: 10,
-                borderRadius: '50%',
-                background: item.color,
-                flexShrink: 0,
-              }}
-            />
-            <span style={{ fontSize: 12, fontWeight: 600, color: '#111827', wordBreak: 'break-word', maxWidth: 140 }}>
-              {item.label}
-            </span>
-          </div>
-          <div style={{ fontSize: 14, fontWeight: 700, color: '#111827', fontVariantNumeric: 'tabular-nums' }}>
-            {formatMoney(item.amount)}
-          </div>
-          <div style={{ fontSize: 11, color: '#6b7280', marginTop: 2 }}>
-            {item.percentLabel}
-          </div>
-        </div>
-      );
-    },
-    [formatMoney],
-  );
 
   if (loading) {
     return (
@@ -205,53 +154,37 @@ export const ReportDonutCard: React.FC<ReportDonutCardProps> = ({
         aria-label={ariaLabel}
         onClick={event => event.stopPropagation()}
       >
-        <ResponsiveContainer width="100%" height="100%">
-          <PieChart margin={{ top: 10, right: 10, bottom: 10, left: 10 }}>
-            <Pie
-              data={chartData}
-              dataKey="amount"
-              nameKey="label"
-              cx="50%"
-              cy="50%"
-              innerRadius={48}
-              outerRadius={82}
-              paddingAngle={chartData.length > 1 ? 2 : 0}
-              minAngle={8}
-              label={false}
-              labelLine={false}
-              isAnimationActive={false}
-              onClick={(item: any) => {
-                const nextId = (item.payload ?? item).id;
-                setSelectedId(currentId => currentId === nextId ? null : nextId);
-              }}
-            >
-              {chartData.map(item => (
-                <Cell
-                  key={item.id}
-                  fill={item.color}
-                  stroke={selectedId === item.id ? 'var(--text)' : 'var(--surface)'}
-                  strokeWidth={selectedId === item.id ? 3 : 1.5}
-                  opacity={!selectedId || selectedId === item.id ? 1 : 0.45}
-                  style={{ cursor: 'pointer', outline: 'none' }}
-                />
-              ))}
-            </Pie>
-            <Tooltip content={TooltipContent} />
-          </PieChart>
-        </ResponsiveContainer>
-        {selectedItem ? (
-          <DonutCenterLabel
-            label={selectedItem.label}
-            amount={formatMoney(selectedItem.amount)}
-            percent={selectedItem.percentLabel}
-          />
-        ) : (
-          <DonutCenterLabel
-            label={totalLabel}
-            amount={totalAmount}
-            percent={undefined}
-          />
-        )}
+        <div className="pointer-events-none h-full w-full">
+          <ResponsiveContainer width="100%" height="100%">
+            <PieChart margin={{ top: 10, right: 10, bottom: 10, left: 10 }}>
+              <Pie
+                data={chartData}
+                dataKey="amount"
+                nameKey="label"
+                cx="50%"
+                cy="50%"
+                innerRadius={0}
+                outerRadius={82}
+                paddingAngle={chartData.length > 1 ? 2 : 0}
+                minAngle={8}
+                label={false}
+                labelLine={false}
+                isAnimationActive={false}
+              >
+                {chartData.map(item => (
+                  <Cell
+                    key={item.id}
+                    fill={item.color}
+                    stroke={selectedId === item.id ? 'var(--text)' : 'var(--surface)'}
+                    strokeWidth={selectedId === item.id ? 3 : 1.5}
+                    opacity={!selectedId || selectedId === item.id ? 1 : 0.45}
+                    style={{ outline: 'none' }}
+                  />
+                ))}
+              </Pie>
+            </PieChart>
+          </ResponsiveContainer>
+        </div>
       </div>
 
       <div className="mx-auto mt-2 max-w-[320px] rounded-[14px] bg-gray-50 px-3 py-2 text-center">

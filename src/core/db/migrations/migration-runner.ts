@@ -157,6 +157,7 @@ async function executeMigrationStatement(
       return;
     }
 
+    logger.error(`Migration statement failed: ${stmt.replace(/\s+/g, ' ').slice(0, 500)}`, err);
     throw err;
   }
 }
@@ -191,7 +192,7 @@ async function runMigrationTransaction(
 
 function buildLoanSkipTransactionSql(preserveLinkedTransactionId: boolean) {
   const linkedColumnDefinition = preserveLinkedTransactionId
-    ? '  linked_transaction_id TEXT REFERENCES transactions(id) ON DELETE SET NULL,\n'
+    ? '  linked_transaction_id TEXT,\n'
     : '';
   const linkedInsertColumn = preserveLinkedTransactionId
     ? ', linked_transaction_id'
