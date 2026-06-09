@@ -81,16 +81,16 @@ export function CategoriesPage() {
 
   return (
     <div className="min-h-screen bg-bg">
-      <div className="flex items-center gap-3 px-4 pt-4 pb-3">
-        <BackButton onClick={() => navigate(ROUTES.HOME)} ariaLabel={t('common.back')} />
-        <div className="flex-1 min-w-0">
-          <h1 className="text-[20px] font-bold text-text">{t('categories.title')}</h1>
-          <p className="text-[12px] text-muted">{t('categories.subtitle')}</p>
+      <div className="sticky top-0 z-10 bg-bg px-4">
+        <div className="flex items-center gap-3 pt-4 pb-3">
+          <BackButton onClick={() => navigate(ROUTES.HOME)} ariaLabel={t('common.back')} />
+          <div className="flex-1 min-w-0">
+            <h1 className="text-[20px] font-bold text-text">{t('categories.title')}</h1>
+            <p className="text-[12px] text-muted">{t('categories.subtitle')}</p>
+          </div>
         </div>
-      </div>
 
-      <div className="px-4 pb-24">
-        <div className="flex bg-surface-muted p-1 rounded-[12px] h-[48px] mb-4">
+        <div className="flex h-[48px] rounded-[12px] bg-surface-muted p-1">
           {[
             { id: 'expense' as const, label: t('categories.expense_type') },
             { id: 'income' as const, label: t('categories.income_type') },
@@ -107,7 +107,9 @@ export function CategoriesPage() {
             </button>
           ))}
         </div>
+      </div>
 
+      <div className="px-4 pt-4 pb-24">
         {loading ? (
           <div className="space-y-3">
             {[1, 2, 3].map((item) => (

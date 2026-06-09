@@ -1,7 +1,6 @@
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import type { PointerEvent } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Plus } from 'lucide-react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { BackButton } from '@/shared/components/BackButton';
 import { BottomSheet } from '@/shared/components/BottomSheet';
 import { useConfirm } from '@/shared/components/ConfirmDialog/ConfirmContext';
@@ -101,11 +100,13 @@ function SwipeableLoanRow({ loan, mutationLoading, onOpen, onDelete }: Swipeable
 
 export function LoanListPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const confirm = useConfirm();
   const toast = useToast();
   const [activeTab, setActiveTab] = useState<FilterTab>('all');
   const [formOpen, setFormOpen] = useState(false);
   const [showDeleted, setShowDeleted] = useState(false);
+  const isCreateRoute = location.pathname === ROUTES.LOANS_NEW;
   const filter = useMemo(
     () => ({ ...filterFromTab(activeTab), includeDeleted: showDeleted }),
     [activeTab, showDeleted],
@@ -113,10 +114,23 @@ export function LoanListPage() {
   const { loans, loading, error, reload } = useLoans(filter);
   const { createLoan, deleteLoan, loading: mutationLoading } = useLoanMutations();
 
+  useEffect(() => {
+    if (isCreateRoute) {
+      setFormOpen(true);
+    }
+  }, [isCreateRoute]);
+
+  function closeForm() {
+    if (isCreateRoute) {
+      navigate(ROUTES.LOANS, { replace: true });
+    }
+    setFormOpen(false);
+  }
+
   async function handleCreateLoan(input: CreateLoanInput) {
     await createLoan(input);
-    setFormOpen(false);
     await reload();
+    closeForm();
   }
 
   async function handleDeleteLoan(loan: LoanWithSummary, mode: DeleteLoanMode, force = false) {
@@ -151,14 +165,6 @@ export function LoanListPage() {
               Cho vay & Vay nợ
             </h1>
           </div>
-          <button
-            type="button"
-            onClick={() => setFormOpen(true)}
-            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-indigo-500 text-white shadow-lg shadow-indigo-300/40 active:scale-95"
-            aria-label="Thêm khoản"
-          >
-            <Plus size={22} />
-          </button>
         </div>
 
         <div className="flex h-[44px] gap-1 overflow-x-auto rounded-[12px] bg-surface-muted p-1">
@@ -219,7 +225,7 @@ export function LoanListPage() {
         )}
       </div>
 
-      <BottomSheet isOpen={formOpen} onClose={() => setFormOpen(false)} fullScreenOnAndroid>
+      <BottomSheet isOpen={formOpen} onClose={closeForm} fullScreenOnAndroid>
         <div className="pb-[calc(32px+env(safe-area-inset-bottom))]">
           <LoanForm onSubmit={handleCreateLoan} loading={mutationLoading} />
         </div>

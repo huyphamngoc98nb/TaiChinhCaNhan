@@ -1039,87 +1039,6 @@
       "norm_label": "vite.config.ts"
     },
     {
-      "label": "config.json",
-      "file_type": "code",
-      "source_file": ".codegraph/config.json",
-      "source_location": "L1",
-      "id": "codegraph_config_json",
-      "community": 36,
-      "norm_label": "config.json"
-    },
-    {
-      "label": "version",
-      "file_type": "code",
-      "source_file": ".codegraph/config.json",
-      "source_location": "L2",
-      "id": "codegraph_config_version",
-      "community": 36,
-      "norm_label": "version"
-    },
-    {
-      "label": "include",
-      "file_type": "code",
-      "source_file": ".codegraph/config.json",
-      "source_location": "L3",
-      "id": "codegraph_config_include",
-      "community": 36,
-      "norm_label": "include"
-    },
-    {
-      "label": "exclude",
-      "file_type": "code",
-      "source_file": ".codegraph/config.json",
-      "source_location": "L39",
-      "id": "codegraph_config_exclude",
-      "community": 36,
-      "norm_label": "exclude"
-    },
-    {
-      "label": "languages",
-      "file_type": "code",
-      "source_file": ".codegraph/config.json",
-      "source_location": "L140",
-      "id": "codegraph_config_languages",
-      "community": 36,
-      "norm_label": "languages"
-    },
-    {
-      "label": "frameworks",
-      "file_type": "code",
-      "source_file": ".codegraph/config.json",
-      "source_location": "L141",
-      "id": "codegraph_config_frameworks",
-      "community": 36,
-      "norm_label": "frameworks"
-    },
-    {
-      "label": "maxFileSize",
-      "file_type": "code",
-      "source_file": ".codegraph/config.json",
-      "source_location": "L142",
-      "id": "codegraph_config_maxfilesize",
-      "community": 36,
-      "norm_label": "maxfilesize"
-    },
-    {
-      "label": "extractDocstrings",
-      "file_type": "code",
-      "source_file": ".codegraph/config.json",
-      "source_location": "L143",
-      "id": "codegraph_config_extractdocstrings",
-      "community": 36,
-      "norm_label": "extractdocstrings"
-    },
-    {
-      "label": "trackCallSites",
-      "file_type": "code",
-      "source_file": ".codegraph/config.json",
-      "source_location": "L144",
-      "id": "codegraph_config_trackcallsites",
-      "community": 36,
-      "norm_label": "trackcallsites"
-    },
-    {
       "label": "build.gradle",
       "file_type": "code",
       "source_file": "android/build.gradle",
@@ -2176,7 +2095,7 @@
       "label": "DASHBOARD_WITH_DRAWER_BACK_ROUTES",
       "file_type": "code",
       "source_file": "src/app/layouts/MainLayout.tsx",
-      "source_location": "L53",
+      "source_location": "L54",
       "id": "layouts_mainlayout_dashboard_with_drawer_back_routes",
       "community": 128,
       "norm_label": "dashboard_with_drawer_back_routes"
@@ -2185,7 +2104,7 @@
       "label": "matchesRouteContext()",
       "file_type": "code",
       "source_file": "src/app/layouts/MainLayout.tsx",
-      "source_location": "L65",
+      "source_location": "L66",
       "id": "layouts_mainlayout_matchesroutecontext",
       "community": 128,
       "norm_label": "matchesroutecontext()"
@@ -2194,7 +2113,7 @@
       "label": "shouldBackToDashboardWithDrawer()",
       "file_type": "code",
       "source_file": "src/app/layouts/MainLayout.tsx",
-      "source_location": "L70",
+      "source_location": "L71",
       "id": "layouts_mainlayout_shouldbacktodashboardwithdrawer",
       "community": 128,
       "norm_label": "shouldbacktodashboardwithdrawer()"
@@ -2203,7 +2122,7 @@
       "label": "getContextualAddRoute()",
       "file_type": "code",
       "source_file": "src/app/layouts/MainLayout.tsx",
-      "source_location": "L74",
+      "source_location": "L75",
       "id": "layouts_mainlayout_getcontextualaddroute",
       "community": 128,
       "norm_label": "getcontextualaddroute()"
@@ -2212,7 +2131,7 @@
       "label": "MainLayout()",
       "file_type": "code",
       "source_file": "src/app/layouts/MainLayout.tsx",
-      "source_location": "L82",
+      "source_location": "L83",
       "id": "layouts_mainlayout_mainlayout",
       "community": 128,
       "norm_label": "mainlayout()"
@@ -3339,7 +3258,7 @@
       "source_file": "src/core/files/receipt-storage.ts",
       "source_location": "L1",
       "id": "src_core_files_receipt_storage_ts",
-      "community": 11,
+      "community": 134,
       "norm_label": "receipt-storage.ts"
     },
     {
@@ -3348,7 +3267,7 @@
       "source_file": "src/core/files/receipt-storage.ts",
       "source_location": "L4",
       "id": "files_receipt_storage_receiptstorageservice",
-      "community": 11,
+      "community": 134,
       "norm_label": "receiptstorageservice"
     },
     {
@@ -3357,7 +3276,7 @@
       "source_file": "src/core/files/receipt-storage.ts",
       "source_location": "L11",
       "id": "files_receipt_storage_receiptstorageservice_init",
-      "community": 11,
+      "community": 134,
       "norm_label": ".init()"
     },
     {
@@ -3366,7 +3285,7 @@
       "source_file": "src/core/files/receipt-storage.ts",
       "source_location": "L29",
       "id": "files_receipt_storage_receiptstorageservice_savereceipt",
-      "community": 11,
+      "community": 134,
       "norm_label": ".savereceipt()"
     },
     {
@@ -3375,7 +3294,7 @@
       "source_file": "src/core/files/receipt-storage.ts",
       "source_location": "L51",
       "id": "files_receipt_storage_receiptstorageservice_getreceiptdataurl",
-      "community": 11,
+      "community": 134,
       "norm_label": ".getreceiptdataurl()"
     },
     {
@@ -3384,7 +3303,7 @@
       "source_file": "src/core/files/receipt-storage.ts",
       "source_location": "L67",
       "id": "files_receipt_storage_receiptstorageservice_deletereceipt",
-      "community": 11,
+      "community": 134,
       "norm_label": ".deletereceipt()"
     },
     {
@@ -6300,7 +6219,7 @@
       "source_file": "src/modules/loans/domain/loan.model.ts",
       "source_location": "L5",
       "id": "domain_loan_model_loan",
-      "community": 111,
+      "community": 120,
       "norm_label": "loan"
     },
     {
@@ -6345,7 +6264,7 @@
       "source_file": "src/modules/loans/domain/loan.model.ts",
       "source_location": "L52",
       "id": "domain_loan_model_createloanpaymentinput",
-      "community": 106,
+      "community": 73,
       "norm_label": "createloanpaymentinput"
     },
     {
@@ -6363,7 +6282,7 @@
       "source_file": "src/modules/loans/domain/loan.schema.ts",
       "source_location": "L1",
       "id": "src_modules_loans_domain_loan_schema_ts",
-      "community": 106,
+      "community": 73,
       "norm_label": "loan.schema.ts"
     },
     {
@@ -6372,7 +6291,7 @@
       "source_file": "src/modules/loans/domain/loan.schema.ts",
       "source_location": "L3",
       "id": "domain_loan_schema_loan_types",
-      "community": 106,
+      "community": 73,
       "norm_label": "loan_types"
     },
     {
@@ -6381,7 +6300,7 @@
       "source_file": "src/modules/loans/domain/loan.schema.ts",
       "source_location": "L5",
       "id": "domain_loan_schema_loanvalidationerror",
-      "community": 106,
+      "community": 73,
       "norm_label": "loanvalidationerror"
     },
     {
@@ -6390,7 +6309,7 @@
       "source_file": "src/modules/loans/domain/loan.schema.ts",
       "source_location": "L6",
       "id": "domain_loan_schema_loanvalidationerror_constructor",
-      "community": 106,
+      "community": 73,
       "norm_label": ".constructor()"
     },
     {
@@ -6399,7 +6318,7 @@
       "source_file": "src/modules/loans/domain/loan.schema.ts",
       "source_location": "L12",
       "id": "domain_loan_schema_validateloanfields",
-      "community": 106,
+      "community": 73,
       "norm_label": "validateloanfields()"
     },
     {
@@ -6408,7 +6327,7 @@
       "source_file": "src/modules/loans/domain/loan.schema.ts",
       "source_location": "L30",
       "id": "domain_loan_schema_validatecreateloan",
-      "community": 106,
+      "community": 73,
       "norm_label": "validatecreateloan()"
     },
     {
@@ -6417,7 +6336,7 @@
       "source_file": "src/modules/loans/domain/loan.schema.ts",
       "source_location": "L34",
       "id": "domain_loan_schema_validateupdateloan",
-      "community": 106,
+      "community": 73,
       "norm_label": "validateupdateloan()"
     },
     {
@@ -6577,7 +6496,7 @@
       "label": "FilterTab",
       "file_type": "code",
       "source_file": "src/modules/loans/pages/LoanListPage.tsx",
-      "source_location": "L17",
+      "source_location": "L16",
       "id": "pages_loanlistpage_filtertab",
       "community": 111,
       "norm_label": "filtertab"
@@ -6586,7 +6505,7 @@
       "label": "FILTER_TABS",
       "file_type": "code",
       "source_file": "src/modules/loans/pages/LoanListPage.tsx",
-      "source_location": "L19",
+      "source_location": "L18",
       "id": "pages_loanlistpage_filter_tabs",
       "community": 111,
       "norm_label": "filter_tabs"
@@ -6595,7 +6514,7 @@
       "label": "filterFromTab()",
       "file_type": "code",
       "source_file": "src/modules/loans/pages/LoanListPage.tsx",
-      "source_location": "L26",
+      "source_location": "L25",
       "id": "pages_loanlistpage_filterfromtab",
       "community": 111,
       "norm_label": "filterfromtab()"
@@ -6604,7 +6523,7 @@
       "label": "SwipeableLoanRowProps",
       "file_type": "code",
       "source_file": "src/modules/loans/pages/LoanListPage.tsx",
-      "source_location": "L32",
+      "source_location": "L31",
       "id": "pages_loanlistpage_swipeableloanrowprops",
       "community": 111,
       "norm_label": "swipeableloanrowprops"
@@ -6613,7 +6532,7 @@
       "label": "SwipeableLoanRow()",
       "file_type": "code",
       "source_file": "src/modules/loans/pages/LoanListPage.tsx",
-      "source_location": "L39",
+      "source_location": "L38",
       "id": "pages_loanlistpage_swipeableloanrow",
       "community": 111,
       "norm_label": "swipeableloanrow()"
@@ -6622,7 +6541,7 @@
       "label": "LoanListPage()",
       "file_type": "code",
       "source_file": "src/modules/loans/pages/LoanListPage.tsx",
-      "source_location": "L102",
+      "source_location": "L101",
       "id": "pages_loanlistpage_loanlistpage",
       "community": 115,
       "norm_label": "loanlistpage()"
@@ -6642,7 +6561,7 @@
       "source_file": "src/modules/loans/repositories/loan.repository.ts",
       "source_location": "L12",
       "id": "repositories_loan_repository_iloanrepository",
-      "community": 111,
+      "community": 106,
       "norm_label": "iloanrepository"
     },
     {
@@ -7137,7 +7056,7 @@
       "source_file": "src/modules/loans/services/delete-loan.ts",
       "source_location": "L25",
       "id": "services_delete_loan_deleteloan",
-      "community": 76,
+      "community": 111,
       "norm_label": "deleteloan()"
     },
     {
@@ -7803,7 +7722,7 @@
       "source_file": "src/modules/reports/components/CashflowBarChart.tsx",
       "source_location": "L1",
       "id": "src_modules_reports_components_cashflowbarchart_tsx",
-      "community": 8,
+      "community": 11,
       "norm_label": "cashflowbarchart.tsx"
     },
     {
@@ -7812,7 +7731,7 @@
       "source_file": "src/modules/reports/components/CashflowBarChart.tsx",
       "source_location": "L8",
       "id": "components_cashflowbarchart_props",
-      "community": 8,
+      "community": 11,
       "norm_label": "props"
     },
     {
@@ -7821,7 +7740,7 @@
       "source_file": "src/modules/reports/components/CashflowBarChart.tsx",
       "source_location": "L12",
       "id": "components_cashflowbarchart_cashflowbarchart",
-      "community": 8,
+      "community": 11,
       "norm_label": "cashflowbarchart()"
     },
     {
@@ -8010,7 +7929,7 @@
       "source_file": "src/modules/reports/components/ReportSummaryCards.tsx",
       "source_location": "L1",
       "id": "src_modules_reports_components_reportsummarycards_tsx",
-      "community": 8,
+      "community": 11,
       "norm_label": "reportsummarycards.tsx"
     },
     {
@@ -8019,7 +7938,7 @@
       "source_file": "src/modules/reports/components/ReportSummaryCards.tsx",
       "source_location": "L7",
       "id": "components_reportsummarycards_props",
-      "community": 8,
+      "community": 11,
       "norm_label": "props"
     },
     {
@@ -8028,7 +7947,7 @@
       "source_file": "src/modules/reports/components/ReportSummaryCards.tsx",
       "source_location": "L13",
       "id": "components_reportsummarycards_percentchange",
-      "community": 8,
+      "community": 11,
       "norm_label": "percentchange()"
     },
     {
@@ -8037,7 +7956,7 @@
       "source_file": "src/modules/reports/components/ReportSummaryCards.tsx",
       "source_location": "L18",
       "id": "components_reportsummarycards_reportsummarycards",
-      "community": 8,
+      "community": 11,
       "norm_label": "reportsummarycards()"
     },
     {
@@ -8127,7 +8046,7 @@
       "source_file": "src/modules/reports/domain/report.model.ts",
       "source_location": "L21",
       "id": "domain_report_model_periodsummary",
-      "community": 8,
+      "community": 11,
       "norm_label": "periodsummary"
     },
     {
@@ -8136,7 +8055,7 @@
       "source_file": "src/modules/reports/domain/report.model.ts",
       "source_location": "L27",
       "id": "domain_report_model_cashflowsummary",
-      "community": 8,
+      "community": 11,
       "norm_label": "cashflowsummary"
     },
     {
@@ -8145,7 +8064,7 @@
       "source_file": "src/modules/reports/pages/ReportsPage.tsx",
       "source_location": "L1",
       "id": "src_modules_reports_pages_reportspage_tsx",
-      "community": 8,
+      "community": 11,
       "norm_label": "reportspage.tsx"
     },
     {
@@ -8154,7 +8073,7 @@
       "source_file": "src/modules/reports/pages/ReportsPage.tsx",
       "source_location": "L22",
       "id": "pages_reportspage_expense_donut_colors",
-      "community": 8,
+      "community": 11,
       "norm_label": "expense_donut_colors"
     },
     {
@@ -8163,7 +8082,7 @@
       "source_file": "src/modules/reports/pages/ReportsPage.tsx",
       "source_location": "L27",
       "id": "pages_reportspage_income_donut_colors",
-      "community": 8,
+      "community": 11,
       "norm_label": "income_donut_colors"
     },
     {
@@ -8172,7 +8091,7 @@
       "source_file": "src/modules/reports/pages/ReportsPage.tsx",
       "source_location": "L33",
       "id": "pages_reportspage_reportspage",
-      "community": 8,
+      "community": 11,
       "norm_label": "reportspage()"
     },
     {
@@ -8847,7 +8766,7 @@
       "source_file": "src/modules/transactions/dev/sample-data-helper.ts",
       "source_location": "L1",
       "id": "src_modules_transactions_dev_sample_data_helper_ts",
-      "community": 134,
+      "community": 34,
       "norm_label": "sample-data-helper.ts"
     },
     {
@@ -8856,7 +8775,7 @@
       "source_file": "src/modules/transactions/dev/sample-data-helper.ts",
       "source_location": "L7",
       "id": "dev_sample_data_helper_createsampletransactions",
-      "community": 134,
+      "community": 34,
       "norm_label": "createsampletransactions()"
     },
     {
@@ -9432,7 +9351,7 @@
       "source_file": "src/modules/transactions/services/create-credit-card-payment.ts",
       "source_location": "L17",
       "id": "services_create_credit_card_payment_createcreditcardpaymentusecase",
-      "community": 134,
+      "community": 34,
       "norm_label": "createcreditcardpaymentusecase"
     },
     {
@@ -9441,7 +9360,7 @@
       "source_file": "src/modules/transactions/services/create-credit-card-payment.ts",
       "source_location": "L18",
       "id": "services_create_credit_card_payment_createcreditcardpaymentusecase_constructor",
-      "community": 134,
+      "community": 34,
       "norm_label": ".constructor()"
     },
     {
@@ -9450,7 +9369,7 @@
       "source_file": "src/modules/transactions/services/create-credit-card-payment.ts",
       "source_location": "L23",
       "id": "services_create_credit_card_payment_createcreditcardpaymentusecase_execute",
-      "community": 134,
+      "community": 34,
       "norm_label": ".execute()"
     },
     {
@@ -9468,7 +9387,7 @@
       "source_file": "src/modules/transactions/services/create-transaction.ts",
       "source_location": "L17",
       "id": "services_create_transaction_createtransactionusecase",
-      "community": 134,
+      "community": 34,
       "norm_label": "createtransactionusecase"
     },
     {
@@ -9477,7 +9396,7 @@
       "source_file": "src/modules/transactions/services/create-transaction.ts",
       "source_location": "L18",
       "id": "services_create_transaction_createtransactionusecase_constructor",
-      "community": 134,
+      "community": 34,
       "norm_label": ".constructor()"
     },
     {
@@ -9684,7 +9603,7 @@
       "source_file": "src/modules/transactions/services/update-transaction.ts",
       "source_location": "L17",
       "id": "services_update_transaction_updatetransactionusecase",
-      "community": 11,
+      "community": 134,
       "norm_label": "updatetransactionusecase"
     },
     {
@@ -9693,7 +9612,7 @@
       "source_file": "src/modules/transactions/services/update-transaction.ts",
       "source_location": "L18",
       "id": "services_update_transaction_updatetransactionusecase_constructor",
-      "community": 79,
+      "community": 134,
       "norm_label": ".constructor()"
     },
     {
@@ -11322,7 +11241,7 @@
       "source_file": "src/shared/context/CurrencyContext.tsx",
       "source_location": "L62",
       "id": "context_currencycontext_usecurrency",
-      "community": 8,
+      "community": 11,
       "norm_label": "usecurrency()"
     },
     {
@@ -13257,7 +13176,7 @@
       "source_file": "src/tests/transactions-ui.test.ts",
       "source_location": "L1",
       "id": "src_tests_transactions_ui_test_ts",
-      "community": 11,
+      "community": 134,
       "norm_label": "transactions-ui.test.ts"
     },
     {
@@ -13266,7 +13185,7 @@
       "source_file": "src/tests/transactions-ui.test.ts",
       "source_location": "L29",
       "id": "tests_transactions_ui_test_walletrow",
-      "community": 11,
+      "community": 134,
       "norm_label": "walletrow"
     },
     {
@@ -13275,7 +13194,7 @@
       "source_file": "src/tests/transactions-ui.test.ts",
       "source_location": "L47",
       "id": "tests_transactions_ui_test_mockdb",
-      "community": 11,
+      "community": 134,
       "norm_label": "mockdb"
     },
     {
@@ -13284,7 +13203,7 @@
       "source_file": "src/tests/transactions-ui.test.ts",
       "source_location": "L55",
       "id": "tests_transactions_ui_test_makebaseinput",
-      "community": 11,
+      "community": 134,
       "norm_label": "makebaseinput()"
     },
     {
@@ -13293,7 +13212,7 @@
       "source_file": "src/tests/transactions-ui.test.ts",
       "source_location": "L66",
       "id": "tests_transactions_ui_test_existingwithreceipt",
-      "community": 11,
+      "community": 134,
       "norm_label": "existingwithreceipt"
     },
     {
@@ -13302,7 +13221,7 @@
       "source_file": "src/tests/transactions-ui.test.ts",
       "source_location": "L80",
       "id": "tests_transactions_ui_test_existingnoreceipt",
-      "community": 11,
+      "community": 134,
       "norm_label": "existingnoreceipt"
     },
     {
@@ -13311,7 +13230,7 @@
       "source_file": "src/tests/transactions-ui.test.ts",
       "source_location": "L137",
       "id": "tests_transactions_ui_test_input",
-      "community": 11,
+      "community": 134,
       "norm_label": "input"
     },
     {
@@ -13320,7 +13239,7 @@
       "source_file": "src/tests/transactions-ui.test.ts",
       "source_location": "L239",
       "id": "tests_transactions_ui_test_mockrepo",
-      "community": 11,
+      "community": 134,
       "norm_label": "mockrepo"
     },
     {
@@ -13329,7 +13248,7 @@
       "source_file": "src/tests/transactions-ui.test.ts",
       "source_location": "L242",
       "id": "tests_transactions_ui_test_createusecase",
-      "community": 11,
+      "community": 134,
       "norm_label": "createusecase"
     },
     {
@@ -14989,6 +14908,87 @@
       "norm_label": "current app position"
     },
     {
+      "label": "config.json",
+      "file_type": "code",
+      "source_file": ".codegraph/config.json",
+      "source_location": "L1",
+      "community": 36,
+      "norm_label": "config.json",
+      "id": "codegraph_config_json"
+    },
+    {
+      "label": "version",
+      "file_type": "code",
+      "source_file": ".codegraph/config.json",
+      "source_location": "L2",
+      "community": 36,
+      "norm_label": "version",
+      "id": "codegraph_config_version"
+    },
+    {
+      "label": "include",
+      "file_type": "code",
+      "source_file": ".codegraph/config.json",
+      "source_location": "L3",
+      "community": 36,
+      "norm_label": "include",
+      "id": "codegraph_config_include"
+    },
+    {
+      "label": "exclude",
+      "file_type": "code",
+      "source_file": ".codegraph/config.json",
+      "source_location": "L39",
+      "community": 36,
+      "norm_label": "exclude",
+      "id": "codegraph_config_exclude"
+    },
+    {
+      "label": "languages",
+      "file_type": "code",
+      "source_file": ".codegraph/config.json",
+      "source_location": "L140",
+      "community": 36,
+      "norm_label": "languages",
+      "id": "codegraph_config_languages"
+    },
+    {
+      "label": "frameworks",
+      "file_type": "code",
+      "source_file": ".codegraph/config.json",
+      "source_location": "L141",
+      "community": 36,
+      "norm_label": "frameworks",
+      "id": "codegraph_config_frameworks"
+    },
+    {
+      "label": "maxFileSize",
+      "file_type": "code",
+      "source_file": ".codegraph/config.json",
+      "source_location": "L142",
+      "community": 36,
+      "norm_label": "maxfilesize",
+      "id": "codegraph_config_maxfilesize"
+    },
+    {
+      "label": "extractDocstrings",
+      "file_type": "code",
+      "source_file": ".codegraph/config.json",
+      "source_location": "L143",
+      "community": 36,
+      "norm_label": "extractdocstrings",
+      "id": "codegraph_config_extractdocstrings"
+    },
+    {
+      "label": "trackCallSites",
+      "file_type": "code",
+      "source_file": ".codegraph/config.json",
+      "source_location": "L144",
+      "community": 36,
+      "norm_label": "trackcallsites",
+      "id": "codegraph_config_trackcallsites"
+    },
+    {
       "label": "renderOutsideLabel()",
       "file_type": "code",
       "source_file": "src/modules/reports/components/ReportDonutCard.tsx",
@@ -16532,7 +16532,7 @@
       "file_type": "code",
       "source_file": "src/modules/loans/domain/loan.schema.ts",
       "source_location": "L1",
-      "community": 106,
+      "community": 73,
       "norm_label": "loan.schema.ts",
       "id": "domain_loan_schema"
     },
@@ -16604,7 +16604,7 @@
       "file_type": "code",
       "source_file": "src/modules/loans/services/cancel-loan.ts",
       "source_location": "L1",
-      "community": 111,
+      "community": 76,
       "norm_label": "cancel-loan.ts",
       "id": "services_cancel_loan"
     },
@@ -16793,7 +16793,7 @@
       "file_type": "code",
       "source_file": "src/modules/reports/components/CashflowBarChart.tsx",
       "source_location": "L1",
-      "community": 8,
+      "community": 11,
       "norm_label": "cashflowbarchart.tsx",
       "id": "components_cashflowbarchart"
     },
@@ -16820,7 +16820,7 @@
       "file_type": "code",
       "source_file": "src/modules/reports/components/ReportSummaryCards.tsx",
       "source_location": "L1",
-      "community": 8,
+      "community": 11,
       "norm_label": "reportsummarycards.tsx",
       "id": "components_reportsummarycards"
     },
@@ -17018,7 +17018,7 @@
       "file_type": "code",
       "source_file": "src/modules/transactions/dev/sample-data-helper.ts",
       "source_location": "L1",
-      "community": 134,
+      "community": 34,
       "norm_label": "sample-data-helper.ts",
       "id": "dev_sample_data_helper"
     },
@@ -17801,7 +17801,7 @@
       "file_type": "code",
       "source_file": "src/tests/transactions-ui.test.ts",
       "source_location": "L1",
-      "community": 11,
+      "community": 134,
       "norm_label": "transactions-ui.test.ts",
       "id": "tests_transactions_ui_test"
     },
@@ -19871,166 +19871,6 @@
       "confidence_score": 1,
       "source": "d_personal_project_taixiucanhan_version_config_json",
       "target": "taixiucanhan_version_config_comment"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": ".codegraph/config.json",
-      "source_location": "L2",
-      "weight": 1,
-      "confidence_score": 1,
-      "source": "codegraph_config_json",
-      "target": "codegraph_config_version"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": ".codegraph/config.json",
-      "source_location": "L3",
-      "weight": 1,
-      "confidence_score": 1,
-      "source": "codegraph_config_json",
-      "target": "codegraph_config_include"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": ".codegraph/config.json",
-      "source_location": "L39",
-      "weight": 1,
-      "confidence_score": 1,
-      "source": "codegraph_config_json",
-      "target": "codegraph_config_exclude"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": ".codegraph/config.json",
-      "source_location": "L140",
-      "weight": 1,
-      "confidence_score": 1,
-      "source": "codegraph_config_json",
-      "target": "codegraph_config_languages"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": ".codegraph/config.json",
-      "source_location": "L141",
-      "weight": 1,
-      "confidence_score": 1,
-      "source": "codegraph_config_json",
-      "target": "codegraph_config_frameworks"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": ".codegraph/config.json",
-      "source_location": "L142",
-      "weight": 1,
-      "confidence_score": 1,
-      "source": "codegraph_config_json",
-      "target": "codegraph_config_maxfilesize"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": ".codegraph/config.json",
-      "source_location": "L143",
-      "weight": 1,
-      "confidence_score": 1,
-      "source": "codegraph_config_json",
-      "target": "codegraph_config_extractdocstrings"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": ".codegraph/config.json",
-      "source_location": "L144",
-      "weight": 1,
-      "confidence_score": 1,
-      "source": "codegraph_config_json",
-      "target": "codegraph_config_trackcallsites"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": ".codegraph/config.json",
-      "source_location": "L2",
-      "weight": 1,
-      "confidence_score": 1,
-      "source": "codegraph_config",
-      "target": "codegraph_config_version"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": ".codegraph/config.json",
-      "source_location": "L3",
-      "weight": 1,
-      "confidence_score": 1,
-      "source": "codegraph_config",
-      "target": "codegraph_config_include"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": ".codegraph/config.json",
-      "source_location": "L39",
-      "weight": 1,
-      "confidence_score": 1,
-      "source": "codegraph_config",
-      "target": "codegraph_config_exclude"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": ".codegraph/config.json",
-      "source_location": "L140",
-      "weight": 1,
-      "confidence_score": 1,
-      "source": "codegraph_config",
-      "target": "codegraph_config_languages"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": ".codegraph/config.json",
-      "source_location": "L141",
-      "weight": 1,
-      "confidence_score": 1,
-      "source": "codegraph_config",
-      "target": "codegraph_config_frameworks"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": ".codegraph/config.json",
-      "source_location": "L142",
-      "weight": 1,
-      "confidence_score": 1,
-      "source": "codegraph_config",
-      "target": "codegraph_config_maxfilesize"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": ".codegraph/config.json",
-      "source_location": "L143",
-      "weight": 1,
-      "confidence_score": 1,
-      "source": "codegraph_config",
-      "target": "codegraph_config_extractdocstrings"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": ".codegraph/config.json",
-      "source_location": "L144",
-      "weight": 1,
-      "confidence_score": 1,
-      "source": "codegraph_config",
-      "target": "codegraph_config_trackcallsites"
     },
     {
       "relation": "imports",
@@ -80768,6 +80608,166 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
+      "source_file": ".codegraph/config.json",
+      "source_location": "L2",
+      "weight": 1,
+      "confidence_score": 1,
+      "source": "codegraph_config_json",
+      "target": "codegraph_config_version"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".codegraph/config.json",
+      "source_location": "L3",
+      "weight": 1,
+      "confidence_score": 1,
+      "source": "codegraph_config_json",
+      "target": "codegraph_config_include"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".codegraph/config.json",
+      "source_location": "L39",
+      "weight": 1,
+      "confidence_score": 1,
+      "source": "codegraph_config_json",
+      "target": "codegraph_config_exclude"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".codegraph/config.json",
+      "source_location": "L140",
+      "weight": 1,
+      "confidence_score": 1,
+      "source": "codegraph_config_json",
+      "target": "codegraph_config_languages"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".codegraph/config.json",
+      "source_location": "L141",
+      "weight": 1,
+      "confidence_score": 1,
+      "source": "codegraph_config_json",
+      "target": "codegraph_config_frameworks"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".codegraph/config.json",
+      "source_location": "L142",
+      "weight": 1,
+      "confidence_score": 1,
+      "source": "codegraph_config_json",
+      "target": "codegraph_config_maxfilesize"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".codegraph/config.json",
+      "source_location": "L143",
+      "weight": 1,
+      "confidence_score": 1,
+      "source": "codegraph_config_json",
+      "target": "codegraph_config_extractdocstrings"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".codegraph/config.json",
+      "source_location": "L144",
+      "weight": 1,
+      "confidence_score": 1,
+      "source": "codegraph_config_json",
+      "target": "codegraph_config_trackcallsites"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".codegraph/config.json",
+      "source_location": "L2",
+      "weight": 1,
+      "confidence_score": 1,
+      "source": "codegraph_config",
+      "target": "codegraph_config_version"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".codegraph/config.json",
+      "source_location": "L3",
+      "weight": 1,
+      "confidence_score": 1,
+      "source": "codegraph_config",
+      "target": "codegraph_config_include"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".codegraph/config.json",
+      "source_location": "L39",
+      "weight": 1,
+      "confidence_score": 1,
+      "source": "codegraph_config",
+      "target": "codegraph_config_exclude"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".codegraph/config.json",
+      "source_location": "L140",
+      "weight": 1,
+      "confidence_score": 1,
+      "source": "codegraph_config",
+      "target": "codegraph_config_languages"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".codegraph/config.json",
+      "source_location": "L141",
+      "weight": 1,
+      "confidence_score": 1,
+      "source": "codegraph_config",
+      "target": "codegraph_config_frameworks"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".codegraph/config.json",
+      "source_location": "L142",
+      "weight": 1,
+      "confidence_score": 1,
+      "source": "codegraph_config",
+      "target": "codegraph_config_maxfilesize"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".codegraph/config.json",
+      "source_location": "L143",
+      "weight": 1,
+      "confidence_score": 1,
+      "source": "codegraph_config",
+      "target": "codegraph_config_extractdocstrings"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".codegraph/config.json",
+      "source_location": "L144",
+      "weight": 1,
+      "confidence_score": 1,
+      "source": "codegraph_config",
+      "target": "codegraph_config_trackcallsites"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
       "source_file": "src/modules/reports/components/ReportDonutCard.tsx",
       "source_location": "L33",
       "weight": 1,
@@ -90224,5 +90224,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "08fd416f76b85bdb15d6be7fbf8fca31ed362b5d"
+  "built_at_commit": "7e4a535cfd5e227c9700f9b4e17b694726f20f49"
 }

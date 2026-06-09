@@ -83,7 +83,7 @@ export function WalletList({
     <div style={{ padding: '16px', paddingBottom: '90px' }}>
       {/* Total balance header */}
       <div
-        className="rounded-2xl p-5 mb-5"
+        className="sticky top-0 z-10 rounded-2xl p-5 mb-5"
         style={{
           background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
           boxShadow: '0 4px 20px rgba(99,102,241,0.35)',

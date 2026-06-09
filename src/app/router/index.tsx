@@ -37,6 +37,7 @@ export const router = createBrowserRouter([
       { path: ROUTES.RECURRING_BILLS_NEW, element: <AddRecurringBillPage /> },
       { path: ROUTES.RECURRING_BILLS_EDIT, element: <EditRecurringBillPage /> },
       { path: ROUTES.LOANS, element: <LoanListPage /> },
+      { path: ROUTES.LOANS_NEW, element: <LoanListPage /> },
       { path: ROUTES.LOANS_DETAIL, element: <LoanDetailPage /> },
       { path: ROUTES.BACKUP,          element: <BackupPage /> },
       { path: ROUTES.EXPORT,          element: <ExportPage /> },

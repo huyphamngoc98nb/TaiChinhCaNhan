@@ -13,6 +13,7 @@ export const ROUTES = {
   RECURRING_BILLS_NEW: '/recurring-bills/new',
   RECURRING_BILLS_EDIT: '/recurring-bills/:id/edit',
   LOANS: '/loans',
+  LOANS_NEW: '/loans/new',
   LOANS_DETAIL: '/loans/:id',
   BACKUP: '/backup',
   EXPORT: '/export',

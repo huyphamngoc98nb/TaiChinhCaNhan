@@ -48,6 +48,7 @@ const CONTEXTUAL_ADD_ROUTES: Array<{
   { route: ROUTES.WALLETS, addRoute: { to: ROUTES.WALLETS_NEW, navIndex: 4 } },
   { route: ROUTES.CATEGORIES, addRoute: { to: ROUTES.CATEGORIES_NEW, navIndex: 4 } },
   { route: ROUTES.RECURRING_BILLS, addRoute: { to: ROUTES.RECURRING_BILLS_NEW, navIndex: 4 } },
+  { route: ROUTES.LOANS, addRoute: { to: ROUTES.LOANS_NEW, navIndex: 4 } },
 ];
 
 const DASHBOARD_WITH_DRAWER_BACK_ROUTES = new Set<string>([

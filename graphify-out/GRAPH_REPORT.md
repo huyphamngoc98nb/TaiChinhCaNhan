@@ -1,16 +1,16 @@
-# Graph Report - TaiXiuCaNhan  (2026-06-08)
+# Graph Report - TaiXiuCaNhan  (2026-06-09)
 
 ## Corpus Check
-- 306 files · ~109,437 words
+- 305 files · ~109,268 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 2073 nodes · 6714 edges · 134 communities (125 shown, 9 thin omitted)
+- 2073 nodes · 6714 edges · 135 communities (126 shown, 9 thin omitted)
 - Extraction: 100% EXTRACTED · 0% INFERRED · 0% AMBIGUOUS · INFERRED: 10 edges (avg confidence: 0.8)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `08fd416f`
+- Built from commit: `7e4a535c`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -49,6 +49,7 @@
 - [[_COMMUNITY_Community 31|Community 31]]
 - [[_COMMUNITY_Community 32|Community 32]]
 - [[_COMMUNITY_Community 33|Community 33]]
+- [[_COMMUNITY_Community 34|Community 34]]
 - [[_COMMUNITY_Community 35|Community 35]]
 - [[_COMMUNITY_Community 36|Community 36]]
 - [[_COMMUNITY_Community 37|Community 37]]
@@ -143,7 +144,7 @@
 - `exportToPdf()` --calls--> `formatDate()`  [INFERRED]
   src/modules/export/services/export-pdf.ts → src/modules/loans/components/LoanCard.tsx
 
-## Communities (134 total, 9 thin omitted)
+## Communities (135 total, 9 thin omitted)
 
 ### Community 0 - "Community 0"
 Cohesion: 0.07
@@ -178,8 +179,8 @@ Cohesion: 0.09
 Nodes (22): compilerOptions, allowImportingTsExtensions, isolatedModules, jsx, lib, module, moduleResolution, noEmit (+14 more)
 
 ### Community 8 - "Community 8"
-Cohesion: 0.16
-Nodes (22): CashflowBarChart(), Props, percentChange(), Props, ReportSummaryCards(), Props, TransactionItem(), DaySummaryRow (+14 more)
+Cohesion: 0.27
+Nodes (11): Props, TransactionItem(), DaySummaryRow, MonthSummaryRow, Props, QuarterSummaryRow, SummaryRow, TransactionList() (+3 more)
 
 ### Community 9 - "Community 9"
 Cohesion: 0.07
@@ -190,8 +191,8 @@ Cohesion: 0.18
 Nodes (23): ACCOUNT_TYPES, ACTIVE_FLAGS, BACKUP_SCHEMAS, BILL_FREQUENCIES, BUDGET_PERIODS, CATEGORY_TYPES, FieldRule, FieldType (+15 more)
 
 ### Community 11 - "Community 11"
-Cohesion: 0.18
-Nodes (10): ReceiptStorageService, UpdateTransactionUseCase, createUseCase, existingNoReceipt, existingWithReceipt, input, makeBaseInput(), mockDb (+2 more)
+Cohesion: 0.28
+Nodes (11): CashflowBarChart(), Props, percentChange(), Props, ReportSummaryCards(), useCurrency(), CashflowSummary, PeriodSummary (+3 more)
 
 ### Community 12 - "Community 12"
 Cohesion: 0.14
@@ -281,6 +282,10 @@ Nodes (13): compilerOptions, allowImportingTsExtensions, composite, isolatedModu
 Cohesion: 0.23
 Nodes (12): category(), { deps, loanUpdateLoan }, { deps, loanUpdateLoan, transactionCreate, transactionSoftDelete }, { deps, loanUpdateLoan, walletGetById }, { deps, walletGetById }, generateUUIDMock, input(), makeDeps() (+4 more)
 
+### Community 34 - "Community 34"
+Cohesion: 0.29
+Nodes (3): createSampleTransactions(), CreateCreditCardPaymentUseCase, CreateTransactionUseCase
+
 ### Community 35 - "Community 35"
 Cohesion: 0.18
 Nodes (9): Application Architecture, Code Graph, code:mermaid (flowchart TB), code:mermaid (flowchart LR), code:mermaid (flowchart TB), code:mermaid (flowchart LR), Navigation Routes, Reports Data Flow (+1 more)
@@ -342,19 +347,19 @@ Cohesion: 0.48
 Nodes (5): bundleVersion, _comment, minNativeVersionCodeForBundle, nativeVersionCode, nativeVersionName
 
 ### Community 73 - "Community 73"
-Cohesion: 0.31
-Nodes (8): baseInput(), category(), { deps, loanCreateLoan, loanUpdateLoan, transactionCreate }, { deps, loanCreateLoan, transactionCreate }, { deps, transactionCreate }, generateUUIDMock, makeDeps(), wallet
+Cohesion: 0.19
+Nodes (14): CreateLoanPaymentInput, LOAN_TYPES, LoanValidationError, validateCreateLoan(), validateLoanFields(), validateUpdateLoan(), baseInput(), category() (+6 more)
 
 ### Community 76 - "Community 76"
 Cohesion: 0.20
-Nodes (17): loanListDeps, loanMutationDeps, loanServiceDeps, UpdateLoanInput, emitLoanEvent(), toError(), useLoanMutations(), formatIsoDate() (+9 more)
+Nodes (16): loanListDeps, loanMutationDeps, loanServiceDeps, UpdateLoanInput, emitLoanEvent(), toError(), useLoanMutations(), formatIsoDate() (+8 more)
 
 ### Community 78 - "Community 78"
 Cohesion: 0.67
 Nodes (3): code:bash (python3 -m graphify.serve graphify-out/graph.json), code:json ({), Step 7d - MCP server (only if --mcp flag)
 
 ### Community 79 - "Community 79"
-Cohesion: 0.11
+Cohesion: 0.12
 Nodes (19): immediateTransactionRunner(), sqliteTransactionRunner(), TransactionRunner, DeleteTransactionUseCase, createUseCase, deleteUseCase, FailingTransactionRepository, input (+11 more)
 
 ### Community 82 - "Community 82"
@@ -410,8 +415,8 @@ Cohesion: 0.24
 Nodes (7): ENV, isLogOptions(), Logger, LogOptions, normalizeError(), normalizeMetadata(), toSafeLogValue()
 
 ### Community 106 - "Community 106"
-Cohesion: 0.17
-Nodes (23): CreateLoanPaymentInput, LOAN_TYPES, LoanValidationError, validateCreateLoan(), validateCreateLoanPayment(), validateLoanFields(), validateUpdateLoan(), addLoanPayment() (+15 more)
+Cohesion: 0.23
+Nodes (18): validateCreateLoanPayment(), ILoanRepository, addLoanPayment(), AddLoanPaymentDeps, LoanPaymentExceedError, PAYMENT_CATEGORY, categoryKeySet(), createLoan() (+10 more)
 
 ### Community 107 - "Community 107"
 Cohesion: 0.22
@@ -430,8 +435,8 @@ Cohesion: 0.17
 Nodes (16): importBackupJson(), readBackupFile(), restoreDatabase(), assertBackupPayload(), normalizeBackupPayload(), file, invalid, legacyPayload (+8 more)
 
 ### Community 111 - "Community 111"
-Cohesion: 0.17
-Nodes (21): Loan, LoanFilter, LoanWithSummary, EMPTY_LOAN_FILTER, useLoans(), FILTER_TABS, filterFromTab(), FilterTab (+13 more)
+Cohesion: 0.16
+Nodes (20): LoanFilter, LoanWithSummary, EMPTY_LOAN_FILTER, useLoans(), FILTER_TABS, filterFromTab(), FilterTab, SwipeableLoanRow() (+12 more)
 
 ### Community 112 - "Community 112"
 Cohesion: 0.11
@@ -462,8 +467,8 @@ Cohesion: 0.22
 Nodes (10): dateInputValue(), DateRangePicker(), endOfInputDate(), Props, startOfInputDate(), DateRangePreset, renderLoanForm(), onGranularityChange (+2 more)
 
 ### Community 120 - "Community 120"
-Cohesion: 0.44
-Nodes (8): mapBooleanFlag(), mapToLoan(), mapToLoanPayment(), mapToLoanWithSummary(), LoanPayment, loanPaymentRowToArray(), loanRowToArray(), loanWithSummaryRowToArray()
+Cohesion: 0.42
+Nodes (9): mapBooleanFlag(), mapToLoan(), mapToLoanPayment(), mapToLoanWithSummary(), Loan, LoanPayment, loanPaymentRowToArray(), loanRowToArray() (+1 more)
 
 ### Community 121 - "Community 121"
 Cohesion: 0.23
@@ -518,8 +523,8 @@ Cohesion: 0.53
 Nodes (4): formatDaysDiff(), Props, RecurringBillReminderBanner(), STATUS_CONFIG
 
 ### Community 134 - "Community 134"
-Cohesion: 0.29
-Nodes (3): createSampleTransactions(), CreateCreditCardPaymentUseCase, CreateTransactionUseCase
+Cohesion: 0.16
+Nodes (10): ReceiptStorageService, UpdateTransactionUseCase, createUseCase, existingNoReceipt, existingWithReceipt, input, makeBaseInput(), mockDb (+2 more)
 
 ## Knowledge Gaps
 - **451 isolated node(s):** `config`, `dev`, `build`, `typecheck`, `lint` (+446 more)
@@ -529,12 +534,12 @@ Nodes (3): createSampleTransactions(), CreateCreditCardPaymentUseCase, CreateTra
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `useLanguage()` connect `Community 107` to `Community 128`, `Community 4`, `Community 8`, `Community 9`, `Community 13`, `Community 23`, `Community 29`, `Community 87`, `Community 88`, `Community 96`, `Community 98`, `Community 99`, `Community 108`, `Community 109`, `Community 115`, `Community 116`, `Community 119`, `Community 122`, `Community 126`?**
-  _High betweenness centrality (0.097) - this node is a cross-community bridge._
-- **Why does `getDbConnection()` connect `Community 5` to `Community 1`, `Community 4`, `Community 11`, `Community 108`, `Community 13`, `Community 110`, `Community 48`, `Community 84`, `Community 85`, `Community 118`, `Community 23`, `Community 120`, `Community 89`, `Community 22`, `Community 88`, `Community 126`, `Community 127`?**
-  _High betweenness centrality (0.067) - this node is a cross-community bridge._
+- **Why does `useLanguage()` connect `Community 107` to `Community 128`, `Community 4`, `Community 8`, `Community 9`, `Community 11`, `Community 13`, `Community 23`, `Community 29`, `Community 87`, `Community 88`, `Community 96`, `Community 98`, `Community 99`, `Community 108`, `Community 109`, `Community 115`, `Community 116`, `Community 119`, `Community 122`, `Community 126`?**
+  _High betweenness centrality (0.094) - this node is a cross-community bridge._
+- **Why does `getDbConnection()` connect `Community 5` to `Community 1`, `Community 4`, `Community 134`, `Community 108`, `Community 13`, `Community 110`, `Community 48`, `Community 84`, `Community 85`, `Community 118`, `Community 23`, `Community 120`, `Community 89`, `Community 22`, `Community 88`, `Community 126`, `Community 127`?**
+  _High betweenness centrality (0.051) - this node is a cross-community bridge._
 - **Why does `Wallet` connect `Community 112` to `Community 33`, `Community 5`, `Community 73`, `Community 9`, `Community 79`, `Community 113`, `Community 115`, `Community 86`, `Community 23`, `Community 22`, `Community 122`, `Community 124`, `Community 125`?**
-  _High betweenness centrality (0.035) - this node is a cross-community bridge._
+  _High betweenness centrality (0.044) - this node is a cross-community bridge._
 - **What connects `config`, `dev`, `build` to the rest of the system?**
   _451 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `Community 0` be split into smaller, more focused modules?**
