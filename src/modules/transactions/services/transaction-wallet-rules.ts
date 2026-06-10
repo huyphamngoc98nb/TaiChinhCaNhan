@@ -30,25 +30,21 @@ export function assertCreateTransactionFunding(
   type: CreateTransactionInput['type'],
   amount: number,
 ) {
-  const isCreditCardExpense = type === 'expense' && wallet.account_type === 'credit_card';
+  const isCreditCardDebit =
+    (type === 'expense' || type === 'transfer') && wallet.account_type === 'credit_card';
 
-  if (
-    (type === 'expense' || type === 'transfer') &&
-    !isCreditCardExpense &&
-    wallet.balance < amount
-  ) {
-    throw new TransactionValidationError([
-      `Insufficient balance: available ${wallet.balance}, required ${amount}`,
-    ]);
+  if (isCreditCardDebit) {
+    if (wallet.credit_limit != null && wallet.credit_limit + wallet.balance < amount) {
+      throw new TransactionValidationError([
+        `Insufficient credit: available ${wallet.credit_limit + wallet.balance}, required ${amount}`,
+      ]);
+    }
+    return;
   }
 
-  if (
-    isCreditCardExpense &&
-    wallet.credit_limit != null &&
-    wallet.credit_limit + wallet.balance < amount
-  ) {
+  if ((type === 'expense' || type === 'transfer') && wallet.balance < amount) {
     throw new TransactionValidationError([
-      `Insufficient credit: available ${wallet.credit_limit + wallet.balance}, required ${amount}`,
+      `Insufficient balance: available ${wallet.balance}, required ${amount}`,
     ]);
   }
 }

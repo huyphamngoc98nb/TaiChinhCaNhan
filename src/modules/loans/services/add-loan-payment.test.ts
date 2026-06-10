@@ -289,4 +289,28 @@ describe('addLoanPayment', () => {
 
     expect(updateBalanceDelta).not.toHaveBeenCalled();
   });
+
+  it('should reject second concurrent payment when remaining is insufficient after first payment', async () => {
+    const { deps, updateBalanceDelta } = makeDeps('lend');
+    vi.mocked(deps.loanRepo.getTotalPaid)
+      .mockResolvedValueOnce(0)
+      .mockResolvedValueOnce(950_000);
+
+    const firstPayment = addLoanPayment({
+      loan_id: 'loan-1',
+      wallet_id: wallet.id,
+      amount: 950_000,
+      payment_date: Date.now(),
+    }, deps);
+    const secondPayment = addLoanPayment({
+      loan_id: 'loan-1',
+      wallet_id: wallet.id,
+      amount: 100_000,
+      payment_date: Date.now(),
+    }, deps);
+
+    await expect(firstPayment).resolves.toMatchObject({ amount: 950_000 });
+    await expect(secondPayment).rejects.toBeInstanceOf(LoanPaymentExceedError);
+    expect(updateBalanceDelta).toHaveBeenCalledTimes(1);
+  });
 });

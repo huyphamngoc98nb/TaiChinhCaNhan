@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 import type { Transaction } from '@/modules/transactions/domain/transaction.model';
 import type { ITransactionRepository } from '@/modules/transactions/repositories/transaction.repository';
 import type { IWalletRepository } from '@/modules/wallets/repositories/wallet.repository';
-import type { LoanWithSummary } from '../domain/loan.model';
+import type { LoanPayment, LoanWithSummary } from '../domain/loan.model';
 import type { ILoanRepository } from '../repositories/loan.repository';
 import { deleteLoan, LoanHasPaymentsError, type DeleteLoanDeps } from './delete-loan';
 
@@ -50,6 +50,19 @@ function linkedTransaction(overrides: Partial<Transaction> = {}): Transaction {
   };
 }
 
+function payment(overrides: Partial<LoanPayment> = {}): LoanPayment {
+  return {
+    id: 'payment-1',
+    loan_id: 'loan-1',
+    wallet_id: 'wallet-1',
+    amount: 300_000,
+    payment_date: 1_000,
+    note: null,
+    created_at: 0,
+    ...overrides,
+  };
+}
+
 function makeDeps(
   loanOverrides: Partial<ILoanRepository> = {},
   transaction: Transaction | null = linkedTransaction()
@@ -63,7 +76,7 @@ function makeDeps(
     softDeleteLoan: vi.fn(async () => true),
     hardDeleteLoan: vi.fn(async () => true),
     createPayment: vi.fn(),
-    listPayments: vi.fn(),
+    listPayments: vi.fn(async () => []),
     getTotalPaid: vi.fn(async () => 0),
     ...loanOverrides,
   };
@@ -153,6 +166,101 @@ describe('deleteLoan', () => {
       1_000_000,
       expect.any(Number)
     );
+    expect(deps.loanRepo.hardDeleteLoan).toHaveBeenCalledWith('loan-1');
+  });
+
+  it('force hard deletes an unsettled lend loan with payments and reverts payment balance deltas', async () => {
+    const deps = makeDeps({
+      getTotalPaid: vi.fn(async () => 300_000),
+      listPayments: vi.fn(async () => [payment({ wallet_id: 'wallet-1', amount: 300_000 })]),
+    });
+
+    await deleteLoan('loan-1', 'hard', deps, { force: true });
+
+    expect(deps.transactionRepo.softDelete).toHaveBeenCalledWith('transaction-1', expect.any(Number));
+    expect(deps.walletRepo.updateBalanceDelta).toHaveBeenNthCalledWith(
+      1,
+      'wallet-1',
+      1_000_000,
+      expect.any(Number)
+    );
+    expect(deps.walletRepo.updateBalanceDelta).toHaveBeenNthCalledWith(
+      2,
+      'wallet-1',
+      -300_000,
+      expect.any(Number)
+    );
+    expect(deps.loanRepo.hardDeleteLoan).toHaveBeenCalledWith('loan-1');
+  });
+
+  it('force hard deletes an unsettled borrow loan with payments and reverts payment balance deltas', async () => {
+    const deps = makeDeps({
+      getLoanById: vi.fn(async () => loan({ type: 'borrow' })),
+      getTotalPaid: vi.fn(async () => 200_000),
+      listPayments: vi.fn(async () => [payment({ wallet_id: 'wallet-2', amount: 200_000 })]),
+    }, linkedTransaction({
+      category_id: 'cat-vay-no',
+      type: 'income',
+      note: 'Vay n峄? Nguyen Van A',
+    }));
+
+    await deleteLoan('loan-1', 'hard', deps, { force: true });
+
+    expect(deps.walletRepo.updateBalanceDelta).toHaveBeenNthCalledWith(
+      1,
+      'wallet-1',
+      -1_000_000,
+      expect.any(Number)
+    );
+    expect(deps.walletRepo.updateBalanceDelta).toHaveBeenNthCalledWith(
+      2,
+      'wallet-2',
+      200_000,
+      expect.any(Number)
+    );
+    expect(deps.loanRepo.hardDeleteLoan).toHaveBeenCalledWith('loan-1');
+  });
+
+  it('force hard deletes loan with multiple payments and reverts all payment balance deltas', async () => {
+    const deps = makeDeps({
+      getTotalPaid: vi.fn(async () => 500_000),
+      listPayments: vi.fn(async () => [
+        payment({ id: 'p1', wallet_id: 'wallet-1', amount: 200_000 }),
+        payment({ id: 'p2', wallet_id: 'wallet-2', amount: 300_000 }),
+      ]),
+    });
+
+    await deleteLoan('loan-1', 'hard', deps, { force: true });
+
+    expect(deps.walletRepo.updateBalanceDelta).toHaveBeenCalledTimes(3);
+    expect(deps.walletRepo.updateBalanceDelta).toHaveBeenCalledWith(
+      'wallet-1',
+      -200_000,
+      expect.any(Number)
+    );
+    expect(deps.walletRepo.updateBalanceDelta).toHaveBeenCalledWith(
+      'wallet-2',
+      -300_000,
+      expect.any(Number)
+    );
+    expect(deps.loanRepo.hardDeleteLoan).toHaveBeenCalledWith('loan-1');
+  });
+
+  it('does NOT revert payment balance deltas when hard deleting a settled loan', async () => {
+    const deps = makeDeps({
+      getLoanById: vi.fn(async () => loan({
+        status: 'settled',
+        paid_amount: 1_000_000,
+        remaining: 0,
+      })),
+      getTotalPaid: vi.fn(async () => 1_000_000),
+      listPayments: vi.fn(async () => [payment({ amount: 1_000_000 })]),
+    });
+
+    await deleteLoan('loan-1', 'hard', deps, { force: true });
+
+    expect(deps.loanRepo.listPayments).not.toHaveBeenCalled();
+    expect(deps.walletRepo.updateBalanceDelta).not.toHaveBeenCalled();
     expect(deps.loanRepo.hardDeleteLoan).toHaveBeenCalledWith('loan-1');
   });
 

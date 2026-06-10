@@ -41,16 +41,6 @@ export async function addLoanPayment(
     throw new Error('Khoản vay không còn hoạt động');
   }
 
-  const currentPaid = await deps.loanRepo.getTotalPaid(input.loan_id);
-  const remaining = Math.max(0, loan.principal - currentPaid);
-  if (input.amount > remaining) {
-    throw new LoanPaymentExceedError();
-  }
-
-  const paymentWallet = await deps.walletRepo.getById(input.wallet_id);
-  if (!paymentWallet) throw new Error('Wallet not found');
-  if (paymentWallet.is_active !== 1) throw new Error('Wallet is inactive');
-
   const categoryConfig = PAYMENT_CATEGORY[loan.type];
   const categoryId = await resolveLoanCategoryId(
     deps.categoryRepo,
@@ -61,21 +51,30 @@ export async function addLoanPayment(
   const now = Date.now();
   const paymentId = generateUUID();
   const transactionId = generateUUID();
-  const transactionType = loan.type === 'lend' ? 'income' : 'expense';
-  const transactionNote = input.note ?? (
-    loan.type === 'lend'
-      ? `Thu nợ: ${loan.contact_name}`
-      : `Trả nợ: ${loan.contact_name}`
-  );
 
   return runInTransaction(async () => {
+    const paymentWallet = await deps.walletRepo.getById(input.wallet_id);
+    if (!paymentWallet) throw new Error('Wallet not found');
+    if (paymentWallet.is_active !== 1) throw new Error('Wallet is inactive');
+
+    const currentPaid = await deps.loanRepo.getTotalPaid(input.loan_id);
+    const remaining = Math.max(0, loan.principal - currentPaid);
+    if (input.amount > remaining) {
+      throw new LoanPaymentExceedError();
+    }
+
     const payment = await deps.loanRepo.createPayment({
       ...input,
       id: paymentId,
       created_at: now,
     });
 
-    const newTotalPaid = currentPaid + input.amount;
+    const transactionType = loan.type === 'lend' ? 'income' : 'expense';
+    const transactionNote = input.note ?? (
+      loan.type === 'lend'
+        ? `Thu nợ: ${loan.contact_name}`
+        : `Trả nợ: ${loan.contact_name}`
+    );
 
     await deps.transactionRepo.create({
       id: transactionId,
@@ -97,6 +96,7 @@ export async function addLoanPayment(
       now
     );
 
+    const newTotalPaid = currentPaid + input.amount;
     if (newTotalPaid >= loan.principal) {
       await deps.loanRepo.updateLoanStatus(loan.id, 'settled', now);
     }

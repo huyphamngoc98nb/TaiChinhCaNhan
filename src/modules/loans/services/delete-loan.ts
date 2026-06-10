@@ -56,21 +56,33 @@ export async function deleteLoan(
     // An unsettled loan still represents an outstanding principal movement.
     // Remove its generated transaction and reverse that cached wallet balance
     // delta before deleting the loan. Settled loans keep their completed history.
-    if (!isSettled && loan.linked_transaction_id) {
-      const linkedTransaction = await deps.transactionRepo.getByIdIncludeDeleted(
-        loan.linked_transaction_id
-      );
+    if (!isSettled) {
+      if (loan.linked_transaction_id) {
+        const linkedTransaction = await deps.transactionRepo.getByIdIncludeDeleted(
+          loan.linked_transaction_id
+        );
 
-      if (linkedTransaction?.deleted_at === null) {
-        const wasDeleted = await deps.transactionRepo.softDelete(linkedTransaction.id, now);
+        if (linkedTransaction?.deleted_at === null) {
+          const wasDeleted = await deps.transactionRepo.softDelete(linkedTransaction.id, now);
 
-        if (wasDeleted) {
-          await deps.walletRepo.updateBalanceDelta(
-            linkedTransaction.wallet_id,
-            -getSourceDelta(linkedTransaction.type, linkedTransaction.amount),
-            now
-          );
+          if (wasDeleted) {
+            await deps.walletRepo.updateBalanceDelta(
+              linkedTransaction.wallet_id,
+              -getSourceDelta(linkedTransaction.type, linkedTransaction.amount),
+              now
+            );
+          }
         }
+      }
+
+      const paymentTransactionType = loan.type === 'lend' ? 'income' : 'expense';
+      const payments = await deps.loanRepo.listPayments(loanId);
+      for (const payment of payments) {
+        await deps.walletRepo.updateBalanceDelta(
+          payment.wallet_id,
+          -getSourceDelta(paymentTransactionType, payment.amount),
+          now
+        );
       }
     }
 
