@@ -4,6 +4,7 @@ import { ITransactionRepository } from '../repositories/transaction.repository';
 import { appRepositories } from '@/core/repositories/app-repositories';
 import { IWalletRepository, Wallet } from '@/modules/wallets/repositories/wallet.repository';
 import { DB_NAME } from '@/core/db/sqlite/connection';
+import { registerCompensation } from '@/core/db/sqlite/transaction';
 import { sqliteTransactionRunner, TransactionRunner } from '@/core/db/transaction-runner';
 import { ReceiptStorageService } from '@/core/files/receipt-storage';
 import { Capacitor } from '@capacitor/core';
@@ -116,6 +117,9 @@ export class UpdateTransactionUseCase {
           for (const [walletId, walletDelta] of balanceDeltas) {
             if (walletDelta !== 0) {
               await this.walletRepository.updateBalanceDelta(walletId, walletDelta, now);
+              registerCompensation(() =>
+                this.walletRepository.updateBalanceDelta(walletId, -walletDelta, now)
+              );
             }
           }
 

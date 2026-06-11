@@ -29,6 +29,7 @@ export function assertCreateTransactionFunding(
   wallet: Wallet,
   type: CreateTransactionInput['type'],
   amount: number,
+  toWallet?: Wallet,
 ) {
   const isCreditCardDebit =
     (type === 'expense' || type === 'transfer') && wallet.account_type === 'credit_card';
@@ -46,6 +47,12 @@ export function assertCreateTransactionFunding(
     throw new TransactionValidationError([
       `Insufficient balance: available ${wallet.balance}, required ${amount}`,
     ]);
+  }
+
+  if (type === 'transfer' && toWallet?.account_type === 'credit_card') {
+    // A positive destination delta reduces card debt. Overpayment is allowed,
+    // so credit-card destinations require no additional funding validation.
+    return;
   }
 }
 
@@ -85,6 +92,7 @@ export function buildUpdateTransactionBalanceDeltas(
 
 export function assertProjectedWalletDelta(wallet: Wallet, walletDelta: number) {
   if (walletDelta === 0) return;
+  if (wallet.account_type === 'credit_card' && walletDelta > 0) return;
 
   const projectedBalance = wallet.balance + walletDelta;
   if (wallet.account_type === 'credit_card') {

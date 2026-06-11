@@ -19,6 +19,12 @@ let transactionQueue: Promise<void> = Promise.resolve();
 let managedTransactionDepth = 0;
 let transactionCallbackDepth = 0;
 let currentManagedDb: any = null;
+let currentWebCompensations: Array<() => Promise<void>> | null = null;
+
+/** Registers rollback work for the active root Web transaction. No-op elsewhere. */
+export function registerCompensation(compensation: () => Promise<void>): void {
+  currentWebCompensations?.push(compensation);
+}
 
 export function isManagedTransactionActive(): boolean {
   return managedTransactionDepth > 0;
@@ -75,8 +81,7 @@ async function runManagedWork<T>(db: any, work: () => Promise<T>): Promise<T> {
  * - Native (iOS/Android): uses BEGIN / COMMIT / ROLLBACK.
  * - Web: CapacitorSQLite does not support explicit transactions on the web
  *   store; root transaction work is serialized through the same queue and
- *   callers still invoke `sqlite.saveToStore()` afterwards if persistence is
- *   needed.
+ *   registered compensations run in reverse order if work fails.
  *
  * Nested-transaction safe: direct nested calls made from inside the active
  * transaction callback participate in the outer transaction (no SAVEPOINT).
@@ -96,6 +101,10 @@ export async function runInTransaction<T>(
   if (isWeb) {
     return runExclusive(() =>
       runManagedWork(db, async () => {
+        const previousWebCompensations = currentWebCompensations;
+        const compensations: Array<() => Promise<void>> = [];
+        currentWebCompensations = compensations;
+
         try {
           const result = await work(db);
           try {
@@ -106,11 +115,16 @@ export async function runInTransaction<T>(
           }
           return result;
         } catch (err) {
-          console.error(
-            '[transaction] Work failed on Web platform - partial state may exist. Manual compensation required.',
-            err
-          );
+          for (let index = compensations.length - 1; index >= 0; index -= 1) {
+            try {
+              await compensations[index]();
+            } catch (compensationError) {
+              console.error('[transaction] Web compensation failed:', compensationError);
+            }
+          }
           throw err;
+        } finally {
+          currentWebCompensations = previousWebCompensations;
         }
       })
     );

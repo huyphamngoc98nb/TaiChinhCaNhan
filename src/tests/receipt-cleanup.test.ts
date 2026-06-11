@@ -1,9 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { Filesystem } from '@capacitor/filesystem';
+import { OrphanReceiptCleanupService } from '@/core/files/receipt-cleanup';
 import { ReceiptStorageService } from '@/core/files/receipt-storage';
-import { runReceiptOrphanCleanup } from '@/core/files/receipt-cleanup';
+import { getDbConnectionForTransaction } from '@/core/db/sqlite/transaction';
 import { logger } from '@/core/telemetry/logger';
-import { InMemoryTransactionRepository } from './fakes/in-memory-transaction.repository';
 
 vi.mock('@capacitor/filesystem', () => ({
   Directory: { Data: 'DATA' },
@@ -12,6 +12,10 @@ vi.mock('@capacitor/filesystem', () => ({
     readdir: vi.fn(),
     deleteFile: vi.fn(),
   },
+}));
+
+vi.mock('@/core/db/sqlite/transaction', () => ({
+  getDbConnectionForTransaction: vi.fn(),
 }));
 
 vi.mock('@/core/telemetry/logger', () => ({
@@ -23,43 +27,68 @@ vi.mock('@/core/telemetry/logger', () => ({
   },
 }));
 
-describe('receipt orphan cleanup', () => {
+describe('OrphanReceiptCleanupService', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-  });
-
-  it('lists and deletes only receipt files not referenced by active transactions', async () => {
+    vi.mocked(Filesystem.mkdir).mockResolvedValue();
     vi.mocked(Filesystem.readdir).mockResolvedValue({
       files: [
-        { name: 'known.jpg', type: 'file', size: 1, mtime: 0, uri: '' },
+        { name: 'valid.jpg', type: 'file', size: 1, mtime: 0, uri: '' },
         { name: 'orphan.jpg', type: 'file', size: 1, mtime: 0, uri: '' },
-        { name: 'nested', type: 'directory', size: 0, mtime: 0, uri: '' },
       ],
     });
     vi.mocked(Filesystem.deleteFile).mockResolvedValue();
+  });
 
-    await expect(
-      ReceiptStorageService.listOrphanedReceipts(['receipts/known.jpg'])
-    ).resolves.toEqual(['receipts/orphan.jpg']);
-    await expect(
-      ReceiptStorageService.cleanupOrphans(['receipts/known.jpg'])
-    ).resolves.toBe(1);
+  it('deletes orphan receipts while keeping files referenced by active transactions', async () => {
+    const db = {
+      query: vi.fn()
+        .mockResolvedValueOnce({ values: [{ id: 'tx-1' }] })
+        .mockResolvedValueOnce({ values: [] }),
+    };
+    vi.mocked(getDbConnectionForTransaction).mockResolvedValue(db);
 
+    await expect(new OrphanReceiptCleanupService().run()).resolves.toEqual({
+      deleted: 1,
+      errors: 0,
+    });
+
+    expect(db.query).toHaveBeenNthCalledWith(
+      1,
+      expect.stringContaining('WHERE receipt_path = ? AND deleted_at IS NULL'),
+      ['receipts/valid.jpg']
+    );
+    expect(db.query).toHaveBeenNthCalledWith(
+      2,
+      expect.stringContaining('WHERE receipt_path = ? AND deleted_at IS NULL'),
+      ['receipts/orphan.jpg']
+    );
+    expect(Filesystem.deleteFile).toHaveBeenCalledOnce();
     expect(Filesystem.deleteFile).toHaveBeenCalledWith({
       path: 'receipts/orphan.jpg',
       directory: 'DATA',
     });
+    expect(logger.info).toHaveBeenCalledWith('Deleted orphan receipt: receipts/orphan.jpg');
   });
 
-  it('queries known paths, cleans orphans, and logs the deleted count', async () => {
-    const repository = new InMemoryTransactionRepository();
-    const pathsSpy = vi.spyOn(repository, 'getAllReceiptPaths').mockResolvedValue(['receipts/known.jpg']);
-    const cleanupSpy = vi.spyOn(ReceiptStorageService, 'cleanupOrphans').mockResolvedValue(2);
+  it('counts per-file errors and continues the sweep', async () => {
+    const deleteSpy = vi.spyOn(ReceiptStorageService, 'deleteReceipt');
+    const db = {
+      query: vi.fn()
+        .mockRejectedValueOnce(new Error('query failed'))
+        .mockResolvedValueOnce({ values: [] }),
+    };
+    vi.mocked(getDbConnectionForTransaction).mockResolvedValue(db);
 
-    await runReceiptOrphanCleanup(repository);
+    await expect(new OrphanReceiptCleanupService().run()).resolves.toEqual({
+      deleted: 1,
+      errors: 1,
+    });
 
-    expect(pathsSpy).toHaveBeenCalledOnce();
-    expect(cleanupSpy).toHaveBeenCalledWith(['receipts/known.jpg']);
-    expect(logger.info).toHaveBeenCalledWith('Receipt orphan cleanup deleted 2 file(s).');
+    expect(deleteSpy).toHaveBeenCalledWith('receipts/orphan.jpg');
+    expect(logger.warn).toHaveBeenCalledWith(
+      'Failed to clean up receipt at receipts/valid.jpg',
+      expect.any(Error)
+    );
   });
 });

@@ -2,8 +2,9 @@ import { CreateTransactionInput } from '../domain/transaction.model';
 import { validateCreateTransaction } from '../domain/transaction.schema';
 import { ITransactionRepository } from '../repositories/transaction.repository';
 import { appRepositories } from '@/core/repositories/app-repositories';
-import { IWalletRepository } from '@/modules/wallets/repositories/wallet.repository';
+import { IWalletRepository, Wallet } from '@/modules/wallets/repositories/wallet.repository';
 import { DB_NAME } from '@/core/db/sqlite/connection';
+import { registerCompensation } from '@/core/db/sqlite/transaction';
 import { sqliteTransactionRunner, TransactionRunner } from '@/core/db/transaction-runner';
 import { ReceiptStorageService } from '@/core/files/receipt-storage';
 import { Capacitor } from '@capacitor/core';
@@ -35,8 +36,9 @@ export class CreateTransactionUseCase {
         if (!wallet) throw new Error('Wallet not found');
         assertActiveWallet(wallet, 'Wallet is inactive');
 
+        let toWallet: Wallet | null = null;
         if (input.type === 'transfer') {
-          const toWallet = input.to_wallet_id
+          toWallet = input.to_wallet_id
             ? await this.walletRepository.getById(input.to_wallet_id)
             : null;
           if (!toWallet) throw new Error('Destination wallet not found');
@@ -44,14 +46,13 @@ export class CreateTransactionUseCase {
           assertNoCreditCardToCreditCardTransfer(wallet, toWallet);
         }
 
-        assertCreateTransactionFunding(wallet, input.type, input.amount);
+        assertCreateTransactionFunding(wallet, input.type, input.amount, toWallet ?? undefined);
 
         if (receiptBase64) {
           // NOTE: file-system and SQLite cannot be made truly atomic.
           // File is saved inside the transaction window to minimize orphan risk.
           // If the app crashes after saveReceipt but before DB commit, the file
-          // becomes an orphan. Periodic cleanup (not yet implemented) should scan
-          // receipts/ for files with no corresponding DB record.
+          // becomes an orphan until the startup receipt cleanup removes it.
           savedReceiptPath = await ReceiptStorageService.saveReceipt(receiptBase64);
         }
 
@@ -68,8 +69,14 @@ export class CreateTransactionUseCase {
         // Both transfer deltas remain sequential inside runTransaction; its SQLite
         // transaction commits or rolls back them together.
         await this.walletRepository.updateBalanceDelta(input.wallet_id, sourceDelta, now);
+        registerCompensation(() =>
+          this.walletRepository.updateBalanceDelta(input.wallet_id, -sourceDelta, now)
+        );
         if (input.type === 'transfer' && input.to_wallet_id) {
           await this.walletRepository.updateBalanceDelta(input.to_wallet_id, input.amount, now);
+          registerCompensation(() =>
+            this.walletRepository.updateBalanceDelta(input.to_wallet_id!, -input.amount, now)
+          );
         }
 
         return tx;

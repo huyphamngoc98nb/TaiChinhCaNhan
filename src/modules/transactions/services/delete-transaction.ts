@@ -2,8 +2,10 @@ import { ITransactionRepository } from '../repositories/transaction.repository';
 import { appRepositories } from '@/core/repositories/app-repositories';
 import { IWalletRepository, Wallet } from '@/modules/wallets/repositories/wallet.repository';
 import { DB_NAME } from '@/core/db/sqlite/connection';
+import { registerCompensation } from '@/core/db/sqlite/transaction';
 import { sqliteTransactionRunner, TransactionRunner } from '@/core/db/transaction-runner';
 import { Capacitor } from '@capacitor/core';
+import { logger } from '@/core/telemetry/logger';
 import { SyncCreditCardStatementUseCase } from '@/modules/wallets/services/sync-credit-card-statement';
 
 export class DeleteTransactionUseCase {
@@ -27,10 +29,13 @@ export class DeleteTransactionUseCase {
       const wallet = await this.walletRepository.getById(transaction.wallet_id);
       if (!wallet) throw new Error('Wallet not found');
 
-      const destinationWallet = transaction.type === 'transfer' && transaction.to_wallet_id
-        ? await this.walletRepository.getById(transaction.to_wallet_id)
-        : null;
-      const shouldRevertDestinationWallet = destinationWallet !== null;
+      let destinationWallet: Wallet | null = null;
+      if (transaction.type === 'transfer' && transaction.to_wallet_id) {
+        destinationWallet = await this.walletRepository.getById(transaction.to_wallet_id);
+        if (!destinationWallet) {
+          destinationWallet = await this.walletRepository.getByIdIncludeDeleted(transaction.to_wallet_id);
+        }
+      }
       const now = Date.now();
 
       // Compute source wallet revert delta.
@@ -44,14 +49,18 @@ export class DeleteTransactionUseCase {
 
       // Atomic delta update: no race condition.
       await this.walletRepository.updateBalanceDelta(transaction.wallet_id, sourceDelta, now);
+      registerCompensation(() =>
+        this.walletRepository.updateBalanceDelta(transaction.wallet_id, -sourceDelta, now)
+      );
 
       if (transaction.type === 'transfer' && transaction.to_wallet_id) {
-        if (shouldRevertDestinationWallet) {
+        if (destinationWallet) {
           await this.walletRepository.updateBalanceDelta(transaction.to_wallet_id, -transaction.amount, now);
+          registerCompensation(() =>
+            this.walletRepository.updateBalanceDelta(transaction.to_wallet_id!, transaction.amount, now)
+          );
         } else {
-          // The ledger was already inconsistent when a referenced destination wallet was deleted.
-          // Revert the source best-effort and keep deletion available, but leave an audit trail.
-          console.warn(
+          logger.warn(
             `Cannot revert deleted transfer ${transaction.id}: destination wallet ${transaction.to_wallet_id} no longer exists`
           );
         }
@@ -63,12 +72,9 @@ export class DeleteTransactionUseCase {
           asOf: transaction.transaction_date,
         });
       }
-      const destinationWalletForSync = transaction.type === 'transfer' && transaction.to_wallet_id
-        ? (destinationWallet ?? await this.walletRepository.getByIdIncludeDeleted(transaction.to_wallet_id))
-        : null;
-      if (destinationWalletForSync?.account_type === 'credit_card') {
-        creditCardSyncTargets.set(destinationWalletForSync.id, {
-          wallet: destinationWalletForSync,
+      if (destinationWallet?.account_type === 'credit_card') {
+        creditCardSyncTargets.set(destinationWallet.id, {
+          wallet: destinationWallet,
           asOf: transaction.transaction_date,
         });
       }

@@ -1,7 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import type { Wallet } from '@/modules/wallets/repositories/wallet.repository';
 import { TransactionValidationError } from '../domain/transaction.schema';
-import { assertCreateTransactionFunding } from './transaction-wallet-rules';
+import {
+  assertCreateTransactionFunding,
+  assertNoCreditCardToCreditCardTransfer,
+  assertProjectedWalletDelta,
+} from './transaction-wallet-rules';
 
 function makeWallet(overrides: Partial<Wallet> = {}): Wallet {
   return {
@@ -73,6 +77,39 @@ describe('assertCreateTransactionFunding', () => {
   });
 
   describe('credit card transfer', () => {
+    it('allows a bank transfer into a credit card, including overpayment', () => {
+      const bank = makeWallet({
+        account_type: 'bank',
+        balance: 2_000_000,
+      });
+      const creditCard = makeWallet({
+        id: 'credit-card',
+        account_type: 'credit_card',
+        balance: -100_000,
+        credit_limit: 500_000,
+      });
+
+      expect(() =>
+        assertCreateTransactionFunding(bank, 'transfer', 1_000_000, creditCard)
+      ).not.toThrow();
+    });
+
+    it('rejects a credit-card-to-credit-card transfer', () => {
+      const source = makeWallet({
+        account_type: 'credit_card',
+        credit_limit: 2_000_000,
+      });
+      const destination = makeWallet({
+        id: 'credit-card-2',
+        account_type: 'credit_card',
+        credit_limit: 2_000_000,
+      });
+
+      expect(() => assertNoCreditCardToCreditCardTransfer(source, destination)).toThrow(
+        TransactionValidationError,
+      );
+    });
+
     it('allows a transfer within available credit when balance is negative', () => {
       const wallet = makeWallet({
         account_type: 'credit_card',
@@ -144,5 +181,17 @@ describe('assertCreateTransactionFunding', () => {
 
       expect(() => assertCreateTransactionFunding(wallet, 'income', 500_000)).not.toThrow();
     });
+  });
+});
+
+describe('assertProjectedWalletDelta', () => {
+  it('allows a positive delta into a credit card wallet', () => {
+    const creditCard = makeWallet({
+      account_type: 'credit_card',
+      balance: -100_000,
+      credit_limit: 500_000,
+    });
+
+    expect(() => assertProjectedWalletDelta(creditCard, 1_000_000)).not.toThrow();
   });
 });

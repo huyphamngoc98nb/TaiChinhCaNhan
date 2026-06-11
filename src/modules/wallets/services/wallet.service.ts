@@ -8,7 +8,12 @@ import { appRepositories } from '@/core/repositories/app-repositories';
 import type { IWalletRepository } from '../repositories/wallet.repository';
 import type { ITransactionRepository } from '@/modules/transactions/repositories/transaction.repository';
 import { getDbConnectionForTransaction, isManagedTransactionActive } from '@/core/db/sqlite/transaction';
-import { sqliteTransactionRunner, TransactionRunner } from '@/core/db/transaction-runner';
+import {
+  immediateTransactionRunner,
+  sqliteTransactionRunner,
+  TransactionRunner,
+} from '@/core/db/transaction-runner';
+import { CreateTransactionUseCase } from '@/modules/transactions/services/create-transaction';
 
 function generateId(): string {
   if (typeof crypto !== 'undefined' && crypto.randomUUID) {
@@ -107,11 +112,20 @@ async function persistWeb(): Promise<void> {
 }
 
 export class WalletService {
+  private readonly createTransactionUseCase: CreateTransactionUseCase;
+
   constructor(
     private readonly repo: IWalletRepository = appRepositories.wallet,
     private readonly transactionRepo: ITransactionRepository = appRepositories.transaction,
-    private readonly runTransaction: TransactionRunner = sqliteTransactionRunner
-  ) {}
+    private readonly runTransaction: TransactionRunner = sqliteTransactionRunner,
+    createTransactionUseCase?: CreateTransactionUseCase
+  ) {
+    this.createTransactionUseCase = createTransactionUseCase ?? new CreateTransactionUseCase(
+      this.transactionRepo,
+      this.repo,
+      immediateTransactionRunner
+    );
+  }
 
   async createWallet(data: CreateWalletInput): Promise<Wallet> {
     if (!data.name.trim()) {
@@ -158,18 +172,14 @@ export class WalletService {
         const delta = balance - existing.balance;
         const transactionType = delta > 0 ? 'income' : 'expense';
         const categoryId = await ensureBalanceAdjustmentCategory(transactionType, now);
-        await this.transactionRepo.create({
-          id: generateId(),
+        await this.createTransactionUseCase.execute({
           wallet_id: id,
           category_id: categoryId,
           type: transactionType,
           amount: Math.abs(delta),
           note: BALANCE_ADJUSTMENT_NOTE,
           transaction_date: now,
-          created_at: now,
-          updated_at: now,
         });
-        await this.repo.updateBalanceDelta(id, delta, now);
       }
 
       await this.repo.update(id, walletData, now);
