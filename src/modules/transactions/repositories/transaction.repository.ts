@@ -8,5 +8,6 @@ export interface ITransactionRepository {
   getById(id: string): Promise<Transaction | null>;
   /** Returns the record regardless of soft-delete status */
   getByIdIncludeDeleted(id: string): Promise<Transaction | null>;
+  getAllReceiptPaths(): Promise<string[]>;
   list(filter: TransactionFilter): Promise<Transaction[]>;
 }

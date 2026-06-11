@@ -147,8 +147,8 @@ describe('Database SQLite Tests', () => {
   it('wraps each migration in a transaction (beginTransaction / commitTransaction)', async () => {
     await runMigrations();
 
-    expect(mockDb.beginTransaction).toHaveBeenCalledTimes(27);
-    expect(mockDb.commitTransaction).toHaveBeenCalledTimes(27);
+    expect(mockDb.beginTransaction).toHaveBeenCalledTimes(MIGRATIONS.length);
+    expect(mockDb.commitTransaction).toHaveBeenCalledTimes(MIGRATIONS.length);
     expect(mockDb.rollbackTransaction).not.toHaveBeenCalled();
   });
 
@@ -157,7 +157,10 @@ describe('Database SQLite Tests', () => {
   // -------------------------------------------------------------------------
   it('skips all migrations when DB already at latest version', async () => {
     mockDb.query.mockResolvedValueOnce({
-      values: Array.from({ length: 27 }, (_value, index) => ({ version: index + 1 })),
+      values: MIGRATIONS.map((migration) => ({
+        version: migration.version,
+        name: migration.name,
+      })),
     });
 
     await runMigrations();
@@ -184,7 +187,7 @@ describe('Database SQLite Tests', () => {
     // Migrations 3 & 4 should run
     expectExecuteContaining('ALTER TABLE transactions ADD COLUMN deleted_at');
     expectExecuteContaining('ALTER TABLE transactions ADD COLUMN receipt_path');
-    expect(mockDb.beginTransaction).toHaveBeenCalledTimes(25);
+    expect(mockDb.beginTransaction).toHaveBeenCalledTimes(MIGRATIONS.length - 2);
   });
 
   it('marks category description migration done when the column already exists', async () => {
@@ -742,11 +745,19 @@ describe('Database SQLite Tests', () => {
     mockDb.query
       .mockResolvedValueOnce({ values: [{ count: 2 }] })
       .mockResolvedValueOnce({ values: [{ count: 1 }] })
-      .mockResolvedValueOnce({ values: [{ count: 0 }] });
+      .mockResolvedValueOnce({ values: [{ count: 0 }] })
+      .mockResolvedValueOnce({ values: [{ count: 3 }] })
+      .mockResolvedValueOnce({ values: [{ count: 4 }] });
 
     const counts = await walletRepository.getReferenceCounts('w-1');
 
-    expect(counts).toEqual({ transactions: 2, recurringBills: 1, budgets: 0 });
+    expect(counts).toEqual({
+      transactions: 2,
+      recurringBills: 1,
+      budgets: 0,
+      loans: 3,
+      loanPayments: 4,
+    });
     expect(mockDb.query).toHaveBeenCalledWith(
       expect.stringContaining('FROM transactions'),
       ['w-1', 'w-1']
@@ -757,6 +768,14 @@ describe('Database SQLite Tests', () => {
     );
     expect(mockDb.query).toHaveBeenCalledWith(
       'SELECT COUNT(*) AS count FROM budgets WHERE wallet_id = ? AND is_active = 1',
+      ['w-1']
+    );
+    expect(mockDb.query).toHaveBeenCalledWith(
+      'SELECT COUNT(*) AS count FROM loans WHERE wallet_id = ? AND deleted_at IS NULL',
+      ['w-1']
+    );
+    expect(mockDb.query).toHaveBeenCalledWith(
+      'SELECT COUNT(*) AS count FROM loan_payments WHERE wallet_id = ?',
       ['w-1']
     );
 

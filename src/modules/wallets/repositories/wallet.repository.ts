@@ -54,6 +54,8 @@ export interface WalletReferenceCounts {
   transactions: number;
   recurringBills: number;
   budgets: number;
+  loans: number;
+  loanPayments: number;
 }
 
 export type CreditCardStatementStatus = 'open' | 'closed' | 'partial' | 'paid' | 'overdue';
@@ -73,6 +75,7 @@ export interface UpsertCreditCardStatementInput {
 
 export interface IWalletRepository {
   getById(id: string): Promise<Wallet | null>;
+  getByIdIncludeDeleted(id: string): Promise<Wallet | null>;
   getAllActive(): Promise<Wallet[]>;
   getActiveCreditCards(): Promise<Wallet[]>;
   getTotalBalance(): Promise<number>;

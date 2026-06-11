@@ -98,6 +98,16 @@ export class SQLiteTransactionRepository implements ITransactionRepository {
     return mapToTransaction(values[0]);
   }
 
+  async getAllReceiptPaths(): Promise<string[]> {
+    const db = await getDbConnectionForTransaction();
+    const { values } = await db.query(
+      `SELECT receipt_path
+       FROM transactions
+       WHERE deleted_at IS NULL AND receipt_path IS NOT NULL`
+    );
+    return (values ?? []).map((row: Record<string, unknown>) => row.receipt_path as string);
+  }
+
   async list(filter: TransactionFilter): Promise<Transaction[]> {
     const db = await getDbConnectionForTransaction();
     let sql = `

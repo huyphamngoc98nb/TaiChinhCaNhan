@@ -137,6 +137,7 @@ function makeDeps(type: LoanType, currentPaid = 0, principal = 1_000_000) {
       softDelete: vi.fn(),
       getById: vi.fn(),
       getByIdIncludeDeleted: vi.fn(),
+      getAllReceiptPaths: vi.fn(),
       list: vi.fn(),
     },
     walletRepo,

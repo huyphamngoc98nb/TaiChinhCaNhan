@@ -26,9 +26,6 @@ export class UpdateTransactionUseCase {
   async execute(id: string, input: UpdateTransactionInput, newReceiptBase64?: string) {
     validateUpdateTransaction(input);
 
-    // Avoid orphaning a newly uploaded receipt; transaction state is read again below.
-    if (!await this.repository.getById(id)) throw new Error('Transaction not found');
-
     let newSavedReceiptPath: string | undefined;
     const now = Date.now();
     let finalReceiptPath = input.receipt_path;

@@ -92,6 +92,12 @@ export class InMemoryTransactionRepository implements ITransactionRepository {
     return transaction ? { ...transaction } : null;
   }
 
+  async getAllReceiptPaths(): Promise<string[]> {
+    return Array.from(this.transactions.values())
+      .filter((transaction) => transaction.deleted_at === null && transaction.receipt_path !== null)
+      .map((transaction) => transaction.receipt_path as string);
+  }
+
   async list(filter: TransactionFilter): Promise<Transaction[]> {
     const transactions = Array.from(this.transactions.values())
       .filter((transaction) => matchesFilter(transaction, filter))

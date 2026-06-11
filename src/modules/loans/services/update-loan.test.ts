@@ -176,6 +176,7 @@ function makeDeps(
       softDelete: transactionSoftDelete,
       getById: transactionGetById,
       getByIdIncludeDeleted: vi.fn(),
+      getAllReceiptPaths: vi.fn(),
       list: vi.fn(),
     },
     categoryRepo: {

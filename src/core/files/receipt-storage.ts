@@ -77,4 +77,31 @@ export class ReceiptStorageService {
       return false;
     }
   }
+
+  static async listOrphanedReceipts(knownPaths: string[]): Promise<string[]> {
+    await this.init();
+    const known = new Set(knownPaths);
+    const { files } = await Filesystem.readdir({
+      path: this.FOLDER_NAME,
+      directory: this.DIRECTORY,
+    });
+
+    return files
+      .filter((file) => file.type === 'file')
+      .map((file) => `${this.FOLDER_NAME}/${file.name}`)
+      .filter((path) => !known.has(path));
+  }
+
+  static async cleanupOrphans(knownPaths: string[]): Promise<number> {
+    const orphanedPaths = await this.listOrphanedReceipts(knownPaths);
+    let deletedCount = 0;
+
+    for (const path of orphanedPaths) {
+      if (await this.deleteReceipt(path)) {
+        deletedCount++;
+      }
+    }
+
+    return deletedCount;
+  }
 }

@@ -86,6 +86,7 @@ function makeDeps(
     softDelete: vi.fn(async () => true),
     getById: vi.fn(),
     getByIdIncludeDeleted: vi.fn(async () => transaction),
+    getAllReceiptPaths: vi.fn(async () => []),
     list: vi.fn(),
   };
   const walletRepo = {

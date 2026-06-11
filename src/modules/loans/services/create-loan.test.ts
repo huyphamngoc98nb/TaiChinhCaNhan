@@ -132,10 +132,12 @@ function makeDeps(walletRepoOverride?: IWalletRepository) {
       softDelete: vi.fn(),
       getById: vi.fn(),
       getByIdIncludeDeleted: vi.fn(),
+      getAllReceiptPaths: vi.fn(),
       list: vi.fn(),
     },
     walletRepo: walletRepoOverride ?? {
       getById: vi.fn(async () => wallet),
+      getByIdIncludeDeleted: vi.fn(async () => wallet),
       getAllActive: vi.fn(),
       getActiveCreditCards: vi.fn(),
       getTotalBalance: vi.fn(),

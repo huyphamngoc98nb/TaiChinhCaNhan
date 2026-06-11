@@ -61,6 +61,16 @@ export class SQLiteWalletRepository implements IWalletRepository {
     return mapWallet(values[0] as Record<string, unknown>);
   }
 
+  async getByIdIncludeDeleted(id: string): Promise<Wallet | null> {
+    const db = await getDbConnectionForTransaction();
+    const { values } = await db.query(
+      `SELECT ${WALLET_COLUMNS} FROM wallets WHERE id = ? LIMIT 1`,
+      [id]
+    );
+    if (!values || values.length === 0) return null;
+    return mapWallet(values[0] as Record<string, unknown>);
+  }
+
   /** Returns wallets ordered by sort_order. */
   async getAllActive(): Promise<Wallet[]> {
     const db = await getDbConnectionForTransaction();
@@ -321,11 +331,21 @@ export class SQLiteWalletRepository implements IWalletRepository {
       'SELECT COUNT(*) AS count FROM budgets WHERE wallet_id = ? AND is_active = 1',
       [id]
     );
+    const loans = await db.query(
+      'SELECT COUNT(*) AS count FROM loans WHERE wallet_id = ? AND deleted_at IS NULL',
+      [id]
+    );
+    const loanPayments = await db.query(
+      'SELECT COUNT(*) AS count FROM loan_payments WHERE wallet_id = ?',
+      [id]
+    );
 
     return {
       transactions: Number(transactions.values?.[0]?.count ?? 0),
       recurringBills: Number(recurringBills.values?.[0]?.count ?? 0),
       budgets: Number(budgets.values?.[0]?.count ?? 0),
+      loans: Number(loans.values?.[0]?.count ?? 0),
+      loanPayments: Number(loanPayments.values?.[0]?.count ?? 0),
     };
   }
 

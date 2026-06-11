@@ -67,6 +67,10 @@ vi.mock('@/shared/context/LanguageContext', () => ({
   useLanguage: () => ({ t: (key: string) => key }),
 }));
 
+vi.mock('@/shared/components/Toast/ToastContext', () => ({
+  useToast: () => ({ showToast: vi.fn() }),
+}));
+
 vi.mock('@/app/providers/AppUnlock', () => ({
   AppUnlock: ({ onUnlocked }: { onUnlocked: () => void }) => (
     <button type="button" onClick={onUnlocked}>

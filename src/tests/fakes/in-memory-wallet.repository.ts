@@ -29,6 +29,10 @@ export class InMemoryWalletRepository implements IWalletRepository {
     return wallet ? { ...wallet } : null;
   }
 
+  async getByIdIncludeDeleted(id: string): Promise<Wallet | null> {
+    return this.getById(id);
+  }
+
   async getAllActive(): Promise<Wallet[]> {
     return Array.from(this.wallets.values())
       .sort((a, b) => a.sort_order - b.sort_order || a.created_at - b.created_at)
@@ -156,8 +160,14 @@ export class InMemoryWalletRepository implements IWalletRepository {
     });
   }
 
-  async getReferenceCounts(): Promise<{ transactions: number; recurringBills: number; budgets: number }> {
-    return { transactions: 0, recurringBills: 0, budgets: 0 };
+  async getReferenceCounts(): Promise<{
+    transactions: number;
+    recurringBills: number;
+    budgets: number;
+    loans: number;
+    loanPayments: number;
+  }> {
+    return { transactions: 0, recurringBills: 0, budgets: 0, loans: 0, loanPayments: 0 };
   }
 
   async delete(id: string): Promise<void> {

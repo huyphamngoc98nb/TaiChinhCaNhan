@@ -65,8 +65,9 @@ export class CreateTransactionUseCase {
 
         // For credit cards, negative balance is outstanding liability.
         // Purchases increase it; transfers into the card reduce it.
+        // Both transfer deltas remain sequential inside runTransaction; its SQLite
+        // transaction commits or rolls back them together.
         await this.walletRepository.updateBalanceDelta(input.wallet_id, sourceDelta, now);
-
         if (input.type === 'transfer' && input.to_wallet_id) {
           await this.walletRepository.updateBalanceDelta(input.to_wallet_id, input.amount, now);
         }

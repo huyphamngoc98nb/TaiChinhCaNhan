@@ -63,9 +63,12 @@ export class DeleteTransactionUseCase {
           asOf: transaction.transaction_date,
         });
       }
-      if (destinationWallet?.account_type === 'credit_card') {
-        creditCardSyncTargets.set(destinationWallet.id, {
-          wallet: destinationWallet,
+      const destinationWalletForSync = transaction.type === 'transfer' && transaction.to_wallet_id
+        ? (destinationWallet ?? await this.walletRepository.getByIdIncludeDeleted(transaction.to_wallet_id))
+        : null;
+      if (destinationWalletForSync?.account_type === 'credit_card') {
+        creditCardSyncTargets.set(destinationWalletForSync.id, {
+          wallet: destinationWalletForSync,
           asOf: transaction.transaction_date,
         });
       }
