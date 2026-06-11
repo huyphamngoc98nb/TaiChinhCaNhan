@@ -151,7 +151,12 @@ async function executeMigrationStatement(
   stmt: string,
 ) {
   try {
-    await db.execute(stmt, false);
+    // Android's Capacitor SQLite parser only rejoins a trigger body with END
+    // when the trailing END; is followed by a newline.
+    const executableStmt = /^\s*CREATE\s+(?:TEMP\s+|TEMPORARY\s+)?TRIGGER\b/i.test(stmt)
+      ? `${stmt}\n`
+      : stmt;
+    await db.execute(executableStmt, false);
   } catch (err: any) {
     const msg = String(err?.message ?? err);
     const addColumn = parseAddColumnStatement(stmt);
@@ -408,7 +413,21 @@ export function splitSqlStatements(sql: string): string[] {
         if (!prevIsWord && /^END\b/i.test(remaining.slice(i))) {
           depth--;
           if (depth === 0) {
-            const semiIdx = remaining.indexOf(';', i);
+            let j = i + 3;
+            while (j < remaining.length) {
+              if (/[ \t\r\n]/.test(remaining[j])) {
+                j++;
+                continue;
+              }
+              if (remaining[j] === '-' && remaining[j + 1] === '-') {
+                const nl = remaining.indexOf('\n', j);
+                j = nl === -1 ? remaining.length : nl + 1;
+                continue;
+              }
+              break;
+            }
+
+            const semiIdx = remaining.indexOf(';', j);
             const end = semiIdx === -1 ? remaining.length : semiIdx + 1;
             statements.push(remaining.slice(0, end).trim());
             remaining = remaining.slice(end);

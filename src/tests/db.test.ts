@@ -124,6 +124,12 @@ describe('Database SQLite Tests', () => {
     expectExecuteContaining('CHECK (skip_transaction = 1 OR wallet_id IS NOT NULL)');
     expectExecuteContaining('ALTER TABLE loans ADD COLUMN linked_transaction_id');
 
+    const triggerStatements = mockDb.execute.mock.calls
+      .map(([sql]: [string]) => sql)
+      .filter((sql: string) => sql.trimStart().startsWith('CREATE TRIGGER'));
+    expect(triggerStatements.length).toBeGreaterThan(0);
+    expect(triggerStatements.every((sql: string) => sql.endsWith('END;\n'))).toBe(true);
+
     // Each migration is bookmarked with an INSERT
     expectMigrationMarked(1, '001_init');
     expectMigrationMarked(2, '002_indexes');
@@ -282,6 +288,86 @@ describe('Database SQLite Tests', () => {
       'PRAGMA foreign_keys=OFF;',
       'SELECT 1;',
     ]);
+  });
+
+  it('splits two complete triggers without including fragments of the next trigger', () => {
+    const statements = splitSqlStatements(`
+      CREATE TRIGGER IF NOT EXISTS trg_a
+      AFTER INSERT ON t
+      BEGIN
+        UPDATE t SET x = NEW.x WHERE id = NEW.id;
+      END;
+
+      -- second trigger
+      CREATE TRIGGER IF NOT EXISTS trg_b
+      AFTER UPDATE OF x ON t
+      BEGIN
+        UPDATE t SET y = NEW.x WHERE id = NEW.id;
+      END;
+    `);
+
+    expect(statements).toHaveLength(2);
+    expect(statements.every((statement) => statement.startsWith('CREATE TRIGGER'))).toBe(true);
+    expect(statements.every((statement) => statement.endsWith('END;'))).toBe(true);
+    expect(statements[0]).not.toContain('trg_b');
+  });
+
+  it('keeps DROP statements, triggers, and following statements in order', () => {
+    const statements = splitSqlStatements(`
+      DROP TRIGGER IF EXISTS trg_a;
+      DROP TRIGGER IF EXISTS trg_b;
+
+      CREATE TRIGGER IF NOT EXISTS trg_a
+      AFTER INSERT ON t
+      BEGIN
+        UPDATE t SET x = NEW.x WHERE id = NEW.id;
+      END;
+
+      CREATE TRIGGER IF NOT EXISTS trg_b
+      AFTER UPDATE OF x ON t
+      BEGIN
+        UPDATE t SET y = NEW.x WHERE id = NEW.id;
+      END;
+
+      UPDATE t SET x = x WHERE x IS NULL;
+    `);
+
+    expect(statements).toHaveLength(5);
+    expect(statements.map((statement) => statement.match(/^(?:CREATE\s+TRIGGER|DROP\s+TRIGGER|UPDATE)/)?.[0]))
+      .toEqual(['DROP TRIGGER', 'DROP TRIGGER', 'CREATE TRIGGER', 'CREATE TRIGGER', 'UPDATE']);
+    expect(statements.every((statement) => statement.endsWith(';'))).toBe(true);
+    expect(statements[2]).not.toContain('trg_b');
+    expect(statements[3]).not.toContain('UPDATE t SET x = x WHERE x IS NULL');
+  });
+
+  it('keeps a single-line trigger as one complete statement', () => {
+    const statements = splitSqlStatements(
+      'CREATE TRIGGER t AFTER INSERT ON x BEGIN UPDATE x SET a=1 WHERE id=NEW.id; END;'
+    );
+
+    expect(statements).toEqual([
+      'CREATE TRIGGER t AFTER INSERT ON x BEGIN UPDATE x SET a=1 WHERE id=NEW.id; END;',
+    ]);
+  });
+
+  it('finds a trigger terminator after whitespace and line comments', () => {
+    const statements = splitSqlStatements(`
+      CREATE TRIGGER trg_whitespace AFTER INSERT ON t
+      BEGIN
+        UPDATE t SET x = NEW.x;
+      END
+
+      -- terminator follows comments
+      -- and multiple blank lines
+
+      ;
+      UPDATE t SET x = x;
+    `);
+
+    expect(statements).toHaveLength(2);
+    expect(statements[0]).toMatch(/^CREATE TRIGGER[\s\S]*;\s*$/);
+    expect(statements[0]).not.toContain('UPDATE t SET x = x;');
+    expect(statements[1]).toBe('UPDATE t SET x = x;');
   });
 
   // -------------------------------------------------------------------------
