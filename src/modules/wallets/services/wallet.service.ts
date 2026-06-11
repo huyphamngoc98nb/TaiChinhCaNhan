@@ -75,14 +75,6 @@ const BALANCE_ADJUSTMENT_CATEGORIES = {
 async function ensureBalanceAdjustmentCategory(type: 'income' | 'expense', now: number): Promise<string> {
   const category = BALANCE_ADJUSTMENT_CATEGORIES[type];
   const db = await getDbConnectionForTransaction();
-  const { values } = await db.query(
-    'SELECT id FROM categories WHERE id = ? OR (name = ? AND type = ?) LIMIT 1',
-    [category.id, category.name, category.type]
-  );
-  const existingId = values?.[0]?.id;
-  if (typeof existingId === 'string' && existingId.trim()) {
-    return existingId;
-  }
 
   await db.run(
     `INSERT OR IGNORE INTO categories
@@ -191,14 +183,14 @@ export class WalletService {
   }
 
   async deleteWallet(id: string): Promise<void> {
-    const counts = await this.repo.getReferenceCounts(id);
-    const totalReferences =
-      counts.transactions + counts.recurringBills + counts.budgets + counts.loans + counts.loanPayments;
-    if (totalReferences > 0) {
-      throw new Error('Cannot delete a wallet that is used by transactions, bills, budgets, or loans.');
-    }
-
     await this.runTransaction(async () => {
+      const counts = await this.repo.getReferenceCounts(id);
+      const totalReferences =
+        counts.transactions + counts.recurringBills + counts.budgets + counts.loans + counts.loanPayments;
+      if (totalReferences > 0) {
+        throw new Error('Cannot delete a wallet that is used by transactions, bills, budgets, or loans.');
+      }
+
       await this.repo.delete(id);
     });
     await persistWeb();

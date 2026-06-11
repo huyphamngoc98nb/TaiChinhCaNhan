@@ -6,6 +6,8 @@ import type {
   Wallet,
 } from '../repositories/wallet.repository';
 
+const syncQueue = new Map<string, Promise<void>>();
+
 function deriveStatus(
   statementBalance: number,
   paidAmount: number,
@@ -57,6 +59,26 @@ export class SyncCreditCardStatementUseCase {
   async execute(wallet: Wallet, asOf: number = Date.now()): Promise<void> {
     if (wallet.account_type !== 'credit_card') return;
 
+    const previous = syncQueue.get(wallet.id) ?? Promise.resolve();
+    let release!: () => void;
+    const lock = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    const tail = previous.catch(() => undefined).then(() => lock);
+    syncQueue.set(wallet.id, tail);
+
+    await previous.catch(() => undefined);
+    try {
+      await this._doSync(wallet, asOf);
+    } finally {
+      release();
+      if (syncQueue.get(wallet.id) === tail) {
+        syncQueue.delete(wallet.id);
+      }
+    }
+  }
+
+  private async _doSync(wallet: Wallet, asOf: number): Promise<void> {
     const period = getStatementPeriodForLifecycle(wallet, asOf);
     if (!period) return;
 

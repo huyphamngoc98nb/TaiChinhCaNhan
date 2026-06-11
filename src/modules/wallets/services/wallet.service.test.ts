@@ -38,17 +38,23 @@ const wallet: Wallet = {
 };
 
 describe('WalletService.updateWallet balance adjustment', () => {
+  let dbQuery: ReturnType<typeof vi.fn>;
+  let dbRun: ReturnType<typeof vi.fn>;
+
   beforeEach(() => {
     vi.clearAllMocks();
+    dbQuery = vi.fn();
+    dbRun = vi.fn();
     vi.mocked(getDbConnectionForTransaction).mockResolvedValue({
-      query: vi.fn().mockResolvedValue({ values: [{ id: 'cat-balance-adjustment-expense' }] }),
-      run: vi.fn(),
+      query: dbQuery,
+      run: dbRun,
     });
   });
 
   it('creates the adjustment transaction and updates balance inside the outer transaction', async () => {
     const transactionRepository = new InMemoryTransactionRepository();
     const walletRepository = new InMemoryWalletRepository([wallet]);
+    const updateSpy = vi.spyOn(walletRepository, 'update');
     let observedInsideTransaction = false;
     const runTransaction: TransactionRunner = async (work) => {
       const result = await work();
@@ -71,6 +77,14 @@ describe('WalletService.updateWallet balance adjustment', () => {
     });
 
     expect(observedInsideTransaction).toBe(true);
+    expect(updateSpy).toHaveBeenCalledWith(wallet.id, {}, expect.any(Number));
+    expect(dbQuery).not.toHaveBeenCalled();
+    expect(dbRun).toHaveBeenCalledOnce();
+    expect(dbRun).toHaveBeenCalledWith(
+      expect.stringContaining('INSERT OR IGNORE INTO categories'),
+      expect.arrayContaining(['cat-balance-adjustment-expense']),
+      true
+    );
     await expect(transactionRepository.list({ wallet_id: wallet.id })).resolves.toEqual([
       expect.objectContaining({
         wallet_id: wallet.id,
@@ -79,5 +93,62 @@ describe('WalletService.updateWallet balance adjustment', () => {
         amount: 2_500,
       }),
     ]);
+  });
+});
+
+describe('WalletService.deleteWallet reference guard', () => {
+  it('checks references inside the transaction and does not delete when a reference appears', async () => {
+    const transactionRepository = new InMemoryTransactionRepository();
+    const walletRepository = new InMemoryWalletRepository([wallet]);
+    let insideTransaction = false;
+    const getReferenceCounts = vi
+      .spyOn(walletRepository, 'getReferenceCounts')
+      .mockImplementation(async () => ({
+        transactions: insideTransaction ? 1 : 0,
+        recurringBills: 0,
+        budgets: 0,
+        loans: 0,
+        loanPayments: 0,
+      }));
+    const deleteSpy = vi.spyOn(walletRepository, 'delete');
+    const runTransaction: TransactionRunner = async (work) => {
+      insideTransaction = true;
+      try {
+        return await work();
+      } finally {
+        insideTransaction = false;
+      }
+    };
+    const service = new WalletService(walletRepository, transactionRepository, runTransaction);
+
+    await expect(service.deleteWallet(wallet.id)).rejects.toThrow(
+      'Cannot delete a wallet that is used by transactions, bills, budgets, or loans.'
+    );
+
+    expect(getReferenceCounts).toHaveBeenCalledOnce();
+    expect(deleteSpy).not.toHaveBeenCalled();
+    await expect(walletRepository.getById(wallet.id)).resolves.toEqual(wallet);
+  });
+
+  it('does not delete when a reference appears after a zero reference count', async () => {
+    const transactionRepository = new InMemoryTransactionRepository();
+    const walletRepository = new InMemoryWalletRepository([wallet]);
+    vi.spyOn(walletRepository, 'getReferenceCounts').mockResolvedValue({
+      transactions: 0,
+      recurringBills: 0,
+      budgets: 0,
+      loans: 0,
+      loanPayments: 0,
+    });
+    const deleteSpy = vi.spyOn(walletRepository, 'delete').mockImplementation(async () => {
+      throw new Error('FOREIGN KEY constraint failed');
+    });
+    const runTransaction: TransactionRunner = async (work) => work();
+    const service = new WalletService(walletRepository, transactionRepository, runTransaction);
+
+    await expect(service.deleteWallet(wallet.id)).rejects.toThrow('FOREIGN KEY constraint failed');
+
+    expect(deleteSpy).toHaveBeenCalledOnce();
+    await expect(walletRepository.getById(wallet.id)).resolves.toEqual(wallet);
   });
 });

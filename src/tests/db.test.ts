@@ -391,7 +391,7 @@ describe('Database SQLite Tests', () => {
     expect(mockDb.rollbackTransaction).not.toHaveBeenCalled();
   });
 
-  it('keeps the managed db context across awaited transaction work', async () => {
+  it('applies wallet balance deltas with one atomic SQL update and no balance read', async () => {
     const leakedDb = {
       ...mockDb,
       run: vi.fn().mockResolvedValue(undefined),
@@ -412,6 +412,7 @@ describe('Database SQLite Tests', () => {
       [100, 2000, 'w-1'],
       false
     );
+    expect(mockDb.query).not.toHaveBeenCalled();
     expect(leakedDb.run).not.toHaveBeenCalled();
   });
 

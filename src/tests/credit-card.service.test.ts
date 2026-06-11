@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { getCreditCardStatementPeriod } from '@/modules/wallets/services/credit-card.service';
 import { SyncCreditCardStatementUseCase } from '@/modules/wallets/services/sync-credit-card-statement';
 import type { Wallet } from '@/modules/wallets/repositories/wallet.repository';
@@ -54,6 +54,46 @@ describe('credit card statement cycle', () => {
 });
 
 describe('SyncCreditCardStatementUseCase', () => {
+  it('serializes concurrent syncs for the same wallet across use-case instances', async () => {
+    const asOf = timestamp(2026, 4, 16);
+    const creditCard = wallet();
+    const repo = new InMemoryWalletRepository([creditCard]);
+    let releaseFirst!: () => void;
+    const firstCanComplete = new Promise<void>((resolve) => {
+      releaseFirst = resolve;
+    });
+    let firstStarted!: () => void;
+    const firstStartedPromise = new Promise<void>((resolve) => {
+      firstStarted = resolve;
+    });
+    let activeUpserts = 0;
+    let maxActiveUpserts = 0;
+    const upsert = vi
+      .spyOn(repo, 'upsertCreditCardStatement')
+      .mockImplementation(async () => {
+        activeUpserts += 1;
+        maxActiveUpserts = Math.max(maxActiveUpserts, activeUpserts);
+        if (upsert.mock.calls.length === 1) {
+          firstStarted();
+          await firstCanComplete;
+        }
+        activeUpserts -= 1;
+      });
+
+    const first = new SyncCreditCardStatementUseCase(repo).execute(creditCard, asOf);
+    await firstStartedPromise;
+    const second = new SyncCreditCardStatementUseCase(repo).execute(creditCard, asOf);
+    await Promise.resolve();
+
+    expect(upsert).toHaveBeenCalledOnce();
+
+    releaseFirst();
+    await Promise.all([first, second]);
+
+    expect(upsert).toHaveBeenCalledTimes(2);
+    expect(maxActiveUpserts).toBe(1);
+  });
+
   it('creates a statement when none exists', async () => {
     const asOf = timestamp(2026, 4, 16);
     const creditCard = wallet();

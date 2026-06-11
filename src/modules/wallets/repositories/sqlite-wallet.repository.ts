@@ -372,6 +372,7 @@ export class SQLiteWalletRepository implements IWalletRepository {
    * Uses a single SQL statement so concurrent calls cannot interleave.
    */
   async updateBalanceDelta(id: string, delta: number, updatedAt: number): Promise<void> {
+    // Keep this as one atomic SQL UPDATE; read-modify-write can lose concurrent deltas.
     const db = await getDbConnectionForTransaction();
     await db.run(
       'UPDATE wallets SET balance = balance + ?, updated_at = ? WHERE id = ?',

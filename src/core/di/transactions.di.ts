@@ -22,7 +22,4 @@ export const deleteTransactionUseCase = new DeleteTransactionUseCase(
   transactionRepository,
   appRepositories.wallet
 );
-export const createCreditCardPaymentUseCase = new CreateCreditCardPaymentUseCase(
-  createTransactionUseCase,
-  appRepositories.wallet
-);
+export const createCreditCardPaymentUseCase = new CreateCreditCardPaymentUseCase();

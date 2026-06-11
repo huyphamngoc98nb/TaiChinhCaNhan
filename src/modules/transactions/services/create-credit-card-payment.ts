@@ -4,7 +4,11 @@ import type { IWalletRepository } from '@/modules/wallets/repositories/wallet.re
 import { appRepositories } from '@/core/repositories/app-repositories';
 import { CreateTransactionUseCase } from './create-transaction';
 import { SyncCreditCardStatementUseCase } from '@/modules/wallets/services/sync-credit-card-statement';
-import { sqliteTransactionRunner, TransactionRunner } from '@/core/db/transaction-runner';
+import {
+  immediateTransactionRunner,
+  sqliteTransactionRunner,
+  TransactionRunner,
+} from '@/core/db/transaction-runner';
 import { DB_NAME } from '@/core/db/sqlite/connection';
 import { Capacitor } from '@capacitor/core';
 import { logger } from '@/core/telemetry/logger';
@@ -20,7 +24,11 @@ export interface CreateCreditCardPaymentInput {
 
 export class CreateCreditCardPaymentUseCase {
   constructor(
-    private readonly createTransaction: CreateTransactionUseCase,
+    private readonly createTransaction: CreateTransactionUseCase = new CreateTransactionUseCase(
+      appRepositories.transaction,
+      appRepositories.wallet,
+      immediateTransactionRunner
+    ),
     private readonly walletRepository: IWalletRepository = appRepositories.wallet,
     private readonly runTransaction: TransactionRunner = sqliteTransactionRunner
   ) {}
