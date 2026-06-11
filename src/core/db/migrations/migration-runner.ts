@@ -29,6 +29,7 @@ import loanCategoriesSql from './024_loan_categories.sql?raw';
 import loanSkipTransactionSql from './025_loan_skip_transaction.sql?raw';
 import loanLinkedTransactionSql from './026_loan_linked_transaction.sql?raw';
 import loanDateSql from './027_loan_date.sql?raw';
+import creditStatementRemainingTriggerSql from './028_credit_statement_remaining_trigger.sql?raw';
 
 type DbConnection = Awaited<ReturnType<typeof getDbConnection>>;
 
@@ -76,6 +77,7 @@ export const MIGRATIONS: Migration[] = [
   { version: 25, name: LOAN_SKIP_TRANSACTION_NAME,             sql: loanSkipTransactionSql },
   { version: 26, name: LOAN_LINKED_TRANSACTION_NAME,           sql: loanLinkedTransactionSql },
   { version: 27, name: '027_loan_date',                        sql: loanDateSql },
+  { version: 28, name: '028_credit_statement_remaining_trigger', sql: creditStatementRemainingTriggerSql },
 ];
 
 async function markMigrationDone(
@@ -189,6 +191,28 @@ async function runMigrationTransaction(
       catch (re) { logger.warn(`Rollback failed for ${migrationName}:`, re); }
     }
     throw err;
+  }
+}
+
+async function runMigrationWithFkRestore(
+  db: DbConnection,
+  isWeb: boolean,
+  migrationName: string,
+  migrationSql: string,
+  fn: () => Promise<void>,
+) {
+  const hasFkOff = /PRAGMA\s+foreign_keys\s*=\s*OFF/i.test(migrationSql);
+
+  try {
+    await runMigrationTransaction(db, isWeb, migrationName, fn);
+  } finally {
+    if (hasFkOff) {
+      try {
+        await db.execute('PRAGMA foreign_keys = ON;');
+      } catch (pragmaErr) {
+        logger.error('CRITICAL: Failed to restore foreign_keys=ON after migration', pragmaErr);
+      }
+    }
   }
 }
 
@@ -307,8 +331,9 @@ async function repairLegacyLoanMigrationState(
           `${LEGACY_LOAN_LINKED_TRANSACTION_NAME} was recorded at version 25 before ${LOAN_SKIP_TRANSACTION_NAME}. ` +
           `Repairing the missing loan skip-transaction schema.`
         );
-        await runMigrationTransaction(db, isWeb, LOAN_SKIP_TRANSACTION_NAME, async () => {
-          await executeMigrationSql(db, buildLoanSkipTransactionSql(hasLinkedTransaction));
+        const repairSql = buildLoanSkipTransactionSql(hasLinkedTransaction);
+        await runMigrationWithFkRestore(db, isWeb, LOAN_SKIP_TRANSACTION_NAME, repairSql, async () => {
+          await executeMigrationSql(db, repairSql);
         });
         changed = true;
       }
@@ -424,10 +449,8 @@ export async function runMigrations() {
     const stmts = splitSqlStatements(migrationSql);
 
     try {
-      await runMigrationTransaction(db, isWeb, migration.name, async () => {
-        for (const stmt of stmts) {
-          await executeMigrationStatement(db, stmt);
-        }
+      await runMigrationWithFkRestore(db, isWeb, migration.name, migrationSql, async () => {
+        await executeMigrationSql(db, migrationSql);
         await markMigrationDone(db, migration.version, migration.name);
       });
       logger.info(`Migration ${migration.name} completed (${stmts.length} stmts).`);

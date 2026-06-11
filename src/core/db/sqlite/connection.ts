@@ -6,6 +6,7 @@ import { logger } from '@/core/telemetry/logger';
 export const DB_NAME = 'taixiu_db';
 
 let webStoreInitPromise: Promise<void> | null = null;
+let initPromise: Promise<any> | null = null;
 
 async function ensureWebStoreInitialized() {
   if (webStoreInitPromise) {
@@ -31,6 +32,15 @@ async function ensureWebStoreInitialized() {
 }
 
 export async function initDatabaseConnection() {
+  if (initPromise) return initPromise;
+
+  initPromise = _initDatabaseConnectionImpl().finally(() => {
+    initPromise = null;
+  });
+  return initPromise;
+}
+
+async function _initDatabaseConnectionImpl() {
   try {
     const platform = Capacitor.getPlatform();
     

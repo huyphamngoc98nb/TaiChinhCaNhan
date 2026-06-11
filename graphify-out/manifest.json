@@ -50,7 +50,7 @@
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\android\\capacitor.settings.gradle": {
-    "mtime": 1781083399.210918,
+    "mtime": 1781087245.2998765,
     "ast_hash": "7d20bbb6ddd9b895546d6342e84c45a4",
     "semantic_hash": ""
   },
@@ -75,7 +75,7 @@
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\android\\app\\capacitor.build.gradle": {
-    "mtime": 1781083399.21192,
+    "mtime": 1781087245.3008728,
     "ast_hash": "3deacd894fa096455ce58f3b2df33e10",
     "semantic_hash": ""
   },
@@ -85,12 +85,12 @@
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\android\\app\\src\\main\\assets\\capacitor.config.json": {
-    "mtime": 1781083399.0507367,
+    "mtime": 1781087245.1347418,
     "ast_hash": "5faad82265b616885f2ca4175082f59a",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\android\\app\\src\\main\\assets\\capacitor.plugins.json": {
-    "mtime": 1781083399.1417494,
+    "mtime": 1781087245.2309208,
     "ast_hash": "f63e79d46b1f8b3fe5f4af0d8fcd322a",
     "semantic_hash": ""
   },
@@ -115,12 +115,12 @@
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\android\\capacitor-cordova-android-plugins\\build.gradle": {
-    "mtime": 1781083399.21419,
+    "mtime": 1781087245.3018723,
     "ast_hash": "2af61653d70c95d20802c8b5c433ba90",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\android\\capacitor-cordova-android-plugins\\cordova.variables.gradle": {
-    "mtime": 1781083399.21419,
+    "mtime": 1781087245.3028717,
     "ast_hash": "d2372a0ae9aa60abb8d03e7f06bf9194",
     "semantic_hash": ""
   },
@@ -345,8 +345,8 @@
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\core\\db\\migrations\\migration-runner.ts": {
-    "mtime": 1780991989.776304,
-    "ast_hash": "7dd5b5da682ce72e3abd506d072403ba",
+    "mtime": 1781140544.420629,
+    "ast_hash": "f240131fb3818b200b6d3782cd271f70",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\core\\db\\seed\\default-categories.ts": {
@@ -355,8 +355,8 @@
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\core\\db\\sqlite\\connection.ts": {
-    "mtime": 1779442949.1493757,
-    "ast_hash": "70d74c49f7b1b02d5aed99e487ebc0a5",
+    "mtime": 1781140509.708613,
+    "ast_hash": "ddc2b02de178605fc789d4643dc023da",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\core\\db\\sqlite\\encryption.ts": {
@@ -370,13 +370,13 @@
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\core\\db\\sqlite\\pragmas.ts": {
-    "mtime": 1778122304.5802054,
-    "ast_hash": "db59eec35f18585875c681e1672a15d4",
+    "mtime": 1781140509.9128304,
+    "ast_hash": "9beecb2dac840f777a305d2d7365da91",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\core\\db\\sqlite\\transaction.ts": {
-    "mtime": 1780448468.0148017,
-    "ast_hash": "141f5d10e6ab428c9207703630105609",
+    "mtime": 1781140510.1307206,
+    "ast_hash": "cb1a9db834b753e8e71a2723ecce4604",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\core\\di\\export.di.ts": {
@@ -1707,6 +1707,11 @@
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\modules\\transactions\\services\\transaction-wallet-rules.test.ts": {
     "mtime": 1781082333.3790257,
     "ast_hash": "c3721a570c3e916283e3734c2be0f159",
+    "semantic_hash": ""
+  },
+  "D:\\Personal Project\\TaiXiuCaNhan\\src\\core\\db\\migrations\\028_credit_statement_remaining_trigger.sql": {
+    "mtime": 1781140609.403441,
+    "ast_hash": "21e48308c49fa24c377d5752da9a9ada",
     "semantic_hash": ""
   }
 }

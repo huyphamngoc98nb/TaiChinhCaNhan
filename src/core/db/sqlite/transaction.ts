@@ -1,5 +1,6 @@
-import { getDbConnection } from './connection';
+import { DB_NAME, getDbConnection } from './connection';
 import { Capacitor } from '@capacitor/core';
+import { sqlite } from './pragmas';
 
 let transactionQueue: Promise<void> = Promise.resolve();
 let managedTransactionDepth = 0;
@@ -80,7 +81,25 @@ export async function runInTransaction<T>(
   const isWeb = Capacitor.getPlatform() === 'web';
 
   if (isWeb) {
-    return runExclusive(() => runManagedWork(db, () => work(db)));
+    return runExclusive(() =>
+      runManagedWork(db, async () => {
+        try {
+          const result = await work(db);
+          try {
+            await sqlite.saveToStore(DB_NAME);
+          } catch (saveErr) {
+            console.warn('[transaction] saveToStore failed after successful work:', saveErr);
+          }
+          return result;
+        } catch (err) {
+          console.error(
+            '[transaction] Work failed on Web platform - partial state may exist. Manual compensation required.',
+            err
+          );
+          throw err;
+        }
+      })
+    );
   }
 
   return runExclusive(async () => {
