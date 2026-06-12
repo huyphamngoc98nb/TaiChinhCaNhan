@@ -113,17 +113,19 @@ export const DateRangePicker: React.FC<Props> = ({
           </div>
         </div>
 
-        {!isDefault && (
-          <button
-            type="button"
-            onClick={onReset}
-            aria-label={t('reports.reset_filters')}
-            title={t('reports.reset_filters')}
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gray-100 text-gray-600 active:bg-gray-200"
-          >
-            <RotateCcw size={16} />
-          </button>
-        )}
+        <button
+          type="button"
+          onClick={onReset}
+          disabled={isDefault}
+          aria-hidden={isDefault}
+          aria-label={t('reports.reset_filters')}
+          title={t('reports.reset_filters')}
+          className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gray-100 text-gray-600 active:bg-gray-200 ${
+            isDefault ? 'invisible pointer-events-none' : ''
+          }`}
+        >
+          <RotateCcw size={16} />
+        </button>
       </div>
     </div>
   );

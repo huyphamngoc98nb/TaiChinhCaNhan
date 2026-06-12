@@ -2,6 +2,7 @@
 import { FormEvent, useCallback, useEffect, useRef, useState } from 'react';
 import { Delete, Fingerprint, LockKeyhole } from 'lucide-react';
 import { authService } from '@/core/auth/auth.service';
+import { RecoveryResetDialog } from '@/core/auth/RecoveryResetDialog';
 import { useLanguage } from '@/shared/context/LanguageContext';
 
 interface AppUnlockProps {
@@ -10,7 +11,6 @@ interface AppUnlockProps {
 
 const PIN_MIN_LENGTH = 6;
 const PIN_KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'];
-const PIN_ERROR_MESSAGE = 'Mã PIN không đúng';
 const PIN_CLEAR_DELAY_MS = 750;
 const DELETE_HOLD_DELAY_MS = 320;
 const DELETE_REPEAT_MS = 80;
@@ -27,6 +27,7 @@ export function AppUnlock({ onUnlocked }: AppUnlockProps) {
   const [shakeDots, setShakeDots] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [clearingError, setClearingError] = useState(false);
+  const [showRecovery, setShowRecovery] = useState(false);
   const clearPinTimerRef = useRef<number | null>(null);
   const shakeTimerRef = useRef<number | null>(null);
   const deleteHoldTimerRef = useRef<number | null>(null);
@@ -145,7 +146,7 @@ export function AppUnlock({ onUnlocked }: AppUnlockProps) {
       setFirstPin('');
       onUnlocked();
     } catch {
-      showPinError(PIN_ERROR_MESSAGE);
+      showPinError(mode === 'unlock' ? t('app_lock.invalid_pin') : t('app_lock.setup_failed'));
     } finally {
       setSubmitting(false);
     }
@@ -282,6 +283,11 @@ export function AppUnlock({ onUnlocked }: AppUnlockProps) {
                   ? t('app_lock.confirm_desc')
                   : t('app_lock.unlock_desc')}
             </p>
+            {mode === 'setup' && (
+              <p className="mt-3 max-w-[320px] text-center text-[12px] leading-5 text-muted">
+                {t('app_lock.setup_security_note')}
+              </p>
+            )}
           </div>
 
           <input
@@ -332,7 +338,7 @@ export function AppUnlock({ onUnlocked }: AppUnlockProps) {
               }`}
               role={error ? 'alert' : undefined}
             >
-              {error ?? PIN_ERROR_MESSAGE}
+              {error ?? t('app_lock.invalid_pin')}
             </p>
           </div>
 
@@ -382,13 +388,36 @@ export function AppUnlock({ onUnlocked }: AppUnlockProps) {
             onClick={() => void unlockFromBiometrics()}
             disabled={inputLocked || mode !== 'unlock'}
             className="mx-auto mt-7 flex min-h-[44px] min-w-[44px] items-center justify-center gap-2 rounded-2xl px-5 text-[15px] font-bold text-primary transition-[transform,background-color] duration-100 active:scale-[0.94] active:bg-[var(--primary-soft)] disabled:opacity-50"
-            aria-label="Dùng sinh trắc học"
+            aria-label={t('app_lock.use_biometrics')}
           >
             <Fingerprint size={27} strokeWidth={2.35} />
-            <span>Dùng sinh trắc học</span>
+            <span>{t('app_lock.use_biometrics')}</span>
           </button>
+
+          {mode === 'unlock' && (
+            <button
+              type="button"
+              onClick={() => setShowRecovery(true)}
+              disabled={inputLocked}
+              className="mx-auto mt-2 block min-h-[44px] px-4 text-sm font-semibold text-muted underline underline-offset-4"
+            >
+              {t('app_lock.forgot_pin')}
+            </button>
+          )}
         </form>
       </main>
+      {showRecovery && (
+        <RecoveryResetDialog
+          onCancel={() => setShowRecovery(false)}
+          onReset={() => {
+            setShowRecovery(false);
+            setPin('');
+            setFirstPin('');
+            setError(null);
+            setMode('setup');
+          }}
+        />
+      )}
     </div>
   );
 }

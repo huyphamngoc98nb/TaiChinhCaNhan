@@ -31,7 +31,9 @@ Trên bản native, lần mở đầu tiên:
 
 Nếu sinh trắc học đã được bật trong **Cài đặt** và thiết bị hỗ trợ, bạn có thể dùng nút **Dùng sinh trắc học** để mở khóa.
 
-> Không có chức năng khôi phục PIN trong giao diện hiện tại. Hãy ghi nhớ PIN của bạn.
+> Không thể xem lại hoặc khôi phục PIN. Nếu quên PIN, chọn **Quên mã PIN?**, xác nhận xóa dữ liệu
+> local, thiết lập PIN mới và khôi phục từ backup. Nếu không có backup, dữ liệu đã mã hóa có thể
+> mất vĩnh viễn.
 
 ### Thiết lập ban đầu
 
@@ -349,9 +351,13 @@ Mở **Thêm > Sao lưu và khôi phục**.
 
 ### Tạo backup JSON thủ công
 
-1. Chọn **Xuất bản sao lưu**.
-2. Chọn nơi lưu tệp khi hệ thống yêu cầu.
-3. Giữ tệp ở nơi an toàn.
+1. Giữ tùy chọn **Mã hóa bản sao lưu** đang bật (mặc định).
+2. Nhập mật khẩu bản sao lưu và xác nhận mật khẩu.
+3. Chọn **Xuất bản sao lưu** rồi chọn nơi lưu tệp khi hệ thống yêu cầu.
+4. Giữ tệp và mật khẩu ở nơi an toàn. Nếu quên mật khẩu, bản sao lưu đã mã hóa không thể khôi phục.
+
+Bạn vẫn có thể tắt mã hóa để xuất backup plaintext nhằm tương thích với công cụ cũ, nhưng bất kỳ
+ai truy cập được tệp plaintext đều có thể đọc nội dung.
 
 Backup hiện bao gồm dữ liệu ví, danh mục, giao dịch, hóa đơn định kỳ, cài đặt ứng dụng, ngân sách, nhật ký lỗi, khoản vay và lịch sử thanh toán khoản vay.
 
@@ -367,19 +373,25 @@ Trong màn hình backup:
 
 Ứng dụng kiểm tra và chạy backup đến hạn khi khởi động và khi mở màn hình backup.
 
+Backup tự động hiện vẫn là plaintext vì ứng dụng không lưu mật khẩu backup. Hãy bảo vệ các tệp này
+và không lưu chúng ở vị trí người khác có thể truy cập.
+
 ### Khôi phục từ backup
 
 1. Tạo một backup mới trước khi khôi phục.
 2. Chọn **Khôi phục dữ liệu**.
 3. Đọc cảnh báo và xác nhận.
 4. Chọn tệp JSON hợp lệ.
-5. Chờ ứng dụng hoàn tất và mở khóa lại.
+5. Nếu tệp đã mã hóa, nhập mật khẩu backup khi được yêu cầu.
+6. Chờ ứng dụng hoàn tất và mở khóa lại.
 
 > Khôi phục sẽ ghi đè dữ liệu hiện tại trong cơ sở dữ liệu. Thao tác được thực hiện theo transaction, nhưng bạn vẫn nên giữ một bản backup riêng trước khi bắt đầu.
 
 ### Bảo vệ tệp backup
 
-Backup JSON là tệp plaintext, không được SQLCipher mã hóa. Người có tệp có thể đọc nội dung bằng công cụ thông thường. Hãy tự bảo vệ, mã hóa hoặc lưu tệp ở vị trí an toàn.
+SQLCipher chỉ bảo vệ cơ sở dữ liệu local trên thiết bị. Backup thủ công đã mã hóa bảo vệ riêng tệp
+export bằng mật khẩu. Backup plaintext và backup tự động vẫn có thể bị đọc bằng công cụ thông thường
+nếu còn tồn tại, vì vậy hãy xóa hoặc lưu chúng ở vị trí an toàn.
 
 ## 12. Cài đặt
 
@@ -404,6 +416,15 @@ Mỗi ví cũng có đơn vị tiền tệ riêng trong form ví. Cài đặt ti
 
 Nếu thiết bị native hỗ trợ, bật **Mở khóa sinh trắc học**. Ứng dụng yêu cầu xác thực trên thiết bị khi bật tính năng. Nếu sinh trắc học bị hủy hoặc không khả dụng, bạn vẫn có thể dùng PIN.
 
+### Bảo mật và PIN
+
+Khu vực **Bảo mật** hiển thị trạng thái bảo vệ local. Trên native, bạn có thể:
+
+- Đổi PIN bằng cách nhập PIN hiện tại và xác nhận PIN mới. Đổi PIN sẽ tắt sinh trắc học cho đến khi bật lại.
+- Chọn **Xóa dữ liệu local và thiết lập lại**. Thao tác này yêu cầu đánh dấu xác nhận và nhập `RESET`; file backup đã export không bị xóa.
+
+Trên Web, dữ liệu dùng IndexedDB/jeep-sqlite và không có lớp mở khóa SQLCipher/PIN như native.
+
 ### Các lối tắt khác
 
 Màn hình Cài đặt cũng có lối tắt đến Ví, Danh mục, Báo cáo, Hóa đơn định kỳ, Xuất dữ liệu và Sao lưu/khôi phục.
@@ -417,7 +438,7 @@ Chẩn đoán cơ sở dữ liệu chỉ hiển thị trong môi trường phát
 - Trên native, cơ sở dữ liệu được mở bằng SQLCipher sau khi xác thực PIN.
 - PIN không được lưu trực tiếp trong mã ứng dụng hoặc local storage.
 - Mất PIN có thể làm dữ liệu native đã mã hóa không thể truy cập.
-- Backup JSON là plaintext và cần được người dùng tự bảo vệ.
+- Backup thủ công nên được mã hóa bằng mật khẩu; backup plaintext và backup tự động cần được người dùng tự bảo vệ.
 - Xóa dữ liệu trình duyệt có thể làm mất dữ liệu bản Web nếu chưa có backup.
 - Backup không đóng gói tệp ảnh hóa đơn vật lý.
 

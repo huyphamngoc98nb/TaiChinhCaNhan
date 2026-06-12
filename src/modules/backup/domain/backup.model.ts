@@ -20,6 +20,21 @@ export interface BackupPayload {
   loan_payments: BackupRow[];
 }
 
+export interface EncryptedBackupEnvelope {
+  metadata: BackupMetadata;
+  encryption: {
+    format: 'expense-tracker-encrypted-backup';
+    version: 1;
+    algorithm: 'AES-GCM';
+    kdf: 'PBKDF2';
+    hash: 'SHA-256';
+    iterations: number;
+    salt: string;
+    iv: string;
+  };
+  ciphertext: string;
+}
+
 export interface ValidationResult {
   isValid: boolean;
   error?: string;

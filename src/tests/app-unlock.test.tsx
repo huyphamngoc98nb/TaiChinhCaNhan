@@ -11,9 +11,15 @@ const authServiceMock = vi.hoisted(() => ({
   unlockWithBiometrics: vi.fn(),
   unlockWithPin: vi.fn(),
 }));
+const recoveryServiceMock = vi.hoisted(() => ({
+  resetLocalData: vi.fn(),
+}));
 
 vi.mock('@/core/auth/auth.service', () => ({
   authService: authServiceMock,
+}));
+vi.mock('@/core/auth/recovery.service', () => ({
+  recoveryService: recoveryServiceMock,
 }));
 
 vi.mock('@capacitor/preferences', () => ({
@@ -46,6 +52,7 @@ describe('AppUnlock', () => {
     authServiceMock.setupPin.mockResolvedValue({ authenticated: true, createdSecret: true });
     authServiceMock.unlockWithBiometrics.mockResolvedValue(null);
     authServiceMock.unlockWithPin.mockResolvedValue({ authenticated: true, createdSecret: false });
+    recoveryServiceMock.resetLocalData.mockResolvedValue(undefined);
   });
 
   it('starts with PIN setup when no native secret exists and does not trigger biometrics', async () => {
@@ -55,6 +62,7 @@ describe('AppUnlock', () => {
     expect(authServiceMock.isBiometricUnlockEnabled).not.toHaveBeenCalled();
     expect(authServiceMock.onBiometricResult).not.toHaveBeenCalled();
     expect(authServiceMock.unlockWithBiometrics).not.toHaveBeenCalled();
+    expect(screen.queryByRole('button', { name: 'Forgot PIN?' })).toBeNull();
   });
 
   it('requires create and confirm PIN before unlocking first launch', async () => {
@@ -73,5 +81,38 @@ describe('AppUnlock', () => {
       expect(authServiceMock.setupPin).toHaveBeenCalledWith('123456');
       expect(onUnlocked).toHaveBeenCalledTimes(1);
     });
+  });
+
+  it('returns to setup without storing a mismatched confirmation', async () => {
+    renderAppUnlock();
+    expect(await screen.findByRole('heading', { name: 'Create PIN' })).toBeTruthy();
+
+    enterPin('123456');
+    expect(await screen.findByRole('heading', { name: 'Confirm PIN' })).toBeTruthy();
+    enterPin('654321');
+
+    expect(await screen.findByRole('heading', { name: 'Create PIN' })).toBeTruthy();
+    expect(authServiceMock.setupPin).not.toHaveBeenCalled();
+  });
+
+  it('shows recovery only in unlock mode and requires strong reset confirmation', async () => {
+    authServiceMock.hasStoredSecret.mockResolvedValue(true);
+    renderAppUnlock();
+
+    expect(await screen.findByRole('heading', { name: 'Unlock data' })).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: 'Forgot PIN?' }));
+
+    const resetButton = screen.getByRole('button', { name: 'Erase data and reset' });
+    expect((resetButton as HTMLButtonElement).disabled).toBe(true);
+
+    fireEvent.click(screen.getByRole('checkbox'));
+    fireEvent.change(screen.getByLabelText('Type RESET to enable deletion.'), {
+      target: { value: 'RESET' },
+    });
+    expect((resetButton as HTMLButtonElement).disabled).toBe(false);
+    fireEvent.click(resetButton);
+
+    await waitFor(() => expect(recoveryServiceMock.resetLocalData).toHaveBeenCalledTimes(1));
+    expect(await screen.findByRole('heading', { name: 'Create PIN' })).toBeTruthy();
   });
 });

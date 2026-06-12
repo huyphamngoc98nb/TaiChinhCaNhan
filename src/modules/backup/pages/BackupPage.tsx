@@ -8,8 +8,13 @@ import { useLanguage } from '@/shared/context/LanguageContext';
 import { forceAppUnlock, resumeAppLock, suspendAppLock } from '@/app/providers/app-lock-events';
 import { ROUTES } from '@/shared/constants/routes';
 import { exportBackupJson } from '../services/export-backup-json';
-import { importBackupJson } from '../services/import-backup-json';
+import {
+  EncryptedBackupPasswordRequiredError,
+  importBackupJson,
+} from '../services/import-backup-json';
+import { BackupDecryptionError, encryptBackupPayload } from '../services/encrypted-backup';
 import { saveBackupFile } from '../services/save-backup-file';
+import { BackupPasswordDialog } from '../components/BackupPasswordDialog';
 import {
   AutoBackupInterval,
   AutoBackupSettings,
@@ -36,6 +41,10 @@ export function BackupPage() {
   const [autoSettings, setAutoSettings] = useState<AutoBackupSettings | null>(null);
   const [autoLoading, setAutoLoading] = useState(true);
   const [autoSaving, setAutoSaving] = useState(false);
+  const [encryptExport, setEncryptExport] = useState(true);
+  const [exportPassword, setExportPassword] = useState('');
+  const [confirmExportPassword, setConfirmExportPassword] = useState('');
+  const [pendingEncryptedImport, setPendingEncryptedImport] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const restoreInProgressRef = useRef(false);
 
@@ -112,11 +121,23 @@ export function BackupPage() {
   };
 
   const handleExport = async () => {
+    if (encryptExport && exportPassword.length < 8) {
+      showErrorToast(t('backup.password_too_short'));
+      return;
+    }
+    if (encryptExport && exportPassword !== confirmExportPassword) {
+      showErrorToast(t('backup.password_mismatch'));
+      return;
+    }
+
     setLoading(true);
     try {
       const payload = await exportBackupJson();
       const fileName = `expense_tracker_backup_${new Date().toISOString().split('T')[0]}.json`;
-      const saved = await saveBackupFile(fileName, JSON.stringify(payload, null, 2));
+      const backup = encryptExport
+        ? await encryptBackupPayload(payload, exportPassword)
+        : payload;
+      const saved = await saveBackupFile(fileName, JSON.stringify(backup, null, 2));
 
       if (saved) {
         showSuccessToast(t('backup.export_success'));
@@ -162,6 +183,7 @@ export function BackupPage() {
 
   const handleImport = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
+    let awaitingPassword = false;
     if (!file) {
       resumeAppLock();
       return;
@@ -177,15 +199,51 @@ export function BackupPage() {
       forceAppUnlock();
       navigate(ROUTES.HOME, { replace: true });
     } catch (error: any) {
+      if (error instanceof EncryptedBackupPasswordRequiredError) {
+        awaitingPassword = true;
+        setPendingEncryptedImport(file);
+        event.target.value = '';
+        setLoading(false);
+        return;
+      }
       showErrorToast(`${t('backup.restore_failed')} ${error.message}`);
       event.target.value = ''; // Reset input
       resumeAppLock();
     } finally {
       setLoading(false);
-      if (!fileInputRef.current?.files?.length) {
+      if (!awaitingPassword && !fileInputRef.current?.files?.length) {
         restoreInProgressRef.current = false;
       }
     }
+  };
+
+  const handleEncryptedImport = async (password: string) => {
+    if (!pendingEncryptedImport) return;
+
+    setLoading(true);
+    try {
+      await importBackupJson(pendingEncryptedImport, password);
+      setPendingEncryptedImport(null);
+      restoreInProgressRef.current = false;
+      showSuccessToast(t('backup.restore_success'));
+      forceAppUnlock();
+      navigate(ROUTES.HOME, { replace: true });
+    } catch (error: any) {
+      showErrorToast(
+        error instanceof BackupDecryptionError
+          ? t('backup.decrypt_failed')
+          : `${t('backup.restore_failed')} ${error.message}`
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCancelEncryptedImport = () => {
+    if (loading) return;
+    setPendingEncryptedImport(null);
+    restoreInProgressRef.current = false;
+    resumeAppLock();
   };
 
   const intervalOptions: Array<{ value: AutoBackupInterval; label: string }> = [
@@ -236,6 +294,69 @@ export function BackupPage() {
               </p>
             </div>
           </div>
+          <label
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: '12px',
+              marginBottom: '14px',
+              fontWeight: '600',
+            }}
+          >
+            <span>{t('backup.encrypt_backup')}</span>
+            <input
+              type="checkbox"
+              checked={encryptExport}
+              onChange={(event) => setEncryptExport(event.target.checked)}
+              disabled={loading}
+            />
+          </label>
+          {encryptExport ? (
+            <div style={{ display: 'grid', gap: '10px', marginBottom: '14px' }}>
+              <label style={{ display: 'grid', gap: '6px', fontSize: '0.85rem' }}>
+                <span>{t('backup.backup_password')}</span>
+                <input
+                  type="password"
+                  value={exportPassword}
+                  onChange={(event) => setExportPassword(event.target.value)}
+                  disabled={loading}
+                  autoComplete="new-password"
+                  style={{
+                    padding: '12px',
+                    border: '1px solid var(--border)',
+                    borderRadius: '10px',
+                    background: 'var(--bg)',
+                    color: 'var(--text)',
+                  }}
+                />
+              </label>
+              <label style={{ display: 'grid', gap: '6px', fontSize: '0.85rem' }}>
+                <span>{t('backup.confirm_password')}</span>
+                <input
+                  type="password"
+                  value={confirmExportPassword}
+                  onChange={(event) => setConfirmExportPassword(event.target.value)}
+                  disabled={loading}
+                  autoComplete="new-password"
+                  style={{
+                    padding: '12px',
+                    border: '1px solid var(--border)',
+                    borderRadius: '10px',
+                    background: 'var(--bg)',
+                    color: 'var(--text)',
+                  }}
+                />
+              </label>
+              <p style={{ margin: 0, color: '#b45309', fontSize: '0.8rem', lineHeight: 1.4 }}>
+                {t('backup.password_loss_warning')}
+              </p>
+            </div>
+          ) : (
+            <p style={{ margin: '0 0 14px', color: '#be123c', fontSize: '0.8rem', lineHeight: 1.4 }}>
+              {t('backup.plaintext_warning')}
+            </p>
+          )}
           <button
             onClick={handleExport}
             disabled={loading}
@@ -275,6 +396,9 @@ export function BackupPage() {
               </h3>
               <p style={{ margin: '2px 0 0', fontSize: '0.85rem', color: 'var(--text-muted)' }}>
                 {t('backup.auto_desc')}
+              </p>
+              <p style={{ margin: '6px 0 0', fontSize: '0.78rem', color: '#b45309' }}>
+                {t('backup.auto_plaintext_warning')}
               </p>
             </div>
             <button
@@ -478,6 +602,18 @@ export function BackupPage() {
           </ul>
         </div>
       </div>
+      {pendingEncryptedImport && (
+        <BackupPasswordDialog
+          title={t('backup.enter_password_title')}
+          label={t('backup.backup_password')}
+          warning={t('backup.password_loss_warning')}
+          submitText={t('backup.restore_confirm_btn')}
+          cancelText={t('common.cancel')}
+          loading={loading}
+          onSubmit={handleEncryptedImport}
+          onCancel={handleCancelEncryptedImport}
+        />
+      )}
     </div>
   );
 }

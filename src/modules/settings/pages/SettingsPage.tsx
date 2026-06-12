@@ -4,7 +4,7 @@ import { BackButton } from '@/shared/components/BackButton';
 import { DatabaseDiagnostics } from '../components/DatabaseDiagnostics';
 import { LanguageSettings } from '../components/LanguageSettings';
 import { CurrencySettings } from '../components/CurrencySettings';
-import { BiometricUnlockSettings } from '../components/BiometricUnlockSettings';
+import { SecuritySettings } from '../components/SecuritySettings';
 import { ThemeSelector } from '../components/ThemeSelector';
 import { useLanguage } from '@/shared/context/LanguageContext';
 import {
@@ -98,8 +98,9 @@ export function SettingsPage() {
           <div className="px-4 py-3"><ThemeSelector /></div>
           <div className="px-4 py-3"><LanguageSettings /></div>
           <div className="px-4 py-3"><CurrencySettings /></div>
-          <div className="px-4 py-3"><BiometricUnlockSettings /></div>
         </div>
+
+        <SecuritySettings />
 
         {/* Navigation menu items */}
         <div className="bg-surface rounded-[16px] divide-y divide-border overflow-hidden border border-border"

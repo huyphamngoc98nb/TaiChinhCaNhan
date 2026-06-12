@@ -1,5 +1,13 @@
 import { normalizeBackupPayload } from './validate-backup-payload';
 import { restoreDatabase } from './restore-database';
+import { decryptBackupEnvelope, isEncryptedBackupEnvelope } from './encrypted-backup';
+
+export class EncryptedBackupPasswordRequiredError extends Error {
+  constructor() {
+    super('Backup password is required');
+    this.name = 'EncryptedBackupPasswordRequiredError';
+  }
+}
 
 async function readBackupFile(file: File): Promise<string> {
   if (typeof file.text === 'function') {
@@ -28,9 +36,14 @@ async function readBackupFile(file: File): Promise<string> {
   });
 }
 
-export async function importBackupJson(file: File): Promise<void> {
+export async function importBackupJson(file: File, password?: string): Promise<void> {
   const text = await readBackupFile(file);
-  const payload = JSON.parse(text);
+  let payload: unknown = JSON.parse(text);
+
+  if (isEncryptedBackupEnvelope(payload)) {
+    if (!password) throw new EncryptedBackupPasswordRequiredError();
+    payload = await decryptBackupEnvelope(payload, password);
+  }
 
   await restoreDatabase(normalizeBackupPayload(payload));
 }

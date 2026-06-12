@@ -4,7 +4,9 @@ import { CapacitorSQLite } from '@capacitor-community/sqlite';
 import { Preferences } from '@capacitor/preferences';
 import { sqlite } from '@/core/db/sqlite/pragmas';
 import { getSQLiteEncryptionConfig } from '@/core/db/sqlite/encryption';
+import { initDatabaseConnection } from '@/core/db/sqlite/connection';
 import { nativeBiometric } from './native-biometric';
+import { BIOMETRIC_UNLOCK_KEY } from './recovery.service';
 
 export interface AuthResult {
   authenticated: boolean;
@@ -23,7 +25,6 @@ type BiometricListenerPlugin = typeof CapacitorSQLite & {
   ): Promise<PluginListenerHandle>;
 };
 
-const BIOMETRIC_UNLOCK_KEY = 'biometric_unlock_enabled';
 const BIOMETRIC_UNLOCK_SUPPORTED_PLATFORMS = new Set(['android', 'ios']);
 
 function isNativePlatform(): boolean {
@@ -128,6 +129,30 @@ export class AuthService {
     }
 
     return { authenticated: true, createdSecret: false };
+  }
+
+  async changePin(currentPin: string, newPin: string): Promise<void> {
+    if (!this.requiresUnlock()) {
+      throw new Error('PIN changes are only available for encrypted native databases.');
+    }
+
+    const normalizedCurrentPin = currentPin.trim();
+    const normalizedNewPin = newPin.trim();
+    if (normalizedNewPin.length < 6) {
+      throw new Error('PIN must contain at least 6 characters.');
+    }
+
+    const verified = (await sqlite.checkEncryptionSecret(normalizedCurrentPin)).result === true;
+    if (!verified) {
+      throw new Error('Invalid PIN.');
+    }
+
+    await sqlite.changeEncryptionSecret(normalizedNewPin, normalizedCurrentPin);
+    await initDatabaseConnection();
+    await Preferences.set({
+      key: BIOMETRIC_UNLOCK_KEY,
+      value: 'false',
+    });
   }
 
   async unlockWithBiometrics(): Promise<AuthResult | null> {

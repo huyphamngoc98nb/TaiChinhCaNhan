@@ -3,6 +3,12 @@ import { normalizeBackupPayload, validateBackupPayload } from '@/modules/backup/
 import { importBackupJson } from '@/modules/backup/services/import-backup-json';
 import { restoreDatabase } from '@/modules/backup/services/restore-database';
 import { exportBackupJson } from '@/modules/backup/services/export-backup-json';
+import {
+  decryptBackupEnvelope,
+  encryptBackupPayload,
+  isEncryptedBackupEnvelope,
+} from '@/modules/backup/services/encrypted-backup';
+import { BackupPayload } from '@/modules/backup/domain/backup.model';
 import * as connection from '@/core/db/sqlite/connection';
 
 vi.mock('@/core/db/sqlite/connection', () => ({
@@ -135,6 +141,72 @@ describe('Backup Module Tests', () => {
       await importBackupJson(file);
 
       expect(mockDb.executeSet).toHaveBeenCalled();
+    });
+
+    it('encrypts and decrypts a backup payload without exposing sensitive plaintext', async () => {
+      const sensitivePayload = {
+        ...validPayload,
+        wallets: [{ name: 'Private Wallet Name' }],
+        transactions: [{ note: 'Sensitive transaction note' }],
+      } as BackupPayload;
+
+      const envelope = await encryptBackupPayload(sensitivePayload, 'strong-password');
+      const serialized = JSON.stringify(envelope);
+
+      expect(isEncryptedBackupEnvelope(envelope)).toBe(true);
+      expect(serialized).not.toContain('Private Wallet Name');
+      expect(serialized).not.toContain('Sensitive transaction note');
+      await expect(decryptBackupEnvelope(envelope, 'strong-password')).resolves.toEqual(sensitivePayload);
+    });
+
+    it('fails to decrypt an encrypted backup with the wrong password', async () => {
+      const envelope = await encryptBackupPayload(validPayload, 'correct-password');
+
+      await expect(decryptBackupEnvelope(envelope, 'wrong-password')).rejects.toThrow(
+        'Unable to decrypt backup'
+      );
+    });
+
+    it('fails to decrypt a modified encrypted backup', async () => {
+      const envelope = await encryptBackupPayload(validPayload, 'correct-password');
+      const modifiedEnvelope = {
+        ...envelope,
+        ciphertext: `${envelope.ciphertext[0] === 'A' ? 'B' : 'A'}${envelope.ciphertext.slice(1)}`,
+      };
+
+      await expect(decryptBackupEnvelope(modifiedEnvelope, 'correct-password')).rejects.toThrow(
+        'Unable to decrypt backup'
+      );
+    });
+
+    it('imports an encrypted backup with the correct password', async () => {
+      const envelope = await encryptBackupPayload(validPayload, 'correct-password');
+      const file = new File([JSON.stringify(envelope)], 'encrypted_backup.json', {
+        type: 'application/json',
+      });
+      const mockDb = {
+        run: vi.fn().mockResolvedValue({ changes: { changes: 0 } }),
+        executeSet: vi.fn().mockResolvedValue({ changes: { changes: 1 } }),
+      };
+      vi.mocked(connection.getDbConnection).mockResolvedValue(mockDb as any);
+
+      await importBackupJson(file, 'correct-password');
+
+      expect(mockDb.executeSet).toHaveBeenCalled();
+    });
+
+    it('does not restore an encrypted backup when the password is wrong', async () => {
+      const envelope = await encryptBackupPayload(validPayload, 'correct-password');
+      const file = new File([JSON.stringify(envelope)], 'encrypted_backup.json', {
+        type: 'application/json',
+      });
+      vi.mocked(connection.getDbConnection).mockClear();
+
+      await expect(importBackupJson(file, 'wrong-password')).rejects.toThrow(
+        'Unable to decrypt backup'
+      );
+
+      expect(connection.getDbConnection).not.toHaveBeenCalled();
     });
 
     it('imports a legacy v1 JSON file after normalizing it to the current restore shape', async () => {

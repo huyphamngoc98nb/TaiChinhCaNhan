@@ -3,6 +3,7 @@ import { Capacitor } from '@capacitor/core';
 import { sqlite } from '@/core/db/sqlite/pragmas';
 import { AuthService } from '@/core/auth/auth.service';
 import { nativeBiometric } from '@/core/auth/native-biometric';
+import { initDatabaseConnection } from '@/core/db/sqlite/connection';
 
 const preferencesMock = vi.hoisted(() => ({
   value: null as string | null,
@@ -36,6 +37,7 @@ vi.mock('@/core/db/sqlite/pragmas', () => ({
     isSecretStored: vi.fn(),
     setEncryptionSecret: vi.fn(),
     checkEncryptionSecret: vi.fn(),
+    changeEncryptionSecret: vi.fn(),
     isInConfigBiometricAuth: vi.fn(),
   },
 }));
@@ -45,6 +47,10 @@ vi.mock('@/core/auth/native-biometric', () => ({
     isAvailable: vi.fn(),
     authenticate: vi.fn(),
   },
+}));
+
+vi.mock('@/core/db/sqlite/connection', () => ({
+  initDatabaseConnection: vi.fn(),
 }));
 
 describe('AuthService', () => {
@@ -105,6 +111,27 @@ describe('AuthService', () => {
     vi.mocked(sqlite.checkEncryptionSecret).mockResolvedValue({ result: false });
 
     await expect(new AuthService().unlockWithPin('654321')).rejects.toThrow('Invalid PIN');
+  });
+
+  it('changes PIN with the native rekey API and disables biometric unlock', async () => {
+    vi.mocked(sqlite.checkEncryptionSecret).mockResolvedValue({ result: true });
+
+    await new AuthService().changePin('123456', '654321');
+
+    expect(sqlite.changeEncryptionSecret).toHaveBeenCalledWith('654321', '123456');
+    expect(initDatabaseConnection).toHaveBeenCalledTimes(1);
+    expect(preferencesMock.set).toHaveBeenCalledWith({
+      key: 'biometric_unlock_enabled',
+      value: 'false',
+    });
+  });
+
+  it('rejects a wrong current PIN and a short new PIN without rekeying', async () => {
+    vi.mocked(sqlite.checkEncryptionSecret).mockResolvedValue({ result: false });
+
+    await expect(new AuthService().changePin('123456', '123')).rejects.toThrow('at least 6');
+    await expect(new AuthService().changePin('123456', '654321')).rejects.toThrow('Invalid PIN');
+    expect(sqlite.changeEncryptionSecret).not.toHaveBeenCalled();
   });
 
   it('does not unlock with biometrics when user setting is disabled', async () => {
