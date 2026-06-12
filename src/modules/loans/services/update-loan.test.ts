@@ -113,6 +113,7 @@ function makeTransaction(data: Parameters<ITransactionRepository['create']>[0]) 
     note: data.note ?? null,
     receipt_path: data.receipt_path ?? null,
     to_wallet_id: data.to_wallet_id ?? null,
+    exclude_from_total: data.exclude_from_total ?? false,
     transaction_date: data.transaction_date,
     created_at: data.created_at,
     updated_at: data.updated_at,

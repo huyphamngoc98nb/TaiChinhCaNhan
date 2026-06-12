@@ -190,6 +190,7 @@ describe('transaction create form values', () => {
       note: 'Salary',
       transaction_date: 1717200000000,
       receipt_path: 'receipts/salary.jpg',
+      exclude_from_total: false,
       created_at: 1717200000000,
       updated_at: 1717200000000,
       deleted_at: null,

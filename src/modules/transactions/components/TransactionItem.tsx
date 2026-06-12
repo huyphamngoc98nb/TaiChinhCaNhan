@@ -12,7 +12,7 @@ interface Props {
 }
 
 export function TransactionItem({ transaction, onSelect, showDate = false }: Props) {
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
   const { formatAmount } = useCurrency();
   const locale = getAppLocale(language);
   const isExpense = transaction.type === 'expense';
@@ -93,6 +93,24 @@ export function TransactionItem({ transaction, onSelect, showDate = false }: Pro
                 <span style={{ opacity: 0.5 }}>-</span>
                 <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', minWidth: 0 }}>{transaction.note}</span>
               </>
+            )}
+            {transaction.exclude_from_total && (
+              <span
+                style={{
+                  display: 'inline-block',
+                  fontSize: '0.65rem',
+                  color: 'var(--text-muted)',
+                  background: 'var(--surface)',
+                  border: '1px solid var(--border)',
+                  borderRadius: '4px',
+                  padding: '1px 5px',
+                  marginLeft: '6px',
+                  verticalAlign: 'middle',
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                {t('transactions.excluded_from_total')}
+              </span>
             )}
             {transaction.receipt_path && <><span style={{ opacity: 0.5 }}>-</span> <Paperclip size={12} style={{ flexShrink: 0 }} /></>}
           </div>

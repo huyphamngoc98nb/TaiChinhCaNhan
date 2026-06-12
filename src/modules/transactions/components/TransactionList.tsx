@@ -109,6 +109,7 @@ export function TransactionList({
     }
 
     currentGroup.items.push(tx);
+    if (tx.exclude_from_total) return;
     if (tx.type === 'income') currentGroup.income += tx.amount;
     else if (tx.type === 'expense') currentGroup.expense += tx.amount;
   });

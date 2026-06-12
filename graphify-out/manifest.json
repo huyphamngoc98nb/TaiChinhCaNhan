@@ -750,8 +750,8 @@
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\modules\\loans\\services\\create-loan.test.ts": {
-    "mtime": 1781144872.864844,
-    "ast_hash": "c779ec3237c17cae8425ecd6b254fd5e",
+    "mtime": 1781230758.359105,
+    "ast_hash": "a8d58f31620c193478ce09fd2b23dc98",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\modules\\loans\\services\\create-loan.ts": {
@@ -760,8 +760,8 @@
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\modules\\loans\\services\\delete-loan.test.ts": {
-    "mtime": 1781144872.4572303,
-    "ast_hash": "06bd1ad936af8a082550fa58cb62b3b1",
+    "mtime": 1781230758.586144,
+    "ast_hash": "17c61712e1caad9c2725ce2bf84cb746",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\modules\\loans\\services\\delete-loan.ts": {
@@ -775,8 +775,8 @@
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\modules\\loans\\services\\update-loan.test.ts": {
-    "mtime": 1781144874.1069207,
-    "ast_hash": "133ec448a8d2f55e10581b2f3dc2669e",
+    "mtime": 1781230758.475339,
+    "ast_hash": "4351b5b97c9f4869fd9f1944a8d49b29",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\modules\\loans\\services\\update-loan.ts": {
@@ -960,18 +960,18 @@
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\modules\\transactions\\components\\TransactionForm.tsx": {
-    "mtime": 1780623320.641809,
-    "ast_hash": "65ef3149f83d053d0f9702c0635da6fe",
+    "mtime": 1781230356.6399033,
+    "ast_hash": "57595465ebf39b8ddaeda9b5a95a156d",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\modules\\transactions\\components\\TransactionItem.tsx": {
-    "mtime": 1780545626.3589926,
-    "ast_hash": "6821723fb1acb0e836eced601418e121",
+    "mtime": 1781230241.3729496,
+    "ast_hash": "d87d110fa685f862455c0c43f600ae1e",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\modules\\transactions\\components\\TransactionList.tsx": {
-    "mtime": 1781173662.3604324,
-    "ast_hash": "22790046c4173f7292ea7ad40dcd56db",
+    "mtime": 1781229847.9788747,
+    "ast_hash": "b261605baf399b07d1655a2a0fcc36cf",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\modules\\transactions\\dev\\sample-data-helper.ts": {
@@ -1015,8 +1015,8 @@
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\modules\\transactions\\hooks\\useTransactionSummary.ts": {
-    "mtime": 1778812453.0439558,
-    "ast_hash": "6eee65b50df2a12957558190b1919aeb",
+    "mtime": 1781229848.097086,
+    "ast_hash": "dd374bc747978b819ae8ae667bb9abb8",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\modules\\transactions\\hooks\\useWalletBalances.ts": {
@@ -1245,8 +1245,8 @@
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\shared\\constants\\translations.ts": {
-    "mtime": 1780997579.3501759,
-    "ast_hash": "8d9ee460c4d2eb63e9242a4d1549bdd3",
+    "mtime": 1781230356.5226963,
+    "ast_hash": "cbfe8048848b6e81765e9777a19a0712",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\shared\\context\\CurrencyContext.tsx": {
@@ -1400,8 +1400,8 @@
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\tests\\transaction-form-values.test.ts": {
-    "mtime": 1780457672.218856,
-    "ast_hash": "10e2fbafd934d8fa0e1087c065fff7cc",
+    "mtime": 1781230758.8088994,
+    "ast_hash": "039046c7a90d1ff5147aa0d5eb2b9a45",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\tests\\transactions-ui.test.ts": {
@@ -1410,8 +1410,8 @@
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\tests\\transactions.test.ts": {
-    "mtime": 1781085758.9066231,
-    "ast_hash": "ceba0b59f80869d67fb19d94d8d235dc",
+    "mtime": 1781230959.2299192,
+    "ast_hash": "1356ce1ba6c605a89873c10cf94dc36a",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\tests\\translations.test.ts": {
@@ -1425,8 +1425,8 @@
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\tests\\fakes\\in-memory-transaction.repository.ts": {
-    "mtime": 1781144867.0246627,
-    "ast_hash": "b8c5ffb2447ec151cbe416a70c242f37",
+    "mtime": 1781228640.1133008,
+    "ast_hash": "9731e2a779c0d9a1d893037fab44fce6",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\tests\\fakes\\in-memory-wallet.repository.ts": {
@@ -1685,8 +1685,8 @@
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\modules\\loans\\services\\add-loan-payment.test.ts": {
-    "mtime": 1781144873.6042073,
-    "ast_hash": "675cbc0238ccdb3b26e165501cb42b9b",
+    "mtime": 1781230758.251271,
+    "ast_hash": "1519dc7935e3ce811a1c7472930f147f",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\tests\\loan-list-page.test.tsx": {
@@ -1750,8 +1750,8 @@
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\modules\\transactions\\services\\delete-transaction.test.ts": {
-    "mtime": 1781147027.2552059,
-    "ast_hash": "b3fa672aea9e56a5bbcf1a8a30b75095",
+    "mtime": 1781230758.692125,
+    "ast_hash": "1e106f8c3e16b409d11e28f1fd66479c",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\modules\\wallets\\services\\wallet.service.test.ts": {
@@ -1767,6 +1767,21 @@
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\core\\db\\migrations\\031_transactions_exclude_from_total.sql": {
     "mtime": 1781172598.8967576,
     "ast_hash": "9a38537dc65af4ded971d5019ecff784",
+    "semantic_hash": ""
+  },
+  "D:\\Personal Project\\TaiXiuCaNhan\\src\\modules\\transactions\\components\\TransactionList.exclude.test.ts": {
+    "mtime": 1781228640.3475676,
+    "ast_hash": "f8fb01519a8fbb4c084cd0422468ac0f",
+    "semantic_hash": ""
+  },
+  "D:\\Personal Project\\TaiXiuCaNhan\\src\\modules\\transactions\\services\\create-transaction.exclude.test.ts": {
+    "mtime": 1781228716.2055643,
+    "ast_hash": "55cfce5be4366116efa2f24525480733",
+    "semantic_hash": ""
+  },
+  "D:\\Personal Project\\TaiXiuCaNhan\\docs\\audit-exclude-from-total.md": {
+    "mtime": 1781229869.0640287,
+    "ast_hash": "426519c2910743c6959bac794b604517",
     "semantic_hash": ""
   }
 }

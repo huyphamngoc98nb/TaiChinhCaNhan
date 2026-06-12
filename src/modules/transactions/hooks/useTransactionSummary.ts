@@ -30,6 +30,7 @@ export function useTransactionSummary() {
 
       const nextSummary = transactions.reduce<TransactionSummary>(
         (acc, transaction) => {
+          if (transaction.exclude_from_total) return acc;
           if (transaction.type === 'income') {
             acc.totalIncome += transaction.amount;
           } else if (transaction.type === 'expense') {

@@ -1,4 +1,4 @@
-import { FocusEvent, FormEvent, PointerEvent, ReactNode, useState } from 'react';
+import { FocusEvent, FormEvent, PointerEvent, ReactNode, useEffect, useState } from 'react';
 import { Transaction, TransactionType } from '../domain/transaction.model';
 import { TRANSFER_CATEGORY_ID, useTransactionForm } from '../hooks/useTransactionForm';
 import { ReceiptCapture } from './ReceiptCapture';
@@ -73,6 +73,17 @@ export function TransactionForm({
     formData.amount ? String(formData.amount) : ''
   ));
   const [receiptInputKey, setReceiptInputKey] = useState(0);
+  const [excludeFromTotal, setExcludeFromTotal] = useState<boolean>(
+    existing?.exclude_from_total ?? false
+  );
+
+  useEffect(() => {
+    setFormData(current => (
+      current.exclude_from_total === excludeFromTotal
+        ? current
+        : { ...current, exclude_from_total: excludeFromTotal }
+    ));
+  }, [excludeFromTotal, setFormData]);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -259,6 +270,37 @@ export function TransactionForm({
             text-[14px] text-gray-800 focus:outline-none focus:border-indigo-400"
         />
       </div>
+
+      {formData.type !== 'transfer' && (
+        <label
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            fontSize: '0.9rem',
+            color: 'var(--text)',
+            padding: '8px 0',
+            cursor: 'pointer',
+          }}
+        >
+          <input
+            type="checkbox"
+            checked={excludeFromTotal}
+            onChange={(e) => {
+              const checked = e.target.checked;
+              setExcludeFromTotal(checked);
+              setFormData({ ...formData, exclude_from_total: checked });
+            }}
+            style={{
+              width: '16px',
+              height: '16px',
+              borderColor: 'var(--border)',
+              cursor: 'pointer',
+            }}
+          />
+          {t('transactions.exclude_from_income_expense_total')}
+        </label>
+      )}
 
       <ReceiptCapture
         key={receiptInputKey}

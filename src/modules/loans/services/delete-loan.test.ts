@@ -47,6 +47,7 @@ function linkedTransaction(overrides: Partial<Transaction> = {}): Transaction {
     updated_at: 0,
     deleted_at: null,
     ...overrides,
+    exclude_from_total: overrides.exclude_from_total ?? false,
   };
 }
 
