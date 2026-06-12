@@ -30,10 +30,7 @@ const formatPercentLabel = (percent: number) => {
 
 export function normalizeDonutData(
   rawItems: RawDonutItem[],
-  {
-    colors,
-    otherLabel: _otherLabel,
-  }: NormalizeDonutDataOptions,
+  { colors }: NormalizeDonutDataOptions,
 ): DonutItem[] {
   const sortedItems = rawItems
     .map(item => ({

@@ -15,7 +15,7 @@ const PIN_CLEAR_DELAY_MS = 750;
 const DELETE_HOLD_DELAY_MS = 320;
 const DELETE_REPEAT_MS = 80;
 const PIN_KEY_BUTTON_CLASS =
-  'flex aspect-square items-center justify-center rounded-2xl bg-surface text-[26px] font-semibold text-text shadow-[0_8px_22px_var(--shadow-color),0_1px_2px_var(--shadow-color)] transition-[transform,background-color,box-shadow] duration-100 active:scale-[0.94] active:bg-surface-muted active:shadow-[0_3px_10px_var(--shadow-color)] disabled:opacity-50';
+  'flex h-[76px] w-[76px] items-center justify-center rounded-2xl border-none bg-surface text-[23px] font-semibold text-text shadow-[0_6px_18px_var(--shadow-color)] outline-none ring-0 transition-[transform,background-color,box-shadow] duration-100 active:scale-[0.96] active:bg-surface-muted active:shadow-[0_3px_10px_var(--shadow-color)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 disabled:opacity-50 sm:h-[82px] sm:w-[82px]';
 type UnlockMode = 'loading' | 'setup' | 'confirm' | 'unlock';
 
 export function AppUnlock({ onUnlocked }: AppUnlockProps) {
@@ -246,7 +246,7 @@ export function AppUnlock({ onUnlocked }: AppUnlockProps) {
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-bg text-text">
+    <div className="min-h-[100dvh] bg-bg px-6 py-6 text-text">
       <style>
         {`
           @keyframes pin-dot-row-shake {
@@ -258,13 +258,13 @@ export function AppUnlock({ onUnlocked }: AppUnlockProps) {
           }
         `}
       </style>
-      <main className="flex flex-1 items-center justify-center px-6 pb-6 pt-2">
+      <main className="flex min-h-[calc(100dvh-48px)] items-center justify-center">
         <form
           onSubmit={handleSubmit}
-          className="w-full max-w-[390px]"
+          className="w-full max-w-[340px] translate-y-3"
         >
           <div className="flex flex-col items-center text-center">
-            <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-full bg-surface shadow-[0_10px_30px_var(--shadow-color)]">
+            <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-surface shadow-[0_10px_30px_var(--shadow-color)]">
               <LockKeyhole
                 size={30}
                 strokeWidth={2.35}
@@ -306,9 +306,9 @@ export function AppUnlock({ onUnlocked }: AppUnlockProps) {
             aria-label={mode === 'unlock' ? 'PIN' : t('app_lock.new_pin')}
           />
 
-          <div className="mt-9 flex min-h-[82px] flex-col items-center justify-center">
+          <div className="mt-7 flex min-h-[68px] flex-col items-center justify-center">
             <div
-              className="flex h-12 items-center justify-center gap-[18px]"
+              className="flex h-10 items-center justify-center gap-3"
               style={shakeDots ? { animation: 'pin-dot-row-shake 340ms ease-in-out' } : undefined}
               aria-hidden="true"
             >
@@ -318,12 +318,12 @@ export function AppUnlock({ onUnlocked }: AppUnlockProps) {
                 return (
                   <span
                     key={index}
-                    className={`flex h-[22px] w-[22px] items-center justify-center rounded-full border transition-colors duration-150 ${
+                    className={`flex h-4 w-4 items-center justify-center rounded-full border transition-colors duration-150 ${
                       isFilled ? 'border-primary bg-[var(--primary-soft)]' : 'border-border bg-surface-muted'
                     }`}
                   >
                     <span
-                      className={`h-[14px] w-[14px] rounded-full bg-primary shadow-[0_2px_7px_rgba(99,102,241,0.30)] transition-all duration-200 ease-out ${
+                      className={`h-2.5 w-2.5 rounded-full bg-primary shadow-[0_2px_7px_rgba(99,102,241,0.30)] transition-all duration-200 ease-out ${
                         isFilled ? 'scale-100 opacity-100' : 'scale-[0.35] opacity-0'
                       }`}
                     />
@@ -342,7 +342,7 @@ export function AppUnlock({ onUnlocked }: AppUnlockProps) {
             </p>
           </div>
 
-          <div className="mt-7 grid grid-cols-3 gap-3">
+          <div className="mx-auto mt-6 grid w-fit grid-cols-3 gap-2.5">
             {PIN_KEYS.slice(0, 9).map((digit) => (
               <button
                 key={digit}
@@ -387,7 +387,7 @@ export function AppUnlock({ onUnlocked }: AppUnlockProps) {
             type="button"
             onClick={() => void unlockFromBiometrics()}
             disabled={inputLocked || mode !== 'unlock'}
-            className="mx-auto mt-7 flex min-h-[44px] min-w-[44px] items-center justify-center gap-2 rounded-2xl px-5 text-[15px] font-bold text-primary transition-[transform,background-color] duration-100 active:scale-[0.94] active:bg-[var(--primary-soft)] disabled:opacity-50"
+            className="mx-auto mt-5 flex min-h-[44px] min-w-[44px] items-center justify-center gap-2 rounded-2xl px-5 text-[15px] font-bold text-primary transition-[transform,background-color] duration-100 active:scale-[0.94] active:bg-[var(--primary-soft)] disabled:opacity-50"
             aria-label={t('app_lock.use_biometrics')}
           >
             <Fingerprint size={27} strokeWidth={2.35} />
