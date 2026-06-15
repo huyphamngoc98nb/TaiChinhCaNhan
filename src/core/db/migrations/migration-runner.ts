@@ -33,6 +33,7 @@ import creditStatementRemainingTriggerSql from './028_credit_statement_remaining
 import loansAmountRealSql from './029_loans_amount_real.sql?raw';
 import fixCreditStatementTriggerSql from './030_fix_credit_statement_trigger.sql?raw';
 import transactionsExcludeFromTotalSql from './031_transactions_exclude_from_total.sql?raw';
+import walletDebtOrLoanAccountTypeSql from './032_wallet_debt_or_loan_account_type.sql?raw';
 
 type DbConnection = Awaited<ReturnType<typeof getDbConnection>>;
 
@@ -84,6 +85,7 @@ export const MIGRATIONS: Migration[] = [
   { version: 29, name: '029_loans_amount_real',                    sql: loansAmountRealSql },
   { version: 30, name: '030_fix_credit_statement_trigger',         sql: fixCreditStatementTriggerSql },
   { version: 31, name: '031_transactions_exclude_from_total',      sql: transactionsExcludeFromTotalSql },
+  { version: 32, name: '032_wallet_debt_or_loan_account_type',      sql: walletDebtOrLoanAccountTypeSql },
 ];
 
 async function markMigrationDone(
@@ -215,6 +217,15 @@ async function runMigrationWithFkRestore(
   const hasFkOff = /PRAGMA\s+foreign_keys\s*=\s*OFF/i.test(migrationSql);
 
   try {
+    if (hasFkOff && !isWeb) {
+      // SQLite ignores PRAGMA foreign_keys changes while a transaction is open.
+      // Table-rebuild migrations for referenced tables must therefore run
+      // outside Capacitor SQLite's explicit transaction on Android/native.
+      await db.execute('PRAGMA foreign_keys = OFF;');
+      await fn();
+      return;
+    }
+
     await runMigrationTransaction(db, isWeb, migrationName, fn);
   } finally {
     if (hasFkOff) {

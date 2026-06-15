@@ -15,7 +15,7 @@ interface SectionSchema {
   fields: Record<string, FieldRule>;
 }
 
-const ACCOUNT_TYPES = ['cash', 'bank', 'credit_card', 'e_wallet', 'investment', 'other'] as const;
+const ACCOUNT_TYPES = ['cash', 'bank', 'credit_card', 'e_wallet', 'debt_or_loan', 'investment', 'other'] as const;
 const TRANSACTION_TYPES = ['income', 'expense', 'transfer'] as const;
 const CATEGORY_TYPES = ['income', 'expense'] as const;
 const BUDGET_PERIODS = ['weekly', 'monthly'] as const;

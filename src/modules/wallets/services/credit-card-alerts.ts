@@ -1,9 +1,6 @@
 import type { CreditCardAlert } from '../domain/credit-card-alert.model';
+import { computeCreditCardDebtStatus } from '@/modules/debts/services/debt-status';
 import type { CreditCardSummary } from './credit-card.service';
-
-const DUE_SOON_THRESHOLD_DAYS = 7;
-const OVER_LIMIT_THRESHOLD = 0.8;
-const MS_PER_DAY = 24 * 60 * 60 * 1000;
 
 export function computeCreditCardAlerts(
   summaries: CreditCardSummary[],
@@ -13,11 +10,10 @@ export function computeCreditCardAlerts(
 
   for (const summary of summaries) {
     const { wallet, outstandingBalance, period } = summary;
+    const debtStatus = computeCreditCardDebtStatus(summary, asOf);
 
     if (period) {
-      const daysLeft = Math.ceil((period.dueAt - asOf) / MS_PER_DAY);
-
-      if (asOf > period.dueAt && outstandingBalance > 0) {
+      if (debtStatus.status === 'overdue') {
         alerts.push({
           type: 'overdue',
           walletId: wallet.id,
@@ -28,33 +24,26 @@ export function computeCreditCardAlerts(
         continue;
       }
 
-      if (daysLeft >= 0 && daysLeft <= DUE_SOON_THRESHOLD_DAYS && outstandingBalance > 0) {
+      if (debtStatus.status === 'dueSoon') {
         alerts.push({
           type: 'due_soon',
           walletId: wallet.id,
           walletName: wallet.name,
           amount: outstandingBalance,
           dueAt: period.dueAt,
-          daysLeft,
+          daysLeft: debtStatus.daysUntilDue ?? 0,
         });
       }
     }
 
-    if (
-      wallet.credit_limit != null &&
-      wallet.credit_limit > 0 &&
-      outstandingBalance > 0
-    ) {
-      const usage = outstandingBalance / wallet.credit_limit;
-      if (usage >= OVER_LIMIT_THRESHOLD) {
-        alerts.push({
-          type: 'over_limit',
-          walletId: wallet.id,
-          walletName: wallet.name,
-          amount: outstandingBalance,
-          usagePercent: Math.round(usage * 100),
-        });
-      }
+    if (debtStatus.isHighUtilization && debtStatus.utilizationPercent != null) {
+      alerts.push({
+        type: 'over_limit',
+        walletId: wallet.id,
+        walletName: wallet.name,
+        amount: outstandingBalance,
+        usagePercent: debtStatus.utilizationPercent,
+      });
     }
   }
 

@@ -55,6 +55,12 @@ describe('Database SQLite Tests', () => {
     ).toBe(true);
   }
 
+  function countTransactionalMigrations(migrations = MIGRATIONS) {
+    return migrations.filter(
+      (migration) => !/PRAGMA\s+foreign_keys\s*=\s*OFF/i.test(migration.sql)
+    ).length;
+  }
+
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(Capacitor.getPlatform).mockReturnValue('android');
@@ -150,11 +156,12 @@ describe('Database SQLite Tests', () => {
     expectMigrationMarked(27, '027_loan_date');
   });
 
-  it('wraps each migration in a transaction (beginTransaction / commitTransaction)', async () => {
+  it('wraps regular migrations in transactions and runs foreign-key rebuilds outside them', async () => {
     await runMigrations();
 
-    expect(mockDb.beginTransaction).toHaveBeenCalledTimes(MIGRATIONS.length);
-    expect(mockDb.commitTransaction).toHaveBeenCalledTimes(MIGRATIONS.length);
+    const transactionalCount = countTransactionalMigrations();
+    expect(mockDb.beginTransaction).toHaveBeenCalledTimes(transactionalCount);
+    expect(mockDb.commitTransaction).toHaveBeenCalledTimes(transactionalCount);
     expect(mockDb.rollbackTransaction).not.toHaveBeenCalled();
   });
 
@@ -193,7 +200,9 @@ describe('Database SQLite Tests', () => {
     // Migrations 3 & 4 should run
     expectExecuteContaining('ALTER TABLE transactions ADD COLUMN deleted_at');
     expectExecuteContaining('ALTER TABLE transactions ADD COLUMN receipt_path');
-    expect(mockDb.beginTransaction).toHaveBeenCalledTimes(MIGRATIONS.length - 2);
+    expect(mockDb.beginTransaction).toHaveBeenCalledTimes(
+      countTransactionalMigrations(MIGRATIONS.filter((migration) => migration.version > 2))
+    );
   });
 
   it('marks category description migration done when the column already exists', async () => {
@@ -274,6 +283,24 @@ describe('Database SQLite Tests', () => {
     expect(mockDb.query).toHaveBeenCalledWith('PRAGMA table_info(transactions)');
     expectMigrationMarked(3, '003_transactions_soft_delete');
     expectMigrationMarked(26, '026_loan_linked_transaction');
+  });
+
+  it('runs foreign-key-off table rebuild migrations outside native transactions', async () => {
+    mockDb.query.mockResolvedValueOnce({
+      values: MIGRATIONS
+        .filter((migration) => migration.version < 32)
+        .map((migration) => ({ version: migration.version, name: migration.name })),
+    });
+
+    await runMigrations();
+
+    expect(mockDb.beginTransaction).not.toHaveBeenCalled();
+    expect(mockDb.commitTransaction).not.toHaveBeenCalled();
+    expect(mockDb.rollbackTransaction).not.toHaveBeenCalled();
+    expect(mockDb.execute.mock.calls[1][0]).toBe('PRAGMA foreign_keys = OFF;');
+    expectExecuteContaining('DROP TABLE wallets');
+    expectExecuteContaining('PRAGMA foreign_keys = ON;');
+    expectMigrationMarked(32, '032_wallet_debt_or_loan_account_type');
   });
 
   it('ignores consecutive SQL comments that contain semicolons', () => {

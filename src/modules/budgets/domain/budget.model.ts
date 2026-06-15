@@ -1,6 +1,6 @@
 export type BudgetPeriod = 'weekly' | 'monthly';
 export type BudgetStatus = 'safe' | 'warning' | 'exceeded';
-export type AccountType = 'cash' | 'bank' | 'credit_card' | 'e_wallet' | 'investment' | 'other';
+export type AccountType = 'cash' | 'bank' | 'credit_card' | 'e_wallet' | 'debt_or_loan' | 'investment' | 'other';
 
 /** Label tiếng Việt cho từng AccountType */
 export const ACCOUNT_TYPE_LABELS: Record<AccountType, string> = {
@@ -8,6 +8,7 @@ export const ACCOUNT_TYPE_LABELS: Record<AccountType, string> = {
   bank:        'Tài khoản ngân hàng',
   credit_card: 'Thẻ tín dụng',
   e_wallet:    'Ví điện tử',
+  debt_or_loan: 'Vay nợ',
   investment:  'Đầu tư',
   other:       'Khác',
 };

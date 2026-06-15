@@ -20,7 +20,7 @@ interface Props {
 }
 
 const ACCOUNT_TYPE_ORDER: AccountType[] = [
-  'cash', 'bank', 'e_wallet', 'credit_card', 'investment', 'other',
+  'cash', 'bank', 'e_wallet', 'credit_card', 'debt_or_loan', 'investment', 'other',
 ];
 
 export function WalletList({
@@ -41,6 +41,7 @@ export function WalletList({
     bank: t('wallets.account_bank'),
     credit_card: t('wallets.account_credit_card'),
     e_wallet: t('wallets.account_e_wallet'),
+    debt_or_loan: t('wallets.account_debt_or_loan'),
     investment: t('wallets.account_investment'),
     other: t('wallets.account_other'),
   };

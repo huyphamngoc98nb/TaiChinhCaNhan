@@ -3,6 +3,7 @@ import { CurrencyAmountInput } from '@/shared/components/CurrencyAmountInput';
 import { DateTimePicker } from '@/shared/components/DateTimePicker';
 import { DropdownList } from '@/shared/components/DropdownList';
 import { useLanguage } from '@/shared/context/LanguageContext';
+import { HIDDEN_AMOUNT, useAmountVisibility } from '@/shared/hooks/useAmountVisibility';
 import { useWallets } from '@/modules/wallets/hooks/useWallets';
 import type { CreateLoanPaymentInput, LoanWithSummary } from '../domain/loan.model';
 
@@ -27,6 +28,7 @@ function formatVnd(value: number): string {
 
 export function PaymentForm({ loan, onSubmit, loading }: PaymentFormProps) {
   const { t } = useLanguage();
+  const { showAmounts } = useAmountVisibility();
   const { wallets, loading: walletsLoading } = useWallets();
   const [walletId, setWalletId] = useState(loan.wallet_id ?? '');
   const [amount, setAmount] = useState('');
@@ -44,6 +46,7 @@ export function PaymentForm({ loan, onSubmit, loading }: PaymentFormProps) {
     () => wallets.map((wallet) => ({ value: wallet.id, label: wallet.name })),
     [wallets],
   );
+  const displayAmount = (value: number) => showAmounts ? formatVnd(value) : HIDDEN_AMOUNT;
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();
@@ -75,7 +78,7 @@ export function PaymentForm({ loan, onSubmit, loading }: PaymentFormProps) {
         <div className="mt-3 rounded-[12px] bg-gray-50 px-4 py-3">
           <p className="truncate text-[15px] font-bold text-gray-900">{loan.contact_name}</p>
           <p className="mt-1 text-[13px] font-semibold text-rose-600">
-            {t('loans.payment.remaining')}: {formatVnd(loan.remaining)}
+            {t('loans.payment.remaining')}: {displayAmount(loan.remaining)}
           </p>
         </div>
       </div>
@@ -111,7 +114,7 @@ export function PaymentForm({ loan, onSubmit, loading }: PaymentFormProps) {
           required
           className="border-emerald-200"
         />
-        <p className="text-[11px] font-medium text-gray-400">{t('loans.payment.maxAmount')} {formatVnd(loan.remaining)}</p>
+        <p className="text-[11px] font-medium text-gray-400">{t('loans.payment.maxAmount')} {displayAmount(loan.remaining)}</p>
       </div>
 
       <DateTimePicker

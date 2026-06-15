@@ -20,7 +20,7 @@ const COLOR_PRESETS = [
   '#00BCD4', '#F44336', '#3F51B5', '#009688', '#795548',
 ];
 const ACCOUNT_TYPES: AccountType[] = [
-  'cash', 'bank', 'credit_card', 'e_wallet', 'investment', 'other',
+  'cash', 'bank', 'credit_card', 'e_wallet', 'debt_or_loan', 'investment', 'other',
 ];
 
 export function WalletForm({ existing, onSave, onClose, onDelete }: Props) {
@@ -31,6 +31,7 @@ export function WalletForm({ existing, onSave, onClose, onDelete }: Props) {
     bank: t('wallets.account_bank'),
     credit_card: t('wallets.account_credit_card'),
     e_wallet: t('wallets.account_e_wallet'),
+    debt_or_loan: t('wallets.account_debt_or_loan'),
     investment: t('wallets.account_investment'),
     other: t('wallets.account_other'),
   };

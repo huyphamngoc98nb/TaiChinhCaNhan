@@ -10,6 +10,7 @@ const ACCOUNT_TYPE_ICONS: Record<AccountType, string> = {
   bank:        '🏦',
   credit_card: '💳',
   e_wallet:    '📱',
+  debt_or_loan: '🧾',
   investment:  '📈',
   other:       '🗂️',
 };
@@ -35,6 +36,7 @@ export function BudgetByAccountTypeSummary({ progresses }: Props) {
     bank: t('wallets.account_bank'),
     credit_card: t('wallets.account_credit_card'),
     e_wallet: t('wallets.account_e_wallet'),
+    debt_or_loan: t('wallets.account_debt_or_loan'),
     investment: t('wallets.account_investment'),
     other: t('wallets.account_other'),
   };

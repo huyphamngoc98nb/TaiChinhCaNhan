@@ -1,4 +1,6 @@
+import { computeLoanDebtStatus } from '@/modules/debts/services/debt-status';
 import { useLanguage } from '@/shared/context/LanguageContext';
+import { HIDDEN_AMOUNT, useAmountVisibility } from '@/shared/hooks/useAmountVisibility';
 import type { LoanWithSummary } from '../domain/loan.model';
 
 interface LoanCardProps {
@@ -14,16 +16,11 @@ function formatVnd(value: number): string {
   }).format(value);
 }
 
-function isOverdue(loan: LoanWithSummary): boolean {
-  if (!loan.due_date || loan.status !== 'active' || loan.remaining <= 0) return false;
-  const due = new Date(`${loan.due_date}T00:00:00`);
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  return due.getTime() < today.getTime();
-}
-
 export function LoanCard({ loan, onPress }: LoanCardProps) {
   const { t, language } = useLanguage();
+  const { showAmounts } = useAmountVisibility();
+  const displayAmount = (value: number) => showAmounts ? formatVnd(value) : HIDDEN_AMOUNT;
+
   function formatDate(value: string): string {
     const locale = language === 'vi' ? 'vi-VN' : 'en-US';
     return new Date(`${value}T00:00:00`).toLocaleDateString(locale, {
@@ -35,16 +32,31 @@ export function LoanCard({ loan, onPress }: LoanCardProps) {
 
   const isDeleted = loan.deleted_at != null;
   const progress = Math.min(100, Math.max(0, (loan.paid_amount / loan.principal) * 100));
-  const overdue = isOverdue(loan);
+  const debtStatus = computeLoanDebtStatus(loan);
+  const isAttention = debtStatus === 'dueSoon' || debtStatus === 'overdue';
   const typeClass = loan.type === 'lend'
     ? 'bg-amber-100 text-amber-700'
     : 'bg-blue-100 text-blue-700';
   const statusClass =
-    loan.status === 'settled'
+    debtStatus === 'paidOff'
       ? 'bg-emerald-100 text-emerald-700'
       : loan.status === 'cancelled'
         ? 'bg-gray-100 text-gray-600'
-        : 'bg-rose-100 text-rose-700';
+        : debtStatus === 'overdue'
+          ? 'bg-rose-100 text-rose-700'
+          : debtStatus === 'dueSoon'
+            ? 'bg-amber-100 text-amber-700'
+            : 'bg-blue-100 text-blue-700';
+  const statusLabel =
+    debtStatus === 'paidOff'
+      ? t('loans.card.statusPaidOff')
+      : loan.status === 'cancelled'
+        ? t('loans.card.statusCancelled')
+        : debtStatus === 'overdue'
+          ? t('loans.card.statusOverdue')
+          : debtStatus === 'dueSoon'
+            ? t('loans.card.statusDueSoon')
+            : t('loans.card.statusActive');
 
   return (
     <button
@@ -68,11 +80,7 @@ export function LoanCard({ loan, onPress }: LoanCardProps) {
             {loan.type === 'lend' ? t('loans.card.typeLend') : t('loans.card.typeBorrow')}
           </span>
           <span className={`rounded-full px-2.5 py-1 text-[11px] font-bold ${statusClass}`}>
-            {loan.status === 'active'
-              ? t('loans.card.statusActive')
-              : loan.status === 'settled'
-                ? t('loans.card.statusSettled')
-                : t('loans.card.statusCancelled')}
+            {statusLabel}
           </span>
           {isDeleted && (
             <span className="rounded-full bg-gray-100 px-2.5 py-1 text-[11px] font-bold text-gray-500">
@@ -84,7 +92,7 @@ export function LoanCard({ loan, onPress }: LoanCardProps) {
 
       <div className="mt-4">
         <div className="mb-2 flex items-center justify-between gap-3 text-[12px] font-semibold text-gray-500">
-          <span>{formatVnd(loan.paid_amount)} {t('loans.card.paid')}</span>
+          <span>{displayAmount(loan.paid_amount)} {t('loans.card.paid')}</span>
           <span>{Math.round(progress)}%</span>
         </div>
         <div className="h-2 overflow-hidden rounded-full bg-gray-100">
@@ -98,14 +106,14 @@ export function LoanCard({ loan, onPress }: LoanCardProps) {
       <div className="mt-4 flex items-end justify-between gap-3">
         <div className="min-w-0">
           <p className="text-[12px] font-medium text-gray-400">{t('loans.card.remaining')}</p>
-          <p className={`mt-0.5 text-[17px] font-extrabold ${overdue ? 'text-rose-600' : 'text-gray-900'}`}>
-            {formatVnd(loan.remaining)}
+          <p className={`mt-0.5 text-[17px] font-extrabold ${isAttention ? 'text-rose-600' : 'text-gray-900'}`}>
+            {displayAmount(loan.remaining)}
           </p>
         </div>
         {loan.due_date && (
           <div className="text-right">
             <p className="text-[12px] font-medium text-gray-400">{t('loans.card.dueDate')}</p>
-            <p className={`mt-0.5 text-[13px] font-bold ${overdue ? 'text-rose-600' : 'text-gray-600'}`}>
+            <p className={`mt-0.5 text-[13px] font-bold ${isAttention ? 'text-rose-600' : 'text-gray-600'}`}>
               {formatDate(loan.due_date)}
             </p>
           </div>

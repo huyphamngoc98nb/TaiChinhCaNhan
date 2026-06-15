@@ -4,7 +4,7 @@ import { DropdownList } from '@/shared/components/DropdownList';
 import { useLanguage } from '@/shared/context/LanguageContext';
 
 const ALL_ACCOUNT_TYPES: AccountType[] = [
-  'cash', 'bank', 'credit_card', 'e_wallet', 'investment', 'other',
+  'cash', 'bank', 'credit_card', 'e_wallet', 'debt_or_loan', 'investment', 'other',
 ];
 
 interface Props {
@@ -26,6 +26,7 @@ export function BudgetScopePicker({
     bank: t('wallets.account_bank'),
     credit_card: t('wallets.account_credit_card'),
     e_wallet: t('wallets.account_e_wallet'),
+    debt_or_loan: t('wallets.account_debt_or_loan'),
     investment: t('wallets.account_investment'),
     other: t('wallets.account_other'),
   };

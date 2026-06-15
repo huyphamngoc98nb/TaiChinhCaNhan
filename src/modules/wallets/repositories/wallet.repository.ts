@@ -1,4 +1,11 @@
-export type AccountType = 'cash' | 'bank' | 'credit_card' | 'e_wallet' | 'investment' | 'other';
+export type AccountType =
+  | 'cash'
+  | 'bank'
+  | 'e_wallet'
+  | 'credit_card'
+  | 'debt_or_loan'
+  | 'investment'
+  | 'other';
 
 export interface Wallet {
   id: string;

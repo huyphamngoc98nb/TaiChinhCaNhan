@@ -4,6 +4,7 @@ import { useLanguage } from '@/shared/context/LanguageContext';
 import { useCreditCardSummary } from '../hooks/useCreditCardSummary';
 import { getAppLocale } from '@/shared/utils/locale';
 import { HIDDEN_AMOUNT, useAmountVisibility } from '@/shared/hooks/useAmountVisibility';
+import { computeCreditCardDebtStatus } from '@/modules/debts/services/debt-status';
 
 interface Props {
   wallet: Wallet;
@@ -15,6 +16,7 @@ export const ACCOUNT_TYPE_LABELS: Record<AccountType, string> = {
   bank:        'Ngân hàng',
   credit_card: 'Thẻ tín dụng',
   e_wallet:    'Ví điện tử',
+  debt_or_loan: 'Vay nợ',
   investment:  'Đầu tư',
   other:       'Khác',
 };
@@ -24,6 +26,7 @@ export const ACCOUNT_TYPE_ICONS: Record<AccountType, string> = {
   bank:        '🏦',
   credit_card: '💳',
   e_wallet:    '📱',
+  debt_or_loan: '🧾',
   investment:  '📈',
   other:       '💼',
 };
@@ -46,6 +49,7 @@ export function WalletCard({ wallet, onClick }: Props) {
     bank: t('wallets.account_bank'),
     credit_card: t('wallets.account_credit_card'),
     e_wallet: t('wallets.account_e_wallet'),
+    debt_or_loan: t('wallets.account_debt_or_loan'),
     investment: t('wallets.account_investment'),
     other: t('wallets.account_other'),
   };
@@ -60,12 +64,16 @@ export function WalletCard({ wallet, onClick }: Props) {
     : null;
   const availableCredit = summary?.availableCredit ?? null;
   const statementPeriod = summary?.period ?? null;
-  const usagePercent =
-    isCreditCard && wallet.credit_limit != null && wallet.credit_limit > 0
-      ? Math.min(100, Math.max(0, ((outstandingBalance ?? 0) / wallet.credit_limit) * 100))
-      : 0;
+  const debtStatus = isCreditCard
+    ? computeCreditCardDebtStatus({
+        wallet,
+        outstandingBalance: outstandingBalance ?? 0,
+        period: statementPeriod,
+      })
+    : null;
+  const usagePercent = Math.min(100, Math.max(0, debtStatus?.utilizationPercent ?? 0));
   const usageColor =
-    usagePercent > 80 ? '#ef4444' : usagePercent >= 50 ? '#f59e0b' : '#10b981';
+    usagePercent >= 80 ? '#ef4444' : usagePercent >= 50 ? '#f59e0b' : '#10b981';
   const displayAmount = (amount: number) => showAmounts ? formatAmount(amount, locale) : HIDDEN_AMOUNT;
 
   return (
@@ -151,40 +159,25 @@ export function WalletCard({ wallet, onClick }: Props) {
             )}
           </div>
           {/* Inline alert badge — chỉ hiện với credit card */}
-          {isCreditCard && (() => {
-            const asOf = Date.now();
-            const balance = outstandingBalance ?? 0;
-            const isOverdue =
-              statementPeriod != null && asOf > statementPeriod.dueAt && balance > 0;
-            const msPerDay = 86400000;
-            const daysLeft = statementPeriod
-              ? Math.ceil((statementPeriod.dueAt - asOf) / msPerDay)
-              : null;
-            const isDueSoon =
-              !isOverdue &&
-              daysLeft != null &&
-              daysLeft >= 0 &&
-              daysLeft <= 7 &&
-              balance > 0;
-
-            if (!isOverdue && !isDueSoon) return null;
+          {isCreditCard && debtStatus && (() => {
+            if (debtStatus.status === 'normal') return null;
 
             return (
               <div
               className="flex items-center gap-1.5 px-2 py-1 rounded-lg text-[11px] font-semibold mb-2"
               style={
-                isOverdue
+                debtStatus.status === 'overdue'
                     ? { background: 'rgba(244, 63, 94, 0.14)', color: 'var(--danger)' }
                     : { background: 'rgba(245, 158, 11, 0.14)', color: 'var(--warning)' }
               }
               >
-                <span>{isOverdue ? '🔴' : '🟡'}</span>
+                <span>{debtStatus.status === 'overdue' ? '🔴' : '🟡'}</span>
                 <span>
-                  {isOverdue
+                  {debtStatus.status === 'overdue'
                     ? 'Quá hạn thanh toán'
-                    : daysLeft === 0
+                    : debtStatus.daysUntilDue === 0
                       ? 'Đến hạn hôm nay'
-                      : `Còn ${daysLeft} ngày đến hạn`}
+                      : `Còn ${debtStatus.daysUntilDue} ngày đến hạn`}
                 </span>
               </div>
             );

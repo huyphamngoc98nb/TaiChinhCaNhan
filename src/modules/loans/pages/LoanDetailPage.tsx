@@ -6,8 +6,10 @@ import { BottomSheet } from '@/shared/components/BottomSheet';
 import { useConfirm } from '@/shared/components/ConfirmDialog/ConfirmContext';
 import { useToast } from '@/shared/components/Toast/ToastContext';
 import { loanRepository } from '@/core/di/loans.di';
+import { computeLoanDebtStatus } from '@/modules/debts/services/debt-status';
 import { ROUTES } from '@/shared/constants/routes';
 import { useLanguage } from '@/shared/context/LanguageContext';
+import { HIDDEN_AMOUNT, useAmountVisibility } from '@/shared/hooks/useAmountVisibility';
 import type { CreateLoanPaymentInput, LoanPayment, LoanWithSummary, UpdateLoanInput } from '../domain/loan.model';
 import { PaymentForm } from '../components/PaymentForm';
 import { LoanForm } from '../components/LoanForm';
@@ -28,6 +30,7 @@ function formatVnd(value: number): string {
 
 export function LoanDetailPage({ loanId: loanIdProp }: LoanDetailPageProps = {}) {
   const { t, language } = useLanguage();
+  const { showAmounts } = useAmountVisibility();
   const params = useParams<{ id: string }>();
   const loanId = loanIdProp ?? params.id;
   const navigate = useNavigate();
@@ -52,6 +55,7 @@ export function LoanDetailPage({ loanId: loanIdProp }: LoanDetailPageProps = {})
     if (status === 'settled') return t('loans.card.statusSettled');
     return t('loans.card.statusCancelled');
   }
+  const displayAmount = (value: number) => showAmounts ? formatVnd(value) : HIDDEN_AMOUNT;
 
   function formatIsoDate(value: string | null): string {
     if (!value) return t('loans.pages.detail.noDueDate');
@@ -181,6 +185,18 @@ export function LoanDetailPage({ loanId: loanIdProp }: LoanDetailPageProps = {})
       </div>
     );
   }
+  const debtStatus = computeLoanDebtStatus(loan);
+  const attentionStatus = debtStatus === 'dueSoon' || debtStatus === 'overdue';
+  const detailStatusLabel =
+    debtStatus === 'paidOff'
+      ? t('loans.card.statusPaidOff')
+      : loan.status === 'cancelled'
+        ? t('loans.card.statusCancelled')
+        : debtStatus === 'overdue'
+          ? t('loans.card.statusOverdue')
+          : debtStatus === 'dueSoon'
+            ? t('loans.card.statusDueSoon')
+            : statusLabel(loan.status);
 
   return (
     <div className="min-h-full bg-bg pb-24">
@@ -192,7 +208,7 @@ export function LoanDetailPage({ loanId: loanIdProp }: LoanDetailPageProps = {})
               {loan.contact_name}
             </h1>
             <p className="text-[12px] font-medium text-gray-500">
-              {typeLabel(loan.type)} · {statusLabel(loan.status)}
+              {typeLabel(loan.type)} · {detailStatusLabel}
             </p>
           </div>
         </div>
@@ -216,13 +232,15 @@ export function LoanDetailPage({ loanId: loanIdProp }: LoanDetailPageProps = {})
               )}
             </div>
             <span className={`shrink-0 rounded-full px-3 py-1 text-[12px] font-bold ${
-              loan.status === 'settled'
+              debtStatus === 'paidOff'
                 ? 'bg-emerald-100 text-emerald-700'
                 : loan.status === 'cancelled'
                   ? 'bg-gray-100 text-gray-600'
-                  : 'bg-rose-100 text-rose-700'
+                  : attentionStatus
+                    ? 'bg-rose-100 text-rose-700'
+                    : 'bg-blue-100 text-blue-700'
             }`}>
-              {statusLabel(loan.status)}
+              {detailStatusLabel}
             </span>
           </div>
 
@@ -230,13 +248,13 @@ export function LoanDetailPage({ loanId: loanIdProp }: LoanDetailPageProps = {})
             <div className="rounded-[12px] bg-bg-subtle p-3">
               <p className="text-[12px] font-semibold text-gray-400">{t('loans.pages.detail.principal')}</p>
               <p className="mt-1 text-[15px] font-extrabold text-text">
-                {formatVnd(loan.principal)}
+                {displayAmount(loan.principal)}
               </p>
             </div>
             <div className="rounded-[12px] bg-bg-subtle p-3">
               <p className="text-[12px] font-semibold text-gray-400">{t('loans.card.remaining')}</p>
               <p className="mt-1 text-[15px] font-extrabold text-rose-600">
-                {formatVnd(loan.remaining)}
+                {displayAmount(loan.remaining)}
               </p>
             </div>
           </div>
@@ -257,7 +275,7 @@ export function LoanDetailPage({ loanId: loanIdProp }: LoanDetailPageProps = {})
                 {t('loans.card.paid')}
               </p>
               <p className="mt-1 text-[14px] font-bold text-emerald-600">
-                {formatVnd(loan.paid_amount)}
+                {displayAmount(loan.paid_amount)}
               </p>
             </div>
           </div>
@@ -325,7 +343,7 @@ export function LoanDetailPage({ loanId: loanIdProp }: LoanDetailPageProps = {})
                 >
                   <div className="flex items-center justify-between gap-3">
                     <p className="text-[15px] font-extrabold text-emerald-600">
-                      {formatVnd(payment.amount)}
+                      {displayAmount(payment.amount)}
                     </p>
                     <p className="text-[12px] font-bold text-gray-400">
                       {formatMsDate(payment.payment_date)}
