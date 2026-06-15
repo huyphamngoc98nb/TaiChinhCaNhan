@@ -135,6 +135,15 @@ describe('AppBootstrap app lock', () => {
     expect(screen.getByText('PIN screen')).toBeTruthy();
   });
 
+  it('renders the lock screen on web when unlock is required', () => {
+    capacitorMock.getPlatform.mockReturnValue('web');
+
+    renderBootstrap();
+
+    expect(screen.getByText('PIN screen')).toBeTruthy();
+    expect(sqliteConnectionMock.initDatabaseConnection).not.toHaveBeenCalled();
+  });
+
   it('does not lock while app locking is temporarily suspended', async () => {
     renderBootstrap();
 

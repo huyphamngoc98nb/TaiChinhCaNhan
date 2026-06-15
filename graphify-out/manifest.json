@@ -50,7 +50,7 @@
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\android\\capacitor.settings.gradle": {
-    "mtime": 1781257231.954494,
+    "mtime": 1781257527.4232502,
     "ast_hash": "7d20bbb6ddd9b895546d6342e84c45a4",
     "semantic_hash": ""
   },
@@ -75,7 +75,7 @@
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\android\\app\\capacitor.build.gradle": {
-    "mtime": 1781257231.9552784,
+    "mtime": 1781257527.4232502,
     "ast_hash": "3deacd894fa096455ce58f3b2df33e10",
     "semantic_hash": ""
   },
@@ -85,12 +85,12 @@
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\android\\app\\src\\main\\assets\\capacitor.config.json": {
-    "mtime": 1781257231.843006,
+    "mtime": 1781257527.2698607,
     "ast_hash": "5faad82265b616885f2ca4175082f59a",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\android\\app\\src\\main\\assets\\capacitor.plugins.json": {
-    "mtime": 1781257231.9231615,
+    "mtime": 1781257527.3600664,
     "ast_hash": "f63e79d46b1f8b3fe5f4af0d8fcd322a",
     "semantic_hash": ""
   },
@@ -115,12 +115,12 @@
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\android\\capacitor-cordova-android-plugins\\build.gradle": {
-    "mtime": 1781257231.9552784,
+    "mtime": 1781257527.4232502,
     "ast_hash": "2af61653d70c95d20802c8b5c433ba90",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\android\\capacitor-cordova-android-plugins\\cordova.variables.gradle": {
-    "mtime": 1781257231.9552784,
+    "mtime": 1781257527.4232502,
     "ast_hash": "d2372a0ae9aa60abb8d03e7f06bf9194",
     "semantic_hash": ""
   },
@@ -185,8 +185,8 @@
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\app\\providers\\AppUnlock.tsx": {
-    "mtime": 1781256860.118859,
-    "ast_hash": "68e78029477d85dbbd8bab2836601742",
+    "mtime": 1781488172.854619,
+    "ast_hash": "b41a445b56063bda3cd3ed86e3c1ad54",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\app\\providers\\GlobalErrorBoundary.tsx": {
@@ -1290,13 +1290,13 @@
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\tests\\app-bootstrap-lock.test.tsx": {
-    "mtime": 1781145090.727064,
-    "ast_hash": "bdbb994b7bf400b2b011d4b8a44f9662",
+    "mtime": 1781488214.4691875,
+    "ast_hash": "545511eec50c849f2070a81d7191f3fd",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\tests\\app-unlock.test.tsx": {
-    "mtime": 1781253150.5033424,
-    "ast_hash": "b3f5389bc5387311f169df09e83aeddd",
+    "mtime": 1781488195.4222279,
+    "ast_hash": "cef7d87eed5d52c9a5933808238ffefb",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\tests\\auth-service.test.ts": {

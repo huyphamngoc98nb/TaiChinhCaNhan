@@ -11,15 +11,9 @@ const authServiceMock = vi.hoisted(() => ({
   unlockWithBiometrics: vi.fn(),
   unlockWithPin: vi.fn(),
 }));
-const recoveryServiceMock = vi.hoisted(() => ({
-  resetLocalData: vi.fn(),
-}));
 
 vi.mock('@/core/auth/auth.service', () => ({
   authService: authServiceMock,
-}));
-vi.mock('@/core/auth/recovery.service', () => ({
-  recoveryService: recoveryServiceMock,
 }));
 
 vi.mock('@capacitor/preferences', () => ({
@@ -52,7 +46,6 @@ describe('AppUnlock', () => {
     authServiceMock.setupPin.mockResolvedValue({ authenticated: true, createdSecret: true });
     authServiceMock.unlockWithBiometrics.mockResolvedValue(null);
     authServiceMock.unlockWithPin.mockResolvedValue({ authenticated: true, createdSecret: false });
-    recoveryServiceMock.resetLocalData.mockResolvedValue(undefined);
   });
 
   it('starts with PIN setup when no native secret exists and does not trigger biometrics', async () => {
@@ -95,24 +88,11 @@ describe('AppUnlock', () => {
     expect(authServiceMock.setupPin).not.toHaveBeenCalled();
   });
 
-  it('shows recovery only in unlock mode and requires strong reset confirmation', async () => {
+  it('does not show recovery entry point in unlock mode', async () => {
     authServiceMock.hasStoredSecret.mockResolvedValue(true);
     renderAppUnlock();
 
     expect(await screen.findByRole('heading', { name: 'Unlock data' })).toBeTruthy();
-    fireEvent.click(screen.getByRole('button', { name: 'Forgot PIN?' }));
-
-    const resetButton = screen.getByRole('button', { name: 'Erase data and reset' });
-    expect((resetButton as HTMLButtonElement).disabled).toBe(true);
-
-    fireEvent.click(screen.getByRole('checkbox'));
-    fireEvent.change(screen.getByLabelText('Type RESET to enable deletion.'), {
-      target: { value: 'RESET' },
-    });
-    expect((resetButton as HTMLButtonElement).disabled).toBe(false);
-    fireEvent.click(resetButton);
-
-    await waitFor(() => expect(recoveryServiceMock.resetLocalData).toHaveBeenCalledTimes(1));
-    expect(await screen.findByRole('heading', { name: 'Create PIN' })).toBeTruthy();
+    expect(screen.queryByRole('button', { name: 'Forgot PIN?' })).toBeNull();
   });
 });

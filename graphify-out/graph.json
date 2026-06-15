@@ -2248,7 +2248,7 @@
       "label": "AppUnlockProps",
       "file_type": "code",
       "source_file": "src/app/providers/AppUnlock.tsx",
-      "source_location": "L8",
+      "source_location": "L7",
       "id": "providers_appunlock_appunlockprops",
       "community": 34,
       "norm_label": "appunlockprops"
@@ -2257,7 +2257,7 @@
       "label": "PIN_KEYS",
       "file_type": "code",
       "source_file": "src/app/providers/AppUnlock.tsx",
-      "source_location": "L13",
+      "source_location": "L12",
       "id": "providers_appunlock_pin_keys",
       "community": 34,
       "norm_label": "pin_keys"
@@ -2266,7 +2266,7 @@
       "label": "UnlockMode",
       "file_type": "code",
       "source_file": "src/app/providers/AppUnlock.tsx",
-      "source_location": "L19",
+      "source_location": "L18",
       "id": "providers_appunlock_unlockmode",
       "community": 34,
       "norm_label": "unlockmode"
@@ -2275,7 +2275,7 @@
       "label": "AppUnlock()",
       "file_type": "code",
       "source_file": "src/app/providers/AppUnlock.tsx",
-      "source_location": "L21",
+      "source_location": "L20",
       "id": "providers_appunlock_appunlock",
       "community": 34,
       "norm_label": "appunlock()"
@@ -2682,7 +2682,7 @@
       "source_file": "src/core/db/transaction-runner.ts",
       "source_location": "L5",
       "id": "db_transaction_runner_sqlitetransactionrunner",
-      "community": 134,
+      "community": 23,
       "norm_label": "sqlitetransactionrunner()"
     },
     {
@@ -3519,7 +3519,7 @@
       "source_file": "src/core/repositories/app-repositories.ts",
       "source_location": "L1",
       "id": "src_core_repositories_app_repositories_ts",
-      "community": 134,
+      "community": 23,
       "norm_label": "app-repositories.ts"
     },
     {
@@ -3537,7 +3537,7 @@
       "source_file": "src/core/repositories/app-repositories.ts",
       "source_location": "L25",
       "id": "repositories_app_repositories_createsqliterepositories",
-      "community": 134,
+      "community": 23,
       "norm_label": "createsqliterepositories()"
     },
     {
@@ -3555,7 +3555,7 @@
       "source_file": "src/core/telemetry/error-log.repository.ts",
       "source_location": "L6",
       "id": "telemetry_error_log_repository_errorlogrecord",
-      "community": 98,
+      "community": 157,
       "norm_label": "errorlogrecord"
     },
     {
@@ -3672,7 +3672,7 @@
       "source_file": "src/core/telemetry/logger.ts",
       "source_location": "L1",
       "id": "src_core_telemetry_logger_ts",
-      "community": 112,
+      "community": 98,
       "norm_label": "logger.ts"
     },
     {
@@ -3681,7 +3681,7 @@
       "source_file": "src/core/telemetry/logger.ts",
       "source_location": "L4",
       "id": "telemetry_logger_loglevel",
-      "community": 112,
+      "community": 98,
       "norm_label": "loglevel"
     },
     {
@@ -3699,7 +3699,7 @@
       "source_file": "src/core/telemetry/logger.ts",
       "source_location": "L15",
       "id": "telemetry_logger_logoptions",
-      "community": 112,
+      "community": 98,
       "norm_label": "logoptions"
     },
     {
@@ -3708,7 +3708,7 @@
       "source_file": "src/core/telemetry/logger.ts",
       "source_location": "L20",
       "id": "telemetry_logger_islogoptions",
-      "community": 112,
+      "community": 98,
       "norm_label": "islogoptions()"
     },
     {
@@ -3717,7 +3717,7 @@
       "source_file": "src/core/telemetry/logger.ts",
       "source_location": "L30",
       "id": "telemetry_logger_tosafelogvalue",
-      "community": 112,
+      "community": 98,
       "norm_label": "tosafelogvalue()"
     },
     {
@@ -3726,7 +3726,7 @@
       "source_file": "src/core/telemetry/logger.ts",
       "source_location": "L42",
       "id": "telemetry_logger_normalizeerror",
-      "community": 112,
+      "community": 98,
       "norm_label": "normalizeerror()"
     },
     {
@@ -3735,7 +3735,7 @@
       "source_file": "src/core/telemetry/logger.ts",
       "source_location": "L62",
       "id": "telemetry_logger_normalizemetadata",
-      "community": 112,
+      "community": 98,
       "norm_label": "normalizemetadata()"
     },
     {
@@ -6093,7 +6093,7 @@
       "source_file": "src/modules/export/services/export-error-logs.ts",
       "source_location": "L1",
       "id": "src_modules_export_services_export_error_logs_ts",
-      "community": 98,
+      "community": 157,
       "norm_label": "export-error-logs.ts"
     },
     {
@@ -6102,7 +6102,7 @@
       "source_file": "src/modules/export/services/export-error-logs.ts",
       "source_location": "L3",
       "id": "services_export_error_logs_errorlogexportitem",
-      "community": 98,
+      "community": 157,
       "norm_label": "errorlogexportitem"
     },
     {
@@ -6111,7 +6111,7 @@
       "source_file": "src/modules/export/services/export-error-logs.ts",
       "source_location": "L14",
       "id": "services_export_error_logs_errorlogexportpayload",
-      "community": 98,
+      "community": 157,
       "norm_label": "errorlogexportpayload"
     },
     {
@@ -6120,7 +6120,7 @@
       "source_file": "src/modules/export/services/export-error-logs.ts",
       "source_location": "L21",
       "id": "services_export_error_logs_parsemetadata",
-      "community": 98,
+      "community": 157,
       "norm_label": "parsemetadata()"
     },
     {
@@ -6129,7 +6129,7 @@
       "source_file": "src/modules/export/services/export-error-logs.ts",
       "source_location": "L32",
       "id": "services_export_error_logs_builderrorlogexportpayload",
-      "community": 98,
+      "community": 157,
       "norm_label": "builderrorlogexportpayload()"
     },
     {
@@ -6138,7 +6138,7 @@
       "source_file": "src/modules/export/services/export-error-logs.ts",
       "source_location": "L53",
       "id": "services_export_error_logs_exporterrorlogstojson",
-      "community": 98,
+      "community": 157,
       "norm_label": "exporterrorlogstojson()"
     },
     {
@@ -9585,7 +9585,7 @@
       "source_file": "src/modules/transactions/hooks/useTransactionSummary.ts",
       "source_location": "L6",
       "id": "hooks_usetransactionsummary_transactionsummary",
-      "community": 125,
+      "community": 134,
       "norm_label": "transactionsummary"
     },
     {
@@ -9837,7 +9837,7 @@
       "source_file": "src/modules/transactions/repositories/transaction.repository.ts",
       "source_location": "L3",
       "id": "repositories_transaction_repository_itransactionrepository",
-      "community": 134,
+      "community": 111,
       "norm_label": "itransactionrepository"
     },
     {
@@ -10044,7 +10044,7 @@
       "source_file": "src/modules/transactions/services/create-transaction.exclude.test.ts",
       "source_location": "L1",
       "id": "src_modules_transactions_services_create_transaction_exclude_test_ts",
-      "community": 88,
+      "community": 23,
       "norm_label": "create-transaction.exclude.test.ts"
     },
     {
@@ -10053,7 +10053,7 @@
       "source_file": "src/modules/transactions/services/create-transaction.exclude.test.ts",
       "source_location": "L19",
       "id": "services_create_transaction_exclude_test_wallet",
-      "community": 88,
+      "community": 23,
       "norm_label": "wallet"
     },
     {
@@ -10179,7 +10179,7 @@
       "source_file": "src/modules/transactions/services/delete-transaction.ts",
       "source_location": "L1",
       "id": "src_modules_transactions_services_delete_transaction_ts",
-      "community": 134,
+      "community": 23,
       "norm_label": "delete-transaction.ts"
     },
     {
@@ -11034,7 +11034,7 @@
       "source_file": "src/modules/wallets/repositories/wallet.repository.ts",
       "source_location": "L1",
       "id": "src_modules_wallets_repositories_wallet_repository_ts",
-      "community": 88,
+      "community": 23,
       "norm_label": "wallet.repository.ts"
     },
     {
@@ -12087,7 +12087,7 @@
       "source_file": "src/shared/config/env.ts",
       "source_location": "L1",
       "id": "src_shared_config_env_ts",
-      "community": 112,
+      "community": 98,
       "norm_label": "env.ts"
     },
     {
@@ -12096,7 +12096,7 @@
       "source_file": "src/shared/config/env.ts",
       "source_location": "L1",
       "id": "config_env_env",
-      "community": 112,
+      "community": 98,
       "norm_label": "env"
     },
     {
@@ -12874,19 +12874,10 @@
       "norm_label": "authservicemock"
     },
     {
-      "label": "recoveryServiceMock",
-      "file_type": "code",
-      "source_file": "src/tests/app-unlock.test.tsx",
-      "source_location": "L14",
-      "id": "tests_app_unlock_test_recoveryservicemock",
-      "community": 34,
-      "norm_label": "recoveryservicemock"
-    },
-    {
       "label": "renderAppUnlock()",
       "file_type": "code",
       "source_file": "src/tests/app-unlock.test.tsx",
-      "source_location": "L32",
+      "source_location": "L26",
       "id": "tests_app_unlock_test_renderappunlock",
       "community": 10,
       "norm_label": "renderappunlock()"
@@ -12895,7 +12886,7 @@
       "label": "enterPin()",
       "file_type": "code",
       "source_file": "src/tests/app-unlock.test.tsx",
-      "source_location": "L40",
+      "source_location": "L34",
       "id": "tests_app_unlock_test_enterpin",
       "community": 34,
       "norm_label": "enterpin()"
@@ -12904,19 +12895,10 @@
       "label": "onUnlocked",
       "file_type": "code",
       "source_file": "src/tests/app-unlock.test.tsx",
-      "source_location": "L69",
+      "source_location": "L62",
       "id": "tests_app_unlock_test_onunlocked",
       "community": 34,
       "norm_label": "onunlocked"
-    },
-    {
-      "label": "resetButton",
-      "file_type": "code",
-      "source_file": "src/tests/app-unlock.test.tsx",
-      "source_location": "L105",
-      "id": "tests_app_unlock_test_resetbutton",
-      "community": 34,
-      "norm_label": "resetbutton"
     },
     {
       "label": "auth-service.test.ts",
@@ -16933,6 +16915,24 @@
       "norm_label": "nhan \u201c\u0111a thanh toan\u201d hoa \u0111on co tru tien khoi vi khong?"
     },
     {
+      "label": "recoveryServiceMock",
+      "file_type": "code",
+      "source_file": "src/tests/app-unlock.test.tsx",
+      "source_location": "L14",
+      "community": 34,
+      "norm_label": "recoveryservicemock",
+      "id": "tests_app_unlock_test_recoveryservicemock"
+    },
+    {
+      "label": "resetButton",
+      "file_type": "code",
+      "source_file": "src/tests/app-unlock.test.tsx",
+      "source_location": "L105",
+      "community": 34,
+      "norm_label": "resetbutton",
+      "id": "tests_app_unlock_test_resetbutton"
+    },
+    {
       "label": "Expense Tracker App",
       "file_type": "document",
       "source_file": "README.md",
@@ -18305,7 +18305,7 @@
       "file_type": "code",
       "source_file": "src/core/telemetry/logger.ts",
       "source_location": "L1",
-      "community": 112,
+      "community": 98,
       "norm_label": "logger.ts",
       "id": "telemetry_logger"
     },
@@ -18737,7 +18737,7 @@
       "file_type": "code",
       "source_file": "src/modules/export/services/export-error-logs.ts",
       "source_location": "L1",
-      "community": 98,
+      "community": 157,
       "norm_label": "export-error-logs.ts",
       "id": "services_export_error_logs"
     },
@@ -19376,7 +19376,7 @@
       "file_type": "code",
       "source_file": "src/modules/transactions/hooks/useTransactionSummary.ts",
       "source_location": "L1",
-      "community": 125,
+      "community": 134,
       "norm_label": "usetransactionsummary.ts",
       "id": "hooks_usetransactionsummary"
     },
@@ -19772,7 +19772,7 @@
       "file_type": "code",
       "source_file": "src/shared/config/env.ts",
       "source_location": "L1",
-      "community": 112,
+      "community": 98,
       "norm_label": "env.ts",
       "id": "config_env"
     },
@@ -25193,28 +25193,6 @@
       "confidence": "EXTRACTED",
       "source_file": "src/app/providers/AppUnlock.tsx",
       "source_location": "L5",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "src_app_providers_appunlock_tsx",
-      "target": "src_core_auth_recoveryresetdialog_tsx"
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/app/providers/AppUnlock.tsx",
-      "source_location": "L5",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "src_app_providers_appunlock_tsx",
-      "target": "auth_recoveryresetdialog_recoveryresetdialog"
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/app/providers/AppUnlock.tsx",
-      "source_location": "L5",
       "weight": 1,
       "confidence_score": 1,
       "source": "src_app_providers_appunlock_tsx",
@@ -25281,6 +25259,28 @@
       "confidence_score": 1,
       "source": "src_tests_app_unlock_test_tsx",
       "target": "src_app_providers_appunlock_tsx"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/app/providers/AppUnlock.tsx",
+      "source_location": "L5",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "src_app_providers_appunlock_tsx",
+      "target": "src_core_auth_recoveryresetdialog_tsx"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/app/providers/AppUnlock.tsx",
+      "source_location": "L5",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "src_app_providers_appunlock_tsx",
+      "target": "auth_recoveryresetdialog_recoveryresetdialog"
     },
     {
       "relation": "contains",
@@ -62531,9 +62531,9 @@
       "source_file": "src/tests/reports-ui.test.tsx",
       "source_location": "L8",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "src_tests_reports_ui_test_tsx",
-      "target": "src_modules_reports_domain_report_model_ts",
-      "confidence_score": 1.0
+      "target": "src_modules_reports_domain_report_model_ts"
     },
     {
       "relation": "imports",
@@ -62849,9 +62849,9 @@
       "source_file": "src/tests/reports-ui.test.tsx",
       "source_location": "L8",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "src_tests_reports_ui_test_tsx",
-      "target": "domain_report_model_reportgranularity",
-      "confidence_score": 1.0
+      "target": "domain_report_model_reportgranularity"
     },
     {
       "relation": "references",
@@ -64027,9 +64027,9 @@
       "source_file": "src/tests/reports-ui.test.tsx",
       "source_location": "L7",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "src_tests_reports_ui_test_tsx",
-      "target": "src_modules_reports_services_build_date_range_ts",
-      "confidence_score": 1.0
+      "target": "src_modules_reports_services_build_date_range_ts"
     },
     {
       "relation": "imports_from",
@@ -64049,9 +64049,9 @@
       "source_file": "src/tests/reports-ui.test.tsx",
       "source_location": "L7",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "src_tests_reports_ui_test_tsx",
-      "target": "services_build_date_range_daterangepreset",
-      "confidence_score": 1.0
+      "target": "services_build_date_range_daterangepreset"
     },
     {
       "relation": "imports",
@@ -83921,16 +83921,6 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/tests/app-unlock.test.tsx",
-      "source_location": "L14",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "src_tests_app_unlock_test_tsx",
-      "target": "tests_app_unlock_test_recoveryservicemock"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/tests/app-unlock.test.tsx",
       "source_location": "L26",
       "weight": 1,
       "confidence_score": 1,
@@ -83956,6 +83946,16 @@
       "confidence_score": 1,
       "source": "src_tests_app_unlock_test_tsx",
       "target": "tests_app_unlock_test_onunlocked"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/tests/app-unlock.test.tsx",
+      "source_location": "L14",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "src_tests_app_unlock_test_tsx",
+      "target": "tests_app_unlock_test_recoveryservicemock"
     },
     {
       "relation": "contains",
@@ -85410,9 +85410,9 @@
       "source_file": "src/tests/reports-ui.test.tsx",
       "source_location": "L21",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "src_tests_reports_ui_test_tsx",
-      "target": "tests_reports_ui_test_statefuldaterangepicker",
-      "confidence_score": 1.0
+      "target": "tests_reports_ui_test_statefuldaterangepicker"
     },
     {
       "relation": "contains",
@@ -85440,9 +85440,9 @@
       "source_file": "src/tests/reports-ui.test.tsx",
       "source_location": "L86",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "src_tests_reports_ui_test_tsx",
-      "target": "tests_reports_ui_test_rerender",
-      "confidence_score": 1.0
+      "target": "tests_reports_ui_test_rerender"
     },
     {
       "relation": "contains",
@@ -85450,9 +85450,9 @@
       "source_file": "src/tests/reports-ui.test.tsx",
       "source_location": "L165",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "src_tests_reports_ui_test_tsx",
-      "target": "tests_reports_ui_test_granularitygroup",
-      "confidence_score": 1.0
+      "target": "tests_reports_ui_test_granularitygroup"
     },
     {
       "relation": "contains",
@@ -98573,5 +98573,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "20e033020d4176a27c48e5dc52c491a425750f1c"
+  "built_at_commit": "fd6046207911194f9aceb51ef6d93058b30714d8"
 }

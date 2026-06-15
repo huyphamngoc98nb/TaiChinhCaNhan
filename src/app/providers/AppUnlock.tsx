@@ -2,7 +2,6 @@
 import { FormEvent, useCallback, useEffect, useRef, useState } from 'react';
 import { Delete, Fingerprint, LockKeyhole } from 'lucide-react';
 import { authService } from '@/core/auth/auth.service';
-import { RecoveryResetDialog } from '@/core/auth/RecoveryResetDialog';
 import { useLanguage } from '@/shared/context/LanguageContext';
 
 interface AppUnlockProps {
@@ -15,7 +14,7 @@ const PIN_CLEAR_DELAY_MS = 750;
 const DELETE_HOLD_DELAY_MS = 320;
 const DELETE_REPEAT_MS = 80;
 const PIN_KEY_BUTTON_CLASS =
-  'flex h-[76px] w-[76px] items-center justify-center rounded-2xl border-none bg-surface text-[23px] font-semibold text-text shadow-[0_6px_18px_var(--shadow-color)] outline-none ring-0 transition-[transform,background-color,box-shadow] duration-100 active:scale-[0.96] active:bg-surface-muted active:shadow-[0_3px_10px_var(--shadow-color)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 disabled:opacity-50 sm:h-[82px] sm:w-[82px]';
+  'flex h-[84px] w-[84px] items-center justify-center rounded-2xl border-none bg-surface text-[25px] font-semibold text-text shadow-[0_6px_18px_var(--shadow-color)] outline-none ring-0 transition-[transform,background-color,box-shadow] duration-100 active:scale-[0.96] active:bg-surface-muted active:shadow-[0_3px_10px_var(--shadow-color)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 disabled:opacity-50 sm:h-[88px] sm:w-[88px]';
 type UnlockMode = 'loading' | 'setup' | 'confirm' | 'unlock';
 
 export function AppUnlock({ onUnlocked }: AppUnlockProps) {
@@ -27,7 +26,6 @@ export function AppUnlock({ onUnlocked }: AppUnlockProps) {
   const [shakeDots, setShakeDots] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [clearingError, setClearingError] = useState(false);
-  const [showRecovery, setShowRecovery] = useState(false);
   const clearPinTimerRef = useRef<number | null>(null);
   const shakeTimerRef = useRef<number | null>(null);
   const deleteHoldTimerRef = useRef<number | null>(null);
@@ -379,7 +377,7 @@ export function AppUnlock({ onUnlocked }: AppUnlockProps) {
               className={`${PIN_KEY_BUTTON_CLASS} disabled:opacity-40`}
               aria-label={t('app_lock.delete_digit')}
             >
-              <Delete size={31} strokeWidth={2.35} />
+              <Delete size={34} strokeWidth={2.35} />
             </button>
           </div>
 
@@ -393,31 +391,8 @@ export function AppUnlock({ onUnlocked }: AppUnlockProps) {
             <Fingerprint size={27} strokeWidth={2.35} />
             <span>{t('app_lock.use_biometrics')}</span>
           </button>
-
-          {mode === 'unlock' && (
-            <button
-              type="button"
-              onClick={() => setShowRecovery(true)}
-              disabled={inputLocked}
-              className="mx-auto mt-2 block min-h-[44px] px-4 text-sm font-semibold text-muted underline underline-offset-4"
-            >
-              {t('app_lock.forgot_pin')}
-            </button>
-          )}
         </form>
       </main>
-      {showRecovery && (
-        <RecoveryResetDialog
-          onCancel={() => setShowRecovery(false)}
-          onReset={() => {
-            setShowRecovery(false);
-            setPin('');
-            setFirstPin('');
-            setError(null);
-            setMode('setup');
-          }}
-        />
-      )}
     </div>
   );
 }
