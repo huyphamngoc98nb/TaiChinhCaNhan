@@ -72,7 +72,7 @@ function shouldBackToDashboardWithDrawer(pathname: string): boolean {
   return DASHBOARD_WITH_DRAWER_BACK_ROUTES.has(pathname);
 }
 
-function getContextualAddRoute(pathname: string): ContextualAddRoute {
+  function getContextualAddRoute(pathname: string): ContextualAddRoute {
   return (
     CONTEXTUAL_ADD_ROUTES.find((item) =>
       matchesRouteContext(pathname, item.route, item.exact),

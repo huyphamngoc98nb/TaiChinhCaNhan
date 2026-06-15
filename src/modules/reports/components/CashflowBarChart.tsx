@@ -1,5 +1,5 @@
 import React from 'react';
-import { Area, AreaChart, Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis } from 'recharts';
+import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis } from 'recharts';
 import { PeriodSummary } from '../domain/report.model';
 import { useLanguage } from '@/shared/context/LanguageContext';
 import { useCurrency } from '@/shared/context/CurrencyContext';
@@ -12,7 +12,6 @@ interface Props {
 export const CashflowBarChart: React.FC<Props> = ({ data }) => {
   const { t, language } = useLanguage();
   const { formatAmount } = useCurrency();
-  const [view, setView] = React.useState<'cashflow' | 'balance'>('cashflow');
   const locale = getAppLocale(language);
 
   const fmtTooltip = (value: any) => formatAmount(Number(value || 0), locale);
@@ -46,107 +45,56 @@ export const CashflowBarChart: React.FC<Props> = ({ data }) => {
     );
   }
 
-  const chartData = data.reduce<Array<PeriodSummary & { balance: number }>>((items, item) => {
-    const previousBalance = items[items.length - 1]?.balance || 0;
-    items.push({ ...item, balance: previousBalance + item.income - item.expense });
-    return items;
-  }, []);
-
   return (
     <div className="mb-5 min-w-0 rounded-[14px] border border-gray-100 bg-white p-3 shadow-sm">
       <div className="mb-2 flex min-w-0 items-center justify-between gap-3">
         <div>
           <h3 className="min-w-0 truncate text-[15px] font-bold text-gray-900">{t('reports.cashflow_title')}</h3>
-          {view === 'cashflow' && (
-            <div className="mt-1 flex gap-3 text-[11px] font-semibold">
-              <span className="text-emerald-600">{t('reports.bar_income')}</span>
-              <span className="text-red-600">{t('reports.bar_expense')}</span>
-            </div>
-          )}
-        </div>
-        <div className="inline-grid shrink-0 grid-cols-2 rounded-[11px] bg-gray-100 p-1">
-          <button
-            type="button"
-            onClick={() => setView('cashflow')}
-            className={`h-8 rounded-[8px] px-3 text-[12px] font-semibold ${view === 'cashflow' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'}`}
-          >
-            {t('reports.cashflow_tab')}
-          </button>
-          <button
-            type="button"
-            onClick={() => setView('balance')}
-            className={`h-8 rounded-[8px] px-3 text-[12px] font-semibold ${view === 'balance' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'}`}
-          >
-            {t('reports.balance')}
-          </button>
+          <div className="mt-1 flex gap-3 text-[11px] font-semibold">
+            <span className="text-emerald-600">{t('reports.bar_income')}</span>
+            <span className="text-red-600">{t('reports.bar_expense')}</span>
+          </div>
         </div>
       </div>
 
       <div className="h-[220px] min-w-0">
         <ResponsiveContainer width="100%" height="100%">
-          {view === 'cashflow' ? (
-            <BarChart data={chartData} margin={{ top: 8, right: 4, left: 4, bottom: 0 }} barGap={2}>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" />
-              <XAxis
-                dataKey="period"
-                axisLine={false}
-                tickLine={false}
-                interval="preserveStartEnd"
-                minTickGap={14}
-                tick={{ fontSize: 11, fill: 'var(--text-subtle)' }}
-                tickFormatter={formatPeriod}
-                tickMargin={8}
-              />
-              <Tooltip
-                formatter={fmtTooltip}
-                labelFormatter={formatPeriod}
-                cursor={{ fill: 'var(--bg-subtle)' }}
-                contentStyle={{
-                  borderRadius: 12,
-                  border: '1px solid var(--border)',
-                  background: 'var(--surface)',
-                  boxShadow: '0 8px 20px var(--shadow-color)',
-                  color: 'var(--text)',
-                  fontSize: 12,
-                }}
-                labelStyle={{ color: 'var(--text)' }}
-                itemStyle={{ color: 'var(--text)' }}
-              />
-              <Bar dataKey="income" fill="#10B981" name={t('reports.bar_income')} radius={[3, 3, 0, 0]} maxBarSize={26} />
-              <Bar dataKey="expense" fill="#EF4444" name={t('reports.bar_expense')} radius={[3, 3, 0, 0]} maxBarSize={26} />
-            </BarChart>
-          ) : (
-            <AreaChart data={chartData} margin={{ top: 8, right: 4, left: 4, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" />
-              <XAxis
-                dataKey="period"
-                axisLine={false}
-                tickLine={false}
-                interval="preserveStartEnd"
-                minTickGap={14}
-                tick={{ fontSize: 11, fill: 'var(--text-subtle)' }}
-                tickFormatter={formatPeriod}
-                tickMargin={8}
-              />
-              <Tooltip
-                formatter={fmtTooltip}
-                labelFormatter={formatPeriod}
-                cursor={{ stroke: 'var(--border-strong)' }}
-                contentStyle={{
-                  borderRadius: 12,
-                  border: '1px solid var(--border)',
-                  background: 'var(--surface)',
-                  boxShadow: '0 8px 20px var(--shadow-color)',
-                  color: 'var(--text)',
-                  fontSize: 12,
-                }}
-                labelStyle={{ color: 'var(--text)' }}
-                itemStyle={{ color: 'var(--text)' }}
-              />
-              <Area type="monotone" dataKey="balance" name={t('reports.balance')} stroke="var(--primary)" fill="var(--primary-soft)" strokeWidth={2} />
-            </AreaChart>
-          )}
-      </ResponsiveContainer>
+          <BarChart
+            accessibilityLayer={false}
+            data={data}
+            margin={{ top: 8, right: 4, left: 4, bottom: 0 }}
+            barGap={2}
+          >
+            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" />
+            <XAxis
+              dataKey="period"
+              axisLine={false}
+              tickLine={false}
+              interval="preserveStartEnd"
+              minTickGap={14}
+              tick={{ fontSize: 11, fill: 'var(--text-subtle)' }}
+              tickFormatter={formatPeriod}
+              tickMargin={8}
+            />
+            <Tooltip
+              formatter={fmtTooltip}
+              labelFormatter={formatPeriod}
+              cursor={{ fill: 'var(--bg-subtle)' }}
+              contentStyle={{
+                borderRadius: 12,
+                border: '1px solid var(--border)',
+                background: 'var(--surface)',
+                boxShadow: '0 8px 20px var(--shadow-color)',
+                color: 'var(--text)',
+                fontSize: 12,
+              }}
+              labelStyle={{ color: 'var(--text)' }}
+              itemStyle={{ color: 'var(--text)' }}
+            />
+            <Bar dataKey="income" fill="#10B981" name={t('reports.bar_income')} radius={[3, 3, 0, 0]} maxBarSize={26} />
+            <Bar dataKey="expense" fill="#EF4444" name={t('reports.bar_expense')} radius={[3, 3, 0, 0]} maxBarSize={26} />
+          </BarChart>
+        </ResponsiveContainer>
       </div>
     </div>
   );
