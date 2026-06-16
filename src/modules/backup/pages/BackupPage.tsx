@@ -10,7 +10,9 @@ import { ROUTES } from '@/shared/constants/routes';
 import { exportBackupJson } from '../services/export-backup-json';
 import {
   EncryptedBackupPasswordRequiredError,
-  importBackupJson,
+  importPreparedBackup,
+  PreparedBackupImport,
+  prepareBackupImport,
 } from '../services/import-backup-json';
 import { BackupDecryptionError, encryptBackupPayload } from '../services/encrypted-backup';
 import { saveBackupFile } from '../services/save-backup-file';
@@ -45,6 +47,7 @@ export function BackupPage() {
   const [exportPassword, setExportPassword] = useState('');
   const [confirmExportPassword, setConfirmExportPassword] = useState('');
   const [pendingEncryptedImport, setPendingEncryptedImport] = useState<File | null>(null);
+  const [pendingImport, setPendingImport] = useState<PreparedBackupImport | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const restoreInProgressRef = useRef(false);
 
@@ -130,6 +133,16 @@ export function BackupPage() {
       return;
     }
 
+    const ok = await confirm({
+      title: t('backup.export_title'),
+      message: encryptExport
+        ? 'File xuất có thể chứa dữ liệu tài chính cá nhân. Hãy lưu ở nơi an toàn.'
+        : 'File xuất có thể chứa dữ liệu tài chính cá nhân. Hãy lưu ở nơi an toàn. File backup này không được mã hóa.',
+      confirmText: t('backup.export_button'),
+      cancelText: t('common.cancel'),
+    });
+    if (!ok) return;
+
     setLoading(true);
     try {
       const payload = await exportBackupJson();
@@ -154,36 +167,33 @@ export function BackupPage() {
   const handleSelectBackupFile = async () => {
     if (loading) return;
 
-    const ok = await confirm({
-      title: t('backup.restore_confirm_title'),
-      message: t('backup.restore_confirm_msg'),
-      confirmText: t('backup.restore_confirm_btn'),
-      cancelText: t('common.cancel'),
-    });
-
-    if (ok) {
-      suspendAppLock();
-      if (fileInputRef.current) {
-        fileInputRef.current.value = '';
-        window.addEventListener(
-          'focus',
-          () => {
-            window.setTimeout(() => {
-              if (!restoreInProgressRef.current && !fileInputRef.current?.files?.length) {
-                resumeAppLock();
-              }
-            }, 1000);
-          },
-          { once: true },
-        );
-        fileInputRef.current.click();
-      }
+    suspendAppLock();
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+      window.addEventListener(
+        'focus',
+        () => {
+          window.setTimeout(() => {
+            if (
+              !restoreInProgressRef.current &&
+              !pendingImport &&
+              !pendingEncryptedImport &&
+              !fileInputRef.current?.files?.length
+            ) {
+              resumeAppLock();
+            }
+          }, 1000);
+        },
+        { once: true },
+      );
+      fileInputRef.current.click();
     }
   };
 
   const handleImport = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     let awaitingPassword = false;
+    let preparedForPreview = false;
     if (!file) {
       resumeAppLock();
       return;
@@ -192,12 +202,10 @@ export function BackupPage() {
     restoreInProgressRef.current = true;
     setLoading(true);
     try {
-      await importBackupJson(file);
-      showSuccessToast(t('backup.restore_success'));
+      const prepared = await prepareBackupImport(file);
+      setPendingImport(prepared);
+      preparedForPreview = true;
       event.target.value = '';
-      restoreInProgressRef.current = false;
-      forceAppUnlock();
-      navigate(ROUTES.HOME, { replace: true });
     } catch (error: any) {
       if (error instanceof EncryptedBackupPasswordRequiredError) {
         awaitingPassword = true;
@@ -211,7 +219,7 @@ export function BackupPage() {
       resumeAppLock();
     } finally {
       setLoading(false);
-      if (!awaitingPassword && !fileInputRef.current?.files?.length) {
+      if (!awaitingPassword && !preparedForPreview && !fileInputRef.current?.files?.length) {
         restoreInProgressRef.current = false;
       }
     }
@@ -222,12 +230,9 @@ export function BackupPage() {
 
     setLoading(true);
     try {
-      await importBackupJson(pendingEncryptedImport, password);
+      const prepared = await prepareBackupImport(pendingEncryptedImport, password);
       setPendingEncryptedImport(null);
-      restoreInProgressRef.current = false;
-      showSuccessToast(t('backup.restore_success'));
-      forceAppUnlock();
-      navigate(ROUTES.HOME, { replace: true });
+      setPendingImport(prepared);
     } catch (error: any) {
       showErrorToast(
         error instanceof BackupDecryptionError
@@ -242,6 +247,40 @@ export function BackupPage() {
   const handleCancelEncryptedImport = () => {
     if (loading) return;
     setPendingEncryptedImport(null);
+    restoreInProgressRef.current = false;
+    resumeAppLock();
+  };
+
+  const handleConfirmImport = async () => {
+    if (!pendingImport || loading) return;
+
+    const ok = await confirm({
+      title: t('backup.restore_confirm_title'),
+      message: `${t('backup.restore_confirm_msg')}\n\nNhấn REPLACE để xác nhận thay thế dữ liệu hiện tại.`,
+      confirmText: 'REPLACE',
+      cancelText: t('common.cancel'),
+    });
+    if (!ok) return;
+
+    setLoading(true);
+    try {
+      await importPreparedBackup(pendingImport);
+      setPendingImport(null);
+      restoreInProgressRef.current = false;
+      showSuccessToast(t('backup.restore_success'));
+      forceAppUnlock();
+      navigate(ROUTES.HOME, { replace: true });
+    } catch (error: any) {
+      showErrorToast(`${t('backup.restore_failed')} ${error.message}`);
+      resumeAppLock();
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCancelImportPreview = () => {
+    if (loading) return;
+    setPendingImport(null);
     restoreInProgressRef.current = false;
     resumeAppLock();
   };
@@ -263,6 +302,16 @@ export function BackupPage() {
       : t('backup.auto_status_off');
   const autoStatusColor =
     !autoLoading && autoSettings?.enabled ? '#059669' : 'var(--text-muted)';
+  const importPreviewSummary = pendingImport
+    ? `File backup hợp lệ. Sẽ nhập ${pendingImport.preview.counts.wallets} ví, ${pendingImport.preview.counts.transactions} giao dịch, ${pendingImport.preview.counts.categories} danh mục, ${pendingImport.preview.counts.budgets} ngân sách và ${pendingImport.preview.counts.loans} khoản vay.`
+    : '';
+  const importExportedAt = pendingImport
+    ? formatLastRunAt(
+        pendingImport.preview.metadata.exported_at,
+        language === 'vi' ? 'vi-VN' : 'en-US',
+        '-'
+      )
+    : '';
 
   return (
     <div style={{ padding: '16px', paddingBottom: '90px' }}>
@@ -552,6 +601,62 @@ export function BackupPage() {
               {loading ? t('common.processing') : t('backup.restore_button')}
             </button>
           </div>
+
+          {pendingImport && (
+            <div
+              style={{
+                marginTop: '16px',
+                padding: '14px',
+                borderRadius: '10px',
+                border: '1px solid rgba(245, 158, 11, 0.35)',
+                background: 'rgba(245, 158, 11, 0.08)',
+                display: 'grid',
+                gap: '10px',
+              }}
+            >
+              <strong style={{ fontSize: '0.95rem' }}>{importPreviewSummary}</strong>
+              <div style={{ display: 'grid', gap: '6px', fontSize: '0.82rem', color: 'var(--text-muted)' }}>
+                <span>Version backup: {pendingImport.preview.metadata.version}</span>
+                <span>Thời điểm export: {importExportedAt}</span>
+                <span>
+                  Trạng thái bảo mật:{' '}
+                  {pendingImport.preview.encrypted ? 'Đã mã hóa' : 'File backup này không được mã hóa.'}
+                </span>
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                <button
+                  type="button"
+                  onClick={handleCancelImportPreview}
+                  disabled={loading}
+                  style={{
+                    padding: '12px',
+                    borderRadius: '10px',
+                    border: '1px solid var(--border)',
+                    background: 'var(--surface)',
+                    color: 'var(--text)',
+                    fontWeight: '700',
+                  }}
+                >
+                  {t('common.cancel')}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => void handleConfirmImport()}
+                  disabled={loading}
+                  style={{
+                    padding: '12px',
+                    borderRadius: '10px',
+                    border: 'none',
+                    background: '#f59e0b',
+                    color: '#fff',
+                    fontWeight: '700',
+                  }}
+                >
+                  {loading ? t('common.processing') : 'REPLACE'}
+                </button>
+              </div>
+            </div>
+          )}
 
           <div
             style={{

@@ -124,6 +124,7 @@ export class SQLiteTransactionRepository implements ITransactionRepository {
         c.icon AS category_icon,
         c.color AS category_color,
         w.name AS wallet_name,
+        w.currency AS wallet_currency,
         tw.name AS to_wallet_name
       FROM transactions t
       LEFT JOIN categories c ON t.category_id = c.id

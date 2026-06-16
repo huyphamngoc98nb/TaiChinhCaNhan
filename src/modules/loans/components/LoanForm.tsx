@@ -20,12 +20,14 @@ function startOfLocalDay(timestamp: number): number {
   return new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
 }
 
-function dateStringToTimestamp(value?: string | null): number {
-  if (!value) return startOfLocalDay(Date.now());
+function dateStringToTimestamp(value?: string | null): number | null {
+  if (!value) return null;
   return new Date(`${value}T00:00:00`).getTime();
 }
 
-function timestampToDateString(timestamp: number): string {
+function timestampToDateString(timestamp: number | null): string | undefined {
+  if (timestamp === null) return undefined;
+
   const date = new Date(startOfLocalDay(timestamp));
   const month = String(date.getMonth() + 1).padStart(2, '0');
   const day = String(date.getDate()).padStart(2, '0');
@@ -48,8 +50,9 @@ export function LoanForm({
   const [contactInfo, setContactInfo] = useState(initialLoan?.contact_info ?? '');
   const [walletId, setWalletId] = useState(initialLoan?.wallet_id ?? '');
   const [principal, setPrincipal] = useState(initialLoan ? String(initialLoan.principal) : '');
-  const [loanDate, setLoanDate] = useState(() =>
+  const [loanDate, setLoanDate] = useState<number | null>(() =>
     dateStringToTimestamp(initialLoan?.loan_date ?? timestampToDateString(initialLoan?.created_at ?? Date.now()))
+      ?? startOfLocalDay(Date.now())
   );
   const [dueDate, setDueDate] = useState(() => dateStringToTimestamp(initialLoan?.due_date));
   const [note, setNote] = useState(initialLoan?.note ?? '');

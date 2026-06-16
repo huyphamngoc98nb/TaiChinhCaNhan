@@ -32,7 +32,7 @@ export function PaymentForm({ loan, onSubmit, loading }: PaymentFormProps) {
   const { wallets, loading: walletsLoading } = useWallets();
   const [walletId, setWalletId] = useState(loan.wallet_id ?? '');
   const [amount, setAmount] = useState('');
-  const [paymentDate, setPaymentDate] = useState(() => startOfLocalDay(Date.now()));
+  const [paymentDate, setPaymentDate] = useState<number | null>(() => startOfLocalDay(Date.now()));
   const [note, setNote] = useState('');
   const [error, setError] = useState<string | null>(null);
 
@@ -55,6 +55,10 @@ export function PaymentForm({ loan, onSubmit, loading }: PaymentFormProps) {
     const numericAmount = Number(amount);
     if (numericAmount > loan.remaining) {
       setError(t('loans.payment.errorExceed'));
+      return;
+    }
+    if (paymentDate === null) {
+      setError(t('date_time.error_required'));
       return;
     }
 
@@ -119,8 +123,14 @@ export function PaymentForm({ loan, onSubmit, loading }: PaymentFormProps) {
 
       <DateTimePicker
         value={paymentDate}
-        onChange={setPaymentDate}
+        onChange={value => {
+          setPaymentDate(value);
+          if (value === null) setError(t('date_time.error_required'));
+          else if (error === t('date_time.error_required')) setError(null);
+        }}
         label={t('loans.payment.date')}
+        required
+        error={error === t('date_time.error_required') ? error : null}
       />
 
       <div className="space-y-1.5">

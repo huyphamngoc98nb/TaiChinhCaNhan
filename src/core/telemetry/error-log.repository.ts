@@ -46,6 +46,10 @@ function writePendingLogs(entries: StructuredLogEntry[]) {
   window.localStorage.setItem(PENDING_LOGS_KEY, JSON.stringify(entries.slice(-100)));
 }
 
+export function readPendingErrorLogs(): StructuredLogEntry[] {
+  return readPendingLogs();
+}
+
 export class ErrorLogRepository {
   private async insert(entry: StructuredLogEntry): Promise<void> {
     const db = await getDbConnection();
@@ -95,6 +99,17 @@ export class ErrorLogRepository {
       [limit]
     );
     return (values ?? []) as ErrorLogRecord[];
+  }
+
+  async clear(): Promise<void> {
+    writePendingLogs([]);
+
+    if (!(await isDatabaseReady())) {
+      return;
+    }
+
+    const db = await getDbConnection();
+    await db.run('DELETE FROM error_logs');
   }
 }
 

@@ -63,6 +63,7 @@ const DASHBOARD_WITH_DRAWER_BACK_ROUTES = new Set<string>([
   ROUTES.CATEGORIES,
 ]);
 
+
 function matchesRouteContext(pathname: string, route: string, exact = false) {
   if (exact) return pathname === route;
   return pathname === route || pathname.startsWith(`${route}/`);

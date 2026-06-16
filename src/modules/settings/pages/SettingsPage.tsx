@@ -1,6 +1,9 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '@/shared/constants/routes';
 import { BackButton } from '@/shared/components/BackButton';
+import { useToast } from '@/shared/components/Toast/ToastContext';
+import { clearErrorLogs, exportErrorLogs, logAppError } from '@/core/telemetry/error.service';
 import { DatabaseDiagnostics } from '../components/DatabaseDiagnostics';
 import { LanguageSettings } from '../components/LanguageSettings';
 import { CurrencySettings } from '../components/CurrencySettings';
@@ -15,6 +18,8 @@ import {
   RefreshCcw,
   Download,
   Tags,
+  Bug,
+  Trash2,
 } from 'lucide-react';
 
 interface MenuItem {
@@ -28,7 +33,52 @@ interface MenuItem {
 
 export function SettingsPage() {
   const { t } = useLanguage();
+  const toast = useToast();
   const navigate = useNavigate();
+  const [isExportingLogs, setIsExportingLogs] = useState(false);
+  const [isClearingLogs, setIsClearingLogs] = useState(false);
+
+  const handleExportErrorLogs = async () => {
+    if (isExportingLogs) return;
+
+    setIsExportingLogs(true);
+    try {
+      const result = await exportErrorLogs();
+      toast.success(
+        result.count === 0
+          ? 'Không có log lỗi. Đã tạo file log rỗng.'
+          : 'Đã xuất log lỗi.'
+      );
+    } catch (error) {
+      void logAppError(error, {
+        screen: 'SettingsPage',
+        action: 'exportErrorLogs',
+        userMessage: 'Không thể xuất log lỗi. Vui lòng thử lại.',
+      });
+      toast.error('Không thể xuất log lỗi. Vui lòng thử lại.');
+    } finally {
+      setIsExportingLogs(false);
+    }
+  };
+
+  const handleClearErrorLogs = async () => {
+    if (isClearingLogs) return;
+
+    setIsClearingLogs(true);
+    try {
+      await clearErrorLogs();
+      toast.success('Đã xóa log lỗi.');
+    } catch (error) {
+      void logAppError(error, {
+        screen: 'SettingsPage',
+        action: 'clearErrorLogs',
+        userMessage: 'Không thể xóa log lỗi. Vui lòng thử lại.',
+      });
+      toast.error('Không thể xóa log lỗi. Vui lòng thử lại.');
+    } finally {
+      setIsClearingLogs(false);
+    }
+  };
 
   const menuItems: MenuItem[] = [
     {
@@ -124,6 +174,55 @@ export function SettingsPage() {
               <ChevronRight size={18} className="text-gray-300 shrink-0" />
             </button>
           ))}
+        </div>
+
+        {/* Debug tools */}
+        <div className="bg-surface rounded-[16px] divide-y divide-border overflow-hidden border border-border"
+          style={{ boxShadow: '0 1px 4px var(--shadow-color)' }}>
+          <button
+            type="button"
+            onClick={handleExportErrorLogs}
+            disabled={isExportingLogs}
+            className="w-full flex items-center gap-3 px-4 py-3.5 text-left active:bg-bg-subtle transition-colors disabled:opacity-60"
+          >
+            <div
+              className="w-10 h-10 rounded-[10px] flex items-center justify-center shrink-0"
+              style={{ background: 'rgba(239,68,68,0.1)', color: '#ef4444' }}
+            >
+              <Bug size={20} />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-[14px] font-semibold text-text">
+                {isExportingLogs ? 'Đang xuất log lỗi...' : 'Xuất log lỗi'}
+              </p>
+              <p className="text-[11px] text-muted truncate">
+                Chia sẻ file JSON chứa lỗi đã ghi lại
+              </p>
+            </div>
+            <ChevronRight size={18} className="text-gray-300 shrink-0" />
+          </button>
+
+          <button
+            type="button"
+            onClick={handleClearErrorLogs}
+            disabled={isClearingLogs}
+            className="w-full flex items-center gap-3 px-4 py-3.5 text-left active:bg-bg-subtle transition-colors disabled:opacity-60"
+          >
+            <div
+              className="w-10 h-10 rounded-[10px] flex items-center justify-center shrink-0"
+              style={{ background: 'rgba(107,114,128,0.12)', color: '#6b7280' }}
+            >
+              <Trash2 size={20} />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-[14px] font-semibold text-text">
+                {isClearingLogs ? 'Đang xóa log lỗi...' : 'Xóa log lỗi'}
+              </p>
+              <p className="text-[11px] text-muted truncate">
+                Dọn danh sách lỗi đã lưu trên thiết bị
+              </p>
+            </div>
+          </button>
         </div>
 
         {/* DB Diagnostics */}

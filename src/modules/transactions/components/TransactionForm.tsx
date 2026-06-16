@@ -73,6 +73,7 @@ export function TransactionForm({
     formData.amount ? String(formData.amount) : ''
   ));
   const [receiptInputKey, setReceiptInputKey] = useState(0);
+  const [dateTimeError, setDateTimeError] = useState<string | null>(null);
   const [excludeFromTotal, setExcludeFromTotal] = useState<boolean>(
     existing?.exclude_from_total ?? false
   );
@@ -87,6 +88,11 @@ export function TransactionForm({
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    if (!formData.transaction_date) {
+      setDateTimeError(t('date_time.error_required'));
+      return;
+    }
+
     const ok = await save();
     if (ok) {
       if (!existing) {
@@ -253,8 +259,13 @@ export function TransactionForm({
       )}
 
       <DateTimePicker
-        value={formData.transaction_date ?? Date.now()}
-        onChange={timestamp => setFormData({ ...formData, transaction_date: timestamp })}
+        value={formData.transaction_date ?? null}
+        onChange={timestamp => {
+          setFormData({ ...formData, transaction_date: timestamp });
+          setDateTimeError(timestamp ? null : t('date_time.error_required'));
+        }}
+        required
+        error={dateTimeError}
       />
 
       <div className="space-y-1.5">

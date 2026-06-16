@@ -2,8 +2,12 @@ import { ReactNode, useCallback, useEffect, useRef, useState } from 'react';
 import { App as CapacitorApp } from '@capacitor/app';
 import { Capacitor } from '@capacitor/core';
 import { LoadingScreen } from '@/shared/components/LoadingScreen';
-import { ErrorScreen } from '@/shared/components/ErrorScreen';
 import { logger } from '@/core/telemetry/logger';
+import {
+  DEFAULT_APP_ERROR_MESSAGE,
+  logAppError,
+  notifyAppError,
+} from '@/core/telemetry/error.service';
 import { initDatabaseConnection } from '@/core/db/sqlite/connection';
 import { runMigrations } from '@/core/db/migrations/migration-runner';
 import { seedDefaultData } from '@/core/db/seed/default-categories';
@@ -148,6 +152,16 @@ export function AppBootstrap({ children }: AppBootstrapProps) {
         }
       } catch (err) {
         logger.error('AppBootstrap: Initialization failed', err);
+        void notifyAppError(err, {
+          screen: 'AppBootstrap',
+          action: 'initializeApp',
+          userMessage: DEFAULT_APP_ERROR_MESSAGE,
+        });
+        void logAppError(err, {
+          screen: 'AppBootstrap',
+          action: 'initializeApp',
+          userMessage: DEFAULT_APP_ERROR_MESSAGE,
+        });
         if (isMounted) setError(err instanceof Error ? err : new Error(String(err)));
       } finally {
         globalInitPromise = null; // Allow foreground unlock to re-check native SQLite state.
@@ -240,7 +254,22 @@ export function AppBootstrap({ children }: AppBootstrapProps) {
   }, [clearIdleTimer, lockApp, resetIdleTimer]);
 
   if (error) {
-    return <ErrorScreen error={error} onRetry={() => window.location.reload()} />;
+    void error;
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-bg px-6 text-center text-text">
+        <div className="w-full max-w-sm rounded-[16px] border border-border bg-surface p-5">
+          <h1 className="text-[18px] font-bold">Ứng dụng gặp sự cố</h1>
+          <p className="mt-2 text-[14px] text-muted">{DEFAULT_APP_ERROR_MESSAGE}</p>
+          <button
+            type="button"
+            className="mt-4 rounded-[12px] bg-primary px-4 py-2 text-[14px] font-semibold text-white"
+            onClick={() => window.location.reload()}
+          >
+            Thử lại
+          </button>
+        </div>
+      </div>
+    );
   }
 
   if (!isUnlocked) {

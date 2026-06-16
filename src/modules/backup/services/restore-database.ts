@@ -120,8 +120,8 @@ export async function restoreDatabase(payload: RestorableBackupPayload): Promise
       insertStatements.push({
         statement: `INSERT INTO transactions (
           id, wallet_id, category_id, type, amount, note, receipt_path,
-          transaction_date, to_wallet_id, created_at, updated_at, deleted_at
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          transaction_date, to_wallet_id, exclude_from_total, created_at, updated_at, deleted_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         values: [
           row.id,
           row.wallet_id,
@@ -132,6 +132,7 @@ export async function restoreDatabase(payload: RestorableBackupPayload): Promise
           value(row, 'receipt_path'),
           row.transaction_date,
           value(row, 'to_wallet_id'),
+          value(row, 'exclude_from_total', 0),
           row.created_at,
           row.updated_at,
           value(row, 'deleted_at'),

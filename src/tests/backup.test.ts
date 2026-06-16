@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { normalizeBackupPayload, validateBackupPayload } from '@/modules/backup/services/validate-backup-payload';
-import { importBackupJson } from '@/modules/backup/services/import-backup-json';
+import { importBackupJson, prepareBackupImport } from '@/modules/backup/services/import-backup-json';
 import { restoreDatabase } from '@/modules/backup/services/restore-database';
 import { exportBackupJson } from '@/modules/backup/services/export-backup-json';
 import {
@@ -50,6 +50,24 @@ describe('Backup Module Tests', () => {
     it('validates loan rows for lend and borrow backups', () => {
       const result = validateBackupPayload({
         ...validPayload,
+        wallets: [{
+          id: 'wallet-1',
+          name: 'Cash',
+          currency: 'VND',
+          balance: 1000,
+          account_type: 'cash',
+          icon: null,
+          color: null,
+          sort_order: 0,
+          is_active: 1,
+          exclude_from_total: 0,
+          credit_limit: null,
+          statement_day: null,
+          due_day: null,
+          annual_fee: null,
+          created_at: 1,
+          updated_at: 1,
+        }],
         loans: [
           {
             id: 'loan-lend',
@@ -141,6 +159,37 @@ describe('Backup Module Tests', () => {
       await importBackupJson(file);
 
       expect(mockDb.executeSet).toHaveBeenCalled();
+    });
+
+    it('prepares a valid import preview without restoring immediately', async () => {
+      const file = new File([JSON.stringify(validPayload)], 'expense_tracker_backup.json', {
+        type: 'application/json',
+      });
+      vi.mocked(connection.getDbConnection).mockClear();
+
+      const prepared = await prepareBackupImport(file);
+
+      expect(prepared.preview.counts).toMatchObject({
+        wallets: 0,
+        transactions: 0,
+        categories: 0,
+        budgets: 0,
+        loans: 0,
+      });
+      expect(prepared.preview.metadata.version).toBe('2.0');
+      expect(connection.getDbConnection).not.toHaveBeenCalled();
+    });
+
+    it('rejects empty backup files with a clear error', async () => {
+      const file = new File(['   '], 'empty.json', { type: 'application/json' });
+
+      await expect(prepareBackupImport(file)).rejects.toThrow('File backup rỗng.');
+    });
+
+    it('rejects files that are not JSON backup files with a clear error', async () => {
+      const file = new File(['not json'], 'not-json.json', { type: 'application/json' });
+
+      await expect(prepareBackupImport(file)).rejects.toThrow('File không đúng định dạng backup.');
     });
 
     it('encrypts and decrypts a backup payload without exposing sensitive plaintext', async () => {

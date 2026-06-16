@@ -10,7 +10,9 @@ export const TRANSFER_CATEGORY_ID = 'cat-transfer';
 const TRANSACTION_DRAFT_KEY = 'transaction_draft';
 const LEGACY_LAST_SUCCESSFUL_CREATE_KEY = 'transaction_last_successful_create';
 
-type CreateTransactionFormValues = Partial<CreateTransactionInput>;
+type CreateTransactionFormValues = Omit<Partial<CreateTransactionInput>, 'transaction_date'> & {
+  transaction_date?: number | null;
+};
 
 function clearStoredCreateTransactionState() {
   localStorage.removeItem(TRANSACTION_DRAFT_KEY);

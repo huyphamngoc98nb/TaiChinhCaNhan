@@ -30,12 +30,18 @@ describe('Export Module Tests', () => {
       const dataset: any = {
         rawTransactions: [
           {
+            id: 'tx-1',
             transaction_date: new Date('2024-01-01').getTime(),
             wallet_name: 'Cash',
+            wallet_currency: 'VND',
+            wallet_id: 'wallet-1',
+            category_id: 'category-1',
             category_name: 'Food',
             type: 'expense',
             amount: 15.5,
-            note: 'Pizza "night"'
+            note: 'Pizza "night"',
+            created_at: new Date('2024-01-01T01:00:00.000Z').getTime(),
+            updated_at: new Date('2024-01-01T02:00:00.000Z').getTime(),
           }
         ]
       };
@@ -43,16 +49,17 @@ describe('Export Module Tests', () => {
       const csv = exportToCsv(dataset);
       const lines = csv.split('\n');
 
-      expect(lines[0]).toBe('Date,Wallet,Category,Type,Amount,Note');
+      expect(lines[0]).toBe('id,date,type,amount,currency,wallet/account,category,note,tags,createdAt,updatedAt');
       expect(lines[1]).toContain('2024-01-01');
       expect(lines[1]).toContain('Food');
+      expect(lines[1]).toContain('VND');
       expect(lines[1]).toContain('"Pizza ""night"""');
     });
 
     it('handles empty datasets gracefully', () => {
       const dataset: any = { rawTransactions: [] };
       const csv = exportToCsv(dataset);
-      expect(csv).toBe('Date,Wallet,Category,Type,Amount,Note');
+      expect(csv).toBe('id,date,type,amount,currency,wallet/account,category,note,tags,createdAt,updatedAt');
     });
   });
 

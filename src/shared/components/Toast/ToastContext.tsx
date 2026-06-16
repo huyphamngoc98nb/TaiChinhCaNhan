@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState, useCallback } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
+import { APP_ERROR_TOAST_EVENT } from '@/core/telemetry/error.service';
 import { Toast, ToastType } from './Toast';
 
 interface ToastContextType {
@@ -19,6 +20,17 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     const id = nextToastId++;
     setToasts(prev => [...prev, { id, message, type }].slice(-MAX_VISIBLE_TOASTS));
   }, []);
+
+  useEffect(() => {
+    const handleAppErrorToast = (event: Event) => {
+      const detail = (event as CustomEvent<{ message?: string; type?: ToastType }>).detail;
+      if (!detail?.message) return;
+      showToast(detail.message, detail.type ?? 'error');
+    };
+
+    window.addEventListener(APP_ERROR_TOAST_EVENT, handleAppErrorToast);
+    return () => window.removeEventListener(APP_ERROR_TOAST_EVENT, handleAppErrorToast);
+  }, [showToast]);
 
   const success = useCallback((message: string) => showToast(message, 'success'), [showToast]);
   const error = useCallback((message: string) => showToast(message, 'error'), [showToast]);

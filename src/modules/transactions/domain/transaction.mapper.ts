@@ -19,6 +19,7 @@ export function mapToTransaction(row: any): Transaction {
     category_icon: row.category_icon,
     category_color: row.category_color,
     wallet_name: row.wallet_name,
+    wallet_currency: row.wallet_currency,
     to_wallet_name: row.to_wallet_name,
   };
 }

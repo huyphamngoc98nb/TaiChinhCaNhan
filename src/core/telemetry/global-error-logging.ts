@@ -1,4 +1,8 @@
-import { logger } from './logger';
+import {
+  DEFAULT_APP_ERROR_MESSAGE,
+  logAppError,
+  notifyAppError,
+} from './error.service';
 
 let installed = false;
 
@@ -19,33 +23,31 @@ export function installGlobalErrorLogging() {
   installed = true;
 
   window.addEventListener('error', (event) => {
-    logger.error(
-      'Unhandled window error',
-      event.error instanceof Error ? event.error : undefined,
-      {
-        context: 'window.error',
-        metadata: {
-          message: event.message,
-          filename: event.filename,
-          lineno: event.lineno,
-          colno: event.colno,
-          error: event.error instanceof Error ? undefined : toMetadataValue(event.error),
-        },
-      }
-    );
+    const error = event.error instanceof Error ? event.error : new Error(event.message);
+    void notifyAppError(error, { userMessage: DEFAULT_APP_ERROR_MESSAGE });
+    void logAppError(error, {
+      action: 'window.error',
+      userMessage: DEFAULT_APP_ERROR_MESSAGE,
+      extra: {
+        message: event.message,
+        filename: event.filename,
+        lineno: event.lineno,
+        colno: event.colno,
+        error: event.error instanceof Error ? undefined : toMetadataValue(event.error),
+      },
+    });
   });
 
   window.addEventListener('unhandledrejection', (event) => {
     const reason = event.reason;
-    logger.error(
-      'Unhandled promise rejection',
-      reason instanceof Error ? reason : undefined,
-      {
-        context: 'window.unhandledrejection',
-        metadata: {
-          reason: reason instanceof Error ? undefined : toMetadataValue(reason),
-        },
-      }
-    );
+    const error = reason instanceof Error ? reason : new Error('Unhandled promise rejection');
+    void notifyAppError(error, { userMessage: DEFAULT_APP_ERROR_MESSAGE });
+    void logAppError(error, {
+      action: 'window.unhandledrejection',
+      userMessage: DEFAULT_APP_ERROR_MESSAGE,
+      extra: {
+        reason: reason instanceof Error ? undefined : toMetadataValue(reason),
+      },
+    });
   });
 }

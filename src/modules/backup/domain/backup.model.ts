@@ -3,6 +3,7 @@ export interface BackupMetadata {
   schema_version: number;
   exported_at: number;
   app_version: string;
+  app_name?: 'TaiXiuCaNhan';
 }
 
 export type BackupRow = Record<string, unknown>;
@@ -18,6 +19,22 @@ export interface BackupPayload {
   error_logs: BackupRow[];
   loans: BackupRow[];
   loan_payments: BackupRow[];
+}
+
+export interface BackupPreview {
+  metadata: BackupMetadata;
+  encrypted: boolean;
+  counts: {
+    wallets: number;
+    transactions: number;
+    categories: number;
+    budgets: number;
+    recurring_bills: number;
+    loans: number;
+    loan_payments: number;
+    app_settings: number;
+    error_logs: number;
+  };
 }
 
 export interface EncryptedBackupEnvelope {

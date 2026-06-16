@@ -19,6 +19,7 @@ export interface Transaction {
   category_icon?: string;
   category_color?: string;
   wallet_name?: string;
+  wallet_currency?: string;
   to_wallet_name?: string;
 }
 

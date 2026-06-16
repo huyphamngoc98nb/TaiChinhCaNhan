@@ -41,7 +41,7 @@ export function RecurringBillForm({ existing, onSave, onCancel }: Props) {
   const [amount, setAmount] = useState(existing?.amount?.toString() ?? '');
   const [walletId, setWalletId] = useState(existing?.wallet_id ?? '');
   const [categoryId, setCategoryId] = useState(existing?.category_id ?? '');
-  const [dueDate, setDueDate] = useState(() =>
+  const [dueDate, setDueDate] = useState<number | null>(() =>
     startOfLocalDay(existing?.next_due_date ?? Date.now()),
   );
   const [reminderDays, setReminderDays] = useState(String(existing?.reminder_days ?? 3));
@@ -71,6 +71,10 @@ export function RecurringBillForm({ existing, onSave, onCancel }: Props) {
     }
     if (!categoryId) {
       setError(t('recurring_bills.validation_category'));
+      return;
+    }
+    if (dueDate === null) {
+      setError(t('date_time.error_required'));
       return;
     }
     setSaving(true);
@@ -152,8 +156,14 @@ export function RecurringBillForm({ existing, onSave, onCancel }: Props) {
 
       <DateTimePicker
         value={dueDate}
-        onChange={setDueDate}
+        onChange={value => {
+          setDueDate(value);
+          if (value === null) setError(t('date_time.error_required'));
+          else if (error === t('date_time.error_required')) setError(null);
+        }}
         label={t('recurring_bills.due_date')}
+        required
+        error={error === t('date_time.error_required') ? error : null}
       />
 
       <label className="block space-y-1.5">

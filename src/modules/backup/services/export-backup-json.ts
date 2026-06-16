@@ -31,6 +31,7 @@ export async function exportBackupJson(): Promise<BackupPayload> {
       schema_version: CURRENT_SCHEMA_VERSION,
       exported_at: Date.now(),
       app_version: '0.1.0',
+      app_name: 'TaiXiuCaNhan',
     },
     wallets: data.wallets,
     categories: data.categories,

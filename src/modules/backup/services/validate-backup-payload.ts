@@ -78,6 +78,7 @@ const BACKUP_SCHEMAS: Record<string, Record<string, SectionSchema>> = {
         created_at: { type: 'number', required: true },
         updated_at: { type: 'number', required: true },
         deleted_at: { type: 'number', required: true, nullable: true },
+        exclude_from_total: { type: 'number', enum: ACTIVE_FLAGS },
       },
     },
     recurring_bills: {
@@ -237,15 +238,23 @@ function validateMetadata(payload: BackupRow): ValidationResult {
     return { isValid: false, error: 'Invalid or missing metadata. Expected metadata.version, metadata.schema_version, metadata.exported_at, and metadata.app_version.' };
   }
 
-  const { version, schema_version, exported_at, app_version } = payload.metadata;
+  const { version, schema_version, exported_at, app_version, app_name } = payload.metadata;
   if (typeof version !== 'string' || typeof exported_at !== 'number' || typeof app_version !== 'string') {
     return { isValid: false, error: 'Invalid or missing metadata. metadata.version must be a string, metadata.exported_at must be a number, and metadata.app_version must be a string.' };
+  }
+
+  if (app_name !== undefined && app_name !== 'TaiXiuCaNhan') {
+    return { isValid: false, error: 'File không đúng định dạng backup.' };
+  }
+
+  if (!Number.isFinite(exported_at) || exported_at <= 0) {
+    return { isValid: false, error: 'metadata.exported_at must be a valid timestamp.' };
   }
 
   if (!BACKUP_SCHEMAS[version] && version !== LEGACY_BACKUP_VERSION) {
     return {
       isValid: false,
-      error: `Unsupported backup version: ${version}. Supported versions are ${CURRENT_BACKUP_VERSION}/schema ${CURRENT_SCHEMA_VERSION} and legacy ${LEGACY_BACKUP_VERSION}/schema ${LEGACY_SCHEMA_VERSION}.`,
+      error: `Unsupported backup version: ${version}. Supported versions are ${CURRENT_BACKUP_VERSION}/schema ${CURRENT_SCHEMA_VERSION} and legacy ${LEGACY_BACKUP_VERSION}/schema ${LEGACY_SCHEMA_VERSION}. File backup này không được hỗ trợ bởi phiên bản hiện tại.`,
     };
   }
 
@@ -257,7 +266,7 @@ function validateMetadata(payload: BackupRow): ValidationResult {
     if (schema_version !== undefined && schema_version !== LEGACY_SCHEMA_VERSION) {
       return {
         isValid: false,
-        error: `Unsupported legacy schema version: ${String(schema_version)}. Legacy backup version ${LEGACY_BACKUP_VERSION} can only be imported when schema_version is ${LEGACY_SCHEMA_VERSION} or omitted.`,
+        error: `Unsupported legacy schema version: ${String(schema_version)}. File backup này không được hỗ trợ bởi phiên bản hiện tại.`,
       };
     }
 
@@ -271,7 +280,7 @@ function validateMetadata(payload: BackupRow): ValidationResult {
   if (version === CURRENT_BACKUP_VERSION && schema_version !== CURRENT_SCHEMA_VERSION) {
     return {
       isValid: false,
-      error: `Unsupported schema version: ${String(schema_version)} for backup version ${version}. Only schema ${CURRENT_SCHEMA_VERSION} is supported; create a fresh export with the current app.`,
+      error: `Unsupported schema version: ${String(schema_version)} for backup version ${version}. Only schema ${CURRENT_SCHEMA_VERSION} is supported. File backup này không được hỗ trợ bởi phiên bản hiện tại.`,
     };
   }
 
@@ -291,6 +300,14 @@ function validateField(section: string, index: number, row: BackupRow, fieldName
 
   if (typeof value !== rule.type) {
     return `${section}[${index}].${fieldName} must be a ${rule.type}`;
+  }
+
+  if (rule.type === 'string' && rule.required && String(value).trim() === '') {
+    return `${section}[${index}].${fieldName} cannot be empty`;
+  }
+
+  if (rule.type === 'number' && !Number.isFinite(value)) {
+    return `${section}[${index}].${fieldName} must be a finite number`;
   }
 
   if (rule.enum && !rule.enum.includes(value)) {
@@ -324,6 +341,170 @@ function validateSection(sectionName: string, rows: unknown, schema: SectionSche
   }
 
   return { isValid: true };
+}
+
+function validateUniqueIds(sectionName: string, rows: BackupRow[], idField = 'id'): ValidationResult {
+  const seen = new Set<string>();
+
+  for (let index = 0; index < rows.length; index += 1) {
+    const id = rows[index][idField];
+    if (typeof id !== 'string' || id.trim() === '') {
+      return { isValid: false, error: `${sectionName}[${index}].${idField} is required` };
+    }
+    if (seen.has(id)) {
+      return { isValid: false, error: `${sectionName} contains duplicate id: ${id}` };
+    }
+    seen.add(id);
+  }
+
+  return { isValid: true };
+}
+
+function validatePositiveAmount(sectionName: string, rows: BackupRow[], amountField: string): ValidationResult {
+  for (let index = 0; index < rows.length; index += 1) {
+    const value = rows[index][amountField];
+    if (typeof value === 'number' && value <= 0) {
+      return { isValid: false, error: `${sectionName}[${index}].${amountField} must be greater than 0` };
+    }
+  }
+
+  return { isValid: true };
+}
+
+function validateTimestamp(sectionName: string, rows: BackupRow[], fieldName: string, required = true): ValidationResult {
+  for (let index = 0; index < rows.length; index += 1) {
+    const value = rows[index][fieldName];
+    if (value === null || value === undefined) {
+      if (!required) continue;
+      return { isValid: false, error: `${sectionName}[${index}].${fieldName} is required` };
+    }
+    if (typeof value !== 'number' || !Number.isFinite(value) || Number.isNaN(new Date(value).getTime())) {
+      return { isValid: false, error: `${sectionName}[${index}].${fieldName} is not a valid date` };
+    }
+  }
+
+  return { isValid: true };
+}
+
+function validateDateString(sectionName: string, rows: BackupRow[], fieldName: string): ValidationResult {
+  for (let index = 0; index < rows.length; index += 1) {
+    const value = rows[index][fieldName];
+    if (value === null || value === undefined || value === '') continue;
+    if (typeof value !== 'string' || Number.isNaN(new Date(`${value}T00:00:00`).getTime())) {
+      return { isValid: false, error: `${sectionName}[${index}].${fieldName} is not a valid date` };
+    }
+  }
+
+  return { isValid: true };
+}
+
+function validateReferences(payload: BackupPayload): ValidationResult {
+  const walletIds = new Set(payload.wallets.map((row) => row.id));
+  const categoryIds = new Set(payload.categories.map((row) => row.id));
+  const transactionIds = new Set(payload.transactions.map((row) => row.id));
+  const loanIds = new Set(payload.loans.map((row) => row.id));
+
+  for (let index = 0; index < payload.transactions.length; index += 1) {
+    const row = payload.transactions[index];
+    if (!walletIds.has(row.wallet_id)) {
+      return { isValid: false, error: `transactions[${index}].wallet_id references a missing wallet` };
+    }
+    if (!categoryIds.has(row.category_id)) {
+      return { isValid: false, error: `transactions[${index}].category_id references a missing category` };
+    }
+    if (row.to_wallet_id !== null && row.to_wallet_id !== undefined && !walletIds.has(row.to_wallet_id)) {
+      return { isValid: false, error: `transactions[${index}].to_wallet_id references a missing wallet` };
+    }
+  }
+
+  for (let index = 0; index < payload.budgets.length; index += 1) {
+    const row = payload.budgets[index];
+    if (!categoryIds.has(row.category_id)) {
+      return { isValid: false, error: `budgets[${index}].category_id references a missing category` };
+    }
+    if (row.wallet_id !== null && row.wallet_id !== undefined && !walletIds.has(row.wallet_id)) {
+      return { isValid: false, error: `budgets[${index}].wallet_id references a missing wallet` };
+    }
+  }
+
+  for (let index = 0; index < payload.recurring_bills.length; index += 1) {
+    const row = payload.recurring_bills[index];
+    if (!walletIds.has(row.wallet_id)) {
+      return { isValid: false, error: `recurring_bills[${index}].wallet_id references a missing wallet` };
+    }
+    if (!categoryIds.has(row.category_id)) {
+      return { isValid: false, error: `recurring_bills[${index}].category_id references a missing category` };
+    }
+  }
+
+  for (let index = 0; index < payload.loans.length; index += 1) {
+    const row = payload.loans[index];
+    if (row.wallet_id !== null && row.wallet_id !== undefined && !walletIds.has(row.wallet_id)) {
+      return { isValid: false, error: `loans[${index}].wallet_id references a missing wallet` };
+    }
+    if (
+      row.linked_transaction_id !== null &&
+      row.linked_transaction_id !== undefined &&
+      !transactionIds.has(row.linked_transaction_id)
+    ) {
+      return { isValid: false, error: `loans[${index}].linked_transaction_id references a missing transaction` };
+    }
+  }
+
+  for (let index = 0; index < payload.loan_payments.length; index += 1) {
+    const row = payload.loan_payments[index];
+    if (!loanIds.has(row.loan_id)) {
+      return { isValid: false, error: `loan_payments[${index}].loan_id references a missing loan` };
+    }
+    if (!walletIds.has(row.wallet_id)) {
+      return { isValid: false, error: `loan_payments[${index}].wallet_id references a missing wallet` };
+    }
+  }
+
+  return { isValid: true };
+}
+
+function validateNormalizedBackup(payload: BackupPayload): ValidationResult {
+  const idSections: Array<[keyof BackupPayload, string]> = [
+    ['wallets', 'wallets'],
+    ['categories', 'categories'],
+    ['transactions', 'transactions'],
+    ['recurring_bills', 'recurring_bills'],
+    ['budgets', 'budgets'],
+    ['error_logs', 'error_logs'],
+    ['loans', 'loans'],
+    ['loan_payments', 'loan_payments'],
+  ];
+
+  for (const [key, label] of idSections) {
+    const result = validateUniqueIds(label, payload[key] as BackupRow[]);
+    if (!result.isValid) return result;
+  }
+
+  const numericChecks = [
+    validatePositiveAmount('transactions', payload.transactions, 'amount'),
+    validatePositiveAmount('recurring_bills', payload.recurring_bills, 'amount'),
+    validatePositiveAmount('budgets', payload.budgets, 'amount'),
+    validatePositiveAmount('loans', payload.loans, 'principal'),
+    validatePositiveAmount('loan_payments', payload.loan_payments, 'amount'),
+    validateTimestamp('wallets', payload.wallets, 'created_at'),
+    validateTimestamp('wallets', payload.wallets, 'updated_at'),
+    validateTimestamp('categories', payload.categories, 'created_at'),
+    validateTimestamp('categories', payload.categories, 'updated_at'),
+    validateTimestamp('transactions', payload.transactions, 'transaction_date'),
+    validateTimestamp('transactions', payload.transactions, 'created_at'),
+    validateTimestamp('transactions', payload.transactions, 'updated_at'),
+    validateTimestamp('transactions', payload.transactions, 'deleted_at', false),
+    validateTimestamp('recurring_bills', payload.recurring_bills, 'next_due_date'),
+    validateTimestamp('budgets', payload.budgets, 'start_date'),
+    validateTimestamp('budgets', payload.budgets, 'end_date', false),
+    validateTimestamp('loan_payments', payload.loan_payments, 'payment_date'),
+    validateDateString('loans', payload.loans, 'loan_date'),
+    validateDateString('loans', payload.loans, 'due_date'),
+    validateReferences(payload),
+  ];
+
+  return numericChecks.find((result) => !result.isValid) ?? { isValid: true };
 }
 
 function validateLegacyV1(payload: BackupRow): ValidationResult {
@@ -380,6 +561,7 @@ function normalizeLegacyV1(payload: BackupRow): BackupPayload {
       receipt_path: row.receipt_path ?? null,
       to_wallet_id: row.to_wallet_id ?? null,
       deleted_at: row.deleted_at ?? null,
+      exclude_from_total: row.exclude_from_total ?? 0,
     })),
     recurring_bills: rows(payload.recurring_bills).map((row) => ({
       ...row,
@@ -428,7 +610,11 @@ export function validateBackupPayload(payload: unknown): ValidationResult {
   if (!metadataResult.isValid) return metadataResult;
 
   const version = (payload.metadata as BackupRow).version;
-  if (version === LEGACY_BACKUP_VERSION) return validateLegacyV1(payload);
+  if (version === LEGACY_BACKUP_VERSION) {
+    const legacyResult = validateLegacyV1(payload);
+    if (!legacyResult.isValid) return legacyResult;
+    return validateNormalizedBackup(normalizeLegacyV1(payload));
+  }
 
   const schema = BACKUP_SCHEMAS[String(version)];
   for (const [sectionName, sectionSchema] of Object.entries(schema)) {
@@ -436,7 +622,7 @@ export function validateBackupPayload(payload: unknown): ValidationResult {
     if (!result.isValid) return result;
   }
 
-  return { isValid: true };
+  return validateNormalizedBackup(payload as unknown as BackupPayload);
 }
 
 export function normalizeBackupPayload(payload: unknown): BackupPayload {
@@ -451,7 +637,17 @@ export function normalizeBackupPayload(payload: unknown): BackupPayload {
     return normalizeLegacyV1(backup);
   }
 
-  return backup as unknown as BackupPayload;
+  return {
+    ...(backup as unknown as BackupPayload),
+    metadata: {
+      ...(backup.metadata as BackupMetadata),
+      app_name: (backup.metadata as BackupMetadata).app_name ?? 'TaiXiuCaNhan',
+    },
+    transactions: rows(backup.transactions).map((row) => ({
+      ...row,
+      exclude_from_total: row.exclude_from_total ?? 0,
+    })),
+  };
 }
 
 export function assertBackupPayload(payload: unknown): asserts payload is BackupPayload {
