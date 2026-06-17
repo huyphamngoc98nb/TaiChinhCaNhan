@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Search } from 'lucide-react';
 import { BottomSheet } from '@/shared/components/BottomSheet';
 import { useLanguage } from '@/shared/context/LanguageContext';
-import { useImeSafeInputValue } from '@/shared/hooks/useImeSafeInputValue';
+import { ImeTextInput } from '@/shared/components/ImeTextInput';
 import type { CategoryType } from '../domain/category.model';
 import { CategoryIcon, getCategoryIconLibrary } from './CategoryIcon';
 
@@ -20,13 +20,6 @@ export function CategoryIconPicker({ isOpen, type, selectedIcon, onSelect, onClo
   const [committedQuery, setCommittedQuery] = useState('');
   const [pendingIcon, setPendingIcon] = useState(selectedIcon);
   const iconLibrary = useMemo(() => getCategoryIconLibrary(language), [language]);
-  const queryInput = useImeSafeInputValue({
-    value: query,
-    onChange: (nextValue) => {
-      setQuery(nextValue);
-      setCommittedQuery(nextValue);
-    },
-  });
 
   useEffect(() => {
     if (isOpen) {
@@ -62,8 +55,12 @@ export function CategoryIconPicker({ isOpen, type, selectedIcon, onSelect, onClo
 
         <div className="flex items-center gap-2 rounded-[12px] border border-gray-200 bg-gray-50 px-3">
           <Search size={16} className="text-gray-400" />
-          <input
-            {...queryInput.inputProps}
+          <ImeTextInput
+            value={query}
+            onValueChange={(nextValue) => {
+              setQuery(nextValue);
+              setCommittedQuery(nextValue);
+            }}
             placeholder={t('categories.search_icons')}
             className="h-11 min-w-0 flex-1 bg-transparent text-[14px] text-gray-900 outline-none"
           />

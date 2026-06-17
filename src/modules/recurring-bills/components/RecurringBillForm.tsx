@@ -10,6 +10,7 @@ import { filterWalletsWithValue } from '@/modules/wallets/services/wallet-select
 import { CurrencyAmountInput } from '@/shared/components/CurrencyAmountInput';
 import { DateTimePicker } from '@/shared/components/DateTimePicker';
 import { DropdownList } from '@/shared/components/DropdownList';
+import { ImeTextInput } from '@/shared/components/ImeTextInput';
 import type { CurrencyCode } from '@/shared/context/CurrencyContext';
 import { useLanguage } from '@/shared/context/LanguageContext';
 
@@ -107,10 +108,10 @@ export function RecurringBillForm({ existing, onSave, onCancel }: Props) {
 
       <label className="block space-y-1.5">
         <span className="text-[13px] font-semibold text-gray-700">{t('recurring_bills.name')}</span>
-        <input
+        <ImeTextInput
           type="text"
           value={name}
-          onChange={event => setName(event.target.value)}
+          onValueChange={setName}
           placeholder={t('recurring_bills.name_placeholder')}
           className="h-[48px] w-full rounded-[12px] border border-gray-200 bg-gray-50 px-4 text-[14px] font-medium text-gray-900 outline-none transition-colors focus:border-indigo-400"
         />

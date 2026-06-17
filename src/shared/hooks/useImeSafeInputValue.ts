@@ -10,21 +10,21 @@ import {
 
 type TextInputElement = HTMLInputElement | HTMLTextAreaElement;
 
-interface UseImeSafeInputValueOptions {
+interface UseImeSafeInputValueOptions<TElement extends TextInputElement> {
   value: string;
   onChange: (value: string) => void;
-  onBlur?: (event: FocusEvent<TextInputElement>) => void;
+  onBlur?: (event: FocusEvent<TElement>) => void;
 }
 
-function eventIsComposing(event: ChangeEvent<TextInputElement>) {
+function eventIsComposing<TElement extends TextInputElement>(event: ChangeEvent<TElement>) {
   return Boolean((event.nativeEvent as Event & { isComposing?: boolean }).isComposing);
 }
 
-export function useImeSafeInputValue({
+export function useImeSafeInputValue<TElement extends TextInputElement = TextInputElement>({
   value,
   onChange,
   onBlur,
-}: UseImeSafeInputValueOptions) {
+}: UseImeSafeInputValueOptions<TElement>) {
   const [draftValue, setDraftValue] = useState(value);
   const isComposingRef = useRef(false);
 
@@ -39,7 +39,7 @@ export function useImeSafeInputValue({
     onChange(nextValue);
   }, [onChange]);
 
-  const handleChange = useCallback((event: ChangeEvent<TextInputElement>) => {
+  const handleChange = useCallback((event: ChangeEvent<TElement>) => {
     const nextValue = event.target.value;
     setDraftValue(nextValue);
 
@@ -47,17 +47,17 @@ export function useImeSafeInputValue({
     onChange(nextValue);
   }, [onChange]);
 
-  const handleCompositionStart = useCallback((event: CompositionEvent<TextInputElement>) => {
+  const handleCompositionStart = useCallback((event: CompositionEvent<TElement>) => {
     isComposingRef.current = true;
     setDraftValue(event.currentTarget.value);
   }, []);
 
-  const handleCompositionEnd = useCallback((event: CompositionEvent<TextInputElement>) => {
+  const handleCompositionEnd = useCallback((event: CompositionEvent<TElement>) => {
     isComposingRef.current = false;
     commitValue(event.currentTarget.value);
   }, [commitValue]);
 
-  const handleBlur = useCallback((event: FocusEvent<TextInputElement>) => {
+  const handleBlur = useCallback((event: FocusEvent<TElement>) => {
     if (isComposingRef.current) {
       isComposingRef.current = false;
       commitValue(event.currentTarget.value);

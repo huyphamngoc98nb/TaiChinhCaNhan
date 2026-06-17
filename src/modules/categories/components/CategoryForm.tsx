@@ -2,6 +2,8 @@ import { FormEvent, useEffect, useMemo, useState } from 'react';
 import type { Category, CategoryInput, CategoryType } from '../domain/category.model';
 import { CategoryIcon, getCategoryIconPresets, getLocalizedCategoryDescription } from './CategoryIcon';
 import { CategoryIconPicker } from './CategoryIconPicker';
+import { ImeTextInput } from '@/shared/components/ImeTextInput';
+import { ImeTextarea } from '@/shared/components/ImeTextarea';
 import { useLanguage } from '@/shared/context/LanguageContext';
 
 interface Props {
@@ -91,9 +93,9 @@ export function CategoryForm({ existing, defaultType, onSave, onCancel }: Props)
 
       <div className="space-y-1.5">
         <p className="text-[13px] font-semibold text-gray-700">{t('categories.name')} *</p>
-        <input
+        <ImeTextInput
           value={name}
-          onChange={(event) => setName(event.target.value)}
+          onValueChange={setName}
           placeholder={t('categories.name_placeholder')}
           className="w-full h-[48px] bg-gray-50 border border-gray-200 rounded-[14px] px-4 text-[14px] text-gray-900 outline-none focus:border-indigo-400 transition-colors"
         />
@@ -175,9 +177,9 @@ export function CategoryForm({ existing, defaultType, onSave, onCancel }: Props)
 
       <div className="space-y-1.5">
         <p className="text-[13px] font-semibold text-gray-700">{t('categories.icon_description')}</p>
-        <textarea
+        <ImeTextarea
           value={description}
-          onChange={(event) => setDescription(event.target.value)}
+          onValueChange={setDescription}
           rows={3}
           placeholder={t('categories.description_placeholder')}
           className="w-full bg-gray-50 border border-gray-200 rounded-[14px] px-4 py-3 text-[14px] text-gray-900 outline-none focus:border-indigo-400 transition-colors resize-none"

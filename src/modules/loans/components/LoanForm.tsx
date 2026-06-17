@@ -2,6 +2,8 @@ import { FormEvent, useEffect, useId, useMemo, useState } from 'react';
 import { CurrencyAmountInput } from '@/shared/components/CurrencyAmountInput';
 import { DateTimePicker } from '@/shared/components/DateTimePicker';
 import { DropdownList } from '@/shared/components/DropdownList';
+import { ImeTextInput } from '@/shared/components/ImeTextInput';
+import { ImeTextarea } from '@/shared/components/ImeTextarea';
 import { useLanguage } from '@/shared/context/LanguageContext';
 import { useWallets } from '@/modules/wallets/hooks/useWallets';
 import type { CreateLoanInput, Loan, LoanType } from '../domain/loan.model';
@@ -144,9 +146,9 @@ export function LoanForm({
 
       <div className="space-y-1.5">
         <p className="text-[13px] font-semibold text-gray-700">{t('loans.form.contactName')} *</p>
-        <input
+        <ImeTextInput
           value={contactName}
-          onChange={(event) => setContactName(event.target.value)}
+          onValueChange={setContactName}
           required
           className="h-[48px] w-full rounded-[12px] border border-gray-200 bg-gray-50 px-4 text-[14px] text-gray-900 outline-none focus:border-indigo-400"
         />
@@ -154,9 +156,9 @@ export function LoanForm({
 
       <div className="space-y-1.5">
         <p className="text-[13px] font-semibold text-gray-700">{t('loans.form.contactInfo')}</p>
-        <input
+        <ImeTextInput
           value={contactInfo}
-          onChange={(event) => setContactInfo(event.target.value)}
+          onValueChange={setContactInfo}
           placeholder={t('loans.form.contactInfoPlaceholder')}
           className="h-[48px] w-full rounded-[12px] border border-gray-200 bg-gray-50 px-4 text-[14px] text-gray-900 outline-none focus:border-indigo-400"
         />
@@ -205,9 +207,9 @@ export function LoanForm({
 
       <div className="space-y-1.5">
         <p className="text-[13px] font-semibold text-gray-700">{t('loans.form.note')}</p>
-        <textarea
+        <ImeTextarea
           value={note}
-          onChange={(event) => setNote(event.target.value)}
+          onValueChange={setNote}
           rows={3}
           className="w-full resize-none rounded-[12px] border border-gray-200 bg-gray-50 px-4 py-3 text-[14px] text-gray-900 outline-none focus:border-indigo-400"
         />

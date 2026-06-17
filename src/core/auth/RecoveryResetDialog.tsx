@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { recoveryService } from './recovery.service';
 import { ResetLocalDataError } from '@/core/db/reset-local-data';
+import { ImeTextInput } from '@/shared/components/ImeTextInput';
 import { useLanguage } from '@/shared/context/LanguageContext';
 import { useBodyScrollLock } from '@/shared/hooks/useBodyScrollLock';
 
@@ -56,10 +57,10 @@ export function RecoveryResetDialog({ onCancel, onReset }: RecoveryResetDialogPr
         <label className="mt-4 block text-sm font-semibold text-text" htmlFor="reset-confirmation">
           {t('security.reset_type_prompt')}
         </label>
-        <input
+        <ImeTextInput
           id="reset-confirmation"
           value={confirmation}
-          onChange={(event) => setConfirmation(event.target.value)}
+          onValueChange={setConfirmation}
           className="mt-2 w-full rounded-xl border border-border bg-bg px-3 py-2 text-text"
           autoComplete="off"
         />

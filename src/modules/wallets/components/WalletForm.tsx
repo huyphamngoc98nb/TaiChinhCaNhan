@@ -4,6 +4,7 @@ import { Wallet, AccountType, CreateWalletInput, UpdateWalletInput } from '../re
 import { ACCOUNT_TYPE_ICONS } from './WalletCard';
 import { CurrencyAmountInput } from '@/shared/components/CurrencyAmountInput';
 import { DropdownList } from '@/shared/components/DropdownList';
+import { ImeTextInput } from '@/shared/components/ImeTextInput';
 import { CURRENCIES, CurrencyCode } from '@/shared/context/CurrencyContext';
 import { useLanguage } from '@/shared/context/LanguageContext';
 
@@ -153,10 +154,10 @@ export function WalletForm({ existing, onSave, onClose, onDelete }: Props) {
 
         <div className="space-y-1.5">
           <p className="text-[13px] font-semibold text-gray-700">{t('wallets.name')} *</p>
-          <input
+          <ImeTextInput
             type="text"
             value={name}
-            onChange={(e) => setName(e.target.value)}
+            onValueChange={setName}
             placeholder={t('wallets.name_placeholder')}
             className="w-full h-[48px] bg-gray-50 border border-gray-200 rounded-[14px] px-4 text-[14px] text-gray-900 outline-none focus:border-indigo-400 transition-colors"
           />

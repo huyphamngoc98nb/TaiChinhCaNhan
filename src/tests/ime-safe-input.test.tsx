@@ -2,6 +2,8 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import { useState } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { CurrencyAmountInput } from '@/shared/components/CurrencyAmountInput';
+import { ImeTextInput } from '@/shared/components/ImeTextInput';
+import { ImeTextarea } from '@/shared/components/ImeTextarea';
 import { useImeSafeInputValue } from '@/shared/hooks/useImeSafeInputValue';
 
 function ImeSafeTextHarness({ onCommit }: { onCommit: (value: string) => void }) {
@@ -23,6 +25,36 @@ function CurrencyHarness({ onCommit }: { onCommit: (value: string) => void }) {
   return (
     <CurrencyAmountInput
       currency="VND"
+      value={value}
+      onValueChange={(nextValue) => {
+        setValue(nextValue);
+        onCommit(nextValue);
+      }}
+    />
+  );
+}
+
+function ImeTextInputHarness({ onCommit }: { onCommit: (value: string) => void }) {
+  const [value, setValue] = useState('');
+
+  return (
+    <ImeTextInput
+      aria-label="name"
+      value={value}
+      onValueChange={(nextValue) => {
+        setValue(nextValue);
+        onCommit(nextValue);
+      }}
+    />
+  );
+}
+
+function ImeTextareaHarness({ onCommit }: { onCommit: (value: string) => void }) {
+  const [value, setValue] = useState('');
+
+  return (
+    <ImeTextarea
+      aria-label="note"
       value={value}
       onValueChange={(nextValue) => {
         setValue(nextValue);
@@ -86,5 +118,42 @@ describe('IME-safe inputs', () => {
     fireEvent.compositionEnd(input);
 
     expect(onCommit).toHaveBeenCalledWith('');
+  });
+
+  it('keeps text input values local until Vietnamese composition ends', () => {
+    const onCommit = vi.fn();
+    render(<ImeTextInputHarness onCommit={onCommit} />);
+
+    const input = screen.getByLabelText('name') as HTMLInputElement;
+
+    fireEvent.compositionStart(input);
+    fireEvent.change(input, { target: { value: 'sửa ví' } });
+
+    expect(input.value).toBe('sửa ví');
+    expect(onCommit).not.toHaveBeenCalled();
+
+    fireEvent.compositionEnd(input);
+
+    expect(onCommit).toHaveBeenCalledTimes(1);
+    expect(onCommit).toHaveBeenCalledWith('sửa ví');
+  });
+
+  it('keeps textarea values local until Vietnamese composition ends', () => {
+    const onCommit = vi.fn();
+    render(<ImeTextareaHarness onCommit={onCommit} />);
+
+    const textarea = screen.getByLabelText('note') as HTMLTextAreaElement;
+    const text = 'ghi chú tiếng Việt có dấu dài';
+
+    fireEvent.compositionStart(textarea);
+    fireEvent.change(textarea, { target: { value: text } });
+
+    expect(textarea.value).toBe(text);
+    expect(onCommit).not.toHaveBeenCalled();
+
+    fireEvent.compositionEnd(textarea);
+
+    expect(onCommit).toHaveBeenCalledTimes(1);
+    expect(onCommit).toHaveBeenCalledWith(text);
   });
 });

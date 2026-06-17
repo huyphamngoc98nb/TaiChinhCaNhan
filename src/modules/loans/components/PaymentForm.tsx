@@ -2,6 +2,7 @@ import { FormEvent, useEffect, useMemo, useState } from 'react';
 import { CurrencyAmountInput } from '@/shared/components/CurrencyAmountInput';
 import { DateTimePicker } from '@/shared/components/DateTimePicker';
 import { DropdownList } from '@/shared/components/DropdownList';
+import { ImeTextInput } from '@/shared/components/ImeTextInput';
 import { useLanguage } from '@/shared/context/LanguageContext';
 import { HIDDEN_AMOUNT, useAmountVisibility } from '@/shared/hooks/useAmountVisibility';
 import { useWallets } from '@/modules/wallets/hooks/useWallets';
@@ -135,9 +136,9 @@ export function PaymentForm({ loan, onSubmit, loading }: PaymentFormProps) {
 
       <div className="space-y-1.5">
         <p className="text-[13px] font-semibold text-gray-700">{t('loans.payment.note')}</p>
-        <input
+        <ImeTextInput
           value={note}
-          onChange={(event) => setNote(event.target.value)}
+          onValueChange={setNote}
           className="h-[48px] w-full rounded-[12px] border border-gray-200 bg-gray-50 px-4 text-[14px] text-gray-900 outline-none focus:border-indigo-400"
         />
       </div>

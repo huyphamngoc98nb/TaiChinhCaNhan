@@ -8,6 +8,7 @@ import { CurrencyAmountInput } from '@/shared/components/CurrencyAmountInput';
 import { DropdownList } from '@/shared/components/DropdownList';
 import { useCurrency } from '@/shared/context/CurrencyContext';
 import { FormTransition } from '@/shared/components/FormTransition';
+import { ImeTextInput } from '@/shared/components/ImeTextInput';
 
 interface Props {
   existing?: Transaction;
@@ -271,10 +272,10 @@ export function TransactionForm({
 
       <div className="space-y-1.5">
         <p className="text-[13px] font-semibold text-gray-700">{t('form.label_note')}</p>
-        <input
+        <ImeTextInput
           type="text"
           value={formData.note || ''}
-          onChange={e => setFormData({ ...formData, note: e.target.value })}
+          onValueChange={value => setFormData({ ...formData, note: value })}
           onFocus={handleNoteFocus}
           placeholder={t('form.note_placeholder')}
           enterKeyHint="done"
