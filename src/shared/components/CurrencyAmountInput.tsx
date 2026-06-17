@@ -1,5 +1,5 @@
-import { ChangeEvent } from 'react';
 import { CURRENCIES, CurrencyCode } from '@/shared/context/CurrencyContext';
+import { useImeSafeInputValue } from '@/shared/hooks/useImeSafeInputValue';
 
 interface CurrencyAmountInputProps {
   value: string | number | null | undefined;
@@ -80,10 +80,12 @@ export function CurrencyAmountInput({
   placeholder = '0',
 }: CurrencyAmountInputProps) {
   const fractionDigits = getFractionDigits(currency);
-
-  const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
-    onValueChange(normalizeAmountInput(event.target.value, fractionDigits));
-  };
+  const imeInput = useImeSafeInputValue({
+    value: formatAmountInput(value, currency),
+    onChange: (nextValue) => {
+      onValueChange(normalizeAmountInput(nextValue, fractionDigits));
+    },
+  });
 
   return (
     <div className={`flex items-center h-[56px] bg-bg-subtle border rounded-[14px] px-4 transition-colors focus-within:border-primary ${className}`}>
@@ -91,8 +93,7 @@ export function CurrencyAmountInput({
       <input
         type="text"
         inputMode={fractionDigits === 0 ? 'numeric' : 'decimal'}
-        value={formatAmountInput(value, currency)}
-        onChange={handleChange}
+        {...imeInput.inputProps}
         required={required}
         placeholder={placeholder}
         autoFocus={autoFocus}

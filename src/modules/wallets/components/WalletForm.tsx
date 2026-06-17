@@ -228,8 +228,9 @@ export function WalletForm({ existing, onSave, onClose, onDelete }: Props) {
               <div className="space-y-1.5">
                 <p className="text-[13px] font-semibold text-gray-700">{t('wallets.statement_day')}</p>
                 <input
-                  type="number"
+                  type="text"
                   inputMode="numeric"
+                  pattern="[0-9]*"
                   min={1}
                   max={31}
                   value={statementDay}
@@ -241,8 +242,9 @@ export function WalletForm({ existing, onSave, onClose, onDelete }: Props) {
               <div className="space-y-1.5">
                 <p className="text-[13px] font-semibold text-gray-700">{t('wallets.due_day')}</p>
                 <input
-                  type="number"
+                  type="text"
                   inputMode="numeric"
+                  pattern="[0-9]*"
                   min={1}
                   max={31}
                   value={dueDay}

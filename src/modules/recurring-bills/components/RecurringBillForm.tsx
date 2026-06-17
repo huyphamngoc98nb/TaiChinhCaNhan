@@ -169,9 +169,10 @@ export function RecurringBillForm({ existing, onSave, onCancel }: Props) {
       <label className="block space-y-1.5">
         <span className="text-[13px] font-semibold text-gray-700">{t('recurring_bills.remind_days')}</span>
         <input
-          type="number"
+          type="text"
           min={0}
           inputMode="numeric"
+          pattern="[0-9]*"
           value={reminderDays}
           onChange={event => setReminderDays(event.target.value)}
           className="h-[48px] w-full rounded-[12px] border border-gray-200 bg-gray-50 px-3 text-[14px] font-medium text-gray-900 outline-none transition-colors focus:border-indigo-400"

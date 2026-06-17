@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Search } from 'lucide-react';
 import { BottomSheet } from '@/shared/components/BottomSheet';
 import { useLanguage } from '@/shared/context/LanguageContext';
+import { useImeSafeInputValue } from '@/shared/hooks/useImeSafeInputValue';
 import type { CategoryType } from '../domain/category.model';
 import { CategoryIcon, getCategoryIconLibrary } from './CategoryIcon';
 
@@ -16,18 +17,27 @@ interface Props {
 export function CategoryIconPicker({ isOpen, type, selectedIcon, onSelect, onClose }: Props) {
   const { t, language } = useLanguage();
   const [query, setQuery] = useState('');
+  const [committedQuery, setCommittedQuery] = useState('');
   const [pendingIcon, setPendingIcon] = useState(selectedIcon);
   const iconLibrary = useMemo(() => getCategoryIconLibrary(language), [language]);
+  const queryInput = useImeSafeInputValue({
+    value: query,
+    onChange: (nextValue) => {
+      setQuery(nextValue);
+      setCommittedQuery(nextValue);
+    },
+  });
 
   useEffect(() => {
     if (isOpen) {
       setPendingIcon(selectedIcon);
       setQuery('');
+      setCommittedQuery('');
     }
   }, [isOpen, selectedIcon]);
 
   const matchingIcons = useMemo(() => {
-    const normalizedQuery = query.trim().toLowerCase();
+    const normalizedQuery = committedQuery.trim().toLowerCase();
     return iconLibrary
       .filter((icon) => icon.type === type || icon.type === 'all')
       .filter((icon, index, icons) => icons.findIndex((item) => item.value === icon.value) === index)
@@ -35,7 +45,7 @@ export function CategoryIconPicker({ isOpen, type, selectedIcon, onSelect, onClo
         if (!normalizedQuery) return true;
         return `${icon.value} ${icon.label} ${icon.description}`.toLowerCase().includes(normalizedQuery);
       });
-  }, [iconLibrary, query, type]);
+  }, [committedQuery, iconLibrary, type]);
 
   function confirmSelection() {
     onSelect(pendingIcon);
@@ -53,8 +63,7 @@ export function CategoryIconPicker({ isOpen, type, selectedIcon, onSelect, onClo
         <div className="flex items-center gap-2 rounded-[12px] border border-gray-200 bg-gray-50 px-3">
           <Search size={16} className="text-gray-400" />
           <input
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
+            {...queryInput.inputProps}
             placeholder={t('categories.search_icons')}
             className="h-11 min-w-0 flex-1 bg-transparent text-[14px] text-gray-900 outline-none"
           />

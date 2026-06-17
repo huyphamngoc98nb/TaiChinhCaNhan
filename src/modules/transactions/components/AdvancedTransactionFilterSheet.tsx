@@ -4,6 +4,7 @@ import { Calendar, Search, X } from 'lucide-react';
 import { BottomSheet } from '@/shared/components/BottomSheet';
 import { DropdownList } from '@/shared/components/DropdownList';
 import { useLanguage } from '@/shared/context/LanguageContext';
+import { useImeSafeInputValue } from '@/shared/hooks/useImeSafeInputValue';
 import type { Category } from '@/modules/categories/domain/category.model';
 import type { Wallet } from '@/modules/wallets/repositories/sqlite-wallet.repository';
 import type { TransactionFilter, TransactionType } from '../domain/transaction.model';
@@ -166,6 +167,10 @@ export function AdvancedTransactionFilterSheet({
   onClose,
 }: Props) {
   const { t } = useLanguage();
+  const noteInput = useImeSafeInputValue({
+    value: filter.note ?? '',
+    onChange: (value) => onChange({ ...filter, note: value || undefined }),
+  });
 
   const visibleCategories = filter.type === 'expense' || filter.type === 'income'
     ? categories.filter(category => category.type === filter.type)
@@ -206,8 +211,7 @@ export function AdvancedTransactionFilterSheet({
             </span>
             <input
               type="text"
-              value={filter.note ?? ''}
-              onChange={event => onChange({ ...filter, note: event.target.value || undefined })}
+              {...noteInput.inputProps}
               placeholder="Tìm theo ghi chú..."
               style={{ ...inputStyle, paddingLeft: '34px' }}
             />
