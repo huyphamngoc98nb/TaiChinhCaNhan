@@ -123,9 +123,9 @@ export function WalletList({
           <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-indigo-50 text-indigo-500">
             <WalletCards size={28} />
           </div>
-          <p className="text-[17px] font-bold text-gray-900">Bạn chưa có ví nào</p>
+          <p className="text-[17px] font-bold text-gray-900">{t('wallets.no_wallets')}</p>
           <p className="mt-2 max-w-[280px] text-[13px] leading-5 text-gray-500">
-            Tạo ví đầu tiên để bắt đầu theo dõi tiền mặt, tài khoản ngân hàng hoặc thẻ của bạn.
+            {t('wallets.no_wallets_hint')}
           </p>
           <button
             type="button"
@@ -133,7 +133,7 @@ export function WalletList({
             className="mt-5 inline-flex h-11 items-center gap-2 rounded-[12px] bg-indigo-500 px-5 text-[14px] font-semibold text-white shadow-lg shadow-indigo-500/20 active:scale-95"
           >
             <Plus size={17} />
-            Tạo ví
+            {t('wallets.create_wallet')}
           </button>
         </div>
       ) : (

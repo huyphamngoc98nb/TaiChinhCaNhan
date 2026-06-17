@@ -344,13 +344,13 @@ export function TransactionsPage() {
           emptyVariant={hasAdvancedFilter ? 'filtered' : 'default'}
           emptyMessage={
             hasAdvancedFilter
-              ? 'Không tìm thấy giao dịch phù hợp'
-              : 'Chưa có giao dịch nào'
+              ? t('transactions.empty_filtered')
+              : t('transactions.empty')
           }
           emptyDescription={
             hasAdvancedFilter
-              ? 'Thử xóa bộ lọc hoặc chọn khoảng thời gian khác.'
-              : 'Thêm khoản thu hoặc chi đầu tiên để bắt đầu theo dõi dòng tiền của bạn.'
+              ? t('transactions.empty_filtered_hint')
+              : t('transactions.empty_default_hint')
           }
           emptyAction={
             hasAdvancedFilter ? (
@@ -359,7 +359,7 @@ export function TransactionsPage() {
                 onClick={handleResetFilters}
                 className="h-11 rounded-[12px] bg-indigo-500 px-5 text-[14px] font-semibold text-white shadow-lg shadow-indigo-500/20 active:scale-95"
               >
-                Xóa bộ lọc
+                {t('transactions.reset_filters')}
               </button>
             ) : (
               <button
@@ -367,7 +367,7 @@ export function TransactionsPage() {
                 onClick={() => navigate(ROUTES.TRANSACTIONS_NEW)}
                 className="h-11 rounded-[12px] bg-indigo-500 px-5 text-[14px] font-semibold text-white shadow-lg shadow-indigo-500/20 active:scale-95"
               >
-                Thêm giao dịch
+                {t('transactions.add_title')}
               </button>
             )
           }

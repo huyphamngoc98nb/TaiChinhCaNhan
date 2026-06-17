@@ -256,13 +256,13 @@ export const ReportsPage = () => {
             </div>
             <h3 className="text-[17px] font-bold text-gray-900">
               {preset === 'custom'
-                ? 'Không có dữ liệu trong khoảng thời gian này'
-                : 'Chưa đủ dữ liệu để tạo báo cáo'}
+                ? t('reports.empty_custom_title')
+                : t('reports.empty_title')}
             </h3>
             <p className="mt-2 max-w-[330px] text-[13px] leading-5 text-gray-500">
               {preset === 'custom'
-                ? 'Hãy chọn khoảng thời gian khác để xem báo cáo.'
-                : 'Thêm một vài giao dịch thu/chi để xem dòng tiền, danh mục chi tiêu và xu hướng theo thời gian.'}
+                ? t('reports.empty_custom_hint')
+                : t('reports.empty_hint')}
             </p>
             <button
               type="button"
@@ -270,7 +270,7 @@ export const ReportsPage = () => {
               className="mt-5 inline-flex h-11 items-center gap-2 rounded-[12px] bg-indigo-500 px-5 text-[14px] font-semibold text-white shadow-lg shadow-indigo-500/20 active:scale-95"
             >
               <PlusCircle size={17} />
-              Thêm giao dịch
+              {t('transactions.add_title')}
             </button>
           </div>
         )}
