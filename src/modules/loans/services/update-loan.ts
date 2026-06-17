@@ -13,6 +13,17 @@ import {
   resolveLoanCategoryId,
   type LoanCategoryRepository,
 } from './create-loan';
+import { translations, type TranslationPath } from '@/shared/constants/translations';
+
+function defaultText(path: TranslationPath): string {
+  const keys = path.split('.');
+  let current: unknown = translations.en;
+  for (const key of keys) {
+    if (!current || typeof current !== 'object' || !(key in current)) return path;
+    current = (current as Record<string, unknown>)[key];
+  }
+  return typeof current === 'string' ? current : path;
+}
 
 export interface UpdateLoanDeps {
   loanRepo: ILoanRepository;
@@ -27,7 +38,7 @@ export async function updateLoan(
   deps: UpdateLoanDeps
 ): Promise<Loan> {
   const existingLoan = await deps.loanRepo.getLoanById(id);
-  if (!existingLoan) throw new Error('Loan not found');
+  if (!existingLoan) throw new Error(defaultText('loans.errors.notFound'));
 
   const wasSkipping = existingLoan.skip_transaction === true;
   const willSkip = input.skip_transaction ?? wasSkipping;
@@ -47,8 +58,8 @@ export async function updateLoan(
     if (!walletId) throw new Error('wallet_id is required');
 
     const wallet = await deps.walletRepo.getById(walletId);
-    if (!wallet) throw new Error('Wallet not found');
-    if (wallet.is_active !== 1) throw new Error('Wallet is inactive');
+    if (!wallet) throw new Error(defaultText('loans.errors.walletNotFound'));
+    if (wallet.is_active !== 1) throw new Error(defaultText('loans.errors.walletInactive'));
   }
 
   const now = Date.now();
@@ -81,8 +92,8 @@ export async function updateLoan(
       const transactionId = generateUUID();
       const transactionType = input.type === 'lend' ? 'expense' : 'income';
       const transactionNote = input.type === 'lend'
-        ? `Cho vay: ${input.contact_name}`
-        : `Vay nợ: ${input.contact_name}`;
+        ? defaultText('loans.errors.lendNote').replace('{name}', input.contact_name)
+        : defaultText('loans.errors.borrowNote').replace('{name}', input.contact_name);
       const transactionDate = dateToMs(loanDate);
 
       await deps.transactionRepo.create({
@@ -113,7 +124,7 @@ export async function updateLoan(
       updated_at: now,
     });
 
-    if (!loan) throw new Error('Failed to update loan');
+    if (!loan) throw new Error(defaultText('loans.errors.updateFailed'));
     return loan;
   });
 }

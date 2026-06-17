@@ -9,10 +9,21 @@ import { validateCreateLoanPayment } from '../domain/loan.schema';
 import type { ILoanRepository } from '../repositories/loan.repository';
 import type { LoanCategoryRepository } from './create-loan';
 import { resolveLoanCategoryId } from './create-loan';
+import { translations, type TranslationPath } from '@/shared/constants/translations';
+
+function defaultText(path: TranslationPath): string {
+  const keys = path.split('.');
+  let current: unknown = translations.en;
+  for (const key of keys) {
+    if (!current || typeof current !== 'object' || !(key in current)) return path;
+    current = (current as Record<string, unknown>)[key];
+  }
+  return typeof current === 'string' ? current : path;
+}
 
 export class LoanPaymentExceedError extends Error {
   constructor() {
-    super('Số tiền thanh toán vượt quá số tiền còn lại');
+    super(defaultText('loans.errors.paymentExceedsRemaining'));
     this.name = 'LoanPaymentExceedError';
   }
 }
@@ -36,9 +47,9 @@ export async function addLoanPayment(
   validateCreateLoanPayment(input);
 
   const loan = await deps.loanRepo.getLoanById(input.loan_id);
-  if (!loan) throw new Error('Loan not found');
+  if (!loan) throw new Error(defaultText('loans.errors.notFound'));
   if (loan.status === 'settled' || loan.status === 'cancelled') {
-    throw new Error('Khoản vay không còn hoạt động');
+    throw new Error(defaultText('loans.errors.inactive'));
   }
 
   const categoryConfig = PAYMENT_CATEGORY[loan.type];
@@ -54,8 +65,8 @@ export async function addLoanPayment(
 
   return runInTransaction(async () => {
     const paymentWallet = await deps.walletRepo.getById(input.wallet_id);
-    if (!paymentWallet) throw new Error('Wallet not found');
-    if (paymentWallet.is_active !== 1) throw new Error('Wallet is inactive');
+    if (!paymentWallet) throw new Error(defaultText('loans.errors.walletNotFound'));
+    if (paymentWallet.is_active !== 1) throw new Error(defaultText('loans.errors.walletInactive'));
 
     const currentPaid = await deps.loanRepo.getTotalPaid(input.loan_id);
     const remaining = Math.max(0, loan.principal - currentPaid);
@@ -72,8 +83,8 @@ export async function addLoanPayment(
     const transactionType = loan.type === 'lend' ? 'income' : 'expense';
     const transactionNote = input.note ?? (
       loan.type === 'lend'
-        ? `Thu nợ: ${loan.contact_name}`
-        : `Trả nợ: ${loan.contact_name}`
+        ? defaultText('loans.errors.collectDebtNote').replace('{name}', loan.contact_name)
+        : defaultText('loans.errors.repayDebtNote').replace('{name}', loan.contact_name)
     );
 
     await deps.transactionRepo.create({

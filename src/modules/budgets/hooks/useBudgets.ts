@@ -3,8 +3,10 @@ import { CategoryBudget, BudgetProgress, resolveBudgetScope } from '../domain/bu
 import { GetBudgetSettingsUseCase } from '../services/get-budget-settings';
 import { ListBudgetAlertsUseCase } from '../services/list-budget-alerts';
 import { appRepositories } from '@/core/repositories/app-repositories';
+import { useLanguage } from '@/shared/context/LanguageContext';
 
 export function useBudgets() {
+  const { t } = useLanguage();
   const [categories, setCategories] = useState<CategoryBudget[]>([]);
   const [allProgress, setAllProgress] = useState<BudgetProgress[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -30,12 +32,12 @@ export function useBudgets() {
       setAllProgress(progress);
       setError(null);
     } catch (e: unknown) {
-      const msg = e instanceof Error ? e.message : 'Failed to load budgets';
+      const msg = e instanceof Error ? e.message : t('budgets.load_failed');
       setError(msg);
     } finally {
       setIsLoading(false);
     }
-  }, [getSettingsUseCase, listAlertsUseCase]);
+  }, [getSettingsUseCase, listAlertsUseCase, t]);
 
   useEffect(() => {
     load();

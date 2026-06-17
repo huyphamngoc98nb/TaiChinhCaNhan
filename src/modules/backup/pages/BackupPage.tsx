@@ -256,7 +256,7 @@ export function BackupPage() {
 
     const ok = await confirm({
       title: t('backup.restore_confirm_title'),
-      message: `${t('backup.restore_confirm_msg')}\n\nNhấn REPLACE để xác nhận thay thế dữ liệu hiện tại.`,
+      message: `${t('backup.restore_confirm_msg')}\n\n${t('backup.restore_replace_instruction')}`,
       confirmText: 'REPLACE',
       cancelText: t('common.cancel'),
     });
@@ -652,7 +652,7 @@ export function BackupPage() {
                     fontWeight: '700',
                   }}
                 >
-                  {loading ? t('common.processing') : 'REPLACE'}
+                  {loading ? t('common.processing') : t('backup.replace_confirm')}
                 </button>
               </div>
             </div>

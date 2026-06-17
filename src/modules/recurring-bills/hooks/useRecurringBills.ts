@@ -7,8 +7,10 @@ import {
 } from '../domain/recurring-bill.model';
 import { recurringBillRepository, getDueRemindersUseCase } from '@/core/di/recurring-bills.di';
 import { computeNextDueDate } from '../services/compute-next-due-date';
+import { useLanguage } from '@/shared/context/LanguageContext';
 
 export function useRecurringBills() {
+  const { t } = useLanguage();
   const [bills, setBills] = useState<RecurringBill[]>([]);
   const [reminders, setReminders] = useState<RecurringBillReminder[]>([]);
   const [loading, setLoading] = useState(true);
@@ -25,11 +27,11 @@ export function useRecurringBills() {
       setBills(allBills);
       setReminders(dueReminders);
     } catch (e: any) {
-      setError(e.message || 'Failed to load recurring bills');
+      setError(e.message || t('recurring_bills.load_failed'));
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [t]);
 
   useEffect(() => { load(); }, [load]);
 

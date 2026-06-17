@@ -157,7 +157,7 @@ function DashboardPage() {
         icon: 'text-red-500',
         pill: 'bg-red-100 text-red-700',
         Icon: AlertTriangle,
-        label: 'Nguy cơ',
+        label: t('dashboard.forecast_status_danger'),
       }
     : forecast?.status === 'warning'
       ? {
@@ -166,7 +166,7 @@ function DashboardPage() {
           icon: 'text-amber-500',
           pill: 'bg-amber-100 text-amber-700',
           Icon: TrendingDown,
-          label: 'Cảnh báo',
+          label: t('dashboard.forecast_status_warning'),
         }
       : {
           bg: 'bg-emerald-50',
@@ -174,7 +174,7 @@ function DashboardPage() {
           icon: 'text-emerald-500',
           pill: 'bg-emerald-100 text-emerald-700',
           Icon: ShieldCheck,
-          label: 'Tốt',
+          label: t('dashboard.forecast_status_safe'),
         };
   const ForecastIcon = forecastStyle.Icon;
 
@@ -265,7 +265,7 @@ function DashboardPage() {
         <div className="mb-3 flex items-center justify-between gap-3">
           <div className="flex min-w-0 items-center gap-2">
             <ForecastIcon size={18} className={`${forecastStyle.icon} shrink-0`} />
-            <h3 className="truncate text-[15px] font-bold text-gray-900">Dự báo cuối tháng</h3>
+            <h3 className="truncate text-[15px] font-bold text-gray-900">{t('dashboard.forecast_title')}</h3>
           </div>
           {!forecastLoading && forecast && forecast.hasCurrentData && (
             <span className={`shrink-0 rounded-full px-2 py-1 text-[11px] font-bold ${forecastStyle.pill}`}>
@@ -281,33 +281,35 @@ function DashboardPage() {
           </div>
         ) : forecast && forecast.hasCurrentData ? (
           <>
-            <p className="text-[12px] font-semibold text-gray-500">Số dư dự kiến</p>
+            <p className="text-[12px] font-semibold text-gray-500">{t('dashboard.forecast_projected_balance')}</p>
             <p className="mt-1 break-words text-[26px] font-bold leading-tight text-gray-900 tabular-nums">
               {displayAmount(forecast.projectedMonthEndBalance)}
             </p>
             <div className="mt-3 grid grid-cols-2 gap-2">
               <div className="rounded-[12px] bg-white/70 px-3 py-2">
-                <p className="text-[10px] font-semibold uppercase text-gray-400">Chi TB/ngày</p>
+                <p className="text-[10px] font-semibold uppercase text-gray-400">{t('dashboard.forecast_daily_average_expense')}</p>
                 <p className="mt-1 text-[13px] font-bold text-gray-800 tabular-nums">
                   {displayAmount(forecast.dailyAverageExpense)}
                 </p>
               </div>
               <div className="rounded-[12px] bg-white/70 px-3 py-2">
-                <p className="text-[10px] font-semibold uppercase text-gray-400">Dự kiến chi</p>
+                <p className="text-[10px] font-semibold uppercase text-gray-400">{t('dashboard.forecast_projected_expense')}</p>
                 <p className="mt-1 text-[13px] font-bold text-gray-800 tabular-nums">
                   {displayAmount(forecast.projectedMonthlyExpense)}
                 </p>
               </div>
             </div>
             <p className="mt-3 text-[12px] leading-5 text-gray-600">
-              Tính theo {forecast.elapsedDays}/{forecast.daysInMonth} ngày đã qua của tháng này.
+              {t('dashboard.forecast_elapsed_days')
+                .replace('{elapsedDays}', String(forecast.elapsedDays))
+                .replace('{daysInMonth}', String(forecast.daysInMonth))}
             </p>
           </>
         ) : (
           <div className="rounded-[14px] bg-white/70 px-4 py-5 text-center">
-            <p className="text-[14px] font-semibold text-gray-800">Chưa đủ dữ liệu dự báo</p>
+            <p className="text-[14px] font-semibold text-gray-800">{t('dashboard.forecast_empty_title')}</p>
             <p className="mt-1 text-[12px] leading-5 text-gray-500">
-              Thêm một vài giao dịch thu hoặc chi trong tháng này để ước tính số dư cuối tháng.
+              {t('dashboard.forecast_empty_hint')}
             </p>
           </div>
         )}
@@ -342,14 +344,14 @@ function DashboardPage() {
           <Bell size={18} className={`${creditCardAlertStyle.icon} shrink-0`} />
           <div className="flex-1">
             <p className="text-[13px] font-semibold text-gray-900">
-              {creditCardAlerts.length} cảnh báo thẻ tín dụng
+              {creditCardAlerts.length} {t('dashboard.credit_card_alerts')}
             </p>
             <p className={`text-[11px] ${creditCardAlertStyle.text}`}>
               {overdueCreditCardCount > 0
-                ? `${overdueCreditCardCount} thẻ quá hạn thanh toán`
+                ? `${overdueCreditCardCount} ${t('dashboard.credit_card_overdue_count')}`
                 : primaryCreditCardAlert.type === 'due_soon'
-                  ? 'Có thẻ sắp đến hạn thanh toán'
-                  : 'Có thẻ đã dùng gần hết hạn mức'}
+                  ? t('dashboard.credit_card_due_soon')
+                  : t('dashboard.credit_card_over_limit')}
             </p>
           </div>
           <ChevronRight size={16} className="text-gray-400" />
@@ -483,16 +485,16 @@ function DashboardPage() {
           <div className="flex h-14 w-14 items-center justify-center rounded-full bg-indigo-50 text-indigo-500">
             <WalletCards size={28} />
           </div>
-          <h3 className="text-[18px] font-bold text-gray-900">Bạn chưa có ví nào</h3>
+          <h3 className="text-[18px] font-bold text-gray-900">{t('dashboard.empty_wallet_title')}</h3>
           <p className="text-[13px] text-gray-500 leading-relaxed">
-            Tạo ví đầu tiên để bắt đầu theo dõi tiền mặt, tài khoản ngân hàng hoặc thẻ của bạn.
+            {t('dashboard.empty_wallet_hint')}
           </p>
           <button
             type="button"
             onClick={() => navigate(ROUTES.WALLETS_NEW)}
             className="h-11 rounded-[12px] bg-indigo-500 px-5 text-[14px] font-semibold text-white shadow-lg shadow-indigo-500/20 active:scale-95"
           >
-            Tạo ví
+            {t('dashboard.create_wallet')}
           </button>
         </div>
       )}

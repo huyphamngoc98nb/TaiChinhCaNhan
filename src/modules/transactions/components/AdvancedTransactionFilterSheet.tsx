@@ -200,7 +200,7 @@ export function AdvancedTransactionFilterSheet({
         </div>
 
         <label style={labelStyle}>
-          Tìm theo ghi chú
+          {t('transactions.search_note')}
           <div style={{ position: 'relative' }}>
             <span style={dateIconStyle}>
               <Search size={15} />
@@ -209,7 +209,7 @@ export function AdvancedTransactionFilterSheet({
               type="text"
               value={filter.note ?? ''}
               onValueChange={value => onChange({ ...filter, note: value || undefined })}
-              placeholder="Tìm theo ghi chú..."
+              placeholder={t('transactions.search_note_placeholder')}
               style={{ ...inputStyle, paddingLeft: '34px' }}
             />
           </div>
@@ -217,7 +217,7 @@ export function AdvancedTransactionFilterSheet({
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
           <label style={labelStyle}>
-            Từ ngày
+            {t('transactions.filter_from_date')}
             <DateDisplayInput
               value={filter.startDate}
               onChange={timestamp => onChange({ ...filter, startDate: timestamp })}
@@ -225,7 +225,7 @@ export function AdvancedTransactionFilterSheet({
           </label>
 
           <label style={labelStyle}>
-            Đến ngày
+            {t('transactions.filter_to_date')}
             <DateDisplayInput
               value={filter.endDate}
               endOfDay
@@ -240,7 +240,7 @@ export function AdvancedTransactionFilterSheet({
           ariaLabel={t('transactions.wallet')}
           buttonClassName="bg-white min-h-[44px]"
           options={[
-            { value: '', label: 'Tất cả ví' },
+            { value: '', label: t('transactions.all_wallets') },
             ...wallets.map(wallet => ({ value: wallet.id, label: wallet.name })),
           ]}
         />
@@ -274,7 +274,7 @@ export function AdvancedTransactionFilterSheet({
           ariaLabel={t('transactions.category')}
           buttonClassName="bg-white min-h-[44px]"
           options={[
-            { value: '', label: 'Tất cả danh mục' },
+            { value: '', label: t('transactions.all_categories') },
             ...visibleCategories.map(category => ({ value: category.id, label: category.name })),
           ]}
         />
@@ -291,7 +291,7 @@ export function AdvancedTransactionFilterSheet({
             border: 'none',
           }}
         >
-          Áp dụng
+          {t('common.apply')}
         </button>
 
         <button

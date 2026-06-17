@@ -4,6 +4,17 @@ import { getSourceDelta } from '@/modules/transactions/services/transaction-wall
 import type { IWalletRepository } from '@/modules/wallets/repositories/wallet.repository';
 import type { Loan } from '../domain/loan.model';
 import type { ILoanRepository } from '../repositories/loan.repository';
+import { translations, type TranslationPath } from '@/shared/constants/translations';
+
+function defaultText(path: TranslationPath): string {
+  const keys = path.split('.');
+  let current: unknown = translations.en;
+  for (const key of keys) {
+    if (!current || typeof current !== 'object' || !(key in current)) return path;
+    current = (current as Record<string, unknown>)[key];
+  }
+  return typeof current === 'string' ? current : path;
+}
 
 export type DeleteLoanMode = 'soft' | 'hard';
 
@@ -35,7 +46,7 @@ export async function deleteLoan(
   options: { force?: boolean } = {}
 ): Promise<void> {
   const loan = await getLoanForDelete(loanId, deps.loanRepo);
-  if (!loan) throw new Error('Không tìm thấy khoản vay');
+  if (!loan) throw new Error(defaultText('loans.errors.notFound'));
 
   if (mode === 'soft') {
     await deps.loanRepo.softDeleteLoan(loanId, Date.now());
@@ -46,7 +57,7 @@ export async function deleteLoan(
   const isSettled = loan.status === 'settled' || totalPaid >= loan.principal;
   if (!options.force && totalPaid > 0) {
     throw new LoanHasPaymentsError(
-      `Khoản này đã có ${totalPaid.toLocaleString('vi-VN')}đ thanh toán. Xoá vĩnh viễn sẽ mất toàn bộ lịch sử.`
+      defaultText('loans.errors.hardDeleteHasPayments').replace('{amount}', totalPaid.toLocaleString('vi-VN'))
     );
   }
 

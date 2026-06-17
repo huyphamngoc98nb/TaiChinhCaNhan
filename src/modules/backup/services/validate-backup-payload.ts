@@ -1,5 +1,20 @@
 import { BackupMetadata, BackupPayload, BackupRow, ValidationResult } from '../domain/backup.model';
 import { CURRENT_BACKUP_VERSION, CURRENT_SCHEMA_VERSION } from './export-backup-json';
+import { translations, type TranslationPath } from '@/shared/constants/translations';
+
+function defaultText(path: TranslationPath): string {
+  const keys = path.split('.');
+  let current: unknown = translations.vi;
+
+  for (const key of keys) {
+    if (!current || typeof current !== 'object' || !(key in current)) {
+      return path;
+    }
+    current = (current as Record<string, unknown>)[key];
+  }
+
+  return typeof current === 'string' ? current : path;
+}
 
 type FieldType = 'string' | 'number';
 
@@ -632,7 +647,7 @@ export function validateBackupPayload(payload: unknown): ValidationResult {
 export function normalizeBackupPayload(payload: unknown): BackupPayload {
   const validation = validateBackupPayload(payload);
   if (!validation.isValid) {
-    throw new Error(validation.error || 'Invalid backup file');
+    throw new Error(validation.error || defaultText('backup.invalid_file'));
   }
 
   const backup = payload as BackupRow;
@@ -659,6 +674,6 @@ export function normalizeBackupPayload(payload: unknown): BackupPayload {
 export function assertBackupPayload(payload: unknown): asserts payload is BackupPayload {
   const validation = validateBackupPayload(payload);
   if (!validation.isValid) {
-    throw new Error(validation.error || 'Invalid backup file');
+    throw new Error(validation.error || defaultText('backup.invalid_file'));
   }
 }

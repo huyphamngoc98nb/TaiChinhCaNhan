@@ -1,10 +1,12 @@
 import { BudgetProgress } from '../domain/budget.model';
+import { useLanguage } from '@/shared/context/LanguageContext';
 
 interface Props {
   progress: BudgetProgress;
 }
 
 export function BudgetProgressCard({ progress }: Props) {
+  const { t } = useLanguage();
   const { budget, spent_amount, percentage, status } = progress;
 
   const statusConfig = {
@@ -12,19 +14,19 @@ export function BudgetProgressCard({ progress }: Props) {
       bar: 'bg-emerald-500',
       text: 'text-emerald-700',
       badge: 'bg-emerald-50 border-emerald-100',
-      label: 'On Track'
+      label: t('budgets.status_on_track')
     },
     warning: {
       bar: 'bg-amber-500',
       text: 'text-amber-700',
       badge: 'bg-amber-50 border-amber-100',
-      label: 'Warning'
+      label: t('budgets.status_warning')
     },
     exceeded: {
       bar: 'bg-rose-500',
       text: 'text-rose-700',
       badge: 'bg-rose-50 border-rose-100',
-      label: 'Over Budget'
+      label: t('budgets.status_over_budget')
     }
   };
 
@@ -45,7 +47,9 @@ export function BudgetProgressCard({ progress }: Props) {
             <h4 className="font-bold text-gray-900 text-lg leading-tight">{budget.category_name}</h4>
             {/* Đú́ng field: budget.period và budget.amount (kế thừa từ Budget interface) */}
             <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mt-0.5">
-              {budget.period} limit: ${budget.amount?.toFixed(0)}
+              {t('budgets.period_limit')
+                .replace('{period}', budget.period)
+                .replace('{amount}', `$${budget.amount?.toFixed(0)}`)}
             </p>
           </div>
         </div>
@@ -57,11 +61,11 @@ export function BudgetProgressCard({ progress }: Props) {
       <div className="space-y-4">
         <div className="flex justify-between items-end">
           <div className="flex flex-col">
-            <span className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-1">Total Spent</span>
+            <span className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-1">{t('budgets.total_spent')}</span>
             <span className="text-2xl font-bold text-gray-900">${spent_amount.toFixed(0)}</span>
           </div>
           <div className="flex flex-col items-end">
-            <span className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-1">Remaining</span>
+            <span className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-1">{t('budgets.remaining_amount')}</span>
             <span className={`text-2xl font-bold ${percentage >= 1 ? 'text-rose-500' : 'text-emerald-500'}`}>
               {percentage >= 1 
                 ? `-$${Math.round(spent_amount - (budget.amount || 0))}` 
@@ -78,9 +82,11 @@ export function BudgetProgressCard({ progress }: Props) {
         </div>
 
         <div className="flex justify-between text-[11px] font-bold uppercase tracking-wider">
-          <span className={config.text}>{Math.round(percentage * 100)}% of limit used</span>
+          <span className={config.text}>
+            {t('budgets.of_limit_used').replace('{percent}', String(Math.round(percentage * 100)))}
+          </span>
           <span className="text-gray-400">
-            {budget.period} cycle
+            {t('budgets.cycle_suffix').replace('{period}', budget.period)}
           </span>
         </div>
       </div>

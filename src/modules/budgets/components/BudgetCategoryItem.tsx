@@ -133,11 +133,11 @@ export function BudgetCategoryItem({ category, progress, onClick, onViewTransact
           />
           <div className="flex flex-wrap items-center justify-between gap-2 text-[12px]">
             <span className="font-semibold text-gray-500">
-              {Math.round(progress.percentage * 100)}% đã dùng
+              {Math.round(progress.percentage * 100)}{t('budgets.used_pct')}
             </span>
             {progress.is_projected_exceeded && (
               <span className="rounded-full bg-red-50 px-2 py-1 font-semibold text-red-600">
-                Dự kiến vượt cuối kỳ
+                {t('budgets.projected_exceeded_end_period')}
               </span>
             )}
           </div>
@@ -161,7 +161,7 @@ export function BudgetCategoryItem({ category, progress, onClick, onViewTransact
                 }}
                 className="h-11 rounded-[10px] bg-gray-50 px-3 text-[13px] font-semibold text-gray-600 active:bg-gray-100"
               >
-                Xem giao dịch
+                {t('budgets.view_transactions')}
               </button>
             )}
             <button

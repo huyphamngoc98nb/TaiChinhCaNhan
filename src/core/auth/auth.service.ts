@@ -7,6 +7,7 @@ import { getSQLiteEncryptionConfig } from '@/core/db/sqlite/encryption';
 import { initDatabaseConnection } from '@/core/db/sqlite/connection';
 import { nativeBiometric } from './native-biometric';
 import { BIOMETRIC_UNLOCK_KEY } from './recovery.service';
+import { translations, type TranslationPath } from '@/shared/constants/translations';
 
 export interface AuthResult {
   authenticated: boolean;
@@ -26,6 +27,20 @@ type BiometricListenerPlugin = typeof CapacitorSQLite & {
 };
 
 const BIOMETRIC_UNLOCK_SUPPORTED_PLATFORMS = new Set(['android', 'ios']);
+
+function defaultText(path: TranslationPath): string {
+  const keys = path.split('.');
+  let current: unknown = translations.en;
+
+  for (const key of keys) {
+    if (!current || typeof current !== 'object' || !(key in current)) {
+      return path;
+    }
+    current = (current as Record<string, unknown>)[key];
+  }
+
+  return typeof current === 'string' ? current : path;
+}
 
 function isNativePlatform(): boolean {
   return Capacitor.getPlatform() !== 'web';
@@ -60,16 +75,16 @@ export class AuthService {
 
   async setBiometricUnlockEnabled(enabled: boolean): Promise<void> {
     if (enabled && !(await this.isBiometricUnlockAvailable())) {
-      throw new Error('Biometric unlock is not available on this device.');
+      throw new Error(defaultText('app_lock.biometric_not_available'));
     }
 
     if (enabled && isAndroidPlatform()) {
       const result = await nativeBiometric.authenticate({
-        title: 'Enable biometric unlock',
-        subtitle: 'Verify to use biometrics for app unlock',
+        title: defaultText('app_lock.biometric_enable_title'),
+        subtitle: defaultText('app_lock.biometric_enable_subtitle'),
       });
       if (!result.authenticated) {
-        throw new Error('Biometric verification failed.');
+        throw new Error(defaultText('app_lock.biometric_verification_failed'));
       }
     }
 
@@ -91,12 +106,12 @@ export class AuthService {
 
     const normalizedPin = pin.trim();
     if (normalizedPin.length < 6) {
-      throw new Error('PIN must contain at least 6 characters.');
+      throw new Error(defaultText('app_lock.pin_too_short'));
     }
 
     const secretStored = await this.hasStoredSecret();
     if (secretStored) {
-      throw new Error('PIN has already been set.');
+      throw new Error(defaultText('app_lock.pin_already_set'));
     }
 
     await sqlite.setEncryptionSecret(normalizedPin);
@@ -115,17 +130,17 @@ export class AuthService {
 
     const normalizedPin = pin.trim();
     if (normalizedPin.length < 6) {
-      throw new Error('PIN must contain at least 6 characters.');
+      throw new Error(defaultText('app_lock.pin_too_short'));
     }
 
     const secretStored = await this.hasStoredSecret();
     if (!secretStored) {
-      throw new Error('PIN has not been set up yet.');
+      throw new Error(defaultText('app_lock.pin_not_set'));
     }
 
     const verified = (await sqlite.checkEncryptionSecret(normalizedPin)).result === true;
     if (!verified) {
-      throw new Error('Invalid PIN or biometric verification failed.');
+      throw new Error(defaultText('app_lock.pin_or_biometric_invalid'));
     }
 
     return { authenticated: true, createdSecret: false };
@@ -133,18 +148,18 @@ export class AuthService {
 
   async changePin(currentPin: string, newPin: string): Promise<void> {
     if (!this.requiresUnlock()) {
-      throw new Error('PIN changes are only available for encrypted native databases.');
+      throw new Error(defaultText('app_lock.pin_change_native_only'));
     }
 
     const normalizedCurrentPin = currentPin.trim();
     const normalizedNewPin = newPin.trim();
     if (normalizedNewPin.length < 6) {
-      throw new Error('PIN must contain at least 6 characters.');
+      throw new Error(defaultText('app_lock.pin_too_short'));
     }
 
     const verified = (await sqlite.checkEncryptionSecret(normalizedCurrentPin)).result === true;
     if (!verified) {
-      throw new Error('Invalid PIN.');
+      throw new Error(defaultText('security.current_pin_invalid'));
     }
 
     await sqlite.changeEncryptionSecret(normalizedNewPin, normalizedCurrentPin);
@@ -172,8 +187,8 @@ export class AuthService {
       }
 
       const result = await nativeBiometric.authenticate({
-        title: 'Unlock Expense Tracker',
-        subtitle: 'Verify before opening your encrypted database',
+        title: defaultText('app_lock.biometric_unlock_title'),
+        subtitle: defaultText('app_lock.biometric_unlock_subtitle'),
       });
 
       return result.authenticated ? { authenticated: true, createdSecret: false } : null;

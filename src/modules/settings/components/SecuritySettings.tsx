@@ -3,6 +3,7 @@ import { KeyRound, ShieldCheck, Trash2, X } from 'lucide-react';
 import { authService } from '@/core/auth/auth.service';
 import { RecoveryResetDialog } from '@/core/auth/RecoveryResetDialog';
 import { useLanguage } from '@/shared/context/LanguageContext';
+import { translations } from '@/shared/constants/translations';
 import { useToast } from '@/shared/components/Toast/ToastContext';
 import { BiometricUnlockSettings } from './BiometricUnlockSettings';
 
@@ -36,7 +37,7 @@ export function SecuritySettings() {
       setShowChangePin(false);
       toast.success(t('security.change_pin_success'));
     } catch (error) {
-      toast.error(error instanceof Error && error.message.startsWith('Invalid PIN')
+      toast.error(error instanceof Error && error.message === translations.en.security.current_pin_invalid
         ? t('security.current_pin_invalid')
         : t('security.change_pin_failed'));
     } finally {

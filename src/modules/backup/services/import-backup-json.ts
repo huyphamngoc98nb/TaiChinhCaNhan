@@ -2,10 +2,25 @@ import { BackupPayload, BackupPreview } from '../domain/backup.model';
 import { normalizeBackupPayload } from './validate-backup-payload';
 import { restoreDatabase } from './restore-database';
 import { decryptBackupEnvelope, isEncryptedBackupEnvelope } from './encrypted-backup';
+import { translations, type TranslationPath } from '@/shared/constants/translations';
+
+function defaultText(path: TranslationPath): string {
+  const keys = path.split('.');
+  let current: unknown = translations.vi;
+
+  for (const key of keys) {
+    if (!current || typeof current !== 'object' || !(key in current)) {
+      return path;
+    }
+    current = (current as Record<string, unknown>)[key];
+  }
+
+  return typeof current === 'string' ? current : path;
+}
 
 export class EncryptedBackupPasswordRequiredError extends Error {
   constructor() {
-    super('Backup password is required');
+    super(defaultText('backup.password_required'));
     this.name = 'EncryptedBackupPasswordRequiredError';
   }
 }
@@ -26,19 +41,19 @@ async function readBackupFile(file: File): Promise<string> {
     reader.onload = async (e) => {
       const text = e.target?.result;
       if (typeof text !== 'string') {
-        reject(new Error('Backup file could not be read as text'));
+        reject(new Error(defaultText('backup.file_read_failed')));
         return;
       }
       resolve(text);
     };
 
-    reader.onerror = () => reject(new Error('Failed to read file'));
+    reader.onerror = () => reject(new Error(defaultText('backup.file_read_failed')));
     reader.readAsText(file, 'UTF-8');
   });
 }
 
 export class InvalidBackupFileError extends Error {
-  constructor(message = 'File không đúng định dạng backup.') {
+  constructor(message = defaultText('backup.invalid_file')) {
     super(message);
     this.name = 'InvalidBackupFileError';
   }
@@ -46,13 +61,13 @@ export class InvalidBackupFileError extends Error {
 
 function parseBackupText(text: string): unknown {
   if (!text.trim()) {
-    throw new InvalidBackupFileError('File backup rỗng.');
+    throw new InvalidBackupFileError(defaultText('backup.empty_file'));
   }
 
   try {
     return JSON.parse(text);
   } catch {
-    throw new InvalidBackupFileError('File không đúng định dạng backup.');
+    throw new InvalidBackupFileError(defaultText('backup.invalid_file'));
   }
 }
 

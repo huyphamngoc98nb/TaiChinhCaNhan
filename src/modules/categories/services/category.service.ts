@@ -1,7 +1,22 @@
 import { Capacitor } from '@capacitor/core';
 import { DB_NAME } from '@/core/db/sqlite/connection';
+import { translations, type TranslationPath } from '@/shared/constants/translations';
 import { SQLiteCategoryRepository } from '../repositories/sqlite-category.repository';
 import type { Category, CategoryInput, CategoryType } from '../domain/category.model';
+
+function defaultText(path: TranslationPath): string {
+  const keys = path.split('.');
+  let current: unknown = translations.en;
+
+  for (const key of keys) {
+    if (!current || typeof current !== 'object' || !(key in current)) {
+      return path;
+    }
+    current = (current as Record<string, unknown>)[key];
+  }
+
+  return typeof current === 'string' ? current : path;
+}
 
 function generateId(): string {
   if (typeof crypto !== 'undefined' && crypto.randomUUID) {
@@ -20,10 +35,10 @@ async function persistWeb(): Promise<void> {
 function normalizeInput(input: CategoryInput): CategoryInput {
   const name = input.name.trim();
   if (!name) {
-    throw new Error('Tên danh mục không được để trống.');
+    throw new Error(defaultText('categories.service_name_required'));
   }
   if (!['income', 'expense'].includes(input.type)) {
-    throw new Error('Loại danh mục không hợp lệ.');
+    throw new Error(defaultText('categories.service_type_invalid'));
   }
 
   return {
@@ -51,7 +66,7 @@ export class CategoryService {
   async update(id: string, input: CategoryInput): Promise<void> {
     const existing = await this.repository.getById(id);
     if (existing?.is_system === 1) {
-      throw new Error('Không thể sửa danh mục hệ thống.');
+      throw new Error(defaultText('categories.service_system_edit_forbidden'));
     }
 
     const data = normalizeInput(input);
@@ -62,13 +77,13 @@ export class CategoryService {
   async delete(id: string): Promise<void> {
     const existing = await this.repository.getById(id);
     if (existing?.is_system === 1) {
-      throw new Error('Không thể xóa danh mục hệ thống.');
+      throw new Error(defaultText('categories.service_system_delete_forbidden'));
     }
 
     const counts = await this.repository.getReferenceCounts(id);
     const totalReferences = counts.transactions + counts.recurringBills + counts.budgets;
     if (totalReferences > 0) {
-      throw new Error('Không thể xóa danh mục đang được dùng trong giao dịch, hóa đơn hoặc ngân sách.');
+      throw new Error(defaultText('categories.service_delete_in_use'));
     }
 
     await this.repository.delete(id);

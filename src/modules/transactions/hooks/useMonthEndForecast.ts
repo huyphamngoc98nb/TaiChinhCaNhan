@@ -6,8 +6,10 @@ import {
   type FinancialMonthMetrics,
 } from '@/modules/reports/services/financial-calculations';
 import type { BudgetProgress } from '@/modules/budgets/domain/budget.model';
+import { useLanguage } from '@/shared/context/LanguageContext';
 
 export function useMonthEndForecast(totalBalance: number, budgetProgress: BudgetProgress[]) {
+  const { t } = useLanguage();
   const [forecast, setForecast] = useState<FinancialMonthMetrics | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -41,11 +43,11 @@ export function useMonthEndForecast(totalBalance: number, budgetProgress: Budget
         maxProjectedBudgetUsage,
       }));
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load month-end forecast');
+      setError(err instanceof Error ? err.message : t('transactions.loading_forecast_failed'));
     } finally {
       setLoading(false);
     }
-  }, [maxProjectedBudgetUsage, totalBalance]);
+  }, [maxProjectedBudgetUsage, totalBalance, t]);
 
   useEffect(() => {
     void load();

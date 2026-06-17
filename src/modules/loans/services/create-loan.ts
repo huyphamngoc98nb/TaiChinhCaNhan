@@ -7,6 +7,17 @@ import type { IWalletRepository } from '@/modules/wallets/repositories/wallet.re
 import type { CreateLoanInput, Loan, LoanType } from '../domain/loan.model';
 import { validateCreateLoan } from '../domain/loan.schema';
 import type { ILoanRepository } from '../repositories/loan.repository';
+import { translations, type TranslationPath } from '@/shared/constants/translations';
+
+function defaultText(path: TranslationPath): string {
+  const keys = path.split('.');
+  let current: unknown = translations.en;
+  for (const key of keys) {
+    if (!current || typeof current !== 'object' || !(key in current)) return path;
+    current = (current as Record<string, unknown>)[key];
+  }
+  return typeof current === 'string' ? current : path;
+}
 
 export interface LoanCategoryRepository {
   list(type?: CategoryType): Promise<Category[]>;
@@ -86,7 +97,7 @@ export async function resolveLoanCategoryId(
 export function dateToMs(date: string): number {
   const timestamp = new Date(`${date}T00:00:00`).getTime();
   if (!Number.isFinite(timestamp)) {
-    throw new Error('Invalid date');
+    throw new Error(defaultText('loans.errors.invalidDate'));
   }
   return timestamp;
 }
@@ -109,8 +120,8 @@ export async function createLoan(input: CreateLoanInput, deps: CreateLoanDeps): 
     if (!walletId) throw new Error('wallet_id is required');
 
     const wallet = await deps.walletRepo.getById(walletId);
-    if (!wallet) throw new Error('Wallet not found');
-    if (wallet.is_active !== 1) throw new Error('Wallet is inactive');
+    if (!wallet) throw new Error(defaultText('loans.errors.walletNotFound'));
+    if (wallet.is_active !== 1) throw new Error(defaultText('loans.errors.walletInactive'));
 
     const categoryConfig = LOAN_CREATE_CATEGORY[input.type];
     categoryId = await resolveLoanCategoryId(
@@ -126,8 +137,8 @@ export async function createLoan(input: CreateLoanInput, deps: CreateLoanDeps): 
   const transactionId = skipTransaction ? null : generateUUID();
   const transactionType = input.type === 'lend' ? 'expense' : 'income';
   const transactionNote = input.type === 'lend'
-    ? `Cho vay: ${input.contact_name}`
-    : `Vay nợ: ${input.contact_name}`;
+    ? defaultText('loans.errors.lendNote').replace('{name}', input.contact_name)
+    : defaultText('loans.errors.borrowNote').replace('{name}', input.contact_name);
   const transactionDate = dateToMs(loanDate);
 
   return runInTransaction(async () => {

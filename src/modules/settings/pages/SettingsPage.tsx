@@ -46,16 +46,16 @@ export function SettingsPage() {
       const result = await exportErrorLogs();
       toast.success(
         result.count === 0
-          ? 'Không có log lỗi. Đã tạo file log rỗng.'
-          : 'Đã xuất log lỗi.'
+          ? t('settings.export_logs_empty')
+          : t('settings.export_logs_success')
       );
     } catch (error) {
       void logAppError(error, {
         screen: 'SettingsPage',
         action: 'exportErrorLogs',
-        userMessage: 'Không thể xuất log lỗi. Vui lòng thử lại.',
+        userMessage: t('settings.export_logs_failed'),
       });
-      toast.error('Không thể xuất log lỗi. Vui lòng thử lại.');
+      toast.error(t('settings.export_logs_failed'));
     } finally {
       setIsExportingLogs(false);
     }
@@ -67,14 +67,14 @@ export function SettingsPage() {
     setIsClearingLogs(true);
     try {
       await clearErrorLogs();
-      toast.success('Đã xóa log lỗi.');
+      toast.success(t('settings.clear_logs_success'));
     } catch (error) {
       void logAppError(error, {
         screen: 'SettingsPage',
         action: 'clearErrorLogs',
-        userMessage: 'Không thể xóa log lỗi. Vui lòng thử lại.',
+        userMessage: t('settings.clear_logs_failed'),
       });
-      toast.error('Không thể xóa log lỗi. Vui lòng thử lại.');
+      toast.error(t('settings.clear_logs_failed'));
     } finally {
       setIsClearingLogs(false);
     }
@@ -193,10 +193,10 @@ export function SettingsPage() {
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-[14px] font-semibold text-text">
-                {isExportingLogs ? 'Đang xuất log lỗi...' : 'Xuất log lỗi'}
+                {isExportingLogs ? t('settings.exporting_logs') : t('settings.export_logs')}
               </p>
               <p className="text-[11px] text-muted truncate">
-                Chia sẻ file JSON chứa lỗi đã ghi lại
+                {t('settings.export_logs_desc')}
               </p>
             </div>
             <ChevronRight size={18} className="text-gray-300 shrink-0" />
@@ -216,10 +216,10 @@ export function SettingsPage() {
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-[14px] font-semibold text-text">
-                {isClearingLogs ? 'Đang xóa log lỗi...' : 'Xóa log lỗi'}
+                {isClearingLogs ? t('settings.clearing_logs') : t('settings.clear_logs')}
               </p>
               <p className="text-[11px] text-muted truncate">
-                Dọn danh sách lỗi đã lưu trên thiết bị
+                {t('settings.clear_logs_desc')}
               </p>
             </div>
           </button>

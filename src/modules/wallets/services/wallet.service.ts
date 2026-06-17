@@ -5,6 +5,7 @@ import type {
   UpdateWalletInput,
 } from '../repositories/wallet.repository';
 import { appRepositories } from '@/core/repositories/app-repositories';
+import { translations, type TranslationPath } from '@/shared/constants/translations';
 import type { IWalletRepository } from '../repositories/wallet.repository';
 import type { ITransactionRepository } from '@/modules/transactions/repositories/transaction.repository';
 import { getDbConnectionForTransaction, isManagedTransactionActive } from '@/core/db/sqlite/transaction';
@@ -15,12 +16,26 @@ import {
 } from '@/core/db/transaction-runner';
 import { CreateTransactionUseCase } from '@/modules/transactions/services/create-transaction';
 
+function defaultText(path: TranslationPath): string {
+  const keys = path.split('.');
+  let current: unknown = translations.en;
+
+  for (const key of keys) {
+    if (!current || typeof current !== 'object' || !(key in current)) {
+      return path;
+    }
+    current = (current as Record<string, unknown>)[key];
+  }
+
+  return typeof current === 'string' ? current : path;
+}
+
 function generateId(): string {
   if (typeof crypto !== 'undefined' && crypto.randomUUID) {
     return crypto.randomUUID();
   }
   if (typeof crypto === 'undefined' || !crypto.getRandomValues) {
-    throw new Error('Cryptographically secure random values are unavailable.');
+    throw new Error(defaultText('wallets.service_crypto_unavailable'));
   }
   const bytes = new Uint8Array(16);
   crypto.getRandomValues(bytes);
@@ -33,28 +48,28 @@ function generateId(): string {
 function assertCreditCardSettings(data: CreateWalletInput | UpdateWalletInput): void {
   if (data.account_type !== 'credit_card') return;
   if (data.credit_limit !== undefined && (!data.credit_limit || data.credit_limit <= 0)) {
-    throw new Error('Credit limit must be greater than 0 for credit card accounts.');
+    throw new Error(defaultText('wallets.service_credit_limit_required'));
   }
   if (
     data.statement_day !== undefined &&
     data.statement_day !== null &&
     (data.statement_day < 1 || data.statement_day > 31)
   ) {
-    throw new Error('Statement day must be between 1 and 31.');
+    throw new Error(defaultText('wallets.service_statement_day_invalid'));
   }
   if (
     data.due_day !== undefined &&
     data.due_day !== null &&
     (data.due_day < 1 || data.due_day > 31)
   ) {
-    throw new Error('Due day must be between 1 and 31.');
+    throw new Error(defaultText('wallets.service_due_day_invalid'));
   }
   if (data.annual_fee !== undefined && data.annual_fee !== null && data.annual_fee < 0) {
-    throw new Error('Annual fee cannot be negative.');
+    throw new Error(defaultText('wallets.service_annual_fee_negative'));
   }
 }
 
-const BALANCE_ADJUSTMENT_NOTE = 'Cân bằng số dư';
+const BALANCE_ADJUSTMENT_NOTE = translations.vi.wallets.balance_adjustment_note;
 const BALANCE_ADJUSTMENT_CATEGORIES = {
   income: {
     id: 'cat-balance-adjustment-income',
@@ -121,10 +136,10 @@ export class WalletService {
 
   async createWallet(data: CreateWalletInput): Promise<Wallet> {
     if (!data.name.trim()) {
-      throw new Error('Wallet name is required.');
+      throw new Error(defaultText('wallets.service_name_required'));
     }
     if (data.account_type === 'credit_card' && (!data.credit_limit || data.credit_limit <= 0)) {
-      throw new Error('Credit limit must be greater than 0 for credit card accounts.');
+      throw new Error(defaultText('wallets.service_credit_limit_required'));
     }
     assertCreditCardSettings(data);
 
@@ -141,7 +156,7 @@ export class WalletService {
 
   async updateWallet(id: string, data: UpdateWalletInput): Promise<Wallet> {
     if (data.name !== undefined && !data.name.trim()) {
-      throw new Error('Wallet name is required.');
+      throw new Error(defaultText('wallets.service_name_required'));
     }
 
     const now = Date.now();
@@ -149,12 +164,12 @@ export class WalletService {
 
     await this.runTransaction(async () => {
       const existing = await this.repo.getById(id);
-      if (!existing) throw new Error('Wallet not found.');
+      if (!existing) throw new Error(defaultText('wallets.service_wallet_not_found'));
 
       const nextAccountType = data.account_type ?? existing.account_type;
       const nextCreditLimit = data.credit_limit ?? existing.credit_limit;
       if (nextAccountType === 'credit_card' && (!nextCreditLimit || nextCreditLimit <= 0)) {
-        throw new Error('Credit limit must be greater than 0 for credit card accounts.');
+        throw new Error(defaultText('wallets.service_credit_limit_required'));
       }
       assertCreditCardSettings(data);
 
@@ -189,7 +204,7 @@ export class WalletService {
       const totalReferences =
         counts.transactions + counts.recurringBills + counts.budgets + counts.loans + counts.loanPayments;
       if (totalReferences > 0) {
-        throw new Error('Cannot delete a wallet that is used by transactions, bills, budgets, or loans.');
+        throw new Error(defaultText('wallets.service_delete_in_use'));
       }
 
       await this.repo.delete(id);

@@ -100,7 +100,7 @@ export function BudgetByAccountTypeSummary({ progresses }: Props) {
                   </div>
                   {p.is_projected_exceeded && (
                     <div className="mt-1 text-[11px] font-semibold text-red-500">
-                      Dự kiến vượt cuối kỳ
+                      {t('budgets.projected_exceeded_end_period')}
                     </div>
                   )}
                 </div>

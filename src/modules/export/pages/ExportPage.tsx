@@ -16,61 +16,12 @@ import { useCurrency } from '@/shared/context/CurrencyContext';
 import { getAppLocale } from '@/shared/utils/locale';
 import { ROUTES } from '@/shared/constants/routes';
 
-const EXPORT_COPY = {
-  en: {
-    title: 'Export Data',
-    selectDateRange: 'Select Date Range',
-    from: 'From',
-    to: 'To',
-    pdfTitle: 'PDF Report',
-    pdfDescription: 'Formatted document with summaries',
-    csvTitle: 'Excel (CSV)',
-    csvDescription: 'Raw transaction data spreadsheet',
-    logsTitle: 'Error Logs (JSON)',
-    logsDescription: 'Saved app errors and diagnostic metadata',
-    generating: 'Generating file...',
-    emptyTransactions:
-      'No transactions found for the selected range, but generating summary report.',
-    exportComplete: 'export complete',
-    exportFailed: 'Export failed',
-    logExportCancelled: 'Log export cancelled',
-    emptyLogs: 'No error logs found. Exported an empty JSON log file.',
-    logsExported: 'Error logs exported as JSON',
-    logExportFailed: 'Log export failed',
-    tipLabel: 'Pro Tip:',
-    tip: 'Use the PDF report for sharing with your accountant, and Excel for your own custom analysis.',
-  },
-  vi: {
-    title: 'Xuất dữ liệu',
-    selectDateRange: 'Chọn khoảng ngày',
-    from: 'Từ ngày',
-    to: 'Đến ngày',
-    pdfTitle: 'Báo cáo PDF',
-    pdfDescription: 'Tài liệu đã định dạng kèm tổng hợp',
-    csvTitle: 'Excel (CSV)',
-    csvDescription: 'Dữ liệu giao dịch dạng bảng tính',
-    logsTitle: 'Nhật ký lỗi (JSON)',
-    logsDescription: 'Lỗi ứng dụng và thông tin chẩn đoán đã lưu',
-    generating: 'Đang tạo tập tin...',
-    emptyTransactions: 'Không có giao dịch trong khoảng ngày đã chọn, vẫn tạo báo cáo tổng hợp.',
-    exportComplete: 'Đã xuất xong',
-    exportFailed: 'Xuất dữ liệu thất bại',
-    logExportCancelled: 'Đã hủy xuất nhật ký',
-    emptyLogs: 'Không có nhật ký lỗi. Đã xuất tập tin JSON rỗng.',
-    logsExported: 'Đã xuất nhật ký lỗi dạng JSON',
-    logExportFailed: 'Xuất nhật ký thất bại',
-    tipLabel: 'Gợi ý:',
-    tip: 'Dùng báo cáo PDF để chia sẻ, và Excel để tự phân tích dữ liệu.',
-  },
-} as const;
-
 export function ExportPage() {
   const navigate = useNavigate();
   const toast = useToast();
   const { language, t } = useLanguage();
   const { currency, currencyInfo } = useCurrency();
   const locale = getAppLocale(language);
-  const copy = EXPORT_COPY[language];
   const [loading, setLoading] = useState(false);
 
   // Default range: last 30 days
@@ -94,7 +45,7 @@ export function ExportPage() {
       const dataset = await buildExportDatasetUseCase.execute(range);
 
       if (dataset.rawTransactions.length === 0) {
-        toast.info(copy.emptyTransactions);
+        toast.info(t('export_data.empty_transactions'));
       }
 
       const fileName = `expense_report_${startDate}_to_${endDate}.${format}`;
@@ -113,9 +64,9 @@ export function ExportPage() {
           labels: {
             title: t('reports.title'),
             period: t('reports.period_label'),
-            exportedOn: isVietnamese ? 'Ngày xuất' : 'Exported on',
-            financialSummary: isVietnamese ? 'Tổng hợp tài chính' : 'Financial Summary',
-            description: isVietnamese ? 'Mô tả' : 'Description',
+            exportedOn: t('reports.exported_on'),
+            financialSummary: t('reports.financial_summary'),
+            description: t('reports.description'),
             amount: t('form.label_amount'),
             totalIncome: t('reports.total_income'),
             totalExpense: t('reports.total_expense'),
@@ -140,14 +91,14 @@ export function ExportPage() {
         await shareFile(fileName, csvContent, 'text/csv');
       }
 
-      toast.success(`${format.toUpperCase()} ${copy.exportComplete}`);
+      toast.success(`${format.toUpperCase()} ${t('export_data.export_complete')}`);
     } catch (error: unknown) {
       logger.error('Report export failed', error, {
         context: 'ExportPage',
         metadata: { format },
       });
       const message = error instanceof Error ? error.message : String(error);
-      toast.error(`${copy.exportFailed}: ${message}`);
+      toast.error(`${t('export_data.export_failed')}: ${message}`);
     } finally {
       setLoading(false);
     }
@@ -162,19 +113,19 @@ export function ExportPage() {
       const saved = await saveErrorLogFile(`error_logs_${timestamp}.json`, content);
 
       if (!saved) {
-        toast.info(copy.logExportCancelled);
+        toast.info(t('export_data.log_export_cancelled'));
         return;
       }
 
       if (logs.length === 0) {
-        toast.info(copy.emptyLogs);
+        toast.info(t('export_data.empty_logs'));
       } else {
-        toast.success(copy.logsExported);
+        toast.success(t('export_data.logs_exported'));
       }
     } catch (error: unknown) {
       logger.error('Error log export failed', error, { context: 'ExportPage' });
       const message = error instanceof Error ? error.message : String(error);
-      toast.error(`${copy.logExportFailed}: ${message}`);
+      toast.error(`${t('export_data.log_export_failed')}: ${message}`);
     } finally {
       setLoading(false);
     }
@@ -196,7 +147,7 @@ export function ExportPage() {
     <div style={{ padding: '16px', paddingBottom: '90px' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px' }}>
         <BackButton onClick={() => navigate(ROUTES.HOME)} ariaLabel={t('common.back')} />
-        <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', margin: 0 }}>{copy.title}</h2>
+        <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', margin: 0 }}>{t('export_data.title')}</h2>
       </div>
 
       {/* Date Selection */}
@@ -211,7 +162,7 @@ export function ExportPage() {
           }}
         >
           <Calendar size={18} />
-          <span style={{ fontWeight: '600', fontSize: '0.9rem' }}>{copy.selectDateRange}</span>
+          <span style={{ fontWeight: '600', fontSize: '0.9rem' }}>{t('export_data.select_date_range')}</span>
         </div>
 
         <div style={{ display: 'flex', gap: '12px' }}>
@@ -224,7 +175,7 @@ export function ExportPage() {
                 marginBottom: '4px',
               }}
             >
-              {copy.from}
+              {t('export_data.from')}
             </label>
             <input
               type="date"
@@ -249,7 +200,7 @@ export function ExportPage() {
                 marginBottom: '4px',
               }}
             >
-              {copy.to}
+              {t('export_data.to')}
             </label>
             <input
               type="date"
@@ -281,9 +232,9 @@ export function ExportPage() {
             <FileText size={28} />
           </div>
           <div style={{ flex: 1 }}>
-            <div style={{ fontWeight: '700', fontSize: '1.1rem' }}>{copy.pdfTitle}</div>
+            <div style={{ fontWeight: '700', fontSize: '1.1rem' }}>{t('export_data.pdf_title')}</div>
             <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
-              {copy.pdfDescription}
+              {t('export_data.pdf_description')}
             </div>
           </div>
           <Share2 size={20} color="var(--border)" />
@@ -301,9 +252,9 @@ export function ExportPage() {
             <Table size={28} />
           </div>
           <div style={{ flex: 1 }}>
-            <div style={{ fontWeight: '700', fontSize: '1.1rem' }}>{copy.csvTitle}</div>
+            <div style={{ fontWeight: '700', fontSize: '1.1rem' }}>{t('export_data.csv_title')}</div>
             <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
-              {copy.csvDescription}
+              {t('export_data.csv_description')}
             </div>
           </div>
           <Share2 size={20} color="var(--border)" />
@@ -321,9 +272,9 @@ export function ExportPage() {
             <Bug size={28} />
           </div>
           <div style={{ flex: 1 }}>
-            <div style={{ fontWeight: '700', fontSize: '1.1rem' }}>{copy.logsTitle}</div>
+            <div style={{ fontWeight: '700', fontSize: '1.1rem' }}>{t('export_data.logs_title')}</div>
             <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
-              {copy.logsDescription}
+              {t('export_data.logs_description')}
             </div>
           </div>
           <Share2 size={20} color="var(--border)" />
@@ -332,7 +283,7 @@ export function ExportPage() {
 
       {loading && (
         <div style={{ textAlign: 'center', marginTop: '32px', color: 'var(--text-muted)' }}>
-          <p>{copy.generating}</p>
+          <p>{t('export_data.generating')}</p>
         </div>
       )}
 
@@ -348,7 +299,7 @@ export function ExportPage() {
           lineHeight: '1.5',
         }}
       >
-        <b>{copy.tipLabel}</b> {copy.tip}
+        <b>{t('export_data.tip_label')}</b> {t('export_data.tip')}
       </div>
     </div>
   );

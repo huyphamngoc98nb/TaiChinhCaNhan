@@ -3,6 +3,7 @@ import { Wallet, CreateWalletInput, UpdateWalletInput } from '../repositories/sq
 import { WalletService } from '../services/wallet.service';
 import { SyncCreditCardStatementUseCase } from '../services/sync-credit-card-statement';
 import { appRepositories } from '@/core/repositories/app-repositories';
+import { useLanguage } from '@/shared/context/LanguageContext';
 
 interface UseWalletsReturn {
   wallets: Wallet[];
@@ -16,6 +17,7 @@ interface UseWalletsReturn {
 }
 
 export function useWallets(): UseWalletsReturn {
+  const { t } = useLanguage();
   const [wallets, setWallets] = useState<Wallet[]>([]);
   const [totalBalance, setTotalBalance] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(true);
@@ -43,12 +45,12 @@ export function useWallets(): UseWalletsReturn {
       setWallets(active);
       setTotalBalance(total);
     } catch (e: unknown) {
-      const msg = e instanceof Error ? e.message : 'Failed to load wallets';
+      const msg = e instanceof Error ? e.message : t('wallets.load_failed');
       setError(msg);
     } finally {
       setLoading(false);
     }
-  }, [service, statementSync]);
+  }, [service, statementSync, t]);
 
   useEffect(() => {
     load();

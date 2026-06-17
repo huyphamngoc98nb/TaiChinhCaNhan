@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { listTransactionsUseCase } from '@/core/di/transactions.di';
 import { buildDateRange } from '@/modules/reports/services/build-date-range';
 import type { Transaction } from '../domain/transaction.model';
+import { useLanguage } from '@/shared/context/LanguageContext';
 
 export interface TransactionSummary {
   totalIncome: number;
@@ -28,6 +29,7 @@ export function summarizeTransactions(transactions: Transaction[]): TransactionS
 }
 
 export function useTransactionSummary() {
+  const { t } = useLanguage();
   const [summary, setSummary] = useState<TransactionSummary>({
     totalIncome: 0,
     totalExpense: 0,
@@ -51,11 +53,11 @@ export function useTransactionSummary() {
 
       setSummary(nextSummary);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load transaction summary');
+      setError(err instanceof Error ? err.message : t('transactions.loading_summary_failed'));
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     void load();

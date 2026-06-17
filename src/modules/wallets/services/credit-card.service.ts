@@ -1,4 +1,19 @@
 import type { IWalletRepository, Wallet } from '../repositories/wallet.repository';
+import { translations, type TranslationPath } from '@/shared/constants/translations';
+
+function defaultText(path: TranslationPath): string {
+  const keys = path.split('.');
+  let current: unknown = translations.en;
+
+  for (const key of keys) {
+    if (!current || typeof current !== 'object' || !(key in current)) {
+      return path;
+    }
+    current = (current as Record<string, unknown>)[key];
+  }
+
+  return typeof current === 'string' ? current : path;
+}
 
 export interface CreditCardStatementPeriod {
   periodStart: number;
@@ -98,7 +113,7 @@ export class CreditCardService {
 
   async getSummary(wallet: Wallet, asOf: number = Date.now()): Promise<CreditCardSummary> {
     if (wallet.account_type !== 'credit_card') {
-      throw new Error('Wallet is not a credit card.');
+      throw new Error(defaultText('wallets.service_not_credit_card'));
     }
 
     const period = getCreditCardStatementPeriod(wallet, asOf);
