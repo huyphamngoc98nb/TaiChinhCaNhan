@@ -1,6 +1,9 @@
 import { computeLoanDebtStatus } from '@/modules/debts/services/debt-status';
+import { useCurrency } from '@/shared/context/CurrencyContext';
 import { useLanguage } from '@/shared/context/LanguageContext';
 import { HIDDEN_AMOUNT, useAmountVisibility } from '@/shared/hooks/useAmountVisibility';
+import { useDisplayFormatSettings } from '@/shared/hooks/useDisplayFormatSettings';
+import { formatAppDate } from '@/shared/utils/display-format';
 import type { LoanWithSummary } from '../domain/loan.model';
 
 interface LoanCardProps {
@@ -8,26 +11,18 @@ interface LoanCardProps {
   onPress: (id: string) => void;
 }
 
-function formatVnd(value: number): string {
-  return new Intl.NumberFormat('vi-VN', {
-    style: 'currency',
-    currency: 'VND',
-    maximumFractionDigits: 0,
-  }).format(value);
-}
-
 export function LoanCard({ loan, onPress }: LoanCardProps) {
   const { t, language } = useLanguage();
+  const { formatAmount } = useCurrency();
   const { showAmounts } = useAmountVisibility();
-  const displayAmount = (value: number) => showAmounts ? formatVnd(value) : HIDDEN_AMOUNT;
+  const displayFormatSettings = useDisplayFormatSettings();
+  const locale = language === 'vi' ? 'vi-VN' : 'en-US';
+  const displayAmount = (value: number) => (
+    showAmounts ? formatAmount(value, locale) : HIDDEN_AMOUNT
+  );
 
   function formatDate(value: string): string {
-    const locale = language === 'vi' ? 'vi-VN' : 'en-US';
-    return new Date(`${value}T00:00:00`).toLocaleDateString(locale, {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-    });
+    return formatAppDate(new Date(`${value}T00:00:00`).getTime(), displayFormatSettings);
   }
 
   const isDeleted = loan.deleted_at != null;

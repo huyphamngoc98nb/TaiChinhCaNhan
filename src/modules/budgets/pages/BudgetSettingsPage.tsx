@@ -20,6 +20,7 @@ import { buildDateRange } from '@/modules/reports/services/build-date-range';
 import { resolveBudgetTransactionFilter } from '@/modules/reports/services/financial-calculations';
 import { logAppError } from '@/core/telemetry/error.service';
 import type { BudgetProgress } from '../domain/budget.model';
+import { useDisplayFormatSettings } from '@/shared/hooks/useDisplayFormatSettings';
 
 type ScopeTab = 'all' | 'account_type';
 
@@ -27,6 +28,7 @@ export function BudgetSettingsPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const { t } = useLanguage();
+  const displayFormatSettings = useDisplayFormatSettings();
   const {
     categories,
     allProgress,
@@ -51,7 +53,11 @@ export function BudgetSettingsPage() {
   const [activeTab, setActiveTab] = useState<ScopeTab>('all');
 
   const handleViewTransactions = useCallback((progress: BudgetProgress) => {
-    const range = buildDateRange(progress.budget.period === 'weekly' ? 'this_week' : 'this_month');
+    const range = buildDateRange(
+      progress.budget.period === 'weekly' ? 'this_week' : 'this_month',
+      undefined,
+      displayFormatSettings
+    );
     navigate(ROUTES.TRANSACTIONS, {
       state: {
         filter: {
@@ -62,7 +68,7 @@ export function BudgetSettingsPage() {
         title: progress.budget.category_name,
       },
     });
-  }, [navigate]);
+  }, [displayFormatSettings, navigate]);
 
   useEffect(() => {
     if (isCreateRoute && !addForm.isOpen) {

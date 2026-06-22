@@ -20,6 +20,7 @@ import type { BudgetProgress } from '@/modules/budgets/domain/budget.model';
 import { useLoans } from '@/modules/loans/hooks/useLoans';
 import { buildDebtDashboardSummary } from '@/modules/debts/services/debt-status';
 import { getCreditCardStatementPeriod } from '@/modules/wallets/services/credit-card.service';
+import { useDisplayFormatSettings } from '@/shared/hooks/useDisplayFormatSettings';
 
 // ── helpers ────────────────────────────────────────────────────────────────────
 const ACCOUNT_TYPE_ICON: Record<AccountType, string> = {
@@ -75,6 +76,7 @@ function DashboardPage() {
   } = useMonthEndForecast(totalBalance, allProgress);
   const { loans, loading: loansLoading } = useLoans();
   const { alerts: creditCardAlerts } = useCreditCardAlerts(wallets);
+  const displayFormatSettings = useDisplayFormatSettings();
   const navigate = useNavigate();
   const { showAmounts, setShowAmounts } = useAmountVisibility();
   const valuedWallets = filterWalletsWithValue(wallets);
@@ -137,7 +139,11 @@ function DashboardPage() {
   }
 
   function openBudgetTransactions(progress: BudgetProgress) {
-    const range = buildDateRange(progress.budget.period === 'weekly' ? 'this_week' : 'this_month');
+    const range = buildDateRange(
+      progress.budget.period === 'weekly' ? 'this_week' : 'this_month',
+      undefined,
+      displayFormatSettings
+    );
     navigate(ROUTES.TRANSACTIONS, {
       state: {
         filter: {

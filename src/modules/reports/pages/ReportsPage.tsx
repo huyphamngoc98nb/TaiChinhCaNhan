@@ -19,6 +19,8 @@ import { useCurrency } from '@/shared/context/CurrencyContext';
 import { appRepositories } from '@/core/repositories/app-repositories';
 import { getAppLocale } from '@/shared/utils/locale';
 import { HIDDEN_AMOUNT, useAmountVisibility } from '@/shared/hooks/useAmountVisibility';
+import { useDisplayFormatSettings } from '@/shared/hooks/useDisplayFormatSettings';
+import { formatAppDate, formatAppMonth } from '@/shared/utils/display-format';
 
 const EXPENSE_DONUT_COLORS = [
   '#E11D48', '#F97316', '#F59E0B', '#A855F7',
@@ -36,12 +38,15 @@ export const ReportsPage = () => {
   const { t, language } = useLanguage();
   const { formatAmount } = useCurrency();
   const { showAmounts } = useAmountVisibility();
+  const displayFormatSettings = useDisplayFormatSettings();
   const locale = getAppLocale(language);
   const displayAmount = (amount: number) => showAmounts ? formatAmount(amount, locale) : HIDDEN_AMOUNT;
 
   const [preset, setPreset] = useState<DateRangePreset>('this_month');
   const [granularity, setGranularity] = useState<ReportGranularity>('day');
-  const [customRange, setCustomRange] = useState<DateRange>(() => buildDateRange('this_month'));
+  const [customRange, setCustomRange] = useState<DateRange>(() =>
+    buildDateRange('this_month', undefined, displayFormatSettings)
+  );
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -73,18 +78,19 @@ export const ReportsPage = () => {
     const parts = period.split('-');
     if (parts.length === 3) {
       const [year, month, day] = parts.map(Number);
-      return new Date(year, month - 1, day).toLocaleDateString(locale, {
-        day: '2-digit',
-        month: '2-digit',
-      });
+      return formatAppDate(
+        new Date(year, month - 1, day).getTime(),
+        displayFormatSettings
+      );
     }
     if (parts.length === 2) {
       const [year, month] = parts.map(Number);
       if (month >= 1 && month <= 12) {
-        return new Date(year, month - 1, 1).toLocaleDateString(locale, {
-          month: 'short',
-          year: 'numeric',
-        });
+        return formatAppMonth(
+          new Date(year, month - 1, 1).getTime(),
+          displayFormatSettings,
+          locale
+        );
       }
     }
     return period;
@@ -93,7 +99,7 @@ export const ReportsPage = () => {
   const resetFilters = () => {
     setPreset('this_month');
     setGranularity('day');
-    setCustomRange(buildDateRange('this_month'));
+    setCustomRange(buildDateRange('this_month', undefined, displayFormatSettings));
   };
 
   useEffect(() => {
@@ -104,7 +110,7 @@ export const ReportsPage = () => {
       setError(null);
       try {
         const repo = appRepositories.report;
-        const range = buildDateRange(preset, customRange);
+        const range = buildDateRange(preset, customRange, displayFormatSettings);
         const previousRange = buildPreviousRange(range);
 
         const [cashflowRes, previousCashflowRes, expensesRes, incomesRes, periodRes, dailyRes, walletRes] = await Promise.all([
@@ -112,7 +118,7 @@ export const ReportsPage = () => {
           new GetCashflowSummaryUseCase(repo).execute(previousRange),
           new GetCategorySummaryUseCase(repo).execute(range, 'expense'),
           new GetCategorySummaryUseCase(repo).execute(range, 'income'),
-          new GetPeriodSummaryUseCase(repo).execute(range, granularity),
+          new GetPeriodSummaryUseCase(repo).execute(range, granularity, displayFormatSettings),
           new GetPeriodSummaryUseCase(repo).execute(range, 'day'),
           repo.getWalletSummary(range),
         ]);
@@ -137,7 +143,7 @@ export const ReportsPage = () => {
 
     loadData();
     return () => { isMounted = false; };
-  }, [preset, granularity, customRange, t]);
+  }, [displayFormatSettings, preset, granularity, customRange, t]);
 
   const net = cashflow?.netAmount || 0;
   const previousNet = previousCashflow?.netAmount || 0;

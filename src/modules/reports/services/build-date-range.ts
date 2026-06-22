@@ -1,8 +1,17 @@
 import { DateRange } from '../domain/report.model';
+import {
+  DEFAULT_DISPLAY_FORMAT_SETTINGS,
+  type DisplayFormatSettings,
+} from '@/modules/settings/services/display-format-settings.service';
+import { getWeekDateRange } from '@/shared/utils/date-range';
 
 export type DateRangePreset = 'this_week' | 'this_month' | 'this_quarter' | 'last_month' | 'last_30_days' | 'custom';
 
-export function buildDateRange(preset: DateRangePreset, customRange?: DateRange): DateRange {
+export function buildDateRange(
+  preset: DateRangePreset,
+  customRange?: DateRange,
+  displayFormatSettings: DisplayFormatSettings = DEFAULT_DISPLAY_FORMAT_SETTINGS
+): DateRange {
   const now = new Date();
   
   if (preset === 'this_month') {
@@ -31,17 +40,7 @@ export function buildDateRange(preset: DateRangePreset, customRange?: DateRange)
   }
   
   if (preset === 'this_week') {
-    const day = now.getDay() || 7; // Get current day number, converting Sun. to 7
-    const start = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    if (day !== 1) {
-      start.setHours(-24 * (day - 1)); // Set to Monday
-    }
-    start.setHours(0, 0, 0, 0); // Start of day
-    
-    const end = new Date(start.getTime());
-    end.setDate(start.getDate() + 6);
-    end.setHours(23, 59, 59, 999); // End of Sunday
-    return { startDate: start.getTime(), endDate: end.getTime() };
+    return getWeekDateRange(now, displayFormatSettings);
   }
   
   if (preset === 'custom' && customRange) {

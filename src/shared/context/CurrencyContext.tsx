@@ -1,4 +1,9 @@
-import React, { createContext, useContext, useState, useCallback } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
+import {
+  DISPLAY_FORMAT_SETTINGS_CHANGE_EVENT,
+  getDisplayFormatSettings,
+} from '@/modules/settings/services/display-format-settings.service';
+import { formatAppAmount } from '@/shared/utils/display-format';
 
 export type CurrencyCode = 'VND' | 'USD' | 'EUR' | 'JPY' | 'GBP' | 'SGD' | 'THB' | 'KRW';
 
@@ -35,6 +40,7 @@ export const CurrencyProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     const saved = localStorage.getItem('app_currency');
     return (saved as CurrencyCode) || 'VND';
   });
+  const [displayFormatVersion, setDisplayFormatVersion] = useState(0);
 
   const currencyInfo = CURRENCIES.find(c => c.code === currency) ?? CURRENCIES[0];
 
@@ -43,14 +49,30 @@ export const CurrencyProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     localStorage.setItem('app_currency', code);
   }, []);
 
+  useEffect(() => {
+    const handleDisplayFormatSettingsChange = () => {
+      setDisplayFormatVersion((version) => version + 1);
+    };
+
+    window.addEventListener(
+      DISPLAY_FORMAT_SETTINGS_CHANGE_EVENT,
+      handleDisplayFormatSettingsChange
+    );
+
+    return () => {
+      window.removeEventListener(
+        DISPLAY_FORMAT_SETTINGS_CHANGE_EVENT,
+        handleDisplayFormatSettingsChange
+      );
+    };
+  }, []);
+
   const formatAmount = useCallback((value: number, locale = 'vi-VN') => {
-    return new Intl.NumberFormat(locale, {
-      style: 'currency',
-      currency,
-      maximumFractionDigits: currencyInfo.fractionDigits,
-      minimumFractionDigits: currencyInfo.fractionDigits,
-    }).format(value);
-  }, [currency, currencyInfo]);
+    void displayFormatVersion;
+
+    const displayFormatSettings = getDisplayFormatSettings();
+    return formatAppAmount(value, currency, displayFormatSettings, locale);
+  }, [currency, displayFormatVersion]);
 
   return (
     <CurrencyContext.Provider value={{ currency, currencyInfo, setCurrency, formatAmount }}>

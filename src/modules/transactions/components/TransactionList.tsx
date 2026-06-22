@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
 import { PlusCircle, SearchX } from 'lucide-react';
 import { Transaction } from '../domain/transaction.model';
@@ -7,6 +7,14 @@ import { useLanguage } from '@/shared/context/LanguageContext';
 import { useCurrency } from '@/shared/context/CurrencyContext';
 import { getAppLocale } from '@/shared/utils/locale';
 import { HIDDEN_AMOUNT, useAmountVisibility } from '@/shared/hooks/useAmountVisibility';
+import { useDisplayFormatSettings } from '@/shared/hooks/useDisplayFormatSettings';
+import {
+  formatAppDate,
+  formatAppMonth,
+  getEndOfWeek,
+  getStartOfWeek,
+} from '@/shared/utils/display-format';
+import { toDateKey } from '@/shared/utils/date-range';
 
 interface Props {
   transactions: Transaction[];
@@ -60,6 +68,7 @@ export function TransactionList({
   const { t, language } = useLanguage();
   const { formatAmount } = useCurrency();
   const { showAmounts } = useAmountVisibility();
+  const displayFormatSettings = useDisplayFormatSettings();
   const locale = getAppLocale(language);
   const displayAmount = (amount: number) => showAmounts ? formatAmount(amount, locale) : HIDDEN_AMOUNT;
   const [expandedQuarterKey, setExpandedQuarterKey] = useState<string | null>(() => {
@@ -68,8 +77,12 @@ export function TransactionList({
     return `${now.getFullYear()}-Q${quarter}`;
   });
   const [expandedWeekKey, setExpandedWeekKey] = useState<string | null>(() =>
-    toLocalDateKey(startOfLocalWeek(new Date())),
+    toDateKey(startOfLocalWeek(new Date())),
   );
+
+  useEffect(() => {
+    setExpandedWeekKey(toDateKey(getStartOfWeek(new Date(), displayFormatSettings)));
+  }, [displayFormatSettings]);
 
   if (loading) {
     return (
@@ -119,11 +132,11 @@ export function TransactionList({
     let label = '';
 
     if (viewType === 'day') {
-      label = date.toLocaleDateString(locale, { day: 'numeric', month: 'long', year: 'numeric' });
+      label = formatAppDate(tx.transaction_date, displayFormatSettings);
     } else if (viewType === 'month') {
-      label = date.toLocaleDateString(locale, { month: 'long', year: 'numeric' });
+      label = formatAppMonth(tx.transaction_date, displayFormatSettings, locale);
     } else if (viewType === 'year') {
-      label = date.toLocaleDateString(locale, { year: 'numeric' });
+      label = String(date.getFullYear());
     }
 
     // Capitalize first character
@@ -147,25 +160,12 @@ export function TransactionList({
     else if (tx.type === 'expense') row.expense += tx.amount;
   }
 
-  function toLocalDateKey(date: Date) {
-    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(
-      date.getDate(),
-    ).padStart(2, '0')}`;
-  }
-
   function formatShortDate(date: Date) {
-    return date.toLocaleDateString(locale, {
-      day: '2-digit',
-      month: '2-digit',
-    });
+    return formatAppDate(date.getTime(), displayFormatSettings);
   }
 
   function startOfLocalWeek(date: Date) {
-    const start = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0, 0);
-    const day = start.getDay();
-    const daysSinceMonday = (day + 6) % 7;
-    start.setDate(start.getDate() - daysSinceMonday);
-    return start;
+    return getStartOfWeek(date, displayFormatSettings);
   }
 
   function buildDailySummaryRows(items: Transaction[]): DaySummaryRow[] {
@@ -174,12 +174,9 @@ export function TransactionList({
 
     items.forEach((tx) => {
       const date = new Date(tx.transaction_date);
-      const key = toLocalDateKey(date);
-      const label = date.toLocaleDateString(locale, {
-        weekday: 'short',
-        day: '2-digit',
-        month: '2-digit',
-      });
+      const key = toDateKey(date);
+      const weekday = new Intl.DateTimeFormat(locale, { weekday: 'short' }).format(date);
+      const label = `${weekday} ${formatAppDate(tx.transaction_date, displayFormatSettings)}`;
 
       if (!currentRow || currentRow.key !== key) {
         currentRow = {
@@ -225,10 +222,8 @@ export function TransactionList({
     items.forEach((tx) => {
       const date = new Date(tx.transaction_date);
       const weekStart = startOfLocalWeek(date);
-      const weekEnd = new Date(weekStart);
-      weekEnd.setDate(weekStart.getDate() + 6);
-      weekEnd.setHours(23, 59, 59, 999);
-      const key = toLocalDateKey(weekStart);
+      const weekEnd = getEndOfWeek(date, displayFormatSettings);
+      const key = toDateKey(weekStart);
       const label = `${t('transactions.label_week')} ${formatShortDate(weekStart)} - ${formatShortDate(weekEnd)}`;
 
       if (!currentRow || currentRow.key !== key) {
@@ -284,9 +279,7 @@ export function TransactionList({
       if (!currentMonthRow || currentMonthRow.key !== monthKey) {
         const monthStart = new Date(year, monthIndex, 1, 0, 0, 0, 0);
         const monthEnd = new Date(year, monthIndex + 1, 0, 23, 59, 59, 999);
-        const label = date.toLocaleDateString(locale, {
-          month: 'long',
-        });
+        const label = formatAppMonth(monthStart.getTime(), displayFormatSettings, locale);
 
         currentMonthRow = {
           key: monthKey,

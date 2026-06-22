@@ -10,6 +10,8 @@ import { computeLoanDebtStatus } from '@/modules/debts/services/debt-status';
 import { ROUTES } from '@/shared/constants/routes';
 import { useLanguage } from '@/shared/context/LanguageContext';
 import { HIDDEN_AMOUNT, useAmountVisibility } from '@/shared/hooks/useAmountVisibility';
+import { useDisplayFormatSettings } from '@/shared/hooks/useDisplayFormatSettings';
+import { formatAppDate } from '@/shared/utils/display-format';
 import type { CreateLoanPaymentInput, LoanPayment, LoanWithSummary, UpdateLoanInput } from '../domain/loan.model';
 import { PaymentForm } from '../components/PaymentForm';
 import { LoanForm } from '../components/LoanForm';
@@ -29,8 +31,9 @@ function formatVnd(value: number): string {
 }
 
 export function LoanDetailPage({ loanId: loanIdProp }: LoanDetailPageProps = {}) {
-  const { t, language } = useLanguage();
+  const { t } = useLanguage();
   const { showAmounts } = useAmountVisibility();
+  const displayFormatSettings = useDisplayFormatSettings();
   const params = useParams<{ id: string }>();
   const loanId = loanIdProp ?? params.id;
   const navigate = useNavigate();
@@ -44,7 +47,6 @@ export function LoanDetailPage({ loanId: loanIdProp }: LoanDetailPageProps = {})
   const [paymentOpen, setPaymentOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
-  const locale = language === 'vi' ? 'vi-VN' : 'en-US';
 
   function typeLabel(type: LoanWithSummary['type']): string {
     return type === 'lend' ? t('loans.card.typeLend') : t('loans.card.typeBorrow');
@@ -59,19 +61,11 @@ export function LoanDetailPage({ loanId: loanIdProp }: LoanDetailPageProps = {})
 
   function formatIsoDate(value: string | null): string {
     if (!value) return t('loans.pages.detail.noDueDate');
-    return new Date(`${value}T00:00:00`).toLocaleDateString(locale, {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-    });
+    return formatAppDate(new Date(`${value}T00:00:00`).getTime(), displayFormatSettings);
   }
 
   function formatMsDate(value: number): string {
-    return new Date(value).toLocaleDateString(locale, {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-    });
+    return formatAppDate(value, displayFormatSettings);
   }
 
   const load = useCallback(async () => {

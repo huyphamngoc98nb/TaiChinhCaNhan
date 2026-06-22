@@ -1,7 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { SQLiteReportRepository } from '../modules/reports/repositories/sqlite-report.repository';
 import { buildDateRange } from '../modules/reports/services/build-date-range';
+import { GetPeriodSummaryUseCase } from '../modules/reports/services/get-period-summary';
 import { getDbConnection } from '@/core/db/sqlite/connection';
+import { DEFAULT_DISPLAY_FORMAT_SETTINGS } from '@/modules/settings/services/display-format-settings.service';
 
 // Mock DB connection
 vi.mock('@/core/db/sqlite/connection', () => ({
@@ -144,5 +146,59 @@ describe('buildDateRange', () => {
     // 0 in JS getDay() is Sunday
     expect(end.getDay()).toBe(0);
     expect(end.getHours()).toBe(23);
+  });
+
+  it('builds this_week range starting on Sunday when configured', () => {
+    const range = buildDateRange('this_week', undefined, {
+      ...DEFAULT_DISPLAY_FORMAT_SETTINGS,
+      weekStart: 'sunday',
+    });
+    const start = new Date(range.startDate);
+    expect(start.getDay()).toBe(0);
+    expect(start.getHours()).toBe(0);
+
+    const end = new Date(range.endDate);
+    expect(end.getDay()).toBe(6);
+    expect(end.getHours()).toBe(23);
+  });
+});
+
+describe('GetPeriodSummaryUseCase', () => {
+  it('aggregates weekly cashflow using Monday as the default week start', async () => {
+    const repo = {
+      getPeriodSummary: vi.fn().mockResolvedValue([
+        { period: '2026-06-20', income: 100, expense: 20 },
+        { period: '2026-06-21', income: 200, expense: 30 },
+      ]),
+    } as any;
+    const range = { startDate: 0, endDate: 1 };
+
+    const result = await new GetPeriodSummaryUseCase(repo).execute(range, 'week');
+
+    expect(repo.getPeriodSummary).toHaveBeenCalledWith(range, 'day');
+    expect(result).toEqual([
+      { period: '2026-06-15', income: 300, expense: 50 },
+    ]);
+  });
+
+  it('aggregates weekly cashflow using Sunday when configured', async () => {
+    const repo = {
+      getPeriodSummary: vi.fn().mockResolvedValue([
+        { period: '2026-06-20', income: 100, expense: 20 },
+        { period: '2026-06-21', income: 200, expense: 30 },
+      ]),
+    } as any;
+    const range = { startDate: 0, endDate: 1 };
+
+    const result = await new GetPeriodSummaryUseCase(repo).execute(range, 'week', {
+      ...DEFAULT_DISPLAY_FORMAT_SETTINGS,
+      weekStart: 'sunday',
+    });
+
+    expect(repo.getPeriodSummary).toHaveBeenCalledWith(range, 'day');
+    expect(result).toEqual([
+      { period: '2026-06-14', income: 100, expense: 20 },
+      { period: '2026-06-21', income: 200, expense: 30 },
+    ]);
   });
 });

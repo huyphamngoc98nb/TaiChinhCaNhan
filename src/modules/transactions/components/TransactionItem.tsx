@@ -5,6 +5,8 @@ import { useCurrency } from '@/shared/context/CurrencyContext';
 import { CategoryIcon } from '@/modules/categories/components/CategoryIcon';
 import { getAppLocale } from '@/shared/utils/locale';
 import { HIDDEN_AMOUNT, useAmountVisibility } from '@/shared/hooks/useAmountVisibility';
+import { useDisplayFormatSettings } from '@/shared/hooks/useDisplayFormatSettings';
+import { formatAppDate, formatAppTime } from '@/shared/utils/display-format';
 
 interface Props {
   transaction: Transaction;
@@ -16,6 +18,7 @@ export function TransactionItem({ transaction, onSelect, showDate = false }: Pro
   const { language, t } = useLanguage();
   const { formatAmount } = useCurrency();
   const { showAmounts } = useAmountVisibility();
+  const displayFormatSettings = useDisplayFormatSettings();
   const locale = getAppLocale(language);
   const isExpense = transaction.type === 'expense';
   const isTransfer = transaction.type === 'transfer';
@@ -26,19 +29,6 @@ export function TransactionItem({ transaction, onSelect, showDate = false }: Pro
   const title = isTransfer
     ? `${transaction.wallet_name ?? transaction.wallet_id} -> ${transaction.to_wallet_name ?? transaction.to_wallet_id ?? ''}`
     : transaction.category_name ?? transaction.category_id;
-
-  const formatTime = (timestamp: number) =>
-    new Date(timestamp).toLocaleTimeString(locale, {
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: language !== 'vi',
-    });
-
-  const formatDateShort = (timestamp: number) =>
-    new Date(timestamp).toLocaleDateString(locale, {
-      month: 'short',
-      day: 'numeric',
-    });
 
   return (
     <button
@@ -90,7 +80,9 @@ export function TransactionItem({ transaction, onSelect, showDate = false }: Pro
             {title}
           </div>
           <div style={{ fontSize: '0.72rem', lineHeight: '1.3', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '4px', minWidth: 0, marginTop: '2px' }}>
-            {showDate ? formatDateShort(transaction.transaction_date) : formatTime(transaction.transaction_date)}
+            {showDate
+              ? formatAppDate(transaction.transaction_date, displayFormatSettings)
+              : formatAppTime(transaction.transaction_date, displayFormatSettings, locale)}
             {transaction.note && (
               <>
                 <span style={{ opacity: 0.5 }}>-</span>

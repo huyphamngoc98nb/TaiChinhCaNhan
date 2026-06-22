@@ -4,9 +4,11 @@ import { GetBudgetSettingsUseCase } from '../services/get-budget-settings';
 import { ListBudgetAlertsUseCase } from '../services/list-budget-alerts';
 import { appRepositories } from '@/core/repositories/app-repositories';
 import { useLanguage } from '@/shared/context/LanguageContext';
+import { useDisplayFormatSettings } from '@/shared/hooks/useDisplayFormatSettings';
 
 export function useBudgets() {
   const { t } = useLanguage();
+  const displayFormatSettings = useDisplayFormatSettings();
   const [categories, setCategories] = useState<CategoryBudget[]>([]);
   const [allProgress, setAllProgress] = useState<BudgetProgress[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -26,7 +28,7 @@ export function useBudgets() {
     try {
       const [cats, progress] = await Promise.all([
         getSettingsUseCase.execute(),
-        listAlertsUseCase.execute()
+        listAlertsUseCase.execute(undefined, displayFormatSettings)
       ]);
       setCategories(cats);
       setAllProgress(progress);
@@ -37,7 +39,7 @@ export function useBudgets() {
     } finally {
       setIsLoading(false);
     }
-  }, [getSettingsUseCase, listAlertsUseCase, t]);
+  }, [displayFormatSettings, getSettingsUseCase, listAlertsUseCase, t]);
 
   useEffect(() => {
     load();

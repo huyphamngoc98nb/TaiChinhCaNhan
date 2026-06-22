@@ -6,6 +6,8 @@ import { useLanguage } from '@/shared/context/LanguageContext';
 import { useCurrency } from '@/shared/context/CurrencyContext';
 import { getAppLocale } from '@/shared/utils/locale';
 import { HIDDEN_AMOUNT, useAmountVisibility } from '@/shared/hooks/useAmountVisibility';
+import { useDisplayFormatSettings } from '@/shared/hooks/useDisplayFormatSettings';
+import { formatAppDate, formatAppMonth } from '@/shared/utils/display-format';
 
 interface Props {
   data: PeriodSummary[];
@@ -36,6 +38,7 @@ export const CashflowBarChart: React.FC<Props> = ({ data }) => {
   const { t, language } = useLanguage();
   const { formatAmount } = useCurrency();
   const { showAmounts } = useAmountVisibility();
+  const displayFormatSettings = useDisplayFormatSettings();
   const locale = getAppLocale(language);
 
   const fmtTooltip = (value: any) => showAmounts ? formatAmount(Number(value || 0), locale) : HIDDEN_AMOUNT;
@@ -44,18 +47,19 @@ export const CashflowBarChart: React.FC<Props> = ({ data }) => {
     const parts = value.split('-');
     if (parts.length === 3) {
       const [year, month, day] = parts.map(Number);
-      return new Date(year, month - 1, day).toLocaleDateString(locale, {
-        day: '2-digit',
-        month: '2-digit',
-      });
+      return formatAppDate(
+        new Date(year, month - 1, day).getTime(),
+        displayFormatSettings
+      );
     }
     if (parts.length === 2) {
       const [year, month] = parts.map(Number);
       if (month >= 1 && month <= 12) {
-        return new Date(year, month - 1, 1).toLocaleDateString(locale, {
-          month: 'short',
-          year: '2-digit',
-        });
+        return formatAppMonth(
+          new Date(year, month - 1, 1).getTime(),
+          displayFormatSettings,
+          locale
+        );
       }
     }
     return value;

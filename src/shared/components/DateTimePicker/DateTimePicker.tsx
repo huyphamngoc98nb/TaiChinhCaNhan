@@ -3,6 +3,8 @@ import { Calendar, Clock, ChevronDown, X } from 'lucide-react';
 import { useLanguage } from '@/shared/context/LanguageContext';
 import { getAppLocale } from '@/shared/utils/locale';
 import { logAppError, notifyAppError } from '@/core/telemetry/error.service';
+import { useDisplayFormatSettings } from '@/shared/hooks/useDisplayFormatSettings';
+import { formatAppDate, formatAppDateTime } from '@/shared/utils/display-format';
 
 type QuickMode = 'today' | 'yesterday' | 'custom';
 
@@ -66,22 +68,28 @@ function safeBuildTimestamp(dateStr: string, timeStr: string): number | null {
   }
 }
 
-function formatDateDisplay(dateStr: string, language: 'vi' | 'en'): string {
+function formatDateDisplay(
+  dateStr: string,
+  displayFormatSettings: ReturnType<typeof useDisplayFormatSettings>
+): string {
   if (!dateStr) return '';
 
-  const [year, month, day] = dateStr.split('-');
-  return language === 'vi' ? `${day}/${month}/${year}` : `${year}/${month}/${day}`;
+  const [year, month, day] = dateStr.split('-').map(Number);
+  return formatAppDate(
+    new Date(year, month - 1, day).getTime(),
+    displayFormatSettings
+  );
 }
 
-function formatPreview(ts: number, locale: string, language: 'vi' | 'en'): string {
+function formatPreview(
+  ts: number,
+  locale: string,
+  displayFormatSettings: ReturnType<typeof useDisplayFormatSettings>
+): string {
   const date = new Date(ts);
   const weekday = new Intl.DateTimeFormat(locale, { weekday: 'short' }).format(date);
-  const time = new Intl.DateTimeFormat(locale, {
-    hour: '2-digit',
-    minute: '2-digit',
-  }).format(date);
 
-  return `${weekday}, ${formatDateDisplay(toDateInput(ts), language)}, ${time}`;
+  return `${weekday}, ${formatAppDateTime(ts, displayFormatSettings, locale)}`;
 }
 
 function getDateTimePickerErrorContext(action: string, extra?: Record<string, unknown>) {
@@ -118,6 +126,7 @@ export function DateTimePicker({
 }: Props) {
   const { t, language } = useLanguage();
   const locale = getAppLocale(language);
+  const displayFormatSettings = useDisplayFormatSettings();
   const invalidMessage = t('date_time.invalid');
   const dateInputRef = useRef<HTMLInputElement>(null);
   const [mode, setMode] = useState<QuickMode>(() => (
@@ -166,7 +175,7 @@ export function DateTimePicker({
     }
 
     try {
-      setPreview(formatPreview(value, locale, language));
+      setPreview(formatPreview(value, locale, displayFormatSettings));
     } catch (errorValue) {
       setPreview(null);
       setInternalError(invalidMessage);
@@ -176,7 +185,7 @@ export function DateTimePicker({
         language,
       });
     }
-  }, [value, locale, language, invalidMessage, reportInvalidDateTime]);
+  }, [value, locale, language, displayFormatSettings, invalidMessage, reportInvalidDateTime]);
 
   const commitIfValid = useCallback((nextDate: string, nextTime: string) => {
     const timestamp = safeBuildTimestamp(nextDate, nextTime);
@@ -299,7 +308,7 @@ export function DateTimePicker({
             />
             <input
               type="text"
-              value={formatDateDisplay(dateStr, language)}
+              value={formatDateDisplay(dateStr, displayFormatSettings)}
               readOnly
               placeholder={t('date_time.select_date')}
               onClick={openDatePicker}

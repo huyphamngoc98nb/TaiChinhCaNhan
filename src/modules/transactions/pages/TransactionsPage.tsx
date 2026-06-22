@@ -13,6 +13,8 @@ import type { TransactionFilter } from '../domain/transaction.model';
 import { getAppLocale } from '@/shared/utils/locale';
 import { ROUTES } from '@/shared/constants/routes';
 import { addMonths, getMonthDateRange, isCurrentMonth, toMonthKey } from '@/shared/utils/date-range';
+import { useDisplayFormatSettings } from '@/shared/hooks/useDisplayFormatSettings';
+import { formatAppDate, formatAppMonth } from '@/shared/utils/display-format';
 
 export type ViewType = 'day' | 'month' | 'year';
 
@@ -39,6 +41,7 @@ export function TransactionsPage() {
   const { categories } = useCategories();
   const [showAdvancedFilter, setShowAdvancedFilter] = useState(false);
   const [viewType, setViewType] = useState<ViewType>('day');
+  const displayFormatSettings = useDisplayFormatSettings();
   const [drilldownSnapshot, setDrilldownSnapshot] = useState<{
     filter: TransactionFilter;
     viewType: ViewType;
@@ -49,9 +52,8 @@ export function TransactionsPage() {
   const locale = getAppLocale(language);
   const selectedMonthRange = useMemo(() => getMonthDateRange(selectedMonth), [selectedMonth]);
   const selectedMonthLabel = useMemo(() => {
-    const monthDate = new Date(selectedMonthRange.startDate);
-    return `${String(monthDate.getMonth() + 1).padStart(2, '0')}/${monthDate.getFullYear()}`;
-  }, [selectedMonthRange.startDate]);
+    return formatAppMonth(selectedMonthRange.startDate, displayFormatSettings, locale);
+  }, [displayFormatSettings, locale, selectedMonthRange.startDate]);
   const isNextMonthDisabled = isCurrentMonth(selectedMonth);
 
   const handleEdit = (id: string) => navigate(`/transactions/${id}/edit`);
@@ -145,12 +147,7 @@ export function TransactionsPage() {
     navigationState?.title ??
     drilldownSnapshot?.title ??
     (isDayDetail && filter.startDate
-      ? new Date(filter.startDate).toLocaleDateString(locale, {
-          weekday: 'short',
-          day: '2-digit',
-          month: '2-digit',
-          year: 'numeric',
-        })
+      ? formatAppDate(filter.startDate, displayFormatSettings)
       : t('transactions.history_title'));
 
   return (

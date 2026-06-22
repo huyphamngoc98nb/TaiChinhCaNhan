@@ -1,6 +1,18 @@
+import {
+  DEFAULT_DISPLAY_FORMAT_SETTINGS,
+  type DisplayFormatSettings,
+} from '@/modules/settings/services/display-format-settings.service';
+import { getEndOfWeek, getStartOfWeek } from '@/shared/utils/display-format';
+
 export interface DateRange {
   startDate: number;
   endDate: number;
+}
+
+export function toDateKey(date: Date): string {
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(
+    date.getDate(),
+  ).padStart(2, '0')}`;
 }
 
 export function toMonthKey(date = new Date()): string {
@@ -30,6 +42,16 @@ export function getMonthDateRange(monthKey: string): DateRange {
   return {
     startDate: startOfMonth(monthKey),
     endDate: endOfMonth(monthKey),
+  };
+}
+
+export function getWeekDateRange(
+  date: Date,
+  settings: DisplayFormatSettings = DEFAULT_DISPLAY_FORMAT_SETTINGS
+): DateRange {
+  return {
+    startDate: getStartOfWeek(date, settings).getTime(),
+    endDate: getEndOfWeek(date, settings).getTime(),
   };
 }
 
