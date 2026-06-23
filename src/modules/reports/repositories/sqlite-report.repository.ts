@@ -5,26 +5,80 @@ import { DateRange, ReportGranularity, CategorySummary, PeriodSummary, CashflowS
 export class SQLiteReportRepository implements IReportRepository {
   async getCategorySummary(range: DateRange, type: 'income' | 'expense'): Promise<CategorySummary[]> {
     const db = await getDbConnection();
-    // Query explanation: Grouping by category_id to summarize amounts.
-    // Joining with categories to get human-readable names.
+
+    if (type === 'income') {
+      // Income donut excludes budget-offset income because offsets reduce expense categories instead.
+      const sql = `
+        SELECT t.category_id, c.name as category_name, SUM(t.amount) as amount, t.type
+        FROM transactions t
+        LEFT JOIN categories c ON t.category_id = c.id
+        WHERE t.type = 'income'
+          AND t.transaction_date >= ?
+          AND t.transaction_date <= ?
+          AND t.deleted_at IS NULL
+          AND t.exclude_from_total = 0
+          AND t.is_budget_offset = 0
+        GROUP BY t.category_id
+        ORDER BY amount DESC
+      `;
+      const { values } = await db.query(sql, [range.startDate, range.endDate]);
+      return (values || []).map((row: any) => ({
+        category_id: row.category_id,
+        category_name: row.category_name || 'Uncategorized',
+        amount: row.amount || 0,
+        type: row.type,
+      }));
+    }
+
+    // Expense donut shows net expense after subtracting budget offsets by budget category.
     const sql = `
-      SELECT t.category_id, c.name as category_name, SUM(t.amount) as amount, t.type
-      FROM transactions t
-      LEFT JOIN categories c ON t.category_id = c.id
-      WHERE t.type = ? 
-        AND t.transaction_date >= ? 
-        AND t.transaction_date <= ?
-        AND t.deleted_at IS NULL
-        AND t.exclude_from_total = 0
-        AND (t.type <> 'income' OR t.is_budget_offset = 0)
-      GROUP BY category_id
+      WITH expense_by_category AS (
+        SELECT
+          t.category_id,
+          c.name as category_name,
+          SUM(t.amount) as gross_amount
+        FROM transactions t
+        LEFT JOIN categories c ON t.category_id = c.id
+        WHERE t.type = 'expense'
+          AND t.transaction_date >= ?
+          AND t.transaction_date <= ?
+          AND t.deleted_at IS NULL
+          AND t.exclude_from_total = 0
+        GROUP BY t.category_id
+      ),
+      offset_by_category AS (
+        SELECT
+          b.category_id,
+          SUM(t.amount) as offset_amount
+        FROM transactions t
+        JOIN budgets b ON b.id = t.offset_budget_id
+        WHERE t.type = 'income'
+          AND t.is_budget_offset = 1
+          AND t.offset_budget_id IS NOT NULL
+          AND t.transaction_date >= ?
+          AND t.transaction_date <= ?
+          AND t.deleted_at IS NULL
+        GROUP BY b.category_id
+      ),
+      net_by_category AS (
+        SELECT
+          e.category_id,
+          e.category_name,
+          MAX(e.gross_amount - COALESCE(o.offset_amount, 0), 0) as amount,
+          'expense' as type
+        FROM expense_by_category e
+        LEFT JOIN offset_by_category o ON o.category_id = e.category_id
+      )
+      SELECT category_id, category_name, amount, type
+      FROM net_by_category
+      WHERE amount > 0
       ORDER BY amount DESC
     `;
-    const { values } = await db.query(sql, [type, range.startDate, range.endDate]);
+    const { values } = await db.query(sql, [range.startDate, range.endDate, range.startDate, range.endDate]);
     return (values || []).map((row: any) => ({
       category_id: row.category_id,
       category_name: row.category_name || 'Uncategorized',
-      amount: row.amount,
+      amount: row.amount || 0,
       type: row.type,
     }));
   }
@@ -43,8 +97,7 @@ export class SQLiteReportRepository implements IReportRepository {
       timeFormat = '%Y-%W';
     }
 
-    // Query explanation: Grouping by formatted period string using strftime.
-    // Index-friendly: idx_transactions_date (transaction_date) allows quick range filtering before applying functions.
+    // Period cashflow still excludes budget-offset income so totals/net cashflow stay unchanged.
     const sql = `
       SELECT 
         strftime(?, transaction_date / 1000, 'unixepoch') as period,
@@ -72,8 +125,7 @@ export class SQLiteReportRepository implements IReportRepository {
   async getCashflowSummary(range: DateRange): Promise<CashflowSummary> {
     const db = await getDbConnection();
     
-    // Query explanation: Summing totals without grouping.
-    // Index-friendly: idx_transactions_date efficiently narrows down to the requested range.
+    // Cashflow totals still exclude budget-offset income so summary cards/net cashflow stay unchanged.
     const sql = `
       SELECT 
         SUM(CASE WHEN type = 'income' AND is_budget_offset = 0 THEN amount ELSE 0 END) as totalIncome,

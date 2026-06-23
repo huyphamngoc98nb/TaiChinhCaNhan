@@ -338,8 +338,8 @@ export function TransactionForm({
       />
 
       {formData.type === 'income' && (
-        <div className="space-y-2 rounded-[12px] border border-emerald-100 bg-emerald-50/60 p-3">
-          <label className="flex items-center gap-2 text-[14px] font-semibold text-gray-700">
+        <div className="space-y-2 rounded-[12px] border border-emerald-100 bg-emerald-50/60 p-3 dark:border-emerald-400/30 dark:bg-emerald-400/10">
+          <label className="flex items-center gap-2 text-[14px] font-semibold text-gray-700 dark:text-text">
             <input
               type="checkbox"
               checked={formData.is_budget_offset ?? false}
@@ -358,7 +358,7 @@ export function TransactionForm({
 
           {formData.is_budget_offset && (
             <div className="space-y-1.5">
-              <p className="text-[13px] font-semibold text-gray-700">
+              <p className="text-[13px] font-semibold text-gray-700 dark:text-muted">
                 {t('transactions.offset_budget')}
               </p>
               <DropdownList

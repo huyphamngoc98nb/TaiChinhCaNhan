@@ -30,8 +30,8 @@ describe('SQLiteReportRepository', () => {
     const result = await repo.getCategorySummary(range, 'expense');
     expect(result).toEqual([]);
     expect(mockDb.query).toHaveBeenCalledWith(
-      expect.stringContaining('GROUP BY category_id'),
-      ['expense', range.startDate, range.endDate]
+      expect.stringContaining('net_by_category'),
+      [range.startDate, range.endDate, range.startDate, range.endDate]
     );
   });
 
@@ -42,6 +42,63 @@ describe('SQLiteReportRepository', () => {
       expect.stringContaining('deleted_at IS NULL'),
       expect.any(Array)
     );
+  });
+
+  it('getCategorySummary: excludes budget offset income from income donut charts', async () => {
+    mockDb.query.mockResolvedValue({ values: [] });
+    await repo.getCategorySummary(range, 'income');
+
+    const [sql] = mockDb.query.mock.calls[0];
+    expect(sql).toContain('t.exclude_from_total = 0');
+    expect(sql).toContain('t.is_budget_offset = 0');
+    expect(sql).toContain("t.type = 'income'");
+    expect(mockDb.query).toHaveBeenCalledWith(
+      expect.any(String),
+      [range.startDate, range.endDate]
+    );
+  });
+
+  it('getCategorySummary: subtracts budget offsets from expense donut categories', async () => {
+    mockDb.query.mockResolvedValue({ values: [] });
+    await repo.getCategorySummary(range, 'expense');
+
+    const [sql] = mockDb.query.mock.calls[0];
+    expect(sql).toContain('WITH expense_by_category AS');
+    expect(sql).toContain('offset_by_category AS');
+    expect(sql).toContain('JOIN budgets b ON b.id = t.offset_budget_id');
+    expect(sql).toContain('t.offset_budget_id IS NOT NULL');
+    expect(sql).toContain('b.category_id');
+    expect(sql).toContain('e.gross_amount - COALESCE(o.offset_amount, 0)');
+    expect(sql).toContain('WHERE amount > 0');
+    expect(mockDb.query).toHaveBeenCalledWith(
+      expect.any(String),
+      [range.startDate, range.endDate, range.startDate, range.endDate]
+    );
+  });
+
+  it('getCategorySummary: expense uses budget offsets even when offset transactions are excluded from totals', async () => {
+    mockDb.query.mockResolvedValue({ values: [] });
+    await repo.getCategorySummary(range, 'expense');
+
+    const [sql] = mockDb.query.mock.calls[0];
+    const offsetSection = sql.split('offset_by_category AS')[1]?.split('net_by_category AS')[0] || '';
+    expect(offsetSection).toContain('t.is_budget_offset = 1');
+    expect(offsetSection).toContain('t.offset_budget_id IS NOT NULL');
+    expect(offsetSection).not.toContain('t.exclude_from_total = 0');
+  });
+
+  it('getCategorySummary: maps net expense rows returned by SQLite', async () => {
+    mockDb.query.mockResolvedValue({
+      values: [
+        { category_id: 'food', category_name: 'Food', amount: 700, type: 'expense' }
+      ]
+    });
+
+    const result = await repo.getCategorySummary(range, 'expense');
+
+    expect(result).toEqual([
+      { category_id: 'food', category_name: 'Food', amount: 700, type: 'expense' }
+    ]);
   });
 
   it('getCategorySummary: aggregates correctly', async () => {
@@ -90,6 +147,15 @@ describe('SQLiteReportRepository', () => {
     expect(result[0].period).toBe('2023-05');
   });
 
+  it('getPeriodSummary: excludes budget offset income from cashflow periods', async () => {
+    mockDb.query.mockResolvedValue({ values: [] });
+    await repo.getPeriodSummary(range, 'day');
+
+    const [sql] = mockDb.query.mock.calls[0];
+    expect(sql).toContain('is_budget_offset = 0');
+    expect(sql).toContain("(type <> 'income' OR is_budget_offset = 0)");
+  });
+
   it('getCashflowSummary: returns zero totals on empty dataset', async () => {
     mockDb.query.mockResolvedValue({ values: [] });
     const result = await repo.getCashflowSummary(range);
@@ -124,6 +190,15 @@ describe('SQLiteReportRepository', () => {
     const [sql] = mockDb.query.mock.calls[0];
     expect(sql).toContain("type IN ('income', 'expense')");
     expect(sql).not.toContain("'transfer'");
+  });
+
+  it('getCashflowSummary: excludes budget offset income from totals and net cashflow', async () => {
+    mockDb.query.mockResolvedValue({ values: [{ totalIncome: 0, totalExpense: 0 }] });
+    await repo.getCashflowSummary(range);
+
+    const [sql] = mockDb.query.mock.calls[0];
+    expect(sql).toContain('is_budget_offset = 0');
+    expect(sql).toContain("(type <> 'income' OR is_budget_offset = 0)");
   });
 });
 
