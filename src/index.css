@@ -139,12 +139,18 @@ body.keyboard-open [data-keyboard-hide-on-open="true"] {
   display: none;
 }
 
-body.keyboard-open .bottom-nav {
-  transform: translateY(calc(100% + env(safe-area-inset-bottom)));
+body.keyboard-open [data-app-bottom-nav="true"],
+body.keyboard-focus-active [data-app-bottom-nav="true"],
+body.money-keyboard-open [data-app-bottom-nav="true"] {
+  transform: translate3d(0, calc(100% + env(safe-area-inset-bottom) + 16px), 0);
+  opacity: 0;
+  pointer-events: none;
 }
 
-body.money-keyboard-open .bottom-nav {
-  transform: translateY(calc(100% + env(safe-area-inset-bottom)));
+body.keyboard-open .main-content,
+body.keyboard-focus-active .main-content,
+body.money-keyboard-open .main-content {
+  padding-bottom: calc(48px + env(safe-area-inset-bottom));
 }
 
 body.body-scroll-locked .main-content {

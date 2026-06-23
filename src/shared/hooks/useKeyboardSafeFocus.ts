@@ -126,7 +126,8 @@ export function useKeyboardSafeFocus() {
     const viewport = window.visualViewport;
     let activeEditable: HTMLElement | null = null;
     let activeScrollPadding: ScrollPaddingState | null = null;
-    let cleanupTimers: number[] = [];
+    let scrollTimers: number[] = [];
+    let focusSettleTimer: number | null = null;
     let keyboardInset = 0;
 
     const updateViewportMetrics = () => {
@@ -148,14 +149,20 @@ export function useKeyboardSafeFocus() {
     };
 
     const clearScheduledScrolls = () => {
-      cleanupTimers.forEach(timer => window.clearTimeout(timer));
-      cleanupTimers = [];
+      scrollTimers.forEach(timer => window.clearTimeout(timer));
+      scrollTimers = [];
+    };
+
+    const clearFocusSettleTimer = () => {
+      if (focusSettleTimer === null) return;
+      window.clearTimeout(focusSettleTimer);
+      focusSettleTimer = null;
     };
 
     const scheduleKeyboardSafeScroll = (element: HTMLElement) => {
       clearScheduledScrolls();
       [0, 120, 300, 520, 760].forEach((delay) => {
-        cleanupTimers.push(window.setTimeout(() => {
+        scrollTimers.push(window.setTimeout(() => {
           if (document.activeElement === element) {
             scrollElementIntoKeyboardSafeView(element);
           }
@@ -165,6 +172,8 @@ export function useKeyboardSafeFocus() {
 
     const handleFocusIn = (event: FocusEvent) => {
       if (!isEditableElement(event.target)) return;
+      clearFocusSettleTimer();
+      document.body.classList.add('keyboard-focus-active');
       activeEditable = event.target;
       updateViewportMetrics();
       activeScrollPadding = applyKeyboardScrollPadding(
@@ -182,7 +191,20 @@ export function useKeyboardSafeFocus() {
         restoreScrollPadding(activeScrollPadding);
         activeScrollPadding = null;
       }
-      window.setTimeout(updateViewportMetrics, 100);
+      clearFocusSettleTimer();
+      focusSettleTimer = window.setTimeout(() => {
+        focusSettleTimer = null;
+
+        const activeElement = document.activeElement;
+        const stillEditing =
+          activeElement instanceof HTMLElement && isEditableElement(activeElement);
+
+        if (!stillEditing) {
+          document.body.classList.remove('keyboard-focus-active');
+        }
+
+        updateViewportMetrics();
+      }, 180);
     };
 
     const handleViewportChange = () => {
@@ -201,6 +223,7 @@ export function useKeyboardSafeFocus() {
 
     return () => {
       clearScheduledScrolls();
+      clearFocusSettleTimer();
       if (activeScrollPadding) {
         restoreScrollPadding(activeScrollPadding);
       }
@@ -212,6 +235,7 @@ export function useKeyboardSafeFocus() {
       document.documentElement.style.removeProperty('--visual-viewport-height');
       document.documentElement.style.removeProperty('--keyboard-inset-bottom');
       document.body.classList.remove('keyboard-open');
+      document.body.classList.remove('keyboard-focus-active');
     };
   }, []);
 }

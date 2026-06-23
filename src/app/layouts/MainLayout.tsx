@@ -239,7 +239,7 @@ export function MainLayout() {
       </main>
 
       {/* Bottom Nav */}
-      <nav className="bottom-nav">
+      <nav className="bottom-nav" data-app-bottom-nav="true">
         <div className="bottom-nav__side bottom-nav__side--left">
           <NavLink
             to={ROUTES.HOME}

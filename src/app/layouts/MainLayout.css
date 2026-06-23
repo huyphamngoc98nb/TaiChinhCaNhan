@@ -47,7 +47,11 @@
   padding-bottom: env(safe-area-inset-bottom);
   z-index: 50;
   overflow: visible;
-  transition: transform 0.18s ease;
+  opacity: 1;
+  transition:
+    transform 0.18s ease,
+    opacity 0.12s ease;
+  will-change: transform, opacity;
 }
 
 .bottom-nav__side {
