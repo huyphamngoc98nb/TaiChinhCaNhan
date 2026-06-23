@@ -13,7 +13,7 @@ const THEME_STORAGE_KEY = 'themePreference';
 const DARK_MODE_QUERY = '(prefers-color-scheme: dark)';
 const THEME_COLOR: Record<ResolvedTheme, string> = {
   light: '#f5f7fa',
-  dark: '#111114',
+  dark: '#0f1117',
 };
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
