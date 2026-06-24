@@ -59,11 +59,18 @@ export function CategoryIconPicker({ isOpen, type, selectedIcon, onSelect, onClo
 
     setCustomIconError(null);
     setPendingIcon(validation.value);
+
+    if (document.activeElement instanceof HTMLElement) {
+      document.activeElement.blur();
+    }
   }
 
   return (
     <BottomSheet isOpen={isOpen} onClose={onClose} transitionKey={`icons-${type}`}>
-      <div className="flex max-h-[min(78vh,680px)] min-h-0 flex-col gap-4">
+      <div
+        data-category-icon-picker="true"
+        className="flex max-h-[min(78vh,680px)] min-h-0 flex-col gap-4"
+      >
         <div className="shrink-0">
           <h3 className="text-[18px] font-bold text-gray-900">{t('categories.icon_picker_title')}</h3>
           <p className="mt-1 text-[12px] text-gray-500">{t('categories.icon_picker_hint')}</p>
@@ -104,6 +111,7 @@ export function CategoryIconPicker({ isOpen, type, selectedIcon, onSelect, onClo
                 setCustomIcon(nextValue);
                 setCustomIconError(null);
               }}
+              data-category-custom-icon-input="true"
               placeholder={t('categories.custom_icon_placeholder')}
               className="h-11 min-w-0 flex-1 rounded-[12px] border border-gray-200 bg-white px-3 text-center text-[18px] font-semibold text-gray-900 outline-none focus:border-indigo-400"
             />
@@ -150,7 +158,10 @@ export function CategoryIconPicker({ isOpen, type, selectedIcon, onSelect, onClo
           )}
         </div>
 
-        <div className="sticky bottom-0 flex shrink-0 gap-3 border-t border-gray-100 bg-surface pt-3">
+        <div
+          data-category-icon-picker-footer="true"
+          className="sticky bottom-0 flex shrink-0 gap-3 border-t border-gray-100 bg-surface pt-3"
+        >
           <button
             type="button"
             onClick={onClose}

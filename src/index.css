@@ -139,6 +139,34 @@ body.keyboard-open [data-keyboard-hide-on-open="true"] {
   display: none;
 }
 
+body.keyboard-open [data-category-icon-picker="true"],
+body.keyboard-focus-active [data-category-icon-picker="true"] {
+  max-height: calc(var(--visual-viewport-height) - 48px);
+  gap: 10px;
+}
+
+[data-category-icon-picker-footer="true"] {
+  transition:
+    opacity 160ms ease,
+    transform 160ms ease,
+    max-height 160ms ease,
+    padding-top 160ms ease,
+    border-width 160ms ease;
+}
+
+body.keyboard-open [data-category-icon-picker-footer="true"],
+body.keyboard-focus-active [data-category-icon-picker-footer="true"] {
+  height: 0;
+  max-height: 0;
+  min-height: 0;
+  overflow: hidden;
+  border-top-width: 0;
+  padding-top: 0;
+  opacity: 0;
+  transform: translateY(12px);
+  pointer-events: none;
+}
+
 body.keyboard-open [data-app-bottom-nav="true"],
 body.keyboard-focus-active [data-app-bottom-nav="true"],
 body.money-keyboard-open [data-app-bottom-nav="true"] {
