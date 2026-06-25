@@ -26,33 +26,41 @@ Use this checklist for every Android release:
 
 Create these repository secrets in GitHub:
 
-- `ANDROID_KEYSTORE_BASE64`: base64 content of the Android release keystore.
+- `ANDROID_KEYSTORE_BASE64`: base64 content generated from `release-key.jks`.
 - `ANDROID_KEYSTORE_PASSWORD`: keystore password.
 - `ANDROID_KEY_ALIAS`: release key alias.
 - `ANDROID_KEY_PASSWORD`: release key password.
 
-Never commit the real keystore or `android/keystore.properties`.
+Never commit the real `release-key.jks` keystore or `android/keystore.properties`. The workflow decodes `ANDROID_KEYSTORE_BASE64` into `android/release-key.jks`.
 
 Generate `ANDROID_KEYSTORE_BASE64` on macOS/Linux:
 
 ```bash
-base64 -w 0 path/to/release.keystore
+base64 -w 0 release-key.jks > release-key.base64.txt
+```
+
+If macOS `base64` does not support `-w`, use:
+
+```bash
+base64 release-key.jks | tr -d '\n' > release-key.base64.txt
 ```
 
 Generate it on Windows PowerShell:
 
 ```powershell
-[Convert]::ToBase64String([IO.File]::ReadAllBytes("path\to\release.keystore"))
+[Convert]::ToBase64String([IO.File]::ReadAllBytes("release-key.jks")) | Set-Content -NoNewline "release-key.base64.txt"
 ```
 
 The workflow writes this CI-only signing file:
 
 ```properties
-storeFile=../release.keystore
+storeFile=../release-key.jks
 storePassword=...
 keyAlias=...
 keyPassword=...
 ```
+
+The `storeFile` path is resolved from the Android `app` module, so CI must use `../release-key.jks` for the decoded file in `android/release-key.jks`.
 
 ## Bump version.config.json
 
@@ -131,7 +139,7 @@ npx cap sync android
 ## Troubleshooting
 
 Wrong keystore:
-The Gradle release build fails during signing or install verification. Confirm the keystore file, alias, store password, and key password belong together. Regenerate `ANDROID_KEYSTORE_BASE64` from the exact release keystore.
+The Gradle release build fails during signing or install verification. Confirm `release-key.jks`, alias, store password, and key password belong together. Regenerate `ANDROID_KEYSTORE_BASE64` from the exact `release-key.jks` file.
 
 versionCode does not increase:
 Android rejects upgrades when `nativeVersionCode` is not greater than the installed or previously released APK. Increase `nativeVersionCode` in `version.config.json`, commit it, and tag again with the matching version name.

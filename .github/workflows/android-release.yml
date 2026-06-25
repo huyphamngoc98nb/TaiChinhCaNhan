@@ -106,10 +106,10 @@ jobs:
           set -euo pipefail
           umask 077
 
-          printf '%s' "${ANDROID_KEYSTORE_BASE64}" | base64 --decode > android/release.keystore
+          printf '%s' "${ANDROID_KEYSTORE_BASE64}" | base64 --decode > android/release-key.jks
 
           {
-            echo 'storeFile=../release.keystore'
+            echo 'storeFile=../release-key.jks'
             echo "storePassword=${ANDROID_KEYSTORE_PASSWORD}"
             echo "keyAlias=${ANDROID_KEY_ALIAS}"
             echo "keyPassword=${ANDROID_KEY_PASSWORD}"
