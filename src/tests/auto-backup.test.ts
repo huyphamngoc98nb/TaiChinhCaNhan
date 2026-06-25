@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import * as connection from '@/core/db/sqlite/connection';
 import * as exportBackup from '@/modules/backup/services/export-backup-json';
+import * as backupFileRepository from '@/modules/backup/services/backup-file.repository';
 import * as saveAutoBackup from '@/modules/backup/services/save-auto-backup-file';
 import {
   AUTO_BACKUP_INTERVAL_MS,
@@ -22,6 +23,10 @@ vi.mock('@/modules/backup/services/export-backup-json', () => ({
 
 vi.mock('@/modules/backup/services/save-auto-backup-file', () => ({
   saveAutoBackupFile: vi.fn(),
+}));
+
+vi.mock('@/modules/backup/services/backup-file.repository', () => ({
+  registerBackupFile: vi.fn(),
 }));
 
 vi.mock('@/core/telemetry/logger', () => ({
@@ -63,7 +68,24 @@ describe('auto backup service', () => {
       loans: [],
       loan_payments: [],
     });
-    vi.mocked(saveAutoBackup.saveAutoBackupFile).mockResolvedValue(true);
+    vi.mocked(saveAutoBackup.saveAutoBackupFile).mockResolvedValue({
+      saved: true,
+      fileName: createAutoBackupFileName(new Date(now)),
+      uri: 'content://backup/1',
+      path: 'Download/Expense Tracker/backup.json',
+      platform: 'android',
+    });
+    vi.mocked(backupFileRepository.registerBackupFile).mockResolvedValue({
+      id: 'backup-file-1',
+      fileName: createAutoBackupFileName(new Date(now)),
+      uri: 'content://backup/1',
+      path: 'Download/Expense Tracker/backup.json',
+      kind: 'auto',
+      platform: 'android',
+      encrypted: false,
+      createdAt: now,
+      deletedAt: null,
+    });
   });
 
   it('detects whether auto backup is due by interval', () => {
@@ -103,6 +125,15 @@ describe('auto backup service', () => {
       createAutoBackupFileName(new Date(now)),
       expect.any(String)
     );
+    expect(backupFileRepository.registerBackupFile).toHaveBeenCalledWith({
+      fileName: createAutoBackupFileName(new Date(now)),
+      uri: 'content://backup/1',
+      path: 'Download/Expense Tracker/backup.json',
+      kind: 'auto',
+      platform: 'android',
+      encrypted: false,
+      createdAt: now,
+    });
     expect(settingsRows.get(AUTO_BACKUP_SETTING_KEYS.lastRunAt)).toBe(String(now));
   });
 
@@ -114,6 +145,7 @@ describe('auto backup service', () => {
     expect(result).toMatchObject({ ran: false, saved: false, reason: 'disabled' });
     expect(exportBackup.exportBackupJson).not.toHaveBeenCalled();
     expect(saveAutoBackup.saveAutoBackupFile).not.toHaveBeenCalled();
+    expect(backupFileRepository.registerBackupFile).not.toHaveBeenCalled();
   });
 
   it('does not update last_run_at when save is cancelled', async () => {
@@ -121,11 +153,12 @@ describe('auto backup service', () => {
     settingsRows.set(AUTO_BACKUP_SETTING_KEYS.enabled, '1');
     settingsRows.set(AUTO_BACKUP_SETTING_KEYS.interval, 'weekly');
     settingsRows.set(AUTO_BACKUP_SETTING_KEYS.lastRunAt, String(previousRunAt));
-    vi.mocked(saveAutoBackup.saveAutoBackupFile).mockResolvedValue(false);
+    vi.mocked(saveAutoBackup.saveAutoBackupFile).mockResolvedValue({ saved: false });
 
     const result = await runAutoBackupIfDue(now);
 
     expect(result).toMatchObject({ ran: true, saved: false, reason: 'save_cancelled' });
+    expect(backupFileRepository.registerBackupFile).not.toHaveBeenCalled();
     expect(settingsRows.get(AUTO_BACKUP_SETTING_KEYS.lastRunAt)).toBe(String(previousRunAt));
   });
 });

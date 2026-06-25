@@ -1,12 +1,18 @@
 import { Capacitor } from '@capacitor/core';
 import { documentSaver } from '@/core/files/document-saver';
+import type { SavedBackupFile } from '../domain/backup-file.model';
 import { saveBackupFile } from './save-backup-file';
 
 const BACKUP_MIME_TYPE = 'application/json';
 const AUTO_BACKUP_DOWNLOAD_DIRECTORY = 'Expense Tracker';
 
-export async function saveAutoBackupFile(fileName: string, content: string): Promise<boolean> {
-  if (Capacitor.getPlatform() === 'android') {
+export async function saveAutoBackupFile(
+  fileName: string,
+  content: string
+): Promise<SavedBackupFile> {
+  const platform = Capacitor.getPlatform();
+
+  if (platform === 'android') {
     const result = await documentSaver.saveTextFileToDownloads({
       fileName,
       content,
@@ -14,8 +20,20 @@ export async function saveAutoBackupFile(fileName: string, content: string): Pro
       directoryName: AUTO_BACKUP_DOWNLOAD_DIRECTORY,
     });
 
-    return result.saved;
+    return {
+      saved: result.saved,
+      fileName,
+      uri: result.uri,
+      path: result.path,
+      platform,
+    };
   }
 
-  return saveBackupFile(fileName, content);
+  const saved = await saveBackupFile(fileName, content);
+
+  return {
+    saved,
+    fileName,
+    platform,
+  };
 }

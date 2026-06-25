@@ -16,9 +16,20 @@ interface SaveTextFileResult {
   path?: string;
 }
 
+interface DeleteSavedFileOptions {
+  uri?: string;
+  path?: string;
+}
+
+interface DeleteSavedFileResult {
+  deleted: boolean;
+  missing?: boolean;
+}
+
 interface DocumentSaverPlugin {
   saveTextFile(options: SaveTextFileOptions): Promise<SaveTextFileResult>;
   saveTextFileToDownloads(options: SaveTextFileToDownloadsOptions): Promise<SaveTextFileResult>;
+  deleteSavedFile(options: DeleteSavedFileOptions): Promise<DeleteSavedFileResult>;
 }
 
 export const documentSaver = registerPlugin<DocumentSaverPlugin>('DocumentSaver');

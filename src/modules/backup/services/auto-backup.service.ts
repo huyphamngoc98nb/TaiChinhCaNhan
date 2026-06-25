@@ -1,6 +1,7 @@
 import { getDbConnection } from '@/core/db/sqlite/connection';
 import { logger } from '@/core/telemetry/logger';
 import { exportBackupJson } from './export-backup-json';
+import { registerBackupFile } from './backup-file.repository';
 import { saveAutoBackupFile } from './save-auto-backup-file';
 
 export const AUTO_BACKUP_SETTING_KEYS = {
@@ -175,10 +176,26 @@ async function runAutoBackupIfDueInternal(now: number): Promise<AutoBackupRunRes
 
     const payload = await exportBackupJson();
     const fileName = createAutoBackupFileName(new Date(now));
-    const saved = await saveAutoBackupFile(fileName, JSON.stringify(payload, null, 2));
+    const savedFile = await saveAutoBackupFile(fileName, JSON.stringify(payload, null, 2));
 
-    if (!saved) {
+    if (!savedFile.saved) {
       return { ran: true, saved: false, reason: 'save_cancelled', fileName, settings };
+    }
+
+    try {
+      await registerBackupFile({
+        fileName: savedFile.fileName ?? fileName,
+        uri: savedFile.uri,
+        path: savedFile.path,
+        kind: 'auto',
+        platform: savedFile.platform ?? 'unknown',
+        encrypted: false,
+        createdAt: now,
+      });
+    } catch (error) {
+      logger.warn('Auto backup file was saved but metadata registration failed.', error, {
+        context: 'AutoBackupService',
+      });
     }
 
     await updateLastRunAt(now);

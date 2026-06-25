@@ -78,6 +78,33 @@ public class DocumentSaverPlugin extends Plugin {
         saveTextFileToLegacyDownloads(call, fileName, content, directoryName);
     }
 
+    @PluginMethod
+    public void deleteSavedFile(PluginCall call) {
+        String uriString = call.getString("uri");
+        String path = call.getString("path");
+
+        if (uriString != null && !uriString.trim().isEmpty()) {
+            Uri uri = Uri.parse(uriString);
+            if (!"file".equals(uri.getScheme())) {
+                try {
+                    int deletedCount = getContext().getContentResolver().delete(uri, null, null);
+                    resolveDeletedFile(call, deletedCount > 0, deletedCount == 0);
+                    return;
+                } catch (Exception error) {
+                    call.reject("Unable to delete saved file.", error);
+                    return;
+                }
+            }
+        }
+
+        if (path != null && !path.trim().isEmpty()) {
+            deleteSavedFileByPath(call, path);
+            return;
+        }
+
+        resolveDeletedFile(call, false, true);
+    }
+
     private String getAppLabel() {
         CharSequence label = getContext().getApplicationInfo().loadLabel(getContext().getPackageManager());
         return label != null ? label.toString() : "Expense Tracker";
@@ -170,6 +197,55 @@ public class DocumentSaverPlugin extends Plugin {
         response.put("uri", uri);
         response.put("path", path);
         call.resolve(response);
+    }
+
+    private void resolveDeletedFile(PluginCall call, boolean deleted, boolean missing) {
+        JSObject response = new JSObject();
+        response.put("deleted", deleted);
+        if (missing) {
+            response.put("missing", true);
+        }
+        call.resolve(response);
+    }
+
+    private void deleteSavedFileByPath(PluginCall call, String path) {
+        try {
+            File targetFile = resolveAllowedBackupFile(path);
+            if (targetFile == null || !targetFile.exists()) {
+                resolveDeletedFile(call, false, true);
+                return;
+            }
+
+            resolveDeletedFile(call, targetFile.delete(), !targetFile.exists());
+        } catch (Exception error) {
+            call.reject("Unable to delete saved file.", error);
+        }
+    }
+
+    private File resolveAllowedBackupFile(String rawPath) throws Exception {
+        String normalizedPath = rawPath.replace('\\', '/').trim();
+        File downloadsDirectory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+        File allowedDirectory = new File(downloadsDirectory, "Expense Tracker");
+        String allowedCanonicalPath = allowedDirectory.getCanonicalPath();
+
+        File candidate;
+        if (normalizedPath.startsWith("Download/Expense Tracker/")) {
+            candidate = new File(downloadsDirectory, normalizedPath.substring("Download/".length()));
+        } else if (normalizedPath.startsWith("Downloads/Expense Tracker/")) {
+            candidate = new File(downloadsDirectory, normalizedPath.substring("Downloads/".length()));
+        } else {
+            candidate = new File(rawPath);
+        }
+
+        String candidateCanonicalPath = candidate.getCanonicalPath();
+        if (
+                candidateCanonicalPath.equals(allowedCanonicalPath) ||
+                !candidateCanonicalPath.startsWith(allowedCanonicalPath + File.separator)
+        ) {
+            return null;
+        }
+
+        return candidate;
     }
 
     @ActivityCallback

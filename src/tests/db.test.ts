@@ -130,6 +130,8 @@ describe('Database SQLite Tests', () => {
     expectExecuteContaining('CREATE TABLE loans_new');
     expectExecuteContaining('CHECK (skip_transaction = 1 OR wallet_id IS NOT NULL)');
     expectExecuteContaining('ALTER TABLE loans ADD COLUMN linked_transaction_id');
+    expectExecuteContaining('CREATE TABLE IF NOT EXISTS backup_files');
+    expectExecuteContaining('idx_backup_files_kind_created');
 
     const triggerStatements = mockDb.execute.mock.calls
       .map(([sql]: [string]) => sql)
@@ -155,6 +157,7 @@ describe('Database SQLite Tests', () => {
     expectMigrationMarked(25, '025_loan_skip_transaction');
     expectMigrationMarked(26, '026_loan_linked_transaction');
     expectMigrationMarked(27, '027_loan_date');
+    expectMigrationMarked(34, '034_backup_files');
   });
 
   it('wraps regular migrations in transactions and runs foreign-key rebuilds outside them', async () => {
@@ -296,7 +299,7 @@ describe('Database SQLite Tests', () => {
   it('runs foreign-key-off table rebuild migrations outside native transactions', async () => {
     mockDb.query.mockResolvedValueOnce({
       values: MIGRATIONS
-        .filter((migration) => migration.version < 32 || migration.version === 33)
+        .filter((migration) => migration.version < 32 || migration.version > 32)
         .map((migration) => ({ version: migration.version, name: migration.name })),
     });
 
@@ -761,6 +764,12 @@ describe('Database SQLite Tests', () => {
   it('004 migration adds receipt_path column', async () => {
     const sql = await import('../core/db/migrations/004_transactions_receipt_path.sql?raw').then(m => m.default);
     expect(sql).toContain('ADD COLUMN receipt_path TEXT DEFAULT NULL');
+  });
+
+  it('034 migration creates backup file metadata table and indexes', async () => {
+    const sql = await import('../core/db/migrations/034_backup_files.sql?raw').then(m => m.default);
+    expect(sql).toContain('CREATE TABLE IF NOT EXISTS backup_files');
+    expect(sql).toContain('CREATE INDEX IF NOT EXISTS idx_backup_files_kind_created');
   });
 
   // -------------------------------------------------------------------------
