@@ -1,0 +1,11 @@
+{
+  "platform": "android",
+  "versionName": "0.1.19",
+  "versionCode": 119,
+  "minSupportedVersionCode": 100,
+  "mandatory": false,
+  "apkUrl": "https://github.com/huyphamngoc98nb/TaiChinhCaNhan/releases/download/v0.1.19/TaiChinhCaNhan-v0.1.19.apk",
+  "sha256": "aec00c4223c886821817e5d35d84d1b4ec983fdd18f2ed8cb80bd380b0807cce",
+  "releaseDate": "2026-06-25",
+  "releaseNotes": []
+}
