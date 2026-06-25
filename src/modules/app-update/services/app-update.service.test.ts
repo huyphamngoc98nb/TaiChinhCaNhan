@@ -168,6 +168,26 @@ describe('app update service', () => {
     expect(shouldPromptUpdate(result)).toBe(true);
   });
 
+  it('returns no update when latest versionCode matches current versionCode', async () => {
+    mockFetchJson(latestManifest({ versionName: '0.1.14', versionCode: 114 }));
+
+    const result = await checkForAndroidUpdate();
+
+    expect(result.status).toBe('up-to-date');
+    expect(result.updateAvailable).toBe(false);
+    expect(shouldPromptUpdate(result)).toBe(false);
+  });
+
+  it('returns no update when latest versionCode is lower than current versionCode', async () => {
+    mockFetchJson(latestManifest({ versionName: '0.1.13', versionCode: 113 }));
+
+    const result = await checkForAndroidUpdate();
+
+    expect(result.status).toBe('up-to-date');
+    expect(result.updateAvailable).toBe(false);
+    expect(shouldPromptUpdate(result)).toBe(false);
+  });
+
   it('does not prompt again for an optional update skipped by versionCode', async () => {
     await markVersionSkipped(115);
 

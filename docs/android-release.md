@@ -100,6 +100,34 @@ Check `latest.json` includes:
 
 If `RELEASE_NOTES.md` exists at the repo root, the workflow uses it as the GitHub Release notes. Otherwise it uses `Android release vX.Y.Z`.
 
+## Phase A/B merge readiness
+
+Review this checklist before merging Android release or app-update changes:
+
+- CI release builds must call `./gradlew assembleRelease -PskipAndroidVersionBump=true`.
+- CI must not commit or rewrite `version.config.json`.
+- Release tags must use `vX.Y.Z` and match `nativeVersionName` in `version.config.json`.
+- `latest.json` must be generated from `version.config.json`, include `sha256`, and point `apkUrl` to the uploaded APK asset.
+- Keystores and signing files must stay out of git; `.gitignore` must cover `android/keystore.properties`, `*.jks`, `*.keystore`, and `dist-release/`.
+- Runtime update checks must only run on Android.
+- Offline, failed fetches, and invalid `latest.json` must return no update without crashing the app.
+- Optional updates skipped by the user must not prompt again for the same `versionCode`.
+- Mandatory updates must still prompt even when the same `versionCode` was previously skipped.
+- Update UI text must come from `translations.ts`.
+- The update dialog should show current version, latest version, and release notes when available.
+- Manual update checks in Settings should bypass the skipped-version preference and show a clear toast when already up to date.
+- Do not add a native APK downloader, installer plugin, background silent update, or Play Store in-app update flow in this phase.
+
+Run these checks before merge:
+
+```bash
+npm run typecheck
+npm run lint
+npm test
+npm run build
+npx cap sync android
+```
+
 ## Troubleshooting
 
 Wrong keystore:
