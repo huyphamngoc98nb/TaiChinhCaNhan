@@ -1,5 +1,7 @@
 import { render, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { Capacitor } from '@capacitor/core';
+import { logger } from '@/core/telemetry/logger';
 import { AppUpdateGate } from './AppUpdateGate';
 import {
   checkForAndroidUpdate,
@@ -10,6 +12,22 @@ import type { AppUpdateCheckResult } from '../types/app-update.types';
 
 const confirmMock = vi.hoisted(() => vi.fn());
 const showToastMock = vi.hoisted(() => vi.fn());
+const loggerMock = vi.hoisted(() => ({
+  debug: vi.fn(),
+  error: vi.fn(),
+  info: vi.fn(),
+  warn: vi.fn(),
+}));
+
+vi.mock('@capacitor/core', () => ({
+  Capacitor: {
+    getPlatform: vi.fn(),
+  },
+}));
+
+vi.mock('@/core/telemetry/logger', () => ({
+  logger: loggerMock,
+}));
 
 vi.mock('@/shared/components/ConfirmDialog/ConfirmContext', () => ({
   useConfirm: () => ({
@@ -30,6 +48,8 @@ vi.mock('@/shared/context/LanguageContext', () => ({
 }));
 
 vi.mock('../services/app-update.service', () => ({
+  DEFAULT_ANDROID_UPDATE_MANIFEST_URL:
+    'https://huyphamngoc98nb.github.io/TaiChinhCaNhan/latest.json',
   checkForAndroidUpdate: vi.fn(),
   markVersionSkipped: vi.fn(),
   shouldPromptUpdate: vi.fn(),
@@ -65,6 +85,7 @@ describe('AppUpdateGate', () => {
     vi.mocked(shouldPromptUpdate).mockReturnValue(true);
     vi.mocked(checkForAndroidUpdate).mockResolvedValue(updateResult());
     vi.mocked(markVersionSkipped).mockResolvedValue(undefined);
+    vi.mocked(Capacitor.getPlatform).mockReturnValue('android');
     confirmMock.mockResolvedValue(true);
     Object.defineProperty(window, 'open', {
       configurable: true,
@@ -118,5 +139,29 @@ describe('AppUpdateGate', () => {
       ),
     );
     expect(markVersionSkipped).not.toHaveBeenCalled();
+  });
+
+  it('logs and shows a soft failure when auto-check throws unexpectedly', async () => {
+    const error = new Error('unexpected');
+    vi.mocked(checkForAndroidUpdate).mockRejectedValue(error);
+
+    render(<AppUpdateGate />);
+
+    await waitFor(() =>
+      expect(logger.warn).toHaveBeenCalledWith(
+        'Android update auto-check failed unexpectedly.',
+        error,
+        expect.objectContaining({
+          context: 'AppUpdate.check',
+          metadata: expect.objectContaining({
+            action: 'auto-check-on-open',
+            manifestUrl: 'https://huyphamngoc98nb.github.io/TaiChinhCaNhan/latest.json',
+            platform: 'android',
+            status: 'unexpected-error',
+          }),
+        }),
+      ),
+    );
+    expect(showToastMock).toHaveBeenCalledWith('app_update.checking_update_failed', 'error');
   });
 });

@@ -145,6 +145,35 @@ jobs:
           OUTPUT_DIR: dist-release
         run: npm run generate:android-release-metadata
 
+      - name: Publish latest.json to GitHub Pages
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+
+          pages_dir="$(mktemp -d)"
+          git init "${pages_dir}"
+          git -C "${pages_dir}" config user.name "github-actions[bot]"
+          git -C "${pages_dir}" config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git -C "${pages_dir}" remote add origin "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+
+          if git -C "${pages_dir}" fetch --depth=1 origin gh-pages 2>/dev/null; then
+            git -C "${pages_dir}" checkout -B gh-pages FETCH_HEAD
+          else
+            git -C "${pages_dir}" checkout --orphan gh-pages
+          fi
+
+          cp dist-release/latest.json "${pages_dir}/latest.json"
+          git -C "${pages_dir}" add latest.json
+
+          if git -C "${pages_dir}" diff --cached --quiet; then
+            echo "latest.json on gh-pages is already up to date."
+          else
+            git -C "${pages_dir}" commit -m "Publish Android latest.json ${RELEASE_TAG}"
+            git -C "${pages_dir}" push origin HEAD:gh-pages
+          fi
+
       - name: Upload Android release artifact
         uses: actions/upload-artifact@v4
         with:

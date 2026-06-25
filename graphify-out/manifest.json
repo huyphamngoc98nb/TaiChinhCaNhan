@@ -35,8 +35,8 @@
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\version.config.json": {
-    "mtime": 1782352722.6823344,
-    "ast_hash": "a1883ac3171986ceee4bc920abf76fc9",
+    "mtime": 1782370245.207053,
+    "ast_hash": "6acc85672d3312dfaec43d8b6e0573f6",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\vite.config.ts": {
@@ -50,7 +50,7 @@
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\android\\capacitor.settings.gradle": {
-    "mtime": 1782351491.2150435,
+    "mtime": 1782370215.5103385,
     "ast_hash": "89123bba12682673291b5acd3b34b6db",
     "semantic_hash": ""
   },
@@ -75,7 +75,7 @@
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\android\\app\\capacitor.build.gradle": {
-    "mtime": 1782351491.2161777,
+    "mtime": 1782370215.5103385,
     "ast_hash": "d2ec47e7a8d4f17876799728f9b8a39a",
     "semantic_hash": ""
   },
@@ -85,12 +85,12 @@
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\android\\app\\src\\main\\assets\\capacitor.config.json": {
-    "mtime": 1782351491.0977232,
+    "mtime": 1782370214.8762343,
     "ast_hash": "5faad82265b616885f2ca4175082f59a",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\android\\app\\src\\main\\assets\\capacitor.plugins.json": {
-    "mtime": 1782351491.1860232,
+    "mtime": 1782370214.978944,
     "ast_hash": "8062f9058ba4ac6f81610e29eb707414",
     "semantic_hash": ""
   },
@@ -120,12 +120,12 @@
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\android\\capacitor-cordova-android-plugins\\build.gradle": {
-    "mtime": 1782351491.2181768,
+    "mtime": 1782370215.5103385,
     "ast_hash": "2af61653d70c95d20802c8b5c433ba90",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\android\\capacitor-cordova-android-plugins\\cordova.variables.gradle": {
-    "mtime": 1782351491.2191813,
+    "mtime": 1782370215.5103385,
     "ast_hash": "d2372a0ae9aa60abb8d03e7f06bf9194",
     "semantic_hash": ""
   },
@@ -410,8 +410,8 @@
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\core\\db\\migrations\\migration-runner.ts": {
-    "mtime": 1781664193.4086683,
-    "ast_hash": "63b84182b53ff4052ba26d14e7aceea5",
+    "mtime": 1782356993.0087154,
+    "ast_hash": "cc0890284af0e50ab2e437f91ae9b8bc",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\core\\db\\seed\\default-categories.ts": {
@@ -495,13 +495,13 @@
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\core\\telemetry\\error-log.repository.ts": {
-    "mtime": 1781600223.0704043,
-    "ast_hash": "ef85f48545c30ce64d17fec28adf98dc",
+    "mtime": 1782358858.1120691,
+    "ast_hash": "46fb1a619d8a3a7ac7ef336a7ed0cd4f",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\core\\telemetry\\error.service.ts": {
-    "mtime": 1781600260.8802984,
-    "ast_hash": "149449bad3fea8719a7ae655f8889217",
+    "mtime": 1782357214.7564332,
+    "ast_hash": "5270a5fbd28a59ff54f54a9944c01ab2",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\core\\telemetry\\global-error-logging.ts": {
@@ -525,8 +525,8 @@
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\modules\\backup\\pages\\BackupPage.tsx": {
-    "mtime": 1781860444.1882403,
-    "ast_hash": "0235904f62b68bc5e7d03615c606b92d",
+    "mtime": 1782358886.739852,
+    "ast_hash": "6e4d564502f3af156cb189224f5424e3",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\modules\\backup\\services\\auto-backup.service.ts": {
@@ -565,8 +565,8 @@
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\modules\\backup\\services\\validate-backup-payload.ts": {
-    "mtime": 1781678875.590351,
-    "ast_hash": "a7fb4650f8a8900e4b6965ff3a9da27e",
+    "mtime": 1782372166.5826702,
+    "ast_hash": "bec80d0521a1534e0eb6e727ca0d3703",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\modules\\budgets\\components\\BudgetAddSheet.tsx": {
@@ -1095,8 +1095,8 @@
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\modules\\settings\\pages\\SettingsPage.tsx": {
-    "mtime": 1782291442.2807653,
-    "ast_hash": "3d346513e42842b7b74b1aa02a9c36ea",
+    "mtime": 1782356957.6061723,
+    "ast_hash": "d393baeb1f09f1e6d8b4ce442dd31fca",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\modules\\settings\\services\\display-format-settings.service.test.ts": {
@@ -1740,8 +1740,8 @@
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\tests\\backup.test.ts": {
-    "mtime": 1781575068.8377085,
-    "ast_hash": "653695a42e16986096f627f7026aae79",
+    "mtime": 1782372180.488027,
+    "ast_hash": "a430c918155942f5d820208483c8980b",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\tests\\body-scroll-lock.test.tsx": {
@@ -1780,8 +1780,8 @@
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\tests\\db.test.ts": {
-    "mtime": 1781665075.95635,
-    "ast_hash": "2ef64ad9b80fa328055e921d7f82d425",
+    "mtime": 1782357001.5428877,
+    "ast_hash": "b2848b14c5eb531b4f1395fedcae2756",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\tests\\dropdown-list.test.tsx": {
@@ -2145,13 +2145,13 @@
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\.github\\workflows\\android-release.yml": {
-    "mtime": 1782354492.2471046,
-    "ast_hash": "baa416e069fb6b95170332060579138e",
+    "mtime": 1782357086.4335208,
+    "ast_hash": "5c2b203c567023f1946c074c6f523cf7",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\docs\\android-release.md": {
-    "mtime": 1782354493.4523158,
-    "ast_hash": "913b37cb9020a0395f142b8a15c1dcaa",
+    "mtime": 1782357030.7235625,
+    "ast_hash": "644d811a4d7a8a47133537129f419a20",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\modules\\app-update\\index.ts": {
@@ -2160,13 +2160,13 @@
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\modules\\app-update\\services\\app-update.service.test.ts": {
-    "mtime": 1782349101.0605347,
-    "ast_hash": "ad66e1498a9e685d2c02987356b34135",
+    "mtime": 1782356984.1095188,
+    "ast_hash": "d6c50fdd2ae8229a105bdd280127a49c",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\modules\\app-update\\services\\app-update.service.ts": {
-    "mtime": 1782291399.9110248,
-    "ast_hash": "1cb438b9ce9bfac8ecf105e23cc04916",
+    "mtime": 1782356970.0133324,
+    "ast_hash": "0d0603920a0a7cba77fe8216beb2b410",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\modules\\app-update\\types\\app-update.types.ts": {
@@ -2175,13 +2175,13 @@
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\modules\\app-update\\components\\AppUpdateGate.test.tsx": {
-    "mtime": 1782291171.8097272,
-    "ast_hash": "0b52a45d287c0f600295f51bbd4394d7",
+    "mtime": 1782356971.4595315,
+    "ast_hash": "437ed9a0179d8007bf36348d8cc911a0",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\modules\\app-update\\components\\AppUpdateGate.tsx": {
-    "mtime": 1782291403.2374833,
-    "ast_hash": "d26c97fb365c8ed2b33eaac63c384710",
+    "mtime": 1782355873.8404756,
+    "ast_hash": "a6750dbdcce8ea01e0fd3edccbcbd2ba",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\modules\\app-update\\hooks\\useAppUpdatePrompt.ts": {
@@ -2192,6 +2192,21 @@
   "D:\\Personal Project\\TaiXiuCaNhan\\android\\app\\release.keystore.base64.txt": {
     "mtime": 1782352575.2039692,
     "ast_hash": "7b9a521fd1a5aba444176d9822f36926",
+    "semantic_hash": ""
+  },
+  "D:\\Personal Project\\TaiXiuCaNhan\\src\\core\\telemetry\\error.service.test.ts": {
+    "mtime": 1782357215.9729912,
+    "ast_hash": "b226fb33be5195e6c51bb76282b0f835",
+    "semantic_hash": ""
+  },
+  "D:\\Personal Project\\TaiXiuCaNhan\\src\\modules\\settings\\pages\\SettingsPage.test.tsx": {
+    "mtime": 1782357078.7487433,
+    "ast_hash": "25b2a37598059746c0f41478d5467b16",
+    "semantic_hash": ""
+  },
+  "D:\\Personal Project\\TaiXiuCaNhan\\src\\core\\telemetry\\error-log.repository.test.ts": {
+    "mtime": 1782369761.2050433,
+    "ast_hash": "0241a8a41ecfd24630632e57bbae44cf",
     "semantic_hash": ""
   }
 }

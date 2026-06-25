@@ -319,7 +319,7 @@ function validateField(section: string, index: number, row: BackupRow, fieldName
     return `${section}[${index}].${fieldName} must be a ${rule.type}`;
   }
 
-  if (rule.type === 'string' && rule.required && String(value).trim() === '') {
+  if (rule.type === 'string' && rule.required && !rule.nullable && String(value).trim() === '') {
     return `${section}[${index}].${fieldName} cannot be empty`;
   }
 

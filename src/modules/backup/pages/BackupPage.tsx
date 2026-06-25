@@ -7,6 +7,7 @@ import { useConfirm } from '@/shared/components/ConfirmDialog/ConfirmContext';
 import { useLanguage } from '@/shared/context/LanguageContext';
 import { forceAppUnlock, resumeAppLock, suspendAppLock } from '@/app/providers/app-lock-events';
 import { ROUTES } from '@/shared/constants/routes';
+import { logAppError } from '@/core/telemetry/error.service';
 import { exportBackupJson } from '../services/export-backup-json';
 import {
   EncryptedBackupPasswordRequiredError,
@@ -32,6 +33,21 @@ function formatLastRunAt(timestamp: number | null, locale: string, fallback: str
     dateStyle: 'medium',
     timeStyle: 'short',
   }).format(new Date(timestamp));
+}
+
+function errorMessage(error: unknown) {
+  return error instanceof Error ? error.message : String(error);
+}
+
+function backupFileMetadata(file: File | null) {
+  if (!file) return undefined;
+
+  return {
+    fileName: file.name,
+    fileSize: file.size,
+    fileType: file.type,
+    lastModified: file.lastModified,
+  };
 }
 
 export function BackupPage() {
@@ -214,7 +230,14 @@ export function BackupPage() {
         setLoading(false);
         return;
       }
-      showErrorToast(`${t('backup.restore_failed')} ${error.message}`);
+      const userMessage = `${t('backup.restore_failed')} ${errorMessage(error)}`;
+      await logAppError(error, {
+        screen: 'BackupPage',
+        action: 'prepare_restore_preview',
+        userMessage,
+        extra: backupFileMetadata(file),
+      });
+      showErrorToast(userMessage);
       event.target.value = ''; // Reset input
       resumeAppLock();
     } finally {
@@ -234,11 +257,19 @@ export function BackupPage() {
       setPendingEncryptedImport(null);
       setPendingImport(prepared);
     } catch (error: any) {
-      showErrorToast(
-        error instanceof BackupDecryptionError
-          ? t('backup.decrypt_failed')
-          : `${t('backup.restore_failed')} ${error.message}`
-      );
+      const userMessage = error instanceof BackupDecryptionError
+        ? t('backup.decrypt_failed')
+        : `${t('backup.restore_failed')} ${errorMessage(error)}`;
+      await logAppError(error, {
+        screen: 'BackupPage',
+        action: 'prepare_encrypted_restore_preview',
+        userMessage,
+        extra: {
+          ...backupFileMetadata(pendingEncryptedImport),
+          encrypted: true,
+        },
+      });
+      showErrorToast(userMessage);
     } finally {
       setLoading(false);
     }
@@ -271,7 +302,19 @@ export function BackupPage() {
       forceAppUnlock();
       navigate(ROUTES.HOME, { replace: true });
     } catch (error: any) {
-      showErrorToast(`${t('backup.restore_failed')} ${error.message}`);
+      const userMessage = `${t('backup.restore_failed')} ${errorMessage(error)}`;
+      await logAppError(error, {
+        screen: 'BackupPage',
+        action: 'confirm_restore',
+        userMessage,
+        extra: {
+          encrypted: pendingImport.preview.encrypted,
+          version: pendingImport.preview.metadata.version,
+          schemaVersion: pendingImport.preview.metadata.schema_version,
+          counts: pendingImport.preview.counts,
+        },
+      });
+      showErrorToast(userMessage);
       resumeAppLock();
     } finally {
       setLoading(false);

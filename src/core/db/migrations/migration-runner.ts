@@ -502,7 +502,9 @@ export async function runMigrations() {
       migration.version === 20 &&
       await columnExists(db, 'categories', 'description')
     ) {
-      logger.warn(`${migration.name} column already exists. Marking done.`);
+      logger.info(`${migration.name} column already exists. Marking done.`, {
+        context: `Migration.${migration.name}`,
+      });
       await markMigrationDone(db, migration.version, migration.name);
       continue;
     }

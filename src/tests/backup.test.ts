@@ -464,6 +464,58 @@ describe('Backup Module Tests', () => {
       expect(result.error).toContain('wallets[0].balance must be a number');
     });
 
+    it('accepts empty strings for nullable text fields in current backups', () => {
+      const payload = {
+        ...validPayload,
+        wallets: [{
+          id: 'wallet-1',
+          name: 'Cash',
+          currency: 'VND',
+          balance: 1000,
+          account_type: 'cash',
+          icon: null,
+          color: null,
+          sort_order: 0,
+          is_active: 1,
+          exclude_from_total: 0,
+          credit_limit: null,
+          statement_day: null,
+          due_day: null,
+          annual_fee: null,
+          created_at: 1,
+          updated_at: 1,
+        }],
+        categories: [{
+          id: 'category-1',
+          name: 'Food',
+          type: 'expense',
+          icon: null,
+          color: null,
+          description: '',
+          created_at: 1,
+          updated_at: 1,
+        }],
+        transactions: [{
+          id: 'transaction-1',
+          wallet_id: 'wallet-1',
+          category_id: 'category-1',
+          type: 'expense',
+          amount: 100,
+          note: '',
+          receipt_path: '',
+          transaction_date: 1,
+          to_wallet_id: null,
+          created_at: 1,
+          updated_at: 1,
+          deleted_at: null,
+        }],
+      };
+
+      const result = validateBackupPayload(payload);
+
+      expect(result.isValid).toBe(true);
+    });
+
     it('rejects non-array sections', () => {
       const invalid = { ...validPayload, wallets: {} };
       const result = validateBackupPayload(invalid);

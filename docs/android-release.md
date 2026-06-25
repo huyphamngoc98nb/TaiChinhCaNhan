@@ -2,6 +2,8 @@
 
 Workflow `.github/workflows/android-release.yml` builds the Capacitor Android release APK, signs it, generates `latest.json`, and publishes both assets to GitHub Releases. CI must run from a tag named `vX.Y.Z`; the `X.Y.Z` part must match `nativeVersionName` in `version.config.json`.
 
+The APK stays on GitHub Releases. The app reads the update manifest from GitHub Pages at `https://huyphamngoc98nb.github.io/TaiChinhCaNhan/latest.json` because that static URL is friendlier to Android WebView fetch/CORS behavior than GitHub Release download redirects.
+
 ## Operational checklist
 
 Use this checklist for every Android release:
@@ -19,6 +21,7 @@ Use this checklist for every Android release:
 - APK is built successfully.
 - APK is signed with the release key.
 - `latest.json` has the correct `versionName`, `versionCode`, `apkUrl`, and `sha256`.
+- GitHub Pages serves the same `latest.json` at `https://huyphamngoc98nb.github.io/TaiChinhCaNhan/latest.json`.
 - APK installs over the previous version.
 - `versionCode` is greater than the previous release.
 
@@ -108,6 +111,18 @@ Check `latest.json` includes:
 
 If `RELEASE_NOTES.md` exists at the repo root, the workflow uses it as the GitHub Release notes. Otherwise it uses `Android release vX.Y.Z`.
 
+## GitHub Pages manifest
+
+The workflow also publishes `dist-release/latest.json` to the root of the `gh-pages` branch:
+
+```text
+https://huyphamngoc98nb.github.io/TaiChinhCaNhan/latest.json
+```
+
+This file should be identical to the `latest.json` uploaded to the GitHub Release. GitHub Pages must be enabled for the repository with the `gh-pages` branch as the Pages source.
+
+Only `latest.json` is published to GitHub Pages. The APK is not published to Pages; `apkUrl` inside `latest.json` still points to the APK asset on the matching GitHub Release.
+
 ## Phase A/B merge readiness
 
 Review this checklist before merging Android release or app-update changes:
@@ -116,6 +131,7 @@ Review this checklist before merging Android release or app-update changes:
 - CI must not commit or rewrite `version.config.json`.
 - Release tags must use `vX.Y.Z` and match `nativeVersionName` in `version.config.json`.
 - `latest.json` must be generated from `version.config.json`, include `sha256`, and point `apkUrl` to the uploaded APK asset.
+- App update checks should fetch `latest.json` from GitHub Pages, while APK downloads should keep using GitHub Release assets.
 - Keystores and signing files must stay out of git; `.gitignore` must cover `android/keystore.properties`, `*.jks`, `*.keystore`, and `dist-release/`.
 - Runtime update checks must only run on Android.
 - Offline, failed fetches, and invalid `latest.json` must return no update without crashing the app.

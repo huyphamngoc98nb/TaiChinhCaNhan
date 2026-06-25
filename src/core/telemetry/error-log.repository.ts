@@ -50,6 +50,10 @@ export function readPendingErrorLogs(): StructuredLogEntry[] {
   return readPendingLogs();
 }
 
+function appendPendingLog(entry: StructuredLogEntry) {
+  writePendingLogs([...readPendingLogs(), entry]);
+}
+
 export class ErrorLogRepository {
   private async insert(entry: StructuredLogEntry): Promise<void> {
     const db = await getDbConnection();
@@ -81,12 +85,17 @@ export class ErrorLogRepository {
 
   async append(entry: StructuredLogEntry): Promise<void> {
     if (!(await isDatabaseReady())) {
-      writePendingLogs([...readPendingLogs(), entry]);
+      appendPendingLog(entry);
       return;
     }
 
-    await this.flushPending();
-    await this.insert(entry);
+    try {
+      await this.flushPending();
+      await this.insert(entry);
+    } catch (error) {
+      appendPendingLog(entry);
+      throw error;
+    }
   }
 
   async list(limit = 200): Promise<ErrorLogRecord[]> {

@@ -4,7 +4,12 @@ import { Capacitor } from '@capacitor/core';
 import { ROUTES } from '@/shared/constants/routes';
 import { BackButton } from '@/shared/components/BackButton';
 import { useToast } from '@/shared/components/Toast/ToastContext';
-import { clearErrorLogs, exportErrorLogs, logAppError } from '@/core/telemetry/error.service';
+import {
+  clearErrorLogs,
+  exportErrorLogs,
+  isShareCanceledError,
+  logAppError,
+} from '@/core/telemetry/error.service';
 import {
   checkForAndroidUpdate,
   getCurrentAppVersion,
@@ -97,6 +102,10 @@ export function SettingsPage() {
           : t('settings.export_logs_success')
       );
     } catch (error) {
+      if (isShareCanceledError(error)) {
+        return;
+      }
+
       void logAppError(error, {
         screen: 'SettingsPage',
         action: 'exportErrorLogs',

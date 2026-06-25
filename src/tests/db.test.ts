@@ -8,6 +8,7 @@ import { SQLiteWalletRepository } from '../modules/wallets/repositories/sqlite-w
 import { SQLiteCategoryRepository } from '../modules/categories/repositories/sqlite-category.repository';
 import { WalletService } from '../modules/wallets/services/wallet.service';
 import * as connection from '../core/db/sqlite/connection';
+import { logger } from '@/core/telemetry/logger';
 
 // Mock the DB connection and logger
 vi.mock('../core/db/sqlite/connection', () => ({
@@ -223,6 +224,13 @@ describe('Database SQLite Tests', () => {
     expectMigrationMarked(24, '024_loan_categories');
     expectMigrationMarked(25, '025_loan_skip_transaction');
     expectMigrationMarked(26, '026_loan_linked_transaction');
+    expect(logger.warn).not.toHaveBeenCalledWith(
+      '020_category_description column already exists. Marking done.'
+    );
+    expect(logger.info).toHaveBeenCalledWith(
+      '020_category_description column already exists. Marking done.',
+      { context: 'Migration.020_category_description' }
+    );
   });
 
   it('repairs legacy loan numbering when linked transaction was recorded as version 25 before skip transaction', async () => {

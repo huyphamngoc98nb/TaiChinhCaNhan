@@ -62,6 +62,28 @@ function normalizeError(error: unknown): NormalizedError {
   };
 }
 
+export function isShareCanceledError(error: unknown): boolean {
+  const normalized = normalizeError(error);
+  const errorObject =
+    error !== null && typeof error === 'object' ? (error as Record<string, unknown>) : null;
+  const candidates = [
+    normalized.name,
+    normalized.message,
+    typeof errorObject?.name === 'string' ? errorObject.name : null,
+    typeof errorObject?.message === 'string' ? errorObject.message : null,
+    typeof errorObject?.code === 'string' ? errorObject.code : null,
+    typeof normalized.value === 'string' ? normalized.value : null,
+  ]
+    .filter((value): value is string => typeof value === 'string')
+    .map((value) => value.toLowerCase());
+
+  return candidates.some((value) =>
+    /\bshare\s+cancell?ed\b/.test(value) ||
+    /\bcancell?ed\s+share\b/.test(value) ||
+    /\buser\s+cancell?ed\b/.test(value)
+  );
+}
+
 async function getAppVersion(): Promise<string | null> {
   if (Capacitor.getPlatform() === 'web') return null;
 
