@@ -109,7 +109,7 @@ jobs:
           printf '%s' "${ANDROID_KEYSTORE_BASE64}" | base64 --decode > android/release.keystore
 
           {
-            echo 'storeFile=release.keystore'
+            echo 'storeFile=../release.keystore'
             echo "storePassword=${ANDROID_KEYSTORE_PASSWORD}"
             echo "keyAlias=${ANDROID_KEY_ALIAS}"
             echo "keyPassword=${ANDROID_KEY_PASSWORD}"
