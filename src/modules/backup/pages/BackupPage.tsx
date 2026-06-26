@@ -21,10 +21,13 @@ import { BackupPasswordDialog } from '../components/BackupPasswordDialog';
 import {
   AutoBackupInterval,
   AutoBackupSettings,
+  clearAutoBackupEncryptionPassword,
   getAutoBackupSettings,
   runAutoBackupIfDue,
+  setAutoBackupEncryptionPassword,
   updateAutoBackupSettings,
 } from '../services/auto-backup.service';
+import { isSecureSecretStoreAvailable } from '@/core/security/secure-secret-store';
 import type { BackupRetentionSettings } from '../domain/backup-file.model';
 import {
   getAutoBackupRetentionSettings,
@@ -41,7 +44,10 @@ function formatLastRunAt(timestamp: number | null, locale: string, fallback: str
 }
 
 function errorMessage(error: unknown) {
-  return error instanceof Error ? error.message : String(error);
+  if (error instanceof Error) return error.message;
+  if (typeof error === 'string') return error;
+  if (error == null) return '';
+  return String(error);
 }
 
 function backupFileMetadata(file: File | null) {
@@ -67,6 +73,9 @@ export function BackupPage() {
   const [retentionSettings, setRetentionSettings] = useState<BackupRetentionSettings | null>(null);
   const [retentionLoading, setRetentionLoading] = useState(true);
   const [retentionSaving, setRetentionSaving] = useState(false);
+  const [autoEncryptionDialogOpen, setAutoEncryptionDialogOpen] = useState(false);
+  const [autoEncryptionPassword, setAutoEncryptionPassword] = useState('');
+  const [confirmAutoEncryptionPassword, setConfirmAutoEncryptionPassword] = useState('');
   const [encryptExport, setEncryptExport] = useState(true);
   const [exportPassword, setExportPassword] = useState('');
   const [confirmExportPassword, setConfirmExportPassword] = useState('');
@@ -74,6 +83,7 @@ export function BackupPage() {
   const [pendingImport, setPendingImport] = useState<PreparedBackupImport | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const restoreInProgressRef = useRef(false);
+  const secureSecretStoreAvailable = isSecureSecretStoreAvailable();
 
   useEffect(() => {
     let mounted = true;
@@ -99,10 +109,14 @@ export function BackupPage() {
 
         if (result.saved) {
           showSuccessToast(t('backup.auto_backup_ran'));
+        } else if (result.reason === 'missing_encryption_secret') {
+          showErrorToast(t('backup.auto_encryption_missing_secret'));
+        } else if (result.reason === 'encryption_failed') {
+          showErrorToast(t('backup.auto_encryption_failed'));
         }
-      } catch (error: any) {
+      } catch (error: unknown) {
         if (mounted) {
-          showErrorToast(error?.message || t('backup.auto_settings_load_failed'));
+          showErrorToast(errorMessage(error) || t('backup.auto_settings_load_failed'));
         }
       } finally {
         if (mounted) {
@@ -131,8 +145,8 @@ export function BackupPage() {
       showSuccessToast(
         nextEnabled ? t('backup.auto_backup_enabled') : t('backup.auto_backup_disabled')
       );
-    } catch (error: any) {
-      showErrorToast(error?.message || t('backup.auto_settings_save_failed'));
+    } catch (error: unknown) {
+      showErrorToast(errorMessage(error) || t('backup.auto_settings_save_failed'));
     } finally {
       setAutoSaving(false);
     }
@@ -146,8 +160,72 @@ export function BackupPage() {
       const nextSettings = await updateAutoBackupSettings({ interval });
       setAutoSettings(nextSettings);
       showSuccessToast(t('backup.auto_interval_updated'));
-    } catch (error: any) {
-      showErrorToast(error?.message || t('backup.auto_settings_save_failed'));
+    } catch (error: unknown) {
+      showErrorToast(errorMessage(error) || t('backup.auto_settings_save_failed'));
+    } finally {
+      setAutoSaving(false);
+    }
+  };
+
+  const handleToggleAutoEncryption = async () => {
+    if (!autoSettings || autoSaving) return;
+
+    if (!secureSecretStoreAvailable) {
+      showErrorToast(t('backup.auto_encryption_native_only'));
+      return;
+    }
+
+    if (!autoSettings.encryptionEnabled) {
+      setAutoEncryptionPassword('');
+      setConfirmAutoEncryptionPassword('');
+      setAutoEncryptionDialogOpen(true);
+      return;
+    }
+
+    const ok = await confirm({
+      title: t('backup.auto_disable_encryption_title'),
+      message: t('backup.auto_disable_encryption_message'),
+      confirmText: t('backup.auto_disable_encryption_confirm'),
+      cancelText: t('common.cancel'),
+    });
+    if (!ok) return;
+
+    setAutoSaving(true);
+    try {
+      const nextSettings = await clearAutoBackupEncryptionPassword();
+      setAutoSettings(nextSettings);
+      showSuccessToast(t('backup.auto_encryption_disabled'));
+    } catch (error: unknown) {
+      showErrorToast(errorMessage(error) || t('backup.auto_settings_save_failed'));
+    } finally {
+      setAutoSaving(false);
+    }
+  };
+
+  const handleSaveAutoEncryptionPassword = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (autoSaving) return;
+
+    if (autoEncryptionPassword.length < 8) {
+      showErrorToast(t('backup.password_too_short'));
+      return;
+    }
+
+    if (autoEncryptionPassword !== confirmAutoEncryptionPassword) {
+      showErrorToast(t('backup.password_mismatch'));
+      return;
+    }
+
+    setAutoSaving(true);
+    try {
+      const nextSettings = await setAutoBackupEncryptionPassword(autoEncryptionPassword);
+      setAutoSettings(nextSettings);
+      setAutoEncryptionDialogOpen(false);
+      setAutoEncryptionPassword('');
+      setConfirmAutoEncryptionPassword('');
+      showSuccessToast(t('backup.auto_encryption_enabled'));
+    } catch (error: unknown) {
+      showErrorToast(errorMessage(error) || t('backup.auto_settings_save_failed'));
     } finally {
       setAutoSaving(false);
     }
@@ -168,8 +246,8 @@ export function BackupPage() {
       const nextSettings = await updateAutoBackupRetentionSettings({ maxFiles });
       setRetentionSettings(nextSettings);
       showSuccessToast(t('backup.retention_updated'));
-    } catch (error: any) {
-      showErrorToast(error?.message || t('backup.retention_update_failed'));
+    } catch (error: unknown) {
+      showErrorToast(errorMessage(error) || t('backup.retention_update_failed'));
     } finally {
       setRetentionSaving(false);
     }
@@ -209,8 +287,8 @@ export function BackupPage() {
         forceAppUnlock();
         navigate(ROUTES.HOME, { replace: true });
       }
-    } catch (error: any) {
-      showErrorToast(`${t('backup.export_failed')} ${error.message}`);
+    } catch (error: unknown) {
+      showErrorToast(`${t('backup.export_failed')} ${errorMessage(error)}`);
     } finally {
       setLoading(false);
     }
@@ -258,7 +336,7 @@ export function BackupPage() {
       setPendingImport(prepared);
       preparedForPreview = true;
       event.target.value = '';
-    } catch (error: any) {
+    } catch (error: unknown) {
       if (error instanceof EncryptedBackupPasswordRequiredError) {
         awaitingPassword = true;
         setPendingEncryptedImport(file);
@@ -292,7 +370,7 @@ export function BackupPage() {
       const prepared = await prepareBackupImport(pendingEncryptedImport, password);
       setPendingEncryptedImport(null);
       setPendingImport(prepared);
-    } catch (error: any) {
+    } catch (error: unknown) {
       const userMessage = error instanceof BackupDecryptionError
         ? t('backup.decrypt_failed')
         : `${t('backup.restore_failed')} ${errorMessage(error)}`;
@@ -337,7 +415,7 @@ export function BackupPage() {
       showSuccessToast(t('backup.restore_success'));
       forceAppUnlock();
       navigate(ROUTES.HOME, { replace: true });
-    } catch (error: any) {
+    } catch (error: unknown) {
       const userMessage = `${t('backup.restore_failed')} ${errorMessage(error)}`;
       await logAppError(error, {
         screen: 'BackupPage',
@@ -388,6 +466,21 @@ export function BackupPage() {
       : t('backup.auto_status_off');
   const autoStatusColor =
     !autoLoading && autoSettings?.enabled ? '#059669' : 'var(--text-muted)';
+  const autoEncryptionStatusLabel = autoLoading
+    ? t('common.loading')
+    : !secureSecretStoreAvailable
+      ? t('backup.auto_encryption_native_only_short')
+      : autoSettings?.encryptionEnabled
+        ? autoSettings.encryptionConfigured
+          ? t('backup.encrypted_status')
+          : t('backup.auto_encryption_missing_secret_short')
+        : t('backup.auto_encryption_unencrypted');
+  const autoEncryptionStatusColor =
+    autoSettings?.encryptionEnabled && autoSettings.encryptionConfigured
+      ? '#059669'
+      : autoSettings?.encryptionEnabled
+        ? '#be123c'
+        : 'var(--text-muted)';
   const importPreviewSummary = pendingImport
     ? `File backup hợp lệ. Sẽ nhập ${pendingImport.preview.counts.wallets} ví, ${pendingImport.preview.counts.transactions} giao dịch, ${pendingImport.preview.counts.categories} danh mục, ${pendingImport.preview.counts.budgets} ngân sách và ${pendingImport.preview.counts.loans} khoản vay.`
     : '';
@@ -533,7 +626,9 @@ export function BackupPage() {
                 {t('backup.auto_desc')}
               </p>
               <p style={{ margin: '6px 0 0', fontSize: '0.78rem', color: '#b45309' }}>
-                {t('backup.auto_plaintext_warning')}
+                {autoSettings?.encryptionEnabled && autoSettings.encryptionConfigured
+                  ? t('backup.auto_encrypted_note')
+                  : t('backup.auto_plaintext_warning')}
               </p>
             </div>
             <button
@@ -599,6 +694,81 @@ export function BackupPage() {
                 </button>
               );
             })}
+          </div>
+
+          <div
+            style={{
+              marginTop: '16px',
+              paddingTop: '16px',
+              borderTop: '1px solid var(--border)',
+              display: 'grid',
+              gap: '10px',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px' }}>
+              <div>
+                <h4 style={{ margin: 0, fontSize: '0.95rem', fontWeight: '700' }}>
+                  {t('backup.auto_encryption_title')}
+                </h4>
+                <p
+                  style={{
+                    margin: '4px 0 0',
+                    fontSize: '0.8rem',
+                    color: 'var(--text-muted)',
+                    lineHeight: 1.45,
+                  }}
+                >
+                  {t('backup.auto_encryption_desc')}
+                </p>
+              </div>
+              <button
+                type="button"
+                role="switch"
+                aria-checked={Boolean(autoSettings?.encryptionEnabled)}
+                aria-label={t('backup.auto_encryption_toggle')}
+                onClick={() => void handleToggleAutoEncryption()}
+                disabled={autoControlsDisabled || !autoSettings || !secureSecretStoreAvailable}
+                style={{
+                  width: '52px',
+                  height: '30px',
+                  borderRadius: '999px',
+                  border: 'none',
+                  background: autoSettings?.encryptionEnabled ? 'var(--primary)' : '#d1d5db',
+                  padding: '3px',
+                  cursor:
+                    autoControlsDisabled || !autoSettings || !secureSecretStoreAvailable
+                      ? 'not-allowed'
+                      : 'pointer',
+                  opacity:
+                    (autoControlsDisabled || !secureSecretStoreAvailable) && !autoLoading ? 0.75 : 1,
+                  transition: 'background 0.2s',
+                  flexShrink: 0,
+                }}
+              >
+                <span
+                  style={{
+                    display: 'block',
+                    width: '24px',
+                    height: '24px',
+                    borderRadius: '50%',
+                    background: '#fff',
+                    boxShadow: '0 2px 6px rgba(15, 23, 42, 0.2)',
+                    transform: autoSettings?.encryptionEnabled ? 'translateX(22px)' : 'translateX(0)',
+                    transition: 'transform 0.2s',
+                  }}
+                />
+              </button>
+            </div>
+            {!secureSecretStoreAvailable && (
+              <p style={{ margin: 0, color: '#b45309', fontSize: '0.8rem', lineHeight: 1.4 }}>
+                {t('backup.auto_encryption_native_only')}
+              </p>
+            )}
+            {autoSettings?.encryptionEnabled && !autoSettings.encryptionConfigured && (
+              <p style={{ margin: 0, color: '#be123c', fontSize: '0.8rem', lineHeight: 1.4 }}>
+                {t('backup.auto_encryption_missing_secret')}
+              </p>
+            )}
           </div>
 
           <div
@@ -681,6 +851,12 @@ export function BackupPage() {
             <div style={{ display: 'flex', justifyContent: 'space-between', gap: '12px' }}>
               <span style={{ color: 'var(--text-muted)' }}>{t('backup.auto_current_interval')}</span>
               <strong>{autoLoading ? t('common.loading') : selectedIntervalLabel}</strong>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', gap: '12px' }}>
+              <span style={{ color: 'var(--text-muted)' }}>{t('backup.auto_encryption_status')}</span>
+              <strong style={{ color: autoEncryptionStatusColor, textAlign: 'right' }}>
+                {autoEncryptionStatusLabel}
+              </strong>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', gap: '12px' }}>
               <span style={{ color: 'var(--text-muted)' }}>{t('backup.auto_last_run')}</span>
@@ -868,6 +1044,81 @@ export function BackupPage() {
           onSubmit={handleEncryptedImport}
           onCancel={handleCancelEncryptedImport}
         />
+      )}
+      {autoEncryptionDialogOpen && (
+        <div
+          className="confirm-overlay"
+          onClick={autoSaving ? undefined : () => setAutoEncryptionDialogOpen(false)}
+        >
+          <form
+            className="confirm-dialog"
+            onSubmit={(event) => void handleSaveAutoEncryptionPassword(event)}
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="confirm-content" style={{ textAlign: 'left' }}>
+              <h3 className="confirm-title">{t('backup.auto_encryption_password_title')}</h3>
+              <label style={{ display: 'grid', gap: '6px', marginTop: '16px', fontSize: '0.9rem' }}>
+                <span>{t('backup.backup_password')}</span>
+                <input
+                  autoFocus
+                  type="password"
+                  value={autoEncryptionPassword}
+                  onChange={(event) => setAutoEncryptionPassword(event.target.value)}
+                  disabled={autoSaving}
+                  autoComplete="new-password"
+                  style={{
+                    width: '100%',
+                    boxSizing: 'border-box',
+                    padding: '12px',
+                    border: '1px solid var(--border)',
+                    borderRadius: '10px',
+                    background: 'var(--bg)',
+                    color: 'var(--text)',
+                  }}
+                />
+              </label>
+              <label style={{ display: 'grid', gap: '6px', marginTop: '12px', fontSize: '0.9rem' }}>
+                <span>{t('backup.confirm_password')}</span>
+                <input
+                  type="password"
+                  value={confirmAutoEncryptionPassword}
+                  onChange={(event) => setConfirmAutoEncryptionPassword(event.target.value)}
+                  disabled={autoSaving}
+                  autoComplete="new-password"
+                  style={{
+                    width: '100%',
+                    boxSizing: 'border-box',
+                    padding: '12px',
+                    border: '1px solid var(--border)',
+                    borderRadius: '10px',
+                    background: 'var(--bg)',
+                    color: 'var(--text)',
+                  }}
+                />
+              </label>
+              <p className="confirm-message" style={{ textAlign: 'left', marginBottom: 0 }}>
+                {t('backup.password_loss_warning')}
+              </p>
+            </div>
+            <div className="confirm-actions">
+              <button
+                type="button"
+                className="confirm-button"
+                onClick={() => setAutoEncryptionDialogOpen(false)}
+                disabled={autoSaving}
+              >
+                {t('common.cancel')}
+              </button>
+              <button
+                type="submit"
+                className="confirm-button confirm-button-danger"
+                disabled={!autoEncryptionPassword || !confirmAutoEncryptionPassword || autoSaving}
+              >
+                {autoSaving ? t('common.processing') : t('backup.auto_encryption_enable')}
+              </button>
+            </div>
+          </form>
+        </div>
       )}
     </div>
   );

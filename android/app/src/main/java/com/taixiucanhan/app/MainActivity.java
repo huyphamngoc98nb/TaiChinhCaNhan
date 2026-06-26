@@ -10,6 +10,7 @@ public class MainActivity extends BridgeActivity {
         registerPlugin(NativeBiometricPlugin.class);
         registerPlugin(DocumentSaverPlugin.class);
         registerPlugin(HapticFeedbackPlugin.class);
+        registerPlugin(SecureSecretStorePlugin.class);
         super.onCreate(savedInstanceState);
     }
 }

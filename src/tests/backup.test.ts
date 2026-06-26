@@ -244,6 +244,22 @@ describe('Backup Module Tests', () => {
       expect(mockDb.executeSet).toHaveBeenCalled();
     });
 
+    it('previews an encrypted auto backup envelope with the correct password', async () => {
+      const envelope = await encryptBackupPayload(validPayload, 'correct-password');
+      const file = new File(
+        [JSON.stringify(envelope)],
+        'expense_tracker_auto_backup_2026-06-26_08-30.json',
+        { type: 'application/json' }
+      );
+
+      const prepared = await prepareBackupImport(file, 'correct-password');
+
+      expect(prepared.preview.encrypted).toBe(true);
+      expect(prepared.preview.counts.wallets).toBe(validPayload.wallets.length);
+      expect(prepared.payload).toMatchObject(validPayload);
+      expect(prepared.payload.metadata.app_name).toBe('TaiXiuCaNhan');
+    });
+
     it('does not restore an encrypted backup when the password is wrong', async () => {
       const envelope = await encryptBackupPayload(validPayload, 'correct-password');
       const file = new File([JSON.stringify(envelope)], 'encrypted_backup.json', {

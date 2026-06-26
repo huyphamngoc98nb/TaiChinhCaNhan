@@ -397,8 +397,15 @@ Trên Web, trình duyệt có thể hạn chế khả năng xóa tệp đã tả
 metadata và có thể báo lỗi cleanup, nhưng không quét toàn bộ thư mục Downloads và không xóa theo
 mẫu tên tệp.
 
-Backup tự động hiện vẫn là plaintext vì ứng dụng không lưu mật khẩu backup. Hãy bảo vệ các tệp này
-và không lưu chúng ở vị trí người khác có thể truy cập.
+Backup tự động có thể được mã hóa trên Android/native. Khi bật mã hóa, bạn nhập mật khẩu riêng cho
+backup tự động; mật khẩu này được lưu trong secure storage của thiết bị, không lưu trong SQLite,
+`app_settings`, localStorage, sessionStorage hoặc IndexedDB. Nếu chuyển sang thiết bị mới hoặc cài
+lại ứng dụng, bạn cần cấu hình lại mật khẩu backup tự động.
+
+Nếu quên mật khẩu, các file backup tự động đã mã hóa không thể khôi phục. Nếu mã hóa đang bật nhưng
+secure storage không còn mật khẩu, ứng dụng không tự chuyển sang lưu plaintext và sẽ không cập nhật
+lần chạy backup cuối. Trên Web, mã hóa backup tự động không được bật vì trình duyệt không có secure
+storage native dài hạn cho mật khẩu này.
 
 ### Khôi phục từ backup
 
@@ -413,9 +420,9 @@ và không lưu chúng ở vị trí người khác có thể truy cập.
 
 ### Bảo vệ tệp backup
 
-SQLCipher chỉ bảo vệ cơ sở dữ liệu local trên thiết bị. Backup thủ công đã mã hóa bảo vệ riêng tệp
-export bằng mật khẩu. Backup plaintext và backup tự động vẫn có thể bị đọc bằng công cụ thông thường
-nếu còn tồn tại, vì vậy hãy xóa hoặc lưu chúng ở vị trí an toàn.
+SQLCipher chỉ bảo vệ cơ sở dữ liệu local trên thiết bị. Backup đã mã hóa bảo vệ riêng tệp export
+bằng mật khẩu. Backup plaintext vẫn có thể bị đọc bằng công cụ thông thường nếu còn tồn tại, vì vậy
+hãy xóa hoặc lưu chúng ở vị trí an toàn.
 
 ## 12. Cài đặt
 
@@ -462,7 +469,7 @@ Chẩn đoán cơ sở dữ liệu chỉ hiển thị trong môi trường phát
 - Trên native, cơ sở dữ liệu được mở bằng SQLCipher sau khi xác thực PIN.
 - PIN không được lưu trực tiếp trong mã ứng dụng hoặc local storage.
 - Mất PIN có thể làm dữ liệu native đã mã hóa không thể truy cập.
-- Backup thủ công nên được mã hóa bằng mật khẩu; backup plaintext và backup tự động cần được người dùng tự bảo vệ.
+- Backup thủ công và backup tự động nên được mã hóa bằng mật khẩu khi có thể; backup plaintext cần được người dùng tự bảo vệ.
 - Xóa dữ liệu trình duyệt có thể làm mất dữ liệu bản Web nếu chưa có backup.
 - Backup không đóng gói tệp ảnh hóa đơn vật lý.
 

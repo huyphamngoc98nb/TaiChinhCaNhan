@@ -15,13 +15,15 @@ The app must authenticate the user before opening the database connection. `AppB
   the same way as native.
 - Manual backup export: encryption is enabled by default and uses a user-provided password with
   PBKDF2-SHA-256 and AES-GCM. AES-GCM detects a wrong password or a modified backup file.
+- Automatic backup export can also be encrypted on native Android. The auto-backup password is
+  stored through the app's secure secret store, not in SQLite settings.
 - SQLCipher protects the local database file only. Encrypted backup export separately protects the
   exported file.
-- Plaintext manual exports remain available for compatibility, and automatic backups are still
-  plaintext. Anyone with access to those files can read their contents.
+- Plaintext manual exports remain available for compatibility. Plaintext automatic backups are also
+  possible when auto-backup encryption is disabled. Anyone with access to plaintext files can read
+  their contents.
 - Automatic backup retention manages only local metadata for automatic backup files recorded by the
-  app. It does not encrypt backup files.
-- Automatic backups remain plaintext until a later automatic-backup encryption phase is implemented.
+  app. It preserves each backup file's encrypted/plaintext state and only deletes old auto backups.
 - Retention does not scan the whole Downloads folder and does not delete files outside recorded
   automatic-backup metadata.
 
@@ -41,6 +43,13 @@ The app must authenticate the user before opening the database connection. `AppB
 - The app does not persist the PIN in app code or local storage.
 - Backup passwords are not stored in `app_settings` or elsewhere by the app. Losing a backup
   password makes that encrypted backup unrecoverable.
+- The automatic-backup password is stored under `auto_backup_password` in the native secure secret
+  store. It is never stored in `app_settings`, SQLite rows, localStorage, sessionStorage, or
+  IndexedDB, and it is never included in backup payloads.
+- On Web, the secure secret store intentionally does not persist secrets. Encrypted automatic backup
+  is therefore unavailable on Web unless a native secure-storage equivalent is added.
+- If auto-backup encryption is enabled but the secure secret is missing, the app does not save a
+  plaintext fallback and does not update `auto_backup_last_run_at`.
 
 ### PIN Recovery And Local Reset
 
@@ -55,5 +64,5 @@ The app must authenticate the user before opening the database connection. `AppB
 
 ### Remaining Security Work
 
-1. Add a secure password-management design before encrypting automatic backups.
-2. Test fresh install, app upgrade from unencrypted DB, encrypted/plaintext restore, biometric failure, local reset, and secret rotation on real devices.
+1. Test fresh install, app upgrade from unencrypted DB, encrypted/plaintext restore, biometric failure, local reset, auto-backup encryption, and secret rotation on real devices.
+2. Add an iOS native secure-secret-store implementation before enabling encrypted automatic backup on iOS.

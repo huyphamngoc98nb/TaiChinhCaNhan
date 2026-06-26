@@ -105,8 +105,8 @@
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\android\\app\\src\\main\\java\\com\\taixiucanhan\\app\\MainActivity.java": {
-    "mtime": 1782183435.2610214,
-    "ast_hash": "94377c6fa5e4fd27e276922bf94a5a0c",
+    "mtime": 1782436875.531482,
+    "ast_hash": "a94a017efaa53fd6179d09eddec1a394",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\android\\app\\src\\main\\java\\com\\taixiucanhan\\app\\NativeBiometricPlugin.java": {
@@ -525,13 +525,13 @@
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\modules\\backup\\pages\\BackupPage.tsx": {
-    "mtime": 1782382678.9290004,
-    "ast_hash": "f9da54e26807dc6b308d0083e8b44b1c",
+    "mtime": 1782437139.5708714,
+    "ast_hash": "7de986ccbb3d47725fd31db10e2168e1",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\modules\\backup\\services\\auto-backup.service.ts": {
-    "mtime": 1782382631.7464721,
-    "ast_hash": "c1d05ec373800ee304a63818270f819d",
+    "mtime": 1782436910.0707085,
+    "ast_hash": "c02ccd76aaf26d8a595f0a9279357172",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\modules\\backup\\services\\encrypted-backup.ts": {
@@ -1580,8 +1580,8 @@
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\shared\\constants\\translations.ts": {
-    "mtime": 1782382695.937211,
-    "ast_hash": "5a945ce70247ef2e6d8e3f011f2e09fb",
+    "mtime": 1782437829.6573904,
+    "ast_hash": "bd008bf9a092ea374bdbfd805b69ec82",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\shared\\context\\CurrencyContext.tsx": {
@@ -1735,13 +1735,13 @@
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\tests\\auto-backup.test.ts": {
-    "mtime": 1782382741.9891932,
-    "ast_hash": "41e7a0f0e9d94a9eef63671fc073d951",
+    "mtime": 1782437317.2490284,
+    "ast_hash": "566832fb64438121dbff78a5919f6950",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\tests\\backup.test.ts": {
-    "mtime": 1782372180.488027,
-    "ast_hash": "a430c918155942f5d820208483c8980b",
+    "mtime": 1782437527.9753685,
+    "ast_hash": "0e8a7a4bef066b84c5c3c7a4249038fc",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\tests\\body-scroll-lock.test.tsx": {
@@ -1960,8 +1960,8 @@
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\docs\\security.md": {
-    "mtime": 1782382713.5354173,
-    "ast_hash": "cefd2abbe9dafe16c910ed4761e95223",
+    "mtime": 1782437395.7798572,
+    "ast_hash": "cc9b9e5df6ee880a109281b75b1dd7ad",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\docs\\state-management.md": {
@@ -1970,8 +1970,8 @@
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\docs\\user-guide.md": {
-    "mtime": 1782382711.8716536,
-    "ast_hash": "0c1760609f68d92952d1c88dc7640dfd",
+    "mtime": 1782437434.101647,
+    "ast_hash": "30032530fd39efdebcb34f4f40ecd81a",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\android\\app\\src\\main\\res\\drawable\\splash.png": {
@@ -2232,6 +2232,11 @@
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\tests\\backup-retention.test.ts": {
     "mtime": 1782381540.083131,
     "ast_hash": "23c49663a1369038c1e26b782af19ba3",
+    "semantic_hash": ""
+  },
+  "D:\\Personal Project\\TaiXiuCaNhan\\android\\app\\src\\main\\java\\com\\taixiucanhan\\app\\SecureSecretStorePlugin.java": {
+    "mtime": 1782436873.450416,
+    "ast_hash": "c9fc63334fce2efe15d6ed79815741fc",
     "semantic_hash": ""
   }
 }

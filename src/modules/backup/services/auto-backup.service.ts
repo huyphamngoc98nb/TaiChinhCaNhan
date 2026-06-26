@@ -4,12 +4,23 @@ import { exportBackupJson } from './export-backup-json';
 import { registerBackupFile } from './backup-file.repository';
 import { cleanupOldAutoBackups } from './backup-retention.service';
 import { saveAutoBackupFile } from './save-auto-backup-file';
+import { encryptBackupPayload } from './encrypted-backup';
+import {
+  AUTO_BACKUP_PASSWORD_SECRET_KEY,
+  secureSecretStore,
+} from '@/core/security/secure-secret-store';
 
 export const AUTO_BACKUP_SETTING_KEYS = {
   enabled: 'auto_backup_enabled',
   interval: 'auto_backup_interval',
   lastRunAt: 'auto_backup_last_run_at',
+  encryptionEnabled: 'auto_backup_encryption_enabled',
+  encryptionConfigured: 'auto_backup_encryption_configured',
+  encryptionVersion: 'auto_backup_encryption_version',
 } as const;
+
+const AUTO_BACKUP_ENCRYPTION_VERSION = '1';
+const MIN_AUTO_BACKUP_PASSWORD_LENGTH = 8;
 
 export const AUTO_BACKUP_INTERVALS = ['daily', 'weekly', 'monthly'] as const;
 
@@ -19,6 +30,8 @@ export interface AutoBackupSettings {
   enabled: boolean;
   interval: AutoBackupInterval;
   lastRunAt: number | null;
+  encryptionEnabled: boolean;
+  encryptionConfigured: boolean;
 }
 
 export interface UpdateAutoBackupSettingsInput {
@@ -29,6 +42,8 @@ export interface UpdateAutoBackupSettingsInput {
 export type AutoBackupRunReason =
   | 'disabled'
   | 'not_due'
+  | 'missing_encryption_secret'
+  | 'encryption_failed'
   | 'saved'
   | 'save_cancelled'
   | 'failed';
@@ -57,6 +72,8 @@ const DEFAULT_AUTO_BACKUP_SETTINGS: AutoBackupSettings = {
   enabled: false,
   interval: 'daily',
   lastRunAt: null,
+  encryptionEnabled: false,
+  encryptionConfigured: false,
 };
 
 let autoBackupRunPromise: Promise<AutoBackupRunResult> | null = null;
@@ -127,13 +144,31 @@ async function updateLastRunAt(timestamp: number): Promise<void> {
   await upsertAppSetting(AUTO_BACKUP_SETTING_KEYS.lastRunAt, String(timestamp));
 }
 
+async function getAutoBackupEncryptionSecret(): Promise<string | null> {
+  const result = await secureSecretStore.getSecret({ key: AUTO_BACKUP_PASSWORD_SECRET_KEY });
+  return result.exists && typeof result.value === 'string' ? result.value : null;
+}
+
+export async function hasAutoBackupEncryptionPassword(): Promise<boolean> {
+  const result = await secureSecretStore.hasSecret({ key: AUTO_BACKUP_PASSWORD_SECRET_KEY });
+  return result.exists;
+}
+
 export async function getAutoBackupSettings(): Promise<AutoBackupSettings> {
   const values = await readAutoBackupSettingValues();
+  const encryptionEnabled = values[AUTO_BACKUP_SETTING_KEYS.encryptionEnabled] === '1';
+  const storedEncryptionConfigured =
+    values[AUTO_BACKUP_SETTING_KEYS.encryptionConfigured] === '1';
+  const encryptionConfigured = storedEncryptionConfigured
+    ? await hasAutoBackupEncryptionPassword().catch(() => false)
+    : false;
 
   return {
     enabled: values[AUTO_BACKUP_SETTING_KEYS.enabled] === '1',
     interval: normalizeInterval(values[AUTO_BACKUP_SETTING_KEYS.interval]),
     lastRunAt: parseLastRunAt(values[AUTO_BACKUP_SETTING_KEYS.lastRunAt]),
+    encryptionEnabled,
+    encryptionConfigured,
   };
 }
 
@@ -158,6 +193,44 @@ export async function updateAutoBackupSettings(
   return next;
 }
 
+export async function setAutoBackupEncryptionPassword(
+  password: string
+): Promise<AutoBackupSettings> {
+  if (password.length < MIN_AUTO_BACKUP_PASSWORD_LENGTH) {
+    throw new Error('Auto backup password must be at least 8 characters.');
+  }
+
+  const result = await secureSecretStore.setSecret({
+    key: AUTO_BACKUP_PASSWORD_SECRET_KEY,
+    value: password,
+  });
+
+  if (!result.saved) {
+    throw new Error('Secure secret storage is not available.');
+  }
+
+  await upsertAppSetting(AUTO_BACKUP_SETTING_KEYS.encryptionEnabled, '1');
+  await upsertAppSetting(AUTO_BACKUP_SETTING_KEYS.encryptionConfigured, '1');
+  await upsertAppSetting(
+    AUTO_BACKUP_SETTING_KEYS.encryptionVersion,
+    AUTO_BACKUP_ENCRYPTION_VERSION
+  );
+
+  return getAutoBackupSettings();
+}
+
+export async function clearAutoBackupEncryptionPassword(): Promise<AutoBackupSettings> {
+  await secureSecretStore.removeSecret({ key: AUTO_BACKUP_PASSWORD_SECRET_KEY });
+  await upsertAppSetting(AUTO_BACKUP_SETTING_KEYS.encryptionEnabled, '0');
+  await upsertAppSetting(AUTO_BACKUP_SETTING_KEYS.encryptionConfigured, '0');
+  await upsertAppSetting(
+    AUTO_BACKUP_SETTING_KEYS.encryptionVersion,
+    AUTO_BACKUP_ENCRYPTION_VERSION
+  );
+
+  return getAutoBackupSettings();
+}
+
 export function shouldRunAutoBackup(
   settings: AutoBackupSettings,
   now = Date.now()
@@ -180,9 +253,39 @@ async function runAutoBackupIfDueInternal(now: number): Promise<AutoBackupRunRes
       return { ran: false, saved: false, reason: 'not_due', settings };
     }
 
+    let password: string | null = null;
+    if (settings.encryptionEnabled) {
+      password = settings.encryptionConfigured
+        ? await getAutoBackupEncryptionSecret().catch(() => null)
+        : null;
+
+      if (!password) {
+        return {
+          ran: true,
+          saved: false,
+          reason: 'missing_encryption_secret',
+          settings: {
+            ...settings,
+            encryptionConfigured: false,
+          },
+        };
+      }
+    }
+
     const payload = await exportBackupJson();
     const fileName = createAutoBackupFileName(new Date(now));
-    const savedFile = await saveAutoBackupFile(fileName, JSON.stringify(payload, null, 2));
+    const encrypted = Boolean(settings.encryptionEnabled && password);
+    let backupContent: string;
+
+    try {
+      const backup = encrypted ? await encryptBackupPayload(payload, password as string) : payload;
+      backupContent = JSON.stringify(backup, null, 2);
+    } catch (error) {
+      logger.error('Auto backup encryption failed', error, { context: 'AutoBackupService' });
+      return { ran: true, saved: false, reason: 'encryption_failed', fileName, settings, error };
+    }
+
+    const savedFile = await saveAutoBackupFile(fileName, backupContent);
 
     if (!savedFile.saved) {
       return { ran: true, saved: false, reason: 'save_cancelled', fileName, settings };
@@ -197,7 +300,7 @@ async function runAutoBackupIfDueInternal(now: number): Promise<AutoBackupRunRes
         path: savedFile.path,
         kind: 'auto',
         platform: savedFile.platform ?? 'unknown',
-        encrypted: false,
+        encrypted,
         createdAt: now,
       });
       metadataRegistered = true;
