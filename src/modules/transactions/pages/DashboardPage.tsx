@@ -65,8 +65,8 @@ function DashboardPage() {
   } = useRecurringReminders();
   const {
     totalBalance,
-    totalAssets,
     totalCreditCardLiability,
+    totalNonCreditCardWalletBalance,
     wallets,
     loading: walletLoading,
   } = useWalletBalances();
@@ -199,7 +199,7 @@ function DashboardPage() {
         <div className="absolute -bottom-10 -left-6 w-28 h-28 rounded-full bg-white/10" />
 
         <div className="relative z-10 mb-1 flex items-center justify-between">
-          <p className="text-white/70 text-[12px] font-medium">{t('dashboard.total_balance')}</p>
+          <p className="text-white/70 text-[12px] font-medium">{t('dashboard.total_wallet_balance')}</p>
           <button
             type="button"
             onClick={toggleShowAmounts}
@@ -214,7 +214,7 @@ function DashboardPage() {
           <div className="h-9 w-40 bg-white/20 rounded-lg animate-pulse mb-3" />
         ) : (
           <h2 className="text-white text-[32px] font-bold tracking-tight mb-3">
-            {displayAmount(totalBalance)}
+            {displayAmount(totalNonCreditCardWalletBalance)}
           </h2>
         )}
 
@@ -240,9 +240,9 @@ function DashboardPage() {
 
         <div className="mt-4 grid grid-cols-2 gap-2">
           <div className="rounded-[14px] bg-white/15 px-3 py-2">
-            <p className="text-white/60 text-[10px] font-medium">{t('dashboard.total_assets')}</p>
+            <p className="text-white/60 text-[10px] font-medium">{t('dashboard.net_worth')}</p>
             <p className="text-white text-[13px] font-bold">
-              {walletLoading ? '...' : displayAmount(totalAssets)}
+              {walletLoading ? '...' : displayAmount(totalBalance)}
             </p>
           </div>
           <div className="rounded-[14px] bg-white/15 px-3 py-2">

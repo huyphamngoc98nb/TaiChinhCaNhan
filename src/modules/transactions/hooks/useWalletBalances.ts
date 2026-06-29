@@ -1,22 +1,21 @@
 import { useWallets } from '@/modules/wallets/hooks/useWallets';
+import { buildWalletBalanceSummary } from '../services/wallet-balance-summary';
 
 export function useWalletBalances() {
   const { wallets, loading, error, refresh } = useWallets();
-  const totalAssets = wallets.reduce((total, wallet) => {
-    if (wallet.exclude_from_total === 1 || wallet.account_type === 'credit_card') return total;
-    return total + Math.max(0, Number(wallet.balance || 0));
-  }, 0);
-  const totalCreditCardLiability = wallets.reduce((total, wallet) => {
-    if (wallet.exclude_from_total === 1 || wallet.account_type !== 'credit_card') return total;
-    return total + Math.max(0, -Number(wallet.balance || 0));
-  }, 0);
-  const totalBalance = totalAssets - totalCreditCardLiability;
+  const {
+    totalBalance,
+    totalAssets,
+    totalCreditCardLiability,
+    totalNonCreditCardWalletBalance,
+  } = buildWalletBalanceSummary(wallets);
 
   return {
     wallets,
     totalBalance,
     totalAssets,
     totalCreditCardLiability,
+    totalNonCreditCardWalletBalance,
     loading,
     error,
     refresh,

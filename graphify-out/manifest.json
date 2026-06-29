@@ -1220,8 +1220,8 @@
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\modules\\transactions\\hooks\\useWalletBalances.ts": {
-    "mtime": 1779411575.475456,
-    "ast_hash": "8733f48bcde34749ff828d6ebb2131df",
+    "mtime": 1782715781.8152614,
+    "ast_hash": "0bd38ce2e6883e747bcf42e3b49e8ae1",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\modules\\transactions\\pages\\AddTransactionPage.tsx": {
@@ -1230,8 +1230,8 @@
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\modules\\transactions\\pages\\DashboardPage.tsx": {
-    "mtime": 1782120653.6386378,
-    "ast_hash": "7cb6621f429e910edde13f02d48ea5a8",
+    "mtime": 1782715783.3613317,
+    "ast_hash": "d9307f0e9f2c8cc1b85e0549fd67ed1d",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\modules\\transactions\\pages\\EditTransactionPage.tsx": {
@@ -1580,8 +1580,8 @@
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\shared\\constants\\translations.ts": {
-    "mtime": 1782437829.6573904,
-    "ast_hash": "bd008bf9a092ea374bdbfd805b69ec82",
+    "mtime": 1782715784.7766635,
+    "ast_hash": "a22f2880ae821a36371a01b09f8d0f4a",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\shared\\context\\CurrencyContext.tsx": {
@@ -2237,6 +2237,16 @@
   "D:\\Personal Project\\TaiXiuCaNhan\\android\\app\\src\\main\\java\\com\\taixiucanhan\\app\\SecureSecretStorePlugin.java": {
     "mtime": 1782436873.450416,
     "ast_hash": "c9fc63334fce2efe15d6ed79815741fc",
+    "semantic_hash": ""
+  },
+  "D:\\Personal Project\\TaiXiuCaNhan\\src\\modules\\transactions\\services\\wallet-balance-summary.ts": {
+    "mtime": 1782715780.006294,
+    "ast_hash": "300d6fed9df232a6c7015b1caf99d1e1",
+    "semantic_hash": ""
+  },
+  "D:\\Personal Project\\TaiXiuCaNhan\\src\\tests\\wallet-balance-summary.test.ts": {
+    "mtime": 1782715786.1339517,
+    "ast_hash": "61cd96517bc6dc026e80585fd464007f",
     "semantic_hash": ""
   }
 }

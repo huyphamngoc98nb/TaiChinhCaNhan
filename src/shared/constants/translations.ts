@@ -111,6 +111,8 @@ export const translations = {
     dashboard: {
       title: 'Dashboard',
       total_balance: 'Total Balance',
+      total_wallet_balance: 'Wallet balance',
+      net_worth: 'Net worth',
       total_assets: 'Assets',
       credit_card_liability: 'Credit card debt',
       debt_summary_title: 'Debt & due dates',
@@ -1132,6 +1134,8 @@ export const translations = {
     dashboard: {
       title: 'Tổng quan',
       total_balance: 'Tổng số dư',
+      total_wallet_balance: 'Tổng tiền trong ví',
+      net_worth: 'Tài sản ròng',
       total_assets: 'Tài sản',
       credit_card_liability: 'Nợ thẻ tín dụng',
       debt_summary_title: 'Nợ & hạn thanh toán',
