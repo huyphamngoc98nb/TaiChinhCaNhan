@@ -1,11 +1,11 @@
 {
   "platform": "android",
-  "versionName": "0.1.24",
-  "versionCode": 124,
+  "versionName": "0.1.25",
+  "versionCode": 125,
   "minSupportedVersionCode": 100,
   "mandatory": false,
-  "apkUrl": "https://github.com/huyphamngoc98nb/TaiChinhCaNhan/releases/download/v0.1.24/TaiChinhCaNhan-v0.1.24.apk",
-  "sha256": "09c07592759a09d3d8dc61107322137321518e90e017c191e6667059d37dbe70",
+  "apkUrl": "https://github.com/huyphamngoc98nb/TaiChinhCaNhan/releases/download/v0.1.25/TaiChinhCaNhan-v0.1.25.apk",
+  "sha256": "574fa140974165a1ffe2f39cee1c853d4756f6873964127ce7d5c13c5018e782",
   "releaseDate": "2026-06-30",
   "releaseNotes": []
 }
