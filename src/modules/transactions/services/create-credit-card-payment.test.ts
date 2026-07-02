@@ -53,7 +53,6 @@ describe('CreateCreditCardPaymentUseCase', () => {
       type: 'transfer' as const,
       amount: 1_000,
       note: null,
-      receipt_path: null,
       transaction_date: 1_000,
       created_at: 1_000,
       updated_at: 1_000,

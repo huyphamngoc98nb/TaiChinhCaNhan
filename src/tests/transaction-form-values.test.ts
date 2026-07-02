@@ -75,7 +75,6 @@ describe('transaction create form values', () => {
       wallet_id: '',
       note: '',
       transaction_date: Date.now(),
-      receipt_path: undefined,
       is_budget_offset: false,
       offset_budget_id: null,
     });
@@ -107,7 +106,6 @@ describe('transaction create form values', () => {
       wallet_id: '',
       note: '',
       transaction_date: 1_717_200_000_000,
-      receipt_path: undefined,
       is_budget_offset: false,
       offset_budget_id: null,
     });
@@ -164,7 +162,6 @@ describe('transaction create form values', () => {
       amount: 125000,
       note: 'Monthly card payment',
       transaction_date: 1717200000000,
-      receipt_path: 'receipts/old.jpg',
     }));
 
     expect(getCreateTransactionInitialValues()).toEqual({
@@ -174,7 +171,6 @@ describe('transaction create form values', () => {
       wallet_id: '',
       note: '',
       transaction_date: Date.now(),
-      receipt_path: undefined,
       is_budget_offset: false,
       offset_budget_id: null,
     });
@@ -189,7 +185,6 @@ describe('transaction create form values', () => {
       amount: 750000,
       note: 'Previous successful salary',
       transaction_date: 1717200000000,
-      receipt_path: 'receipts/salary.jpg',
     }));
 
     expect(getCreateTransactionInitialValues()).toEqual({
@@ -199,7 +194,6 @@ describe('transaction create form values', () => {
       wallet_id: '',
       note: '',
       transaction_date: Date.now(),
-      receipt_path: undefined,
       is_budget_offset: false,
       offset_budget_id: null,
     });
@@ -222,7 +216,6 @@ describe('transaction create form values', () => {
       amount: 750000,
       note: 'Previous successful salary',
       transaction_date: 1717200000000,
-      receipt_path: 'receipts/salary.jpg',
     }));
 
     act(() => {
@@ -251,7 +244,6 @@ describe('transaction create form values', () => {
       wallet_id: '',
       note: '',
       transaction_date: Date.now(),
-      receipt_path: undefined,
       is_budget_offset: false,
       offset_budget_id: null,
     });
@@ -304,7 +296,6 @@ describe('transaction create form values', () => {
       wallet_id: '',
       note: '',
       transaction_date: 1_717_200_000_000,
-      receipt_path: undefined,
       is_budget_offset: false,
       offset_budget_id: null,
     });
@@ -350,7 +341,6 @@ describe('transaction create form values', () => {
       to_wallet_id: null,
       note: 'Salary',
       transaction_date: 1_717_150_000_000,
-      receipt_path: null,
       exclude_from_total: false,
       created_at: 1_717_150_000_000,
       updated_at: 1_717_150_000_000,
@@ -391,7 +381,6 @@ describe('transaction create form values', () => {
       to_wallet_id: null,
       note: 'Salary',
       transaction_date: 1717200000000,
-      receipt_path: 'receipts/salary.jpg',
       exclude_from_total: false,
       created_at: 1717200000000,
       updated_at: 1717200000000,
@@ -404,7 +393,6 @@ describe('transaction create form values', () => {
       to_wallet_id: undefined,
       note: 'Salary',
       transaction_date: 1717200000000,
-      receipt_path: 'receipts/salary.jpg',
       exclude_from_total: false,
       is_budget_offset: false,
       offset_budget_id: null,

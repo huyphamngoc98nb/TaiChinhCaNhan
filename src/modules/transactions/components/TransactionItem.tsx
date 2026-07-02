@@ -1,5 +1,5 @@
 import { Transaction } from '../domain/transaction.model';
-import { ArrowLeftRight, Paperclip } from 'lucide-react';
+import { ArrowLeftRight } from 'lucide-react';
 import { useLanguage } from '@/shared/context/LanguageContext';
 import { useCurrency } from '@/shared/context/CurrencyContext';
 import { CategoryIcon } from '@/modules/categories/components/CategoryIcon';
@@ -128,7 +128,6 @@ export function TransactionItem({ transaction, onSelect, showDate = false }: Pro
                 {t('transactions.budget_offset_badge')}
               </span>
             )}
-            {transaction.receipt_path && <><span style={{ opacity: 0.5 }}>-</span> <Paperclip size={isCompact ? 11 : 12} style={{ flexShrink: 0 }} /></>}
           </div>
         </div>
       </div>

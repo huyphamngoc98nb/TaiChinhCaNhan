@@ -703,7 +703,6 @@ describe('Database SQLite Tests', () => {
         type: 'expense',
         amount: 100,
         note: null,
-        receipt_path: null,
         to_wallet_id: null,
         transaction_date: 1000,
         created_at: 2000,

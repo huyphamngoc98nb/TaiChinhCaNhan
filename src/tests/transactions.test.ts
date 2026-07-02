@@ -6,13 +6,11 @@ import { DeleteTransactionUseCase } from '../modules/transactions/services/delet
 import { CreateCreditCardPaymentUseCase } from '../modules/transactions/services/create-credit-card-payment';
 import { WalletService } from '@/modules/wallets/services/wallet.service';
 import { TransactionValidationError } from '../modules/transactions/domain/transaction.schema';
-import { ReceiptStorageService } from '../core/files/receipt-storage';
 import * as connection from '../core/db/sqlite/connection';
 import { immediateTransactionRunner } from '@/core/db/transaction-runner';
 import { InMemoryTransactionRepository } from './fakes/in-memory-transaction.repository';
 import { InMemoryWalletRepository } from './fakes/in-memory-wallet.repository';
 import type { Wallet } from '@/modules/wallets/repositories/wallet.repository';
-import { logger } from '@/core/telemetry/logger';
 import { SyncCreditCardStatementUseCase } from '@/modules/wallets/services/sync-credit-card-statement';
 import { sqlite } from '@/core/db/sqlite/pragmas';
 
@@ -28,21 +26,6 @@ vi.mock('@capacitor/core', () => ({
 
 vi.mock('@/core/db/sqlite/pragmas', () => ({
   sqlite: { saveToStore: vi.fn() },
-}));
-
-vi.mock('../core/files/receipt-storage', () => ({
-  ReceiptStorageService: {
-    saveReceipt: vi.fn(),
-    deleteReceipt: vi.fn(),
-  }
-}));
-
-vi.mock('@/core/telemetry/logger', () => ({
-  logger: {
-    info: vi.fn(),
-    error: vi.fn(),
-    warn: vi.fn(),
-  }
 }));
 
 describe('Transaction Module QA Tests', () => {
@@ -97,7 +80,7 @@ describe('Transaction Module QA Tests', () => {
       expect(mockDb.run).toHaveBeenCalledWith(
         expect.stringContaining('INSERT INTO transactions'),
         [
-          'tx-1', 'w-1', 'c-1', 'expense', 100, null, null, null,
+          'tx-1', 'w-1', 'c-1', 'expense', 100, null, null,
           1000, 0, 0, null, null, null, null, 2000, 2000,
         ],
         true
@@ -105,7 +88,6 @@ describe('Transaction Module QA Tests', () => {
       expect(transaction).toEqual({
         ...input,
         note: null,
-        receipt_path: null,
         to_wallet_id: null,
         exclude_from_total: false,
         is_budget_offset: false,
@@ -229,114 +211,6 @@ describe('Transaction Module QA Tests', () => {
       expect(mockDb.run).not.toHaveBeenCalled();
     });
 
-    it('CreateTransactionUseCase cleans up receipt file if DB insert fails', async () => {
-      class FailingTransactionRepository extends InMemoryTransactionRepository {
-        override async create(): Promise<never> {
-          throw new Error('DB Error');
-        }
-      }
-
-      const transactionRepository = new FailingTransactionRepository();
-      const walletRepository = new InMemoryWalletRepository([walletRow]);
-      const createUseCase = new CreateTransactionUseCase(
-        transactionRepository,
-        walletRepository,
-        immediateTransactionRunner
-      );
-
-      vi.mocked(ReceiptStorageService.saveReceipt).mockResolvedValue('path/to/receipt.jpg');
-
-      await expect(createUseCase.execute(validCreateInput, 'base64data')).rejects.toThrow('DB Error');
-      
-      expect(ReceiptStorageService.saveReceipt).toHaveBeenCalledWith('base64data');
-      expect(ReceiptStorageService.deleteReceipt).toHaveBeenCalledWith('path/to/receipt.jpg');
-    });
-
-    it('CreateTransactionUseCase does not mutate the DB when receipt save fails', async () => {
-      const transactionRepository = new InMemoryTransactionRepository();
-      const createSpy = vi.spyOn(transactionRepository, 'create');
-      const walletRepository = new InMemoryWalletRepository([walletRow]);
-      const createUseCase = new CreateTransactionUseCase(
-        transactionRepository,
-        walletRepository,
-        immediateTransactionRunner
-      );
-
-      vi.mocked(ReceiptStorageService.saveReceipt).mockRejectedValue(
-        new Error('Could not save receipt image')
-      );
-
-      await expect(createUseCase.execute(validCreateInput, 'base64data')).rejects.toThrow(
-        'Could not save receipt image'
-      );
-
-      expect(createSpy).not.toHaveBeenCalled();
-      expect(ReceiptStorageService.deleteReceipt).not.toHaveBeenCalled();
-      await expect(walletRepository.getById('w-1')).resolves.toMatchObject({ balance: 10_000 });
-    });
-
-    it('UpdateTransactionUseCase deletes old receipt if new one is successfully saved', async () => {
-      const oldTx = {
-        ...validCreateInput,
-        id: 'tx-1',
-        note: null,
-        receipt_path: 'old.jpg',
-        to_wallet_id: null,
-        created_at: 0,
-        updated_at: 0,
-        deleted_at: null,
-      };
-      const transactionRepository = new InMemoryTransactionRepository([oldTx]);
-      const walletRepository = new InMemoryWalletRepository([walletRow]);
-      const updateUseCase = new UpdateTransactionUseCase(
-        transactionRepository,
-        walletRepository,
-        immediateTransactionRunner
-      );
-
-      vi.mocked(ReceiptStorageService.saveReceipt).mockResolvedValue('new.jpg');
-
-      await updateUseCase.execute('tx-1', { amount: 60 }, 'newBase64');
-
-      expect(ReceiptStorageService.deleteReceipt).toHaveBeenCalledWith('old.jpg');
-    });
-
-    it('UpdateTransactionUseCase logs old receipt cleanup failure without rejecting', async () => {
-      const oldTx = {
-        ...validCreateInput,
-        id: 'tx-1',
-        note: null,
-        receipt_path: 'old.jpg',
-        to_wallet_id: null,
-        created_at: 0,
-        updated_at: 0,
-        deleted_at: null,
-      };
-      const transactionRepository = new InMemoryTransactionRepository([oldTx]);
-      const walletRepository = new InMemoryWalletRepository([walletRow]);
-      const updateUseCase = new UpdateTransactionUseCase(
-        transactionRepository,
-        walletRepository,
-        immediateTransactionRunner
-      );
-
-      vi.mocked(ReceiptStorageService.saveReceipt).mockResolvedValue('new.jpg');
-      vi.mocked(ReceiptStorageService.deleteReceipt).mockRejectedValueOnce(
-        new Error('cleanup failed')
-      );
-
-      await expect(updateUseCase.execute('tx-1', { amount: 60 }, 'newBase64')).resolves.toMatchObject({
-        receipt_path: 'new.jpg',
-      });
-
-      expect(ReceiptStorageService.deleteReceipt).toHaveBeenCalledTimes(1);
-      expect(ReceiptStorageService.deleteReceipt).toHaveBeenCalledWith('old.jpg');
-      expect(logger.warn).toHaveBeenCalledWith(
-        'Failed to clean up previous receipt at old.jpg',
-        expect.any(Error)
-      );
-    });
-
     it('UpdateTransactionUseCase syncs a credit card with the final transaction date after web persistence', async () => {
       const transactionDate = Date.now();
       const finalTransactionDate = transactionDate + 1_000;
@@ -347,7 +221,6 @@ describe('Transaction Module QA Tests', () => {
         amount: 100,
         transaction_date: transactionDate,
         note: null,
-        receipt_path: null,
         to_wallet_id: null,
         created_at: 0,
         updated_at: 0,
@@ -392,7 +265,6 @@ describe('Transaction Module QA Tests', () => {
         id: 'tx-credit-card',
         wallet_id: 'cc-1',
         note: null,
-        receipt_path: null,
         to_wallet_id: null,
         created_at: 0,
         updated_at: 0,
@@ -438,7 +310,6 @@ describe('Transaction Module QA Tests', () => {
         type: 'expense' as const,
         amount: 5_400_000,
         note: null,
-        receipt_path: null,
         to_wallet_id: null,
         created_at: 0,
         updated_at: 0,
@@ -478,7 +349,6 @@ describe('Transaction Module QA Tests', () => {
         type: 'expense' as const,
         amount: 20,
         note: null,
-        receipt_path: null,
         to_wallet_id: null,
         created_at: 0,
         updated_at: 0,
@@ -505,7 +375,6 @@ describe('Transaction Module QA Tests', () => {
         type: 'expense' as const,
         amount: 20,
         note: null,
-        receipt_path: null,
         to_wallet_id: null,
         created_at: 0,
         updated_at: 0,
@@ -536,7 +405,6 @@ describe('Transaction Module QA Tests', () => {
         type: 'expense' as const,
         amount: 20,
         note: null,
-        receipt_path: null,
         to_wallet_id: null,
         created_at: 0,
         updated_at: 0,
@@ -572,7 +440,6 @@ describe('Transaction Module QA Tests', () => {
         type: 'expense' as const,
         amount: 100,
         note: null,
-        receipt_path: null,
         to_wallet_id: null,
         created_at: 0,
         updated_at: 0,
@@ -755,7 +622,6 @@ describe('Transaction Module QA Tests', () => {
         amount: 2_500,
         to_wallet_id: 'w-2',
         note: null,
-        receipt_path: null,
         created_at: 0,
         updated_at: 0,
         deleted_at: null,
@@ -784,7 +650,6 @@ describe('Transaction Module QA Tests', () => {
         amount: 2_500,
         to_wallet_id: 'w-2',
         note: null,
-        receipt_path: null,
         created_at: 0,
         updated_at: 0,
         deleted_at: null,
@@ -820,7 +685,6 @@ describe('Transaction Module QA Tests', () => {
         amount: 50,
         transaction_date: transactionDate,
         note: null,
-        receipt_path: null,
         to_wallet_id: null,
         created_at: 0,
         updated_at: 0,

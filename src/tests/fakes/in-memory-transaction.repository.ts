@@ -49,7 +49,6 @@ export class InMemoryTransactionRepository implements ITransactionRepository {
       type: data.type,
       amount: data.amount,
       note: data.note ?? null,
-      receipt_path: data.receipt_path ?? null,
       to_wallet_id: data.to_wallet_id ?? null,
       exclude_from_total: data.exclude_from_total ?? false,
       is_budget_offset: data.is_budget_offset ?? false,
@@ -78,8 +77,6 @@ export class InMemoryTransactionRepository implements ITransactionRepository {
       ...transaction,
       ...data,
       note: data.note !== undefined ? data.note : transaction.note,
-      receipt_path:
-        data.receipt_path !== undefined ? data.receipt_path : transaction.receipt_path,
       to_wallet_id:
         data.to_wallet_id !== undefined ? data.to_wallet_id : transaction.to_wallet_id,
       updated_at: data.updated_at,
@@ -124,12 +121,6 @@ export class InMemoryTransactionRepository implements ITransactionRepository {
       candidate.source_event === sourceEvent
     );
     return transaction ? { ...transaction } : null;
-  }
-
-  async getAllReceiptPaths(): Promise<string[]> {
-    return Array.from(this.transactions.values())
-      .filter((transaction) => transaction.deleted_at === null && transaction.receipt_path !== null)
-      .map((transaction) => transaction.receipt_path as string);
   }
 
   async list(filter: TransactionFilter): Promise<Transaction[]> {

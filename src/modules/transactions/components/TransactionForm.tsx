@@ -1,7 +1,6 @@
 import { FocusEvent, FormEvent, PointerEvent, ReactNode, useEffect, useState } from 'react';
 import { Transaction, TransactionType } from '../domain/transaction.model';
 import { TRANSFER_CATEGORY_ID, useTransactionForm } from '../hooks/useTransactionForm';
-import { ReceiptCapture } from './ReceiptCapture';
 import { useLanguage } from '@/shared/context/LanguageContext';
 import { DateTimePicker } from '@/shared/components/DateTimePicker';
 import { CurrencyAmountInput } from '@/shared/components/CurrencyAmountInput';
@@ -77,7 +76,7 @@ export function TransactionForm({
   header,
   pinTypeSelector = false,
 }: Props) {
-  const { formData, setFormData, setReceiptBase64, save, submitting, options } =
+  const { formData, setFormData, save, submitting, options } =
     useTransactionForm(existing);
   const { t } = useLanguage();
   const { currency } = useCurrency();
@@ -86,7 +85,6 @@ export function TransactionForm({
   const [amountInput, setAmountInput] = useState(() => (
     formData.amount ? String(formData.amount) : ''
   ));
-  const [receiptInputKey, setReceiptInputKey] = useState(0);
   const [dateTimeError, setDateTimeError] = useState<string | null>(null);
   const [excludeFromTotal, setExcludeFromTotal] = useState<boolean>(
     existing?.exclude_from_total ?? false
@@ -136,7 +134,6 @@ export function TransactionForm({
     if (ok) {
       if (!existing) {
         setAmountInput('');
-        setReceiptInputKey(key => key + 1);
       }
       onSuccess();
     }
@@ -431,12 +428,6 @@ export function TransactionForm({
           {t('transactions.exclude_from_income_expense_total')}
         </label>
       )}
-
-      <ReceiptCapture
-        key={receiptInputKey}
-        existingPath={formData.receipt_path}
-        onImageSelected={setReceiptBase64}
-      />
 
       <button
         type="submit"

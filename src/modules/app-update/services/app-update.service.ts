@@ -10,10 +10,26 @@ import { getCurrentAndroidVersion } from './app-update.native';
 import type {
   AndroidLatestRelease,
   AppUpdateCheckResult,
+  AppUpdateReleaseNoteItem,
+  AppUpdateReleaseNoteSection,
+  AppUpdateReleaseNoteSectionType,
 } from '../types/app-update.types';
 
 const SKIPPED_ANDROID_VERSION_CODE_KEY = 'app_update.skipped_android_version_code';
 export const APP_UPDATE_AUTO_CHECK_ENABLED_KEY = 'app_update_auto_check_enabled';
+
+const APP_UPDATE_RELEASE_NOTE_SECTION_TYPES: ReadonlySet<AppUpdateReleaseNoteSectionType> = new Set(
+  [
+    'new_features',
+    'improvements',
+    'bug_fixes',
+    'security',
+    'data_migration',
+    'known_issues',
+    'user_action_required',
+    'other',
+  ],
+);
 
 export const APP_UPDATE_ERROR_MESSAGES = {
   checkFailed: 'Không thể kiểm tra cập nhật. Vui lòng thử lại sau.',
@@ -48,6 +64,70 @@ function optionalTrimmedString(value: unknown): string | undefined | null {
   return trimmed ? trimmed : null;
 }
 
+function normalizeOptionalReleaseNoteString(value: unknown): string | undefined | null {
+  if (value === undefined) return undefined;
+  if (typeof value !== 'string') return null;
+
+  const trimmed = value.trim();
+  return trimmed || undefined;
+}
+
+function parseReleaseNoteSections(value: unknown): AppUpdateReleaseNoteSection[] | undefined {
+  if (value === undefined) return undefined;
+  if (!Array.isArray(value)) {
+    throw new AppUpdateManifestError(APP_UPDATE_ERROR_MESSAGES.invalidManifest);
+  }
+
+  return value.reduce<AppUpdateReleaseNoteSection[]>((sections, sectionValue) => {
+    if (!isRecord(sectionValue)) {
+      throw new AppUpdateManifestError(APP_UPDATE_ERROR_MESSAGES.invalidManifest);
+    }
+
+    const type = sectionValue.type;
+    const title = optionalTrimmedString(sectionValue.title);
+    if (
+      typeof type !== 'string' ||
+      !APP_UPDATE_RELEASE_NOTE_SECTION_TYPES.has(type as AppUpdateReleaseNoteSectionType) ||
+      !title ||
+      !Array.isArray(sectionValue.items)
+    ) {
+      throw new AppUpdateManifestError(APP_UPDATE_ERROR_MESSAGES.invalidManifest);
+    }
+
+    const items = sectionValue.items.reduce<AppUpdateReleaseNoteItem[]>(
+      (normalizedItems, itemValue) => {
+        if (!isRecord(itemValue)) return normalizedItems;
+
+        const itemTitle = optionalTrimmedString(itemValue.title);
+        if (!itemTitle) return normalizedItems;
+
+        const description = normalizeOptionalReleaseNoteString(itemValue.description);
+        const impact = normalizeOptionalReleaseNoteString(itemValue.impact);
+        if (description === null || impact === null) {
+          throw new AppUpdateManifestError(APP_UPDATE_ERROR_MESSAGES.invalidManifest);
+        }
+
+        normalizedItems.push({
+          title: itemTitle,
+          ...(description ? { description } : {}),
+          ...(impact ? { impact } : {}),
+        });
+        return normalizedItems;
+      },
+      [],
+    );
+
+    if (items.length > 0) {
+      sections.push({
+        type: type as AppUpdateReleaseNoteSectionType,
+        title,
+        items,
+      });
+    }
+    return sections;
+  }, []);
+}
+
 export function parseAndroidLatestRelease(value: unknown): AndroidLatestRelease {
   if (!isRecord(value)) {
     throw new AppUpdateManifestError(APP_UPDATE_ERROR_MESSAGES.invalidManifest);
@@ -57,6 +137,8 @@ export function parseAndroidLatestRelease(value: unknown): AndroidLatestRelease 
   const apkUrl = optionalTrimmedString(value.apkUrl);
   const sha256 = optionalTrimmedString(value.sha256);
   const releaseDate = optionalTrimmedString(value.releaseDate);
+  const releaseSummary = normalizeOptionalReleaseNoteString(value.releaseSummary);
+  const releaseNoteSections = parseReleaseNoteSections(value.releaseNoteSections);
 
   const invalidRequiredFields =
     value.platform !== 'android' ||
@@ -69,6 +151,8 @@ export function parseAndroidLatestRelease(value: unknown): AndroidLatestRelease 
       !isPositiveInteger(value.minSupportedVersionCode)) ||
     (value.mandatory !== undefined && typeof value.mandatory !== 'boolean') ||
     releaseDate === null ||
+    (value.releaseNotesVersion !== undefined && !isPositiveInteger(value.releaseNotesVersion)) ||
+    releaseSummary === null ||
     (value.releaseNotes !== undefined &&
       (!Array.isArray(value.releaseNotes) ||
         !value.releaseNotes.every((note) => typeof note === 'string')));
@@ -81,6 +165,7 @@ export function parseAndroidLatestRelease(value: unknown): AndroidLatestRelease 
   const minSupportedVersionCode = value.minSupportedVersionCode as number | undefined;
   const mandatory = value.mandatory as boolean | undefined;
   const releaseNotes = value.releaseNotes as string[] | undefined;
+  const releaseNotesVersion = value.releaseNotesVersion as number | undefined;
 
   try {
     assertAllowedApkUrl(apkUrl);
@@ -99,7 +184,10 @@ export function parseAndroidLatestRelease(value: unknown): AndroidLatestRelease 
     apkUrl,
     sha256,
     ...(releaseDate ? { releaseDate } : {}),
-    releaseNotes: (releaseNotes ?? []).map((note) => note.trim()),
+    ...(releaseNotesVersion !== undefined ? { releaseNotesVersion } : {}),
+    ...(releaseSummary ? { releaseSummary } : {}),
+    ...(releaseNoteSections !== undefined ? { releaseNoteSections } : {}),
+    releaseNotes: (releaseNotes ?? []).map((note) => note.trim()).filter(Boolean),
   };
 }
 

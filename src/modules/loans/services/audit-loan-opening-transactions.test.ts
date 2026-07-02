@@ -36,7 +36,6 @@ function transaction(id: string, createdAt: number, source = false): Transaction
     type: 'expense',
     amount: 1_000_000,
     note: 'Loan to Alice',
-    receipt_path: null,
     to_wallet_id: null,
     exclude_from_total: false,
     is_budget_offset: false,

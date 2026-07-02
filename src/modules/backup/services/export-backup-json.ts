@@ -21,7 +21,14 @@ export async function exportBackupJson(): Promise<BackupPayload> {
   const data: Record<string, BackupRow[]> = {};
 
   for (const table of tables) {
-    const { values } = await db.query(`SELECT * FROM ${table}`);
+    const query = table === 'transactions'
+      ? `SELECT
+          id, wallet_id, category_id, type, amount, note, transaction_date,
+          to_wallet_id, exclude_from_total, is_budget_offset, offset_budget_id,
+          source_type, source_id, source_event, created_at, updated_at, deleted_at
+        FROM transactions`
+      : `SELECT * FROM ${table}`;
+    const { values } = await db.query(query);
     data[table] = (values || []) as BackupRow[];
   }
 

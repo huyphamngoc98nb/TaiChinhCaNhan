@@ -28,7 +28,6 @@ function transaction(overrides: Partial<Transaction> = {}): Transaction {
     type: 'expense',
     amount: 100,
     note: null,
-    receipt_path: null,
     to_wallet_id: null,
     exclude_from_total: false,
     transaction_date: new Date(2026, 5, 22, 14, 30).getTime(),

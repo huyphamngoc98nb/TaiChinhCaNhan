@@ -95,6 +95,91 @@ describe('app update service', () => {
     });
   });
 
+  it('parses legacy release notes and removes blank items', () => {
+    expect(
+      parseAndroidLatestRelease(
+        latestManifest({
+          releaseNotes: ['  A  ', ' ', 'B'],
+        }),
+      ).releaseNotes,
+    ).toEqual(['A', 'B']);
+  });
+
+  it('parses and normalizes structured release notes', () => {
+    expect(
+      parseAndroidLatestRelease(
+        latestManifest({
+          releaseNotesVersion: 2,
+          releaseSummary: '  Structured update summary.  ',
+          releaseNoteSections: [
+            {
+              type: 'bug_fixes',
+              title: '  Bug fixes  ',
+              items: [
+                {
+                  title: '  Fix balance synchronization  ',
+                  description: '  Recipient balances now update correctly.  ',
+                  impact: '  No data migration is required.  ',
+                },
+              ],
+            },
+          ],
+          releaseNotes: ['  Bug fixes: Fix balance synchronization.  '],
+        }),
+      ),
+    ).toMatchObject({
+      releaseNotesVersion: 2,
+      releaseSummary: 'Structured update summary.',
+      releaseNoteSections: [
+        {
+          type: 'bug_fixes',
+          title: 'Bug fixes',
+          items: [
+            {
+              title: 'Fix balance synchronization',
+              description: 'Recipient balances now update correctly.',
+              impact: 'No data migration is required.',
+            },
+          ],
+        },
+      ],
+      releaseNotes: ['Bug fixes: Fix balance synchronization.'],
+    });
+  });
+
+  it('omits a blank release summary', () => {
+    expect(parseAndroidLatestRelease(latestManifest({ releaseSummary: '   ' }))).not.toHaveProperty(
+      'releaseSummary',
+    );
+  });
+
+  it('drops items without a title and sections left without valid items', () => {
+    expect(
+      parseAndroidLatestRelease(
+        latestManifest({
+          releaseNoteSections: [
+            {
+              type: 'bug_fixes',
+              title: ' Sửa lỗi ',
+              items: [{ description: 'Không có tiêu đề' }, { title: '   ' }],
+            },
+            {
+              type: 'improvements',
+              title: ' Cải thiện ',
+              items: [{ title: ' Tăng độ ổn định ' }],
+            },
+          ],
+        }),
+      ).releaseNoteSections,
+    ).toEqual([
+      {
+        type: 'improvements',
+        title: 'Cải thiện',
+        items: [{ title: 'Tăng độ ổn định' }],
+      },
+    ]);
+  });
+
   it.each([
     ['missing platform', latestManifest({ platform: undefined })],
     ['wrong platform', latestManifest({ platform: 'ios' })],
@@ -103,6 +188,15 @@ describe('app update service', () => {
     ['invalid versionCode', latestManifest({ versionCode: 0 })],
     ['missing apkUrl', latestManifest({ apkUrl: undefined })],
     ['missing sha256', latestManifest({ sha256: undefined })],
+    ['invalid releaseNotesVersion', latestManifest({ releaseNotesVersion: 0 })],
+    ['invalid releaseSummary', latestManifest({ releaseSummary: 42 })],
+    ['non-array releaseNoteSections', latestManifest({ releaseNoteSections: {} })],
+    [
+      'invalid release note section type',
+      latestManifest({
+        releaseNoteSections: [{ type: 'features', title: 'Tính năng', items: [{ title: 'Mới' }] }],
+      }),
+    ],
     ['invalid releaseNotes', latestManifest({ releaseNotes: ['valid', 42] })],
   ])('rejects invalid latest.json metadata: %s', (_caseName, manifest) => {
     expect(() => parseAndroidLatestRelease(manifest)).toThrow(

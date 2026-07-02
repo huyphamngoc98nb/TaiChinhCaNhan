@@ -8,15 +8,15 @@ export class SQLiteTransactionRepository implements ITransactionRepository {
     const db = await getDbConnectionForTransaction();
     const sql = `
       INSERT INTO transactions (
-        id, wallet_id, category_id, type, amount, note, receipt_path, to_wallet_id,
+        id, wallet_id, category_id, type, amount, note, to_wallet_id,
         transaction_date, exclude_from_total, is_budget_offset, offset_budget_id,
         source_type, source_id, source_event, created_at, updated_at
       )
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
     const values = [
       data.id, data.wallet_id, data.category_id, data.type, data.amount,
-      data.note || null, data.receipt_path || null, data.to_wallet_id || null,
+      data.note || null, data.to_wallet_id || null,
       data.transaction_date, data.exclude_from_total ? 1 : 0,
       data.is_budget_offset ? 1 : 0, data.offset_budget_id || null,
       data.source_type ?? null, data.source_id ?? null, data.source_event ?? null,
@@ -30,7 +30,6 @@ export class SQLiteTransactionRepository implements ITransactionRepository {
       type: data.type,
       amount: data.amount,
       note: data.note || null,
-      receipt_path: data.receipt_path || null,
       to_wallet_id: data.to_wallet_id || null,
       exclude_from_total: data.exclude_from_total ?? false,
       is_budget_offset: data.is_budget_offset ?? false,
@@ -57,7 +56,6 @@ export class SQLiteTransactionRepository implements ITransactionRepository {
     if (data.type !== undefined) { sets.push('type = ?'); values.push(data.type); }
     if (data.amount !== undefined) { sets.push('amount = ?'); values.push(data.amount); }
     if (data.note !== undefined) { sets.push('note = ?'); values.push(data.note); }
-    if (data.receipt_path !== undefined) { sets.push('receipt_path = ?'); values.push(data.receipt_path); }
     if (data.to_wallet_id !== undefined) { sets.push('to_wallet_id = ?'); values.push(data.to_wallet_id); }
     if (data.transaction_date !== undefined) { sets.push('transaction_date = ?'); values.push(data.transaction_date); }
     if (data.exclude_from_total !== undefined) {
@@ -96,7 +94,7 @@ export class SQLiteTransactionRepository implements ITransactionRepository {
   async getById(id: string): Promise<Transaction | null> {
     const db = await getDbConnectionForTransaction();
     const sql = `
-      SELECT t.id, t.wallet_id, t.category_id, t.type, t.amount, t.note, t.receipt_path, t.to_wallet_id,
+      SELECT t.id, t.wallet_id, t.category_id, t.type, t.amount, t.note, t.to_wallet_id,
              t.transaction_date, t.exclude_from_total, t.is_budget_offset, t.offset_budget_id,
              t.source_type, t.source_id, t.source_event,
              t.created_at, t.updated_at, t.deleted_at,
@@ -118,7 +116,7 @@ export class SQLiteTransactionRepository implements ITransactionRepository {
   async getByIdIncludeDeleted(id: string): Promise<Transaction | null> {
     const db = await getDbConnectionForTransaction();
     const sql = `
-      SELECT t.id, t.wallet_id, t.category_id, t.type, t.amount, t.note, t.receipt_path, t.to_wallet_id,
+      SELECT t.id, t.wallet_id, t.category_id, t.type, t.amount, t.note, t.to_wallet_id,
              t.transaction_date, t.exclude_from_total, t.is_budget_offset, t.offset_budget_id,
              t.source_type, t.source_id, t.source_event,
              t.created_at, t.updated_at, t.deleted_at,
@@ -140,7 +138,7 @@ export class SQLiteTransactionRepository implements ITransactionRepository {
   ): Promise<Transaction | null> {
     const db = await getDbConnectionForTransaction();
     const { values } = await db.query(
-      `SELECT t.id, t.wallet_id, t.category_id, t.type, t.amount, t.note, t.receipt_path, t.to_wallet_id,
+      `SELECT t.id, t.wallet_id, t.category_id, t.type, t.amount, t.note, t.to_wallet_id,
               t.transaction_date, t.exclude_from_total, t.is_budget_offset, t.offset_budget_id,
               t.source_type, t.source_id, t.source_event,
               t.created_at, t.updated_at, t.deleted_at,
@@ -159,22 +157,12 @@ export class SQLiteTransactionRepository implements ITransactionRepository {
     return mapToTransaction(values[0]);
   }
 
-  async getAllReceiptPaths(): Promise<string[]> {
-    const db = await getDbConnectionForTransaction();
-    const { values } = await db.query(
-      `SELECT receipt_path
-       FROM transactions
-       WHERE deleted_at IS NULL AND receipt_path IS NOT NULL`
-    );
-    return (values ?? []).map((row: Record<string, unknown>) => row.receipt_path as string);
-  }
-
   async list(filter: TransactionFilter): Promise<Transaction[]> {
     const db = await getDbConnectionForTransaction();
     let sql = `
       SELECT
         t.id, t.wallet_id, t.category_id, t.type, t.amount, t.note,
-        t.receipt_path, t.to_wallet_id, t.transaction_date, t.exclude_from_total,
+        t.to_wallet_id, t.transaction_date, t.exclude_from_total,
         t.is_budget_offset, t.offset_budget_id,
         t.source_type, t.source_id, t.source_event,
         t.created_at, t.updated_at, t.deleted_at,

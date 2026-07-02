@@ -87,7 +87,6 @@ const BACKUP_SCHEMAS: Record<string, Record<string, SectionSchema>> = {
         type: { type: 'string', required: true, enum: TRANSACTION_TYPES },
         amount: { type: 'number', required: true },
         note: { type: 'string', required: true, nullable: true },
-        receipt_path: { type: 'string', required: true, nullable: true },
         transaction_date: { type: 'number', required: true },
         to_wallet_id: { type: 'string', required: true, nullable: true },
         created_at: { type: 'number', required: true },
@@ -545,6 +544,25 @@ function rows(value: unknown): BackupRow[] {
   return Array.isArray(value) ? value.filter(isPlainObject).map((row) => ({ ...row })) : [];
 }
 
+function normalizeTransactionRows(value: unknown): BackupRow[] {
+  return rows(value).map((row) => {
+    const transaction = { ...row };
+    delete transaction.receipt_path;
+    return {
+      ...transaction,
+      note: transaction.note ?? null,
+      to_wallet_id: transaction.to_wallet_id ?? null,
+      deleted_at: transaction.deleted_at ?? null,
+      exclude_from_total: transaction.exclude_from_total ?? 0,
+      is_budget_offset: transaction.is_budget_offset ?? 0,
+      offset_budget_id: transaction.offset_budget_id ?? null,
+      source_type: transaction.source_type ?? null,
+      source_id: transaction.source_id ?? null,
+      source_event: transaction.source_event ?? null,
+    };
+  });
+}
+
 function normalizeLegacyV1(payload: BackupRow): BackupPayload {
   const metadata = payload.metadata as BackupMetadata;
 
@@ -575,19 +593,7 @@ function normalizeLegacyV1(payload: BackupRow): BackupPayload {
       color: row.color ?? null,
       description: row.description ?? null,
     })),
-    transactions: rows(payload.transactions).map((row) => ({
-      ...row,
-      note: row.note ?? null,
-      receipt_path: row.receipt_path ?? null,
-      to_wallet_id: row.to_wallet_id ?? null,
-      deleted_at: row.deleted_at ?? null,
-      exclude_from_total: row.exclude_from_total ?? 0,
-      is_budget_offset: row.is_budget_offset ?? 0,
-      offset_budget_id: row.offset_budget_id ?? null,
-      source_type: row.source_type ?? null,
-      source_id: row.source_id ?? null,
-      source_event: row.source_event ?? null,
-    })),
+    transactions: normalizeTransactionRows(payload.transactions),
     recurring_bills: rows(payload.recurring_bills).map((row) => ({
       ...row,
       reminder_days: row.reminder_days ?? 3,
@@ -668,15 +674,7 @@ export function normalizeBackupPayload(payload: unknown): BackupPayload {
       ...(backup.metadata as BackupMetadata),
       app_name: (backup.metadata as BackupMetadata).app_name ?? 'TaiXiuCaNhan',
     },
-    transactions: rows(backup.transactions).map((row) => ({
-      ...row,
-      exclude_from_total: row.exclude_from_total ?? 0,
-      is_budget_offset: row.is_budget_offset ?? 0,
-      offset_budget_id: row.offset_budget_id ?? null,
-      source_type: row.source_type ?? null,
-      source_id: row.source_id ?? null,
-      source_event: row.source_event ?? null,
-    })),
+    transactions: normalizeTransactionRows(backup.transactions),
   };
 }
 

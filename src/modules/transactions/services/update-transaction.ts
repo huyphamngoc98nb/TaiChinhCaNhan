@@ -6,9 +6,7 @@ import { IWalletRepository, Wallet } from '@/modules/wallets/repositories/wallet
 import { DB_NAME } from '@/core/db/sqlite/connection';
 import { registerCompensation } from '@/core/db/sqlite/transaction';
 import { sqliteTransactionRunner, TransactionRunner } from '@/core/db/transaction-runner';
-import { ReceiptStorageService } from '@/core/files/receipt-storage';
 import { Capacitor } from '@capacitor/core';
-import { logger } from '@/core/telemetry/logger';
 import { SyncCreditCardStatementUseCase } from '@/modules/wallets/services/sync-credit-card-statement';
 import {
   assertActiveWallet,
@@ -24,24 +22,18 @@ export class UpdateTransactionUseCase {
     private runTransaction: TransactionRunner = sqliteTransactionRunner
   ) {}
 
-  async execute(id: string, input: UpdateTransactionInput, newReceiptBase64?: string) {
+  async execute(id: string, input: UpdateTransactionInput) {
     const prevalidatedInput: UpdateTransactionInput = input.type && input.type !== 'income'
       ? { ...input, is_budget_offset: false, offset_budget_id: null }
       : input;
     validateUpdateTransaction(prevalidatedInput);
 
-    let newSavedReceiptPath: string | undefined;
     const now = Date.now();
-    let finalReceiptPath = input.receipt_path;
-    let previousReceiptPath: string | null = null;
-    let updated: Awaited<ReturnType<ITransactionRepository['update']>>;
     const creditCardSyncTargets = new Map<string, { wallet: Wallet; asOf: number }>();
 
-    try {
-      updated = await this.runTransaction(async () => {
+    const updated: Awaited<ReturnType<ITransactionRepository['update']>> = await this.runTransaction(async () => {
         const oldTransaction = await this.repository.getById(id);
         if (!oldTransaction) throw new Error('Transaction not found');
-        previousReceiptPath = oldTransaction.receipt_path;
 
         const finalType = input.type ?? oldTransaction.type;
         const finalAmount = input.amount ?? oldTransaction.amount;
@@ -112,22 +104,11 @@ export class UpdateTransactionUseCase {
           assertProjectedWalletDelta(wallet, walletDelta);
         }
 
-        if (newReceiptBase64) {
-          // NOTE: file-system and SQLite cannot be made truly atomic.
-          // File is saved inside the transaction window to minimize orphan risk.
-          // If the app crashes after saveReceipt but before DB commit, the file
-          // becomes an orphan. Periodic cleanup (not yet implemented) should scan
-          // receipts/ for files with no corresponding DB record.
-          newSavedReceiptPath = await ReceiptStorageService.saveReceipt(newReceiptBase64);
-          finalReceiptPath = newSavedReceiptPath;
-        }
-
         const result = await this.repository.update(id, {
           ...input,
           to_wallet_id: finalToWalletId,
           is_budget_offset: finalIsBudgetOffset,
           offset_budget_id: finalOffsetBudgetId,
-          ...(finalReceiptPath !== undefined ? { receipt_path: finalReceiptPath } : {}),
           updated_at: now,
         });
 
@@ -171,19 +152,12 @@ export class UpdateTransactionUseCase {
         }
 
         return result;
-      });
+    });
 
-      const isWeb = Capacitor.getPlatform() === 'web';
-      if (isWeb) {
-        const { sqlite } = await import('@/core/db/sqlite/pragmas');
-        await sqlite.saveToStore(DB_NAME);
-      }
-
-    } catch (error) {
-      if (newSavedReceiptPath) {
-        await ReceiptStorageService.deleteReceipt(newSavedReceiptPath);
-      }
-      throw error;
+    const isWeb = Capacitor.getPlatform() === 'web';
+    if (isWeb) {
+      const { sqlite } = await import('@/core/db/sqlite/pragmas');
+      await sqlite.saveToStore(DB_NAME);
     }
 
     for (const { wallet, asOf } of creditCardSyncTargets.values()) {
@@ -193,21 +167,6 @@ export class UpdateTransactionUseCase {
         // Sync failure is non-fatal: the payment is committed.
         // Statement will be corrected on next successful sync.
         console.warn(`Failed to sync credit card statement for wallet ${wallet.id}`, error);
-      }
-    }
-
-    // Best-effort: DB is already committed. A cleanup failure here only leaks
-    // storage; it does not affect data integrity.
-    if (
-      updated &&
-      finalReceiptPath &&
-      previousReceiptPath &&
-      finalReceiptPath !== previousReceiptPath
-    ) {
-      try {
-        await ReceiptStorageService.deleteReceipt(previousReceiptPath);
-      } catch (error) {
-        logger.warn(`Failed to clean up previous receipt at ${previousReceiptPath}`, error);
       }
     }
 

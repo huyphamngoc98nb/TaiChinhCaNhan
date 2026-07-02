@@ -94,6 +94,22 @@ describe('useAppUpdate install flow', () => {
     expect(result.current.availableUpdate).toBeNull();
   });
 
+  it('does not dismiss or persist a skipped mandatory update', async () => {
+    const mandatoryUpdate = { ...updateResult, mandatory: true };
+    serviceMock.checkForUpdate.mockResolvedValue(mandatoryUpdate);
+
+    const { result } = renderHook(() => useAppUpdate());
+    await act(async () => {
+      await result.current.checkForUpdate();
+    });
+    await act(async () => {
+      await result.current.dismissUpdate();
+    });
+
+    expect(serviceMock.markVersionSkipped).not.toHaveBeenCalled();
+    expect(result.current.availableUpdate).toEqual(mandatoryUpdate);
+  });
+
   it('tracks native progress, prevents duplicates, and removes the listener', async () => {
     const remove = vi.fn(async () => undefined);
     let progressListener: ((event: {
@@ -123,6 +139,7 @@ describe('useAppUpdate install flow', () => {
       void result.current.beginUpdate();
     });
     await waitFor(() => expect(nativeMock.startUpdate).toHaveBeenCalledTimes(1));
+    expect(nativeMock.startUpdate).toHaveBeenCalledWith(updateResult.latest);
     expect(result.current.isUpdating).toBe(true);
 
     act(() => {

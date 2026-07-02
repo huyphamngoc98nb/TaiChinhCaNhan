@@ -8,7 +8,6 @@ export function mapToTransaction(row: any): Transaction {
     type: row.type,
     amount: row.amount,
     note: row.note ?? null,
-    receipt_path: row.receipt_path ?? null,
     to_wallet_id: row.to_wallet_id ?? null,
     exclude_from_total: Boolean(row.exclude_from_total),
     is_budget_offset: Boolean(row.is_budget_offset),

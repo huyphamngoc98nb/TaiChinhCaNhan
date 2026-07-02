@@ -51,6 +51,61 @@ describe('AppUpdateDialog', () => {
     expect(screen.getByText('app_update.skip_this_version')).not.toBeNull();
   });
 
+  it('renders structured release summary, sections, description, and impact', () => {
+    renderDialog({
+      latest: {
+        ...latest,
+        releaseSummary: 'Bản cập nhật tập trung vào độ ổn định.',
+        releaseNoteSections: [
+          {
+            type: 'bug_fixes',
+            title: 'Sửa lỗi',
+            items: [
+              {
+                title: 'Sửa lỗi đồng bộ số dư',
+                description: 'Số dư ví nhận được cập nhật chính xác.',
+                impact: 'Không yêu cầu thay đổi dữ liệu.',
+              },
+            ],
+          },
+        ],
+        releaseNotes: ['Sửa lỗi: Nội dung fallback cho app cũ'],
+      },
+    });
+
+    expect(screen.getByText('Bản cập nhật tập trung vào độ ổn định.')).not.toBeNull();
+    expect(screen.getByRole('heading', { name: 'Sửa lỗi', level: 4 })).not.toBeNull();
+    expect(screen.getByText('Sửa lỗi đồng bộ số dư')).not.toBeNull();
+    expect(screen.getByText('Số dư ví nhận được cập nhật chính xác.')).not.toBeNull();
+    expect(screen.getByText('Không yêu cầu thay đổi dữ liệu.')).not.toBeNull();
+    expect(screen.queryByText('Sửa lỗi: Nội dung fallback cho app cũ')).toBeNull();
+  });
+
+  it('renders release-note HTML payloads as inert text', () => {
+    const payload = '<script>alert(1)</script>';
+    const alertSpy = vi.spyOn(window, 'alert').mockImplementation(() => undefined);
+
+    renderDialog({
+      latest: {
+        ...latest,
+        releaseSummary: payload,
+        releaseNoteSections: [
+          {
+            type: 'security',
+            title: payload,
+            items: [{ title: payload, description: payload, impact: payload }],
+          },
+        ],
+      },
+    });
+
+    const dialog = screen.getByRole('dialog');
+    expect(screen.getAllByText(payload)).toHaveLength(5);
+    expect(dialog.querySelector('script')).toBeNull();
+    expect(alertSpy).not.toHaveBeenCalled();
+    alertSpy.mockRestore();
+  });
+
   it('renders a fallback release note when release notes are empty or blank', () => {
     renderDialog({
       latest: { ...latest, releaseNotes: ['', '   '] },
@@ -66,6 +121,14 @@ describe('AppUpdateDialog', () => {
     expect(screen.queryByText('app_update.skip_this_version')).toBeNull();
     expect(screen.getByText('app_update.update_now')).not.toBeNull();
     expect(screen.getByText('app_update.mandatory_message')).not.toBeNull();
+  });
+
+  it('allows an optional update to be skipped explicitly', () => {
+    const onDismiss = vi.fn();
+    renderDialog({ onDismiss });
+
+    fireEvent.click(screen.getByText('app_update.skip_this_version'));
+    expect(onDismiss).toHaveBeenCalledTimes(1);
   });
 
   it('does not dismiss when the overlay is clicked or Escape is pressed', () => {

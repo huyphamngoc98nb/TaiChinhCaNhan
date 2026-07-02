@@ -49,7 +49,7 @@ function main() {
   const assetPath = path.join(outputDir, assetFileName);
   const latestJsonPath = path.join(outputDir, 'latest.json');
   const releaseEnvPath = path.join(outputDir, 'release.env');
-  const releaseNotes = readReleaseNotes(releaseNotesPathInput);
+  const releaseNotesMetadata = readReleaseNotes(releaseNotesPathInput);
   const assetRelativePath = toRepoRelativePath(assetPath);
   const latestJsonRelativePath = toRepoRelativePath(latestJsonPath);
 
@@ -65,7 +65,16 @@ function main() {
     apkUrl: `https://github.com/${normalizedRepository}/releases/download/${releaseTag}/${assetFileName}`,
     sha256,
     releaseDate: new Date().toISOString().slice(0, 10),
-    releaseNotes,
+    ...(releaseNotesMetadata.releaseSummary || releaseNotesMetadata.releaseNoteSections.length > 0
+      ? { releaseNotesVersion: 2 }
+      : {}),
+    ...(releaseNotesMetadata.releaseSummary
+      ? { releaseSummary: releaseNotesMetadata.releaseSummary }
+      : {}),
+    ...(releaseNotesMetadata.releaseNoteSections.length > 0
+      ? { releaseNoteSections: releaseNotesMetadata.releaseNoteSections }
+      : {}),
+    releaseNotes: releaseNotesMetadata.releaseNotes,
   };
 
   fs.writeFileSync(latestJsonPath, `${JSON.stringify(latest, null, 2)}\n`, 'utf8');
@@ -206,22 +215,114 @@ function hashFileSha256(filePath) {
   return hash.digest('hex');
 }
 
+const RELEASE_NOTE_SECTION_TYPES = new Map([
+  ['tính năng mới', 'new_features'],
+  ['new features', 'new_features'],
+  ['new feature', 'new_features'],
+  ['features', 'new_features'],
+  ['cải thiện', 'improvements'],
+  ['improvements', 'improvements'],
+  ['improvement', 'improvements'],
+  ['sửa lỗi', 'bug_fixes'],
+  ['bug fixes', 'bug_fixes'],
+  ['bug fix', 'bug_fixes'],
+  ['fixes', 'bug_fixes'],
+  ['bảo mật', 'security'],
+  ['security', 'security'],
+  ['thay đổi dữ liệu', 'data_migration'],
+  ['data changes', 'data_migration'],
+  ['data migration', 'data_migration'],
+  ['migration', 'data_migration'],
+  ['vấn đề đã biết', 'known_issues'],
+  ['known issues', 'known_issues'],
+  ['known issue', 'known_issues'],
+  ['user cần lưu ý', 'user_action_required'],
+  ['người dùng cần lưu ý', 'user_action_required'],
+  ['user action required', 'user_action_required'],
+  ['action required', 'user_action_required'],
+]);
+
+const RELEASE_NOTE_SUMMARY_HEADINGS = new Set(['tóm tắt', 'summary']);
+
+function normalizeReleaseNoteHeading(value) {
+  return value.trim().replace(/\s+/g, ' ').toLowerCase();
+}
+
+function parseReleaseNotesMarkdown(markdown) {
+  const releaseNoteSections = [];
+  const releaseNotes = [];
+  const summaryLines = [];
+  let currentSection;
+  let readingSummary = false;
+
+  for (const rawLine of String(markdown || '').replace(/^\uFEFF/, '').split(/\r?\n/)) {
+    const headingMatch = /^#{1,6}\s+(.+?)\s*#*\s*$/.exec(rawLine);
+    if (headingMatch) {
+      const title = headingMatch[1].trim();
+      const normalizedHeading = normalizeReleaseNoteHeading(title);
+      const sectionType = RELEASE_NOTE_SECTION_TYPES.get(normalizedHeading);
+
+      readingSummary = RELEASE_NOTE_SUMMARY_HEADINGS.has(normalizedHeading);
+      currentSection = sectionType
+        ? { type: sectionType, title, items: [] }
+        : undefined;
+
+      if (currentSection) {
+        releaseNoteSections.push(currentSection);
+      }
+      continue;
+    }
+
+    if (readingSummary) {
+      const summaryLine = rawLine.trim();
+      if (summaryLine && !rawLine.startsWith('- ')) {
+        summaryLines.push(summaryLine);
+      }
+    }
+
+    if (!rawLine.startsWith('- ')) continue;
+
+    const title = rawLine.slice(2).trim();
+    if (!title) continue;
+
+    if (currentSection) {
+      currentSection.items.push({ title });
+      releaseNotes.push(`${currentSection.title}: ${title}`);
+    } else {
+      releaseNotes.push(title);
+    }
+  }
+
+  return {
+    releaseSummary: summaryLines.length > 0 ? summaryLines.join(' ') : undefined,
+    releaseNoteSections: releaseNoteSections.filter((section) => section.items.length > 0),
+    releaseNotes,
+  };
+}
+
+function emptyReleaseNotes() {
+  return {
+    releaseSummary: undefined,
+    releaseNoteSections: [],
+    releaseNotes: [],
+  };
+}
+
 function readReleaseNotes(filePathInput) {
   if (!filePathInput || filePathInput.trim() === '') {
-    return [];
+    return emptyReleaseNotes();
   }
 
-  const filePath = path.resolve(repoRoot, filePathInput.trim());
-  if (!fs.existsSync(filePath) || !fs.statSync(filePath).isFile()) {
-    return [];
-  }
+  try {
+    const filePath = path.resolve(repoRoot, filePathInput.trim());
+    if (!fs.existsSync(filePath) || !fs.statSync(filePath).isFile()) {
+      return emptyReleaseNotes();
+    }
 
-  return fs
-    .readFileSync(filePath, 'utf8')
-    .split(/\r?\n/)
-    .filter((line) => line.startsWith('- '))
-    .map((line) => line.slice(2).trim())
-    .filter(Boolean);
+    return parseReleaseNotesMarkdown(fs.readFileSync(filePath, 'utf8'));
+  } catch {
+    return emptyReleaseNotes();
+  }
 }
 
 function toRepoRelativePath(filePath) {
@@ -245,8 +346,15 @@ function fail(message) {
   process.exit(1);
 }
 
-try {
-  main();
-} catch (error) {
-  fail(error.message || String(error));
+if (require.main === module) {
+  try {
+    main();
+  } catch (error) {
+    fail(error.message || String(error));
+  }
 }
+
+module.exports = {
+  parseReleaseNotesMarkdown,
+  readReleaseNotes,
+};

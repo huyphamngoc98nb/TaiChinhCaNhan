@@ -29,7 +29,6 @@ function makeTx(overrides: Partial<Transaction> = {}): Transaction {
     type: 'expense',
     amount: 50_000,
     note: null,
-    receipt_path: null,
     to_wallet_id: null,
     transaction_date: now,
     created_at: now,

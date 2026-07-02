@@ -11,18 +11,24 @@ The frontend endpoint can be overridden at build time with `VITE_ANDROID_LATEST_
 Use this checklist for every Android release:
 
 - Step 1: Update `version.config.json`.
-- Step 2: Commit the version change.
-- Step 3: Create tag `vX.Y.Z` matching `nativeVersionName`.
-- Step 4: Push the tag.
-- Step 5: Check GitHub Actions for the Android Release workflow.
-- Step 6: Check GitHub Release assets.
-- Step 7: Download the APK and install it over the previous version on a phone.
+- Step 2: Before creating the tag, update the root `RELEASE_NOTES.md` from [`docs/templates/RELEASE_NOTES.template.md`](./templates/RELEASE_NOTES.template.md). It must include `Tóm tắt`; a release with actual user-visible changes must also include at least one usable item under `Sửa lỗi` or `Cải thiện`.
+- Step 3: Review every bullet for user-facing language. Remove placeholder text and do not claim work that is not in the release build.
+- Step 4: Commit the version and release-note changes.
+- Step 5: Create tag `vX.Y.Z` matching `nativeVersionName`.
+- Step 6: Push the tag.
+- Step 7: Check GitHub Actions for the Android Release workflow.
+- Step 8: Check GitHub Release assets and confirm its notes match the original Markdown.
+- Step 9: Inspect generated `latest.json`: structured notes must include `releaseNotesVersion: 2`, `releaseSummary` when supplied, non-empty `releaseNoteSections`, and the flat `releaseNotes` compatibility fallback.
+- Step 10: Download the APK and install it over the previous version on a phone.
+- Step 11: Run the release-note manual QA below. The dialog must render structured notes as summary and section groups, while legacy manifests must still render the flat list.
 
 ## Definition of Done
 
 - APK is built successfully.
 - APK is signed with the release key.
 - `latest.json` has the correct `versionName`, `versionCode`, `apkUrl`, and `sha256`.
+- `latest.json` contains the reviewed release-note content and keeps `releaseNotes` for older app versions.
+- Structured release notes contain `releaseNotesVersion: 2` and at least one usable `releaseNoteSections` entry.
 - GitHub Pages serves the same `latest.json` at `https://huyphamngoc98nb.github.io/TaiChinhCaNhan/latest.json`.
 - APK installs over the previous version.
 - `versionCode` is greater than the previous release.
@@ -110,6 +116,10 @@ Check `latest.json` includes:
 - `versionCode` matching `version.config.json`.
 - `apkUrl` pointing to the APK asset on the same GitHub Release.
 - `sha256` matching the uploaded APK.
+- `releaseNotesVersion: 2` when `releaseSummary` or `releaseNoteSections` is present.
+- `releaseSummary` matching the `Tóm tắt`/`Summary` paragraph, when supplied.
+- `releaseNoteSections` containing the expected section titles and bullets.
+- `releaseNotes` containing the flat, prefixed fallback used by older app versions.
 
 If `RELEASE_NOTES.md` exists at the repo root, the workflow uses it as the GitHub Release notes. Otherwise it uses `Android release vX.Y.Z`.
 
@@ -141,6 +151,8 @@ Review this checklist before merging Android release or app-update changes:
 - Mandatory updates must still prompt even when the same `versionCode` was previously skipped.
 - Update UI text must come from `translations.ts`.
 - The update dialog should show current version, latest version, and release notes when available.
+- Generated structured metadata must retain the flat `releaseNotes` fallback for older clients.
+- The dialog must render `releaseSummary` and `releaseNoteSections` as groups before merge.
 - Manual update checks in Settings should bypass the skipped-version preference and show a clear toast when already up to date.
 - The Phase 1-3 frontend must not use a browser APK download fallback. APK installation is handled only by the native `AppUpdatePlugin` added in Phase 4-6.
 
@@ -154,7 +166,40 @@ For mandatory updates, the dialog does not show `Bỏ qua phiên bản này`; th
 
 ## Release notes
 
-Each `latest.json` should include a user-facing `releaseNotes` array. The field remains optional for compatibility. If it is missing, empty, or contains only blank entries, the dialog displays a localized fallback note.
+Before tagging, create or update the root `RELEASE_NOTES.md`. Start from [`docs/templates/RELEASE_NOTES.template.md`](./templates/RELEASE_NOTES.template.md), replace `vX.Y.Z`, remove unused optional sections, and replace every placeholder bullet with release-specific content.
+
+The Android metadata generator reads these headings:
+
+- `Tóm tắt` or `Summary` becomes `releaseSummary`. Multiple non-empty paragraph lines are joined with spaces.
+- `Tính năng mới`, `Cải thiện`, `Sửa lỗi`, `Bảo mật`, `Thay đổi dữ liệu`, `Vấn đề đã biết`, and `User cần lưu ý` become typed entries in `releaseNoteSections`. Equivalent supported English headings are also accepted.
+- Each top-level line starting with `- ` becomes an item. Nested bullets are not parsed in this format version.
+
+A generated structured manifest uses this shape:
+
+```json
+{
+  "releaseNotesVersion": 2,
+  "releaseSummary": "Bản cập nhật này cải thiện độ ổn định và trải nghiệm cập nhật.",
+  "releaseNoteSections": [
+    {
+      "type": "improvements",
+      "title": "Cải thiện",
+      "items": [
+        {
+          "title": "Cải thiện hiển thị thông tin cập nhật trên màn hình nhỏ."
+        }
+      ]
+    }
+  ],
+  "releaseNotes": [
+    "Cải thiện: Cải thiện hiển thị thông tin cập nhật trên màn hình nhỏ."
+  ]
+}
+```
+
+`releaseNotes` is intentionally retained as the flat compatibility fallback for older app versions. A legacy `latest.json` containing only `releaseNotes: string[]` remains valid. If no usable notes exist, the app uses its localized fallback note.
+
+The dialog renders `releaseSummary` and non-empty `releaseNoteSections` when structured notes are available. It uses the flat `releaseNotes` list only when no usable structured section exists, avoiding duplicate content from the compatibility fallback.
 
 ## Phase 1-3 app update manual QA
 
@@ -162,7 +207,11 @@ Each `latest.json` should include a user-facing `releaseNotes` array. The field 
 - No dialog appears when `latest.versionCode <= current.versionCode`.
 - Dialog appears when `latest.versionCode > current.versionCode`.
 - Release notes are displayed when present.
-- A fallback release note is displayed when `releaseNotes` is missing or empty.
+- A legacy manifest containing only `releaseNotes: string[]` is accepted and displays its flat bullets.
+- A structured manifest containing `releaseSummary`, `releaseNoteSections`, and `releaseNotes` is accepted without crashing.
+- The structured manifest displays its summary, section headings, item titles, descriptions, and impacts without duplicating `releaseNotes` fallback entries.
+- Long release notes remain readable and do not hide the update actions on a small screen.
+- A fallback release note is displayed when both structured notes and `releaseNotes` are missing or empty.
 - Clicking outside the dialog does not close it.
 - Escape does not close the dialog in web/development builds.
 - Android Back does not close the dialog, navigate away, or exit the app.

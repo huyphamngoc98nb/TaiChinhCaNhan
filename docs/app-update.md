@@ -32,15 +32,26 @@ During an Android download, the native plugin emits `appUpdateDownloadProgress`.
   "apkUrl": "https://github.com/example/TaiChinhCaNhan/releases/download/v0.1.21/TaiChinhCaNhan-v0.1.21.apk",
   "sha256": "64-character SHA-256 digest",
   "releaseDate": "2026-06-29",
-  "releaseNotes": ["Fix backup flow"]
+  "releaseNotesVersion": 2,
+  "releaseSummary": "This update improves update information and stability.",
+  "releaseNoteSections": [
+    {
+      "type": "bug_fixes",
+      "title": "Bug fixes",
+      "items": [{ "title": "Fix backup flow" }]
+    }
+  ],
+  "releaseNotes": ["Bug fixes: Fix backup flow"]
 }
 ```
 
 Required fields are `platform`, `versionName`, `versionCode`, `apkUrl`, and `sha256`. `platform` must be `android`; `versionCode` must be a positive integer. Missing `mandatory` and `releaseNotes` values normalize to `false` and `[]`.
 
+`releaseNotesVersion`, `releaseSummary`, and `releaseNoteSections` are optional structured-note fields. Version `2` identifies metadata generated from headed release notes. `releaseNotes` remains the flat compatibility fallback, so a legacy manifest containing only `releaseNotes: string[]` is still valid.
+
 ## Update dialog behavior
 
-When the app detects a newer Android version, it displays a blocking update dialog. The dialog always shows the new version and a release-notes list from `latest.json`; when `releaseNotes` is missing, empty, or contains only blank entries, it shows a localized fallback note.
+When the app detects a newer Android version, it displays a blocking update dialog. The dialog shows structured summary and section groups when available, otherwise it uses the legacy `releaseNotes` list. When neither source contains usable notes, it shows a localized fallback note.
 
 Optional updates require an explicit choice between `Cập nhật` and `Bỏ qua phiên bản này`. Skipping stores that `versionCode`, closes the dialog, and prevents the automatic check from showing the same optional version again. A manual check from Settings ignores the stored skipped version.
 
@@ -48,7 +59,9 @@ Mandatory updates show only `Cập nhật`. For both optional and mandatory upda
 
 ## Release notes
 
-Each `latest.json` should include a `releaseNotes` array. Keep each entry short and user-facing. The field remains optional so older manifests continue to parse; the dialog supplies the fallback text when no usable entries are present.
+Structured release metadata can include a short `releaseSummary` plus typed `releaseNoteSections`. Each section has a `type`, display `title`, and `items`; each item requires a non-empty `title` and may include `description` or `impact`. Keep every entry short and user-facing.
+
+Always retain `releaseNotes` as a flat list for older app versions. The dialog prefers non-empty structured sections and avoids rendering the duplicate flat fallback alongside them. When no usable structured or flat notes exist, the dialog supplies localized fallback text.
 
 When `minSupportedVersionCode` is greater than the installed version code, the frontend treats the update as mandatory.
 
@@ -97,7 +110,11 @@ The APK is deliberately retained after installer handoff because Android may sti
 - No dialog appears when `latest.versionCode <= current.versionCode`.
 - Dialog appears when `latest.versionCode > current.versionCode`.
 - Release notes are displayed when present.
-- A fallback release note is displayed when `releaseNotes` is missing or empty.
+- A legacy manifest containing only `releaseNotes` displays the flat list.
+- A new manifest containing `releaseSummary`, `releaseNoteSections`, and `releaseNotes` parses without crashing and preserves the flat fallback.
+- The new manifest displays the summary and grouped sections without duplicating its flat `releaseNotes` fallback.
+- Long release notes remain readable on a small screen and update actions remain reachable.
+- A fallback release note is displayed when structured and flat release notes are missing or empty.
 - Clicking outside the dialog does not close it.
 - Escape does not close the dialog in web/development builds.
 - Android Back does not close the dialog, navigate away, or exit the app.

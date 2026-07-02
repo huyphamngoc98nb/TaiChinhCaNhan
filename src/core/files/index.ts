@@ -1,2 +1,1 @@
-export { OrphanReceiptCleanupService } from './receipt-cleanup';
-export { ReceiptStorageService } from './receipt-storage';
+export { runLegacyReceiptCleanupOnce } from './legacy-receipt-cleanup';

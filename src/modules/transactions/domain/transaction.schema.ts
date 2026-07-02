@@ -39,9 +39,6 @@ export function validateCreateTransaction(input: CreateTransactionInput) {
   if (input.note && input.note.length > 500) {
     errors.push('note must be less than 500 characters');
   }
-  if (input.receipt_path && input.receipt_path.length > 1000) {
-    errors.push('receipt_path is too long');
-  }
   if (input.exclude_from_total !== undefined && typeof input.exclude_from_total !== 'boolean') {
     errors.push('exclude_from_total must be a boolean');
   }
@@ -89,9 +86,6 @@ export function validateUpdateTransaction(input: UpdateTransactionInput) {
 
   if (input.note && input.note.length > 500) {
     errors.push('note must be less than 500 characters');
-  }
-  if (input.receipt_path && input.receipt_path.length > 1000) {
-    errors.push('receipt_path is too long');
   }
   if (input.exclude_from_total !== undefined && typeof input.exclude_from_total !== 'boolean') {
     errors.push('exclude_from_total must be a boolean');

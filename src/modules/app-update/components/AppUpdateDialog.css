@@ -114,6 +114,25 @@
   margin-bottom: 6px;
 }
 
+.app-update-release-summary {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  line-height: 1.5;
+  margin: 0 0 12px;
+}
+
+.app-update-note-sections {
+  display: grid;
+  gap: 12px;
+}
+
+.app-update-note-section h4 {
+  color: var(--text);
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin: 0 0 5px;
+}
+
 .app-update-notes ul {
   color: var(--text-muted);
   font-size: 0.85rem;
@@ -121,6 +140,23 @@
   list-style: disc;
   margin: 0;
   padding-left: 20px;
+}
+
+.app-update-note-item-title {
+  color: var(--text);
+  font-weight: 500;
+}
+
+.app-update-note-item-description,
+.app-update-note-item-impact {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  line-height: 1.45;
+  margin: 3px 0 0;
+}
+
+.app-update-note-item-impact {
+  font-style: italic;
 }
 
 .app-update-primary-button {

@@ -1,3 +1,25 @@
+export type AppUpdateReleaseNoteSectionType =
+  | 'new_features'
+  | 'improvements'
+  | 'bug_fixes'
+  | 'security'
+  | 'data_migration'
+  | 'known_issues'
+  | 'user_action_required'
+  | 'other';
+
+export type AppUpdateReleaseNoteItem = {
+  title: string;
+  description?: string;
+  impact?: string;
+};
+
+export type AppUpdateReleaseNoteSection = {
+  type: AppUpdateReleaseNoteSectionType;
+  title: string;
+  items: AppUpdateReleaseNoteItem[];
+};
+
 export type AndroidLatestRelease = {
   platform: 'android';
   versionName: string;
@@ -7,6 +29,9 @@ export type AndroidLatestRelease = {
   apkUrl: string;
   sha256: string;
   releaseDate?: string;
+  releaseNotesVersion?: number;
+  releaseSummary?: string;
+  releaseNoteSections?: AppUpdateReleaseNoteSection[];
   releaseNotes?: string[];
 };
 

@@ -13,7 +13,6 @@ export interface Transaction extends TransactionSourceMetadata {
   type: TransactionType;
   amount: number;
   note: string | null;
-  receipt_path: string | null;
   to_wallet_id: string | null; // required when type = 'transfer'
   exclude_from_total: boolean;
   is_budget_offset?: boolean;
@@ -38,7 +37,6 @@ export interface CreateTransactionInput extends TransactionSourceMetadata {
   type: TransactionType;
   amount: number;
   note?: string;
-  receipt_path?: string;
   to_wallet_id?: string; // required when type = 'transfer'
   exclude_from_total?: boolean;
   is_budget_offset?: boolean;
@@ -52,7 +50,6 @@ export interface UpdateTransactionInput extends TransactionSourceMetadata {
   type?: TransactionType;
   amount?: number;
   note?: string;
-  receipt_path?: string;
   to_wallet_id?: string | null;
   exclude_from_total?: boolean;
   is_budget_offset?: boolean;

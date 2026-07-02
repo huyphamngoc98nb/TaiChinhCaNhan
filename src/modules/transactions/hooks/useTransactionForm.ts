@@ -45,7 +45,6 @@ export function getDefaultCreateTransactionValues(): CreateTransactionFormValues
     wallet_id: '',
     note: '',
     transaction_date: getDefaultTransactionDate(settings),
-    receipt_path: undefined,
     is_budget_offset: false,
     offset_budget_id: null
   };
@@ -66,7 +65,6 @@ export function getEditTransactionInitialValues(existing: Transaction): CreateTr
     to_wallet_id: existing.to_wallet_id || undefined,
     note: existing.note || '',
     transaction_date: existing.transaction_date,
-    receipt_path: existing.receipt_path || undefined,
     exclude_from_total: existing.exclude_from_total,
     is_budget_offset: existing.is_budget_offset ?? false,
     offset_budget_id: existing.offset_budget_id ?? null,
@@ -82,7 +80,6 @@ export function useTransactionForm(existing?: Transaction) {
     return getCreateTransactionInitialValues();
   });
   
-  const [receiptBase64, setReceiptBase64] = useState<string | undefined>();
   const [submitting, setSubmitting] = useState(false);
   const [options, setOptions] = useState<{ wallets: any[], categories: any[], budgets: any[] }>({ wallets: [], categories: [], budgets: [] });
   const toast = useToast();
@@ -168,17 +165,16 @@ export function useTransactionForm(existing?: Transaction) {
       };
 
       if (existing) {
-        await updateTransactionUseCase.execute(existing.id, payload as UpdateTransactionInput, receiptBase64);
+        await updateTransactionUseCase.execute(existing.id, payload as UpdateTransactionInput);
         void triggerSuccessHaptic();
         toast.success(t('transactions.update_success'));
       } else {
-        await createTransactionUseCase.execute(payload as CreateTransactionInput, receiptBase64);
+        await createTransactionUseCase.execute(payload as CreateTransactionInput);
         if (typeof formData.transaction_date === 'number' && Number.isFinite(formData.transaction_date)) {
           saveLastUsedTransactionDate(formData.transaction_date);
         }
         clearStoredCreateTransactionState();
         setFormData(getDefaultCreateTransactionValues());
-        setReceiptBase64(undefined);
         void triggerSuccessHaptic();
         toast.success(t('transactions.add_success'));
       }
@@ -191,5 +187,5 @@ export function useTransactionForm(existing?: Transaction) {
     }
   };
 
-  return { formData, setFormData, receiptBase64, setReceiptBase64, save, submitting, options };
+  return { formData, setFormData, save, submitting, options };
 }

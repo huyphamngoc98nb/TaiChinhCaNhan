@@ -54,7 +54,6 @@ const transfer = {
   type: 'transfer' as const,
   amount: 2_500,
   note: null,
-  receipt_path: null,
   exclude_from_total: false,
   transaction_date: 1_000,
   created_at: 1_000,

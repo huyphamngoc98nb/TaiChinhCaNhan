@@ -40,7 +40,6 @@ function linkedTransaction(overrides: Partial<Transaction> = {}): Transaction {
     type: 'expense',
     amount: 1_000_000,
     note: 'Cho vay: Nguyen Van A',
-    receipt_path: null,
     to_wallet_id: null,
     transaction_date: 0,
     created_at: 0,
@@ -88,7 +87,6 @@ function makeDeps(
     getById: vi.fn(),
     getByIdIncludeDeleted: vi.fn(async () => transaction),
     getBySource: vi.fn(),
-    getAllReceiptPaths: vi.fn(async () => []),
     list: vi.fn(),
   };
   const walletRepo = {

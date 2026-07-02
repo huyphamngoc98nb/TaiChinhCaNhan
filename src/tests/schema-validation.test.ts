@@ -229,12 +229,11 @@ describe('mapToTransaction – nullable fields', () => {
   it('maps null note correctly', () => {
     const row = {
       id: 'tx1', wallet_id: 'w1', category_id: 'c1', type: 'expense',
-      amount: 100, note: null, receipt_path: null, transaction_date: 1000,
+      amount: 100, note: null, transaction_date: 1000,
       created_at: 1000, updated_at: 1000, deleted_at: null,
     };
     const tx = mapToTransaction(row);
     expect(tx.note).toBeNull();
-    expect(tx.receipt_path).toBeNull();
     expect(tx.deleted_at).toBeNull();
   });
 
@@ -255,7 +254,7 @@ describe('mapToTransaction – nullable fields', () => {
     // After fix: deleted_at: row.deleted_at ?? null correctly preserves 0.
     const row = {
       id: 'tx1', wallet_id: 'w1', category_id: 'c1', type: 'expense',
-      amount: 100, note: null, receipt_path: null, transaction_date: 1000,
+      amount: 100, note: null, transaction_date: 1000,
       created_at: 1000, updated_at: 1000, deleted_at: 0,
     };
     const tx = mapToTransaction(row);
@@ -267,7 +266,7 @@ describe('mapToTransaction – nullable fields', () => {
     const now = Date.now();
     const row = {
       id: 'tx-full', wallet_id: 'w2', category_id: 'cat1', type: 'income',
-      amount: 9999.99, note: 'Salary', receipt_path: 'receipts/sal.jpeg',
+      amount: 9999.99, note: 'Salary',
       transaction_date: now - 1000, created_at: now - 500, updated_at: now,
       deleted_at: null,
     };
@@ -279,7 +278,6 @@ describe('mapToTransaction – nullable fields', () => {
       type: 'income',
       amount: 9999.99,
       note: 'Salary',
-      receipt_path: 'receipts/sal.jpeg',
       deleted_at: null,
     });
   });

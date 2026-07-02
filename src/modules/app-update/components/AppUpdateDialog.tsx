@@ -34,10 +34,19 @@ export function AppUpdateDialog({
   onDismiss,
 }: AppUpdateDialogProps) {
   const { t } = useLanguage();
-  const releaseNotes = (latest.releaseNotes ?? []).filter((note) => note.trim() !== '');
+  const releaseSummary = latest.releaseSummary?.trim();
+  const releaseNoteSections = (latest.releaseNoteSections ?? []).filter(
+    (section) => section.items.length > 0,
+  );
+  const releaseNotes = (latest.releaseNotes ?? [])
+    .map((note) => note.trim())
+    .filter(Boolean);
+  const hasStructuredSections = releaseNoteSections.length > 0;
   const visibleReleaseNotes = releaseNotes.length > 0
     ? releaseNotes
-    : [t('app_update.default_release_note')];
+    : releaseSummary || hasStructuredSections
+      ? []
+      : [t('app_update.default_release_note')];
   const isRetry = installState === 'error' || installState === 'permission_required';
   const dialogRef = useRef<HTMLElement>(null);
   const primaryButtonRef = useRef<HTMLButtonElement>(null);
@@ -143,11 +152,51 @@ export function AppUpdateDialog({
 
           <div className="app-update-notes">
             <h3>{t('app_update.release_notes')}</h3>
-            <ul>
-              {visibleReleaseNotes.map((note, index) => (
-                <li key={`${index}-${note}`}>{note}</li>
-              ))}
-            </ul>
+            {releaseSummary && (
+              <p className="app-update-release-summary">{releaseSummary}</p>
+            )}
+
+            {hasStructuredSections ? (
+              <div className="app-update-note-sections">
+                {releaseNoteSections.map((section, sectionIndex) => {
+                  const headingId = `app-update-note-section-${sectionIndex}`;
+                  return (
+                    <section
+                      key={`${section.type}-${sectionIndex}`}
+                      className="app-update-note-section"
+                      aria-labelledby={headingId}
+                    >
+                      <h4 id={headingId}>{section.title}</h4>
+                      <ul>
+                        {section.items.map((item, itemIndex) => (
+                          <li key={`${item.title}-${itemIndex}`}>
+                            <strong className="app-update-note-item-title">
+                              {item.title}
+                            </strong>
+                            {item.description && (
+                              <p className="app-update-note-item-description">
+                                {item.description}
+                              </p>
+                            )}
+                            {item.impact && (
+                              <p className="app-update-note-item-impact">{item.impact}</p>
+                            )}
+                          </li>
+                        ))}
+                      </ul>
+                    </section>
+                  );
+                })}
+              </div>
+            ) : (
+              visibleReleaseNotes.length > 0 && (
+                <ul>
+                  {visibleReleaseNotes.map((note, index) => (
+                    <li key={`${index}-${note}`}>{note}</li>
+                  ))}
+                </ul>
+              )
+            )}
           </div>
 
           {isUpdating && (

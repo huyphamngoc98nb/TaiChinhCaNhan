@@ -11,7 +11,7 @@ import {
 import { initDatabaseConnection } from '@/core/db/sqlite/connection';
 import { runMigrations } from '@/core/db/migrations/migration-runner';
 import { seedDefaultData } from '@/core/db/seed/default-categories';
-import { OrphanReceiptCleanupService } from '@/core/files';
+import { runLegacyReceiptCleanupOnce } from '@/core/files';
 import { authService } from '@/core/auth/auth.service';
 import { runAutoBackupIfDue } from '@/modules/backup/services/auto-backup.service';
 import { useWebPersistWarning } from '@/core/db/sqlite/use-web-persist-warning';
@@ -32,20 +32,22 @@ const MOBILE_IDLE_LOCK_TIMEOUT_MS = 2 * 60 * 1000;
 const ACTIVITY_EVENTS = ['pointerdown', 'touchstart', 'keydown', 'input', 'scroll'] as const;
 
 let globalInitPromise: Promise<void> | null = null;
-let hasStartedReceiptCleanup = false;
+let hasStartedLegacyReceiptCleanup = false;
 
-function startReceiptCleanup() {
-  if (hasStartedReceiptCleanup) return;
-  hasStartedReceiptCleanup = true;
+function startLegacyReceiptCleanup() {
+  if (hasStartedLegacyReceiptCleanup) return;
+  hasStartedLegacyReceiptCleanup = true;
 
-  void new OrphanReceiptCleanupService().run()
-    .then(({ errors }) => {
+  void runLegacyReceiptCleanupOnce()
+    .then(({ completed, errors }) => {
       if (errors > 0) {
-        logger.warn(`Orphan receipt cleanup completed with ${errors} error(s).`);
+        logger.warn(`Legacy receipt cleanup completed with ${errors} error(s).`);
+      } else if (!completed) {
+        logger.warn('Legacy receipt cleanup did not complete.');
       }
     })
     .catch((error) => {
-      logger.warn('Orphan receipt cleanup failed', error);
+      logger.warn('Legacy receipt cleanup failed', error);
     });
 }
 
@@ -141,7 +143,7 @@ export function AppBootstrap({ children }: AppBootstrapProps) {
             logger.info('AppBootstrap: Starting database initialization...');
             await initDatabaseConnection();
             await runMigrations();
-            startReceiptCleanup();
+            startLegacyReceiptCleanup();
             await seedDefaultData();
             logger.info('AppBootstrap: Initialization complete.');
           })();

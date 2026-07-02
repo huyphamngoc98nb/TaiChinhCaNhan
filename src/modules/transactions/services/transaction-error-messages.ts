@@ -21,7 +21,6 @@ const MESSAGE_KEYS: Record<string, TranslationPath> = {
   'to_wallet_id must be different from wallet_id': 'transactions.validation_destination_different',
   'to_wallet_id must be null for non-transfer transactions': 'transactions.validation_destination_not_allowed',
   'note must be less than 500 characters': 'transactions.validation_note_too_long',
-  'receipt_path is too long': 'transactions.validation_receipt_too_long',
   'offset_budget_id is required for budget offset income transactions': 'transactions.validation_offset_budget_required',
   'is_budget_offset is only allowed for income transactions': 'transactions.validation_budget_offset_income_only',
 };

@@ -113,6 +113,8 @@ Android dùng `minSdkVersion 22`, `compileSdkVersion 34`, `targetSdkVersion 34` 
 
 ### Release Android
 
+Trước khi tạo tag Android release, cập nhật `RELEASE_NOTES.md` ở root từ [`docs/templates/RELEASE_NOTES.template.md`](docs/templates/RELEASE_NOTES.template.md), sau đó làm theo schema và checklist QA trong [`docs/android-release.md`](docs/android-release.md). Luôn giữ `releaseNotes` dạng phẳng được generate để tương thích với app phiên bản cũ.
+
 Release build cần cấu hình signing trong `android/keystore.properties`. File này không được commit.
 
 ```properties

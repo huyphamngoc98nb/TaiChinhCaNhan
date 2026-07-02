@@ -10,6 +10,5 @@ export interface ITransactionRepository {
   getByIdIncludeDeleted(id: string): Promise<Transaction | null>;
   /** Returns an active transaction created for a stable domain source event. */
   getBySource(sourceType: string, sourceId: string, sourceEvent: string): Promise<Transaction | null>;
-  getAllReceiptPaths(): Promise<string[]>;
   list(filter: TransactionFilter): Promise<Transaction[]>;
 }

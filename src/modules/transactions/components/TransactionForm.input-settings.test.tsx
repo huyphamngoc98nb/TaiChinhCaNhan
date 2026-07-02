@@ -59,10 +59,6 @@ vi.mock('@/shared/components/DateTimePicker', () => ({
   DateTimePicker: () => <div data-testid="date-picker" />,
 }));
 
-vi.mock('./ReceiptCapture', () => ({
-  ReceiptCapture: () => <div data-testid="receipt-capture" />,
-}));
-
 vi.mock('@/shared/components/FormTransition', () => ({
   FormTransition: ({ children }: { children: ReactNode }) => <div>{children}</div>,
 }));
@@ -82,7 +78,6 @@ const existingTransaction: Transaction = {
   type: 'expense',
   amount: 50_000,
   note: null,
-  receipt_path: null,
   to_wallet_id: null,
   transaction_date: 1_717_200_000_000,
   exclude_from_total: false,
@@ -108,7 +103,6 @@ function mockTransactionFormState(overrides: Partial<Transaction> = {}) {
       offset_budget_id: overrides.offset_budget_id ?? null,
     },
     setFormData: vi.fn(),
-    setReceiptBase64: vi.fn(),
     save: mocks.save,
     submitting: false,
     options: {

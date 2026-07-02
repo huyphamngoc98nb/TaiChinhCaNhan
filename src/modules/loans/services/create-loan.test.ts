@@ -104,7 +104,6 @@ function makeDeps(walletRepoOverride?: IWalletRepository) {
       type: data.type,
       amount: data.amount,
       note: data.note ?? null,
-      receipt_path: data.receipt_path ?? null,
       to_wallet_id: data.to_wallet_id ?? null,
       exclude_from_total: data.exclude_from_total ?? false,
       transaction_date: data.transaction_date,
@@ -134,7 +133,6 @@ function makeDeps(walletRepoOverride?: IWalletRepository) {
       getById: vi.fn(),
       getByIdIncludeDeleted: vi.fn(),
       getBySource: vi.fn(),
-      getAllReceiptPaths: vi.fn(),
       list: vi.fn(),
     },
     walletRepo: walletRepoOverride ?? {

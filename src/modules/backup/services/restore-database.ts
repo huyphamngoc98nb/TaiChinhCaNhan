@@ -119,10 +119,10 @@ export async function restoreDatabase(payload: RestorableBackupPayload): Promise
     payload.transactions.forEach((row) => {
       insertStatements.push({
         statement: `INSERT INTO transactions (
-          id, wallet_id, category_id, type, amount, note, receipt_path,
-          transaction_date, to_wallet_id, exclude_from_total, is_budget_offset, offset_budget_id,
+          id, wallet_id, category_id, type, amount, note, transaction_date,
+          to_wallet_id, exclude_from_total, is_budget_offset, offset_budget_id,
           source_type, source_id, source_event, created_at, updated_at, deleted_at
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         values: [
           row.id,
           row.wallet_id,
@@ -130,7 +130,6 @@ export async function restoreDatabase(payload: RestorableBackupPayload): Promise
           row.type,
           row.amount,
           value(row, 'note'),
-          value(row, 'receipt_path'),
           row.transaction_date,
           value(row, 'to_wallet_id'),
           value(row, 'exclude_from_total', 0),

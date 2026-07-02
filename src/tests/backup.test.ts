@@ -132,7 +132,7 @@ describe('Backup Module Tests', () => {
       };
       const mockDb = {
         query: vi.fn(async (sql: string) => {
-          const table = sql.replace('SELECT * FROM ', '');
+          const table = sql.match(/FROM\s+(\w+)/)?.[1] ?? '';
           return { values: rowsByTable[table] ?? [] };
         }),
       };
@@ -144,6 +144,10 @@ describe('Backup Module Tests', () => {
       expect(payload.loan_payments).toEqual(rowsByTable.loan_payments);
       expect(mockDb.query).toHaveBeenCalledWith('SELECT * FROM loans');
       expect(mockDb.query).toHaveBeenCalledWith('SELECT * FROM loan_payments');
+      const transactionQuery = mockDb.query.mock.calls
+        .map(([sql]) => sql as string)
+        .find((sql) => sql.includes('FROM transactions'));
+      expect(transactionQuery).not.toContain('receipt_path');
     });
 
     it('imports a JSON file object through the browser file API', async () => {
@@ -432,9 +436,9 @@ describe('Backup Module Tests', () => {
       });
       expect(normalized.transactions[0]).toMatchObject({
         note: null,
-        receipt_path: null,
         deleted_at: null,
       });
+      expect(normalized.transactions[0]).not.toHaveProperty('receipt_path');
       expect(normalized.budgets).toEqual([]);
       expect(normalized.loans).toEqual([]);
     });
@@ -480,7 +484,7 @@ describe('Backup Module Tests', () => {
       expect(result.error).toContain('wallets[0].balance must be a number');
     });
 
-    it('accepts empty strings for nullable text fields in current backups', () => {
+    it('accepts current backups and ignores a legacy receipt field', () => {
       const payload = {
         ...validPayload,
         wallets: [{
@@ -518,7 +522,7 @@ describe('Backup Module Tests', () => {
           type: 'expense',
           amount: 100,
           note: '',
-          receipt_path: '',
+          receipt_path: 'receipts/legacy.jpg',
           transaction_date: 1,
           to_wallet_id: null,
           created_at: 1,
@@ -530,6 +534,7 @@ describe('Backup Module Tests', () => {
       const result = validateBackupPayload(payload);
 
       expect(result.isValid).toBe(true);
+      expect(normalizeBackupPayload(payload).transactions[0]).not.toHaveProperty('receipt_path');
     });
 
     it('rejects non-array sections', () => {
@@ -726,7 +731,7 @@ describe('Backup Module Tests', () => {
           type: 'expense',
           amount: 500,
           note: null,
-          receipt_path: null,
+          receipt_path: 'receipts/legacy.jpg',
           transaction_date: 2,
           to_wallet_id: null,
           created_at: 2,
@@ -769,6 +774,8 @@ describe('Backup Module Tests', () => {
       expect(transactionIndex).toBeGreaterThan(-1);
       expect(loanIndex).toBeGreaterThan(-1);
       expect(transactionIndex).toBeLessThan(loanIndex);
+      expect(statements[transactionIndex].statement).not.toContain('receipt_path');
+      expect(statements[transactionIndex].values).not.toContain('receipts/legacy.jpg');
     });
   });
 });
