@@ -1,11 +1,11 @@
 {
   "platform": "android",
-  "versionName": "0.1.28",
-  "versionCode": 128,
+  "versionName": "0.1.29",
+  "versionCode": 129,
   "minSupportedVersionCode": 100,
   "mandatory": false,
-  "apkUrl": "https://github.com/huyphamngoc98nb/TaiChinhCaNhan/releases/download/v0.1.28/TaiChinhCaNhan-v0.1.28.apk",
-  "sha256": "ef046facb70a55e5b51a3660748f03c840e9b360fa3142b53abde32814f84569",
-  "releaseDate": "2026-07-01",
+  "apkUrl": "https://github.com/huyphamngoc98nb/TaiChinhCaNhan/releases/download/v0.1.29/TaiChinhCaNhan-v0.1.29.apk",
+  "sha256": "b30014ed465fafbdace132fd806306a5fb06f14072e3607dca05fb4e84c6adb2",
+  "releaseDate": "2026-07-02",
   "releaseNotes": []
 }
