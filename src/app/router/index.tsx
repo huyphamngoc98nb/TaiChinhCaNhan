@@ -1,5 +1,6 @@
 import { createBrowserRouter } from 'react-router-dom';
 import { ReportsPage } from '@/modules/reports/pages/ReportsPage';
+import { BudgetReportPage } from '@/modules/reports/pages/BudgetReportPage';
 import { MainLayout } from '../layouts/MainLayout';
 import { ROUTES } from '@/shared/constants/routes';
 import { DashboardPage } from '@/modules/transactions/pages/DashboardPage';
@@ -31,6 +32,7 @@ export const router = createBrowserRouter([
       { path: ROUTES.CATEGORIES, element: <CategoriesPage /> },
       { path: ROUTES.CATEGORIES_NEW, element: <CategoriesPage /> },
       { path: ROUTES.REPORTS, element: <ReportsPage /> },
+      { path: ROUTES.BUDGET_REPORT, element: <BudgetReportPage /> },
       { path: ROUTES.BUDGETS, element: <BudgetSettingsPage /> },
       { path: ROUTES.BUDGETS_NEW, element: <BudgetSettingsPage /> },
       { path: ROUTES.RECURRING_BILLS, element: <RecurringBillsPage /> },

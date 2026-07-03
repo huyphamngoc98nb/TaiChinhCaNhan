@@ -17,6 +17,7 @@ import {
   Download,
   Database,
   Tags,
+  TrendingUp,
 } from 'lucide-react';
 import { ROUTES } from '@/shared/constants/routes';
 import { StartupScreenRedirector } from '@/shared/components/StartupScreenRedirector';
@@ -55,6 +56,7 @@ const CONTEXTUAL_ADD_ROUTES: Array<{
 const DASHBOARD_WITH_DRAWER_BACK_ROUTES = new Set<string>([
   ROUTES.BUDGETS,
   ROUTES.REPORTS,
+  ROUTES.BUDGET_REPORT,
   ROUTES.WALLETS,
   ROUTES.RECURRING_BILLS,
   ROUTES.LOANS,
@@ -185,6 +187,7 @@ export function MainLayout() {
     { icon: <Wallet size={22} />, label: t('wallets.title'), route: ROUTES.WALLETS },
     { icon: <Tags size={22} />, label: t('categories.title'), route: ROUTES.CATEGORIES },
     { icon: <BarChart3 size={22} />, label: t('navigation.reports'), route: ROUTES.REPORTS },
+    { icon: <TrendingUp size={22} />, label: t('navigation.budget_report'), route: ROUTES.BUDGET_REPORT },
     {
       icon: <RefreshCcw size={22} />,
       label: t('recurring_bills.title'),

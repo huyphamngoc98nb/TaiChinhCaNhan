@@ -115,6 +115,15 @@ describe('AppUpdateDialog', () => {
     expect(screen.getByText('app_update.default_release_note')).not.toBeNull();
   });
 
+  it('renders the generated Android fallback note instead of the translated default', () => {
+    renderDialog({
+      latest: { ...latest, releaseNotes: ['Android release v0.1.21'] },
+    });
+
+    expect(screen.getByText('Android release v0.1.21')).not.toBeNull();
+    expect(screen.queryByText('app_update.default_release_note')).toBeNull();
+  });
+
   it('shows only the update action for mandatory updates', () => {
     renderDialog({ latest: { ...latest, mandatory: true }, mandatory: true });
 

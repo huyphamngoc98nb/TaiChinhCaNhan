@@ -49,7 +49,10 @@ function main() {
   const assetPath = path.join(outputDir, assetFileName);
   const latestJsonPath = path.join(outputDir, 'latest.json');
   const releaseEnvPath = path.join(outputDir, 'release.env');
-  const releaseNotesMetadata = readReleaseNotes(releaseNotesPathInput);
+  const releaseNotesMetadata = ensureReleaseNotesFallback(
+    readReleaseNotes(releaseNotesPathInput),
+    `Android release v${versionName}`,
+  );
   const assetRelativePath = toRepoRelativePath(assetPath);
   const latestJsonRelativePath = toRepoRelativePath(latestJsonPath);
 
@@ -273,16 +276,18 @@ function parseReleaseNotesMarkdown(markdown) {
       continue;
     }
 
+    const bulletMatch = /^\s*[-*]\s+(.+?)\s*$/.exec(rawLine);
+
     if (readingSummary) {
       const summaryLine = rawLine.trim();
-      if (summaryLine && !rawLine.startsWith('- ')) {
+      if (summaryLine && !bulletMatch) {
         summaryLines.push(summaryLine);
       }
     }
 
-    if (!rawLine.startsWith('- ')) continue;
+    if (!bulletMatch) continue;
 
-    const title = rawLine.slice(2).trim();
+    const title = bulletMatch[1].trim();
     if (!title) continue;
 
     if (currentSection) {
@@ -305,6 +310,17 @@ function emptyReleaseNotes() {
     releaseSummary: undefined,
     releaseNoteSections: [],
     releaseNotes: [],
+  };
+}
+
+function ensureReleaseNotesFallback(metadata, fallbackNote) {
+  if (metadata.releaseNotes.length > 0) {
+    return metadata;
+  }
+
+  return {
+    ...metadata,
+    releaseNotes: [fallbackNote],
   };
 }
 

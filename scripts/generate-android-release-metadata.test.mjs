@@ -62,10 +62,10 @@ Dòng tóm tắt thứ nhất.
 Dòng tóm tắt thứ hai.
 
 ## Tính năng mới
-- Thêm mô tả cập nhật theo nhóm.
+* Thêm mô tả cập nhật theo nhóm.
 
 ## Sửa lỗi
-- Sửa lỗi đồng bộ số dư.
+* Sửa lỗi đồng bộ số dư.
 `);
 
     expect(latest.releaseNotesVersion).toBe(2);
@@ -124,8 +124,11 @@ English summary.
   it('falls back safely when the release-notes file does not exist', () => {
     const latest = generateLatest(null);
 
-    expect(latest.releaseNotes).toEqual([]);
+    expect(latest.releaseNotes).toEqual([
+      `Android release v${versionConfig.nativeVersionName}`,
+    ]);
     expect(latest).not.toHaveProperty('releaseNotesVersion');
+    expect(latest).not.toHaveProperty('releaseSummary');
     expect(latest).not.toHaveProperty('releaseNoteSections');
   });
 });

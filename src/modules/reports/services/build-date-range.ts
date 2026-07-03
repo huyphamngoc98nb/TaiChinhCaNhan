@@ -5,7 +5,7 @@ import {
 } from '@/modules/settings/services/display-format-settings.service';
 import { getWeekDateRange } from '@/shared/utils/date-range';
 
-export type DateRangePreset = 'this_week' | 'this_month' | 'this_quarter' | 'last_month' | 'last_30_days' | 'custom';
+export type DateRangePreset = 'today' | 'this_week' | 'this_month' | 'this_quarter' | 'last_month' | 'last_30_days' | 'custom';
 
 export function buildDateRange(
   preset: DateRangePreset,
@@ -13,6 +13,12 @@ export function buildDateRange(
   displayFormatSettings: DisplayFormatSettings = DEFAULT_DISPLAY_FORMAT_SETTINGS
 ): DateRange {
   const now = new Date();
+
+  if (preset === 'today') {
+    const start = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const end = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
+    return { startDate: start.getTime(), endDate: end.getTime() };
+  }
   
   if (preset === 'this_month') {
     const start = new Date(now.getFullYear(), now.getMonth(), 1);

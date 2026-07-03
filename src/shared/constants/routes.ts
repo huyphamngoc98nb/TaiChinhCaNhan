@@ -7,6 +7,7 @@ export const ROUTES = {
   CATEGORIES: '/categories',
   CATEGORIES_NEW: '/categories/new',
   REPORTS: '/reports',
+  BUDGET_REPORT: '/budget-report',
   BUDGETS: '/budgets',
   BUDGETS_NEW: '/budgets/new',
   RECURRING_BILLS: '/recurring-bills',

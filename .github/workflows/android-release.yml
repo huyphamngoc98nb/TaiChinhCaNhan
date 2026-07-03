@@ -133,7 +133,7 @@ jobs:
           if [ -f RELEASE_NOTES.md ]; then
             cp RELEASE_NOTES.md dist-release/release-notes.md
           else
-            printf 'Android release %s\n' "${RELEASE_TAG}" > dist-release/release-notes.md
+            printf '%s\n' "- Android release ${RELEASE_TAG}" > dist-release/release-notes.md
           fi
 
       - name: Generate Android release metadata

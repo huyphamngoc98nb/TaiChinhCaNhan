@@ -1,6 +1,15 @@
 import { getDbConnection } from '@/core/db/sqlite/connection';
 import { IReportRepository } from './report.repository';
-import { DateRange, ReportGranularity, CategorySummary, PeriodSummary, CashflowSummary, WalletSummary } from '../domain/report.model';
+import {
+  DateRange,
+  ReportGranularity,
+  CategorySummary,
+  PeriodSummary,
+  CashflowSummary,
+  WalletSummary,
+  BudgetReportQuery,
+  BudgetReportSource,
+} from '../domain/report.model';
 
 export class SQLiteReportRepository implements IReportRepository {
   async getCategorySummary(range: DateRange, type: 'income' | 'expense'): Promise<CategorySummary[]> {
@@ -198,5 +207,160 @@ export class SQLiteReportRepository implements IReportRepository {
       wallet_name: row.wallet_name || 'Unknown wallet',
       amount: row.amount || 0,
     }));
+  }
+
+  async getBudgetReportSource(query: BudgetReportQuery): Promise<BudgetReportSource> {
+    const db = await getDbConnection();
+    const { range, categoryId, walletId } = query;
+
+    const budgetConditions = [
+      'b.is_active = 1',
+      "c.type = 'expense'",
+      'b.start_date <= ?',
+      '(b.end_date IS NULL OR b.end_date >= ?)',
+    ];
+    const budgetParams: unknown[] = [range.endDate, range.startDate];
+
+    if (categoryId) {
+      budgetConditions.push('b.category_id = ?');
+      budgetParams.push(categoryId);
+    }
+    if (walletId) {
+      budgetConditions.push(`(
+        b.wallet_id = ?
+        OR (b.wallet_id IS NULL AND b.account_type_scope IS NULL)
+        OR (
+          b.wallet_id IS NULL
+          AND b.account_type_scope = (
+            SELECT account_type FROM wallets WHERE id = ? LIMIT 1
+          )
+        )
+      )`);
+      budgetParams.push(walletId, walletId);
+    }
+
+    const budgetsResult = await db.query(
+      `
+        SELECT
+          b.id,
+          b.category_id,
+          c.name AS category_name,
+          b.amount,
+          b.period,
+          b.start_date,
+          b.end_date
+        FROM budgets b
+        JOIN categories c ON c.id = b.category_id
+        WHERE ${budgetConditions.join('\n          AND ')}
+        ORDER BY c.name COLLATE NOCASE ASC
+      `,
+      budgetParams,
+    );
+
+    const expenseConditions = [
+      "t.type = 'expense'",
+      't.transaction_date >= ?',
+      't.transaction_date <= ?',
+      't.deleted_at IS NULL',
+      't.exclude_from_total = 0',
+    ];
+    const expenseParams: unknown[] = [range.startDate, range.endDate];
+    const offsetConditions = [
+      "t.type = 'income'",
+      't.is_budget_offset = 1',
+      't.offset_budget_id IS NOT NULL',
+      't.transaction_date >= ?',
+      't.transaction_date <= ?',
+      't.deleted_at IS NULL',
+    ];
+    const offsetParams: unknown[] = [range.startDate, range.endDate];
+
+    if (categoryId) {
+      expenseConditions.push('t.category_id = ?');
+      expenseParams.push(categoryId);
+      offsetConditions.push('b.category_id = ?');
+      offsetParams.push(categoryId);
+    }
+    if (walletId) {
+      expenseConditions.push('t.wallet_id = ?');
+      expenseParams.push(walletId);
+      offsetConditions.push('t.wallet_id = ?');
+      offsetParams.push(walletId);
+    }
+
+    const movementSql = `
+      SELECT
+        t.category_id AS category_id,
+        c.name AS category_name,
+        t.transaction_date AS transaction_date,
+        t.amount AS signed_amount
+      FROM transactions t
+      LEFT JOIN categories c ON c.id = t.category_id
+      WHERE ${expenseConditions.join('\n        AND ')}
+
+      UNION ALL
+
+      SELECT
+        b.category_id AS category_id,
+        c.name AS category_name,
+        t.transaction_date AS transaction_date,
+        -t.amount AS signed_amount
+      FROM transactions t
+      JOIN budgets b ON b.id = t.offset_budget_id
+      LEFT JOIN categories c ON c.id = b.category_id
+      WHERE ${offsetConditions.join('\n        AND ')}
+    `;
+    const movementParams = [...expenseParams, ...offsetParams];
+
+    const [spendingResult, trendResult] = await Promise.all([
+      db.query(
+        `
+          WITH movements AS (${movementSql})
+          SELECT
+            category_id,
+            category_name,
+            MAX(SUM(signed_amount), 0) AS actual_spending
+          FROM movements
+          GROUP BY category_id, category_name
+          ORDER BY actual_spending DESC
+        `,
+        movementParams,
+      ),
+      db.query(
+        `
+          WITH movements AS (${movementSql})
+          SELECT
+            strftime('%Y-%m-%d', transaction_date / 1000, 'unixepoch', 'localtime') AS date,
+            category_id,
+            MAX(SUM(signed_amount), 0) AS actual_spending
+          FROM movements
+          GROUP BY date, category_id
+          ORDER BY date ASC
+        `,
+        movementParams,
+      ),
+    ]);
+
+    return {
+      budgets: (budgetsResult.values ?? []).map((row: Record<string, unknown>) => ({
+        id: row.id as string,
+        categoryId: row.category_id as string,
+        categoryName: (row.category_name as string) || 'Uncategorized',
+        amount: Number(row.amount ?? 0),
+        period: row.period as 'weekly' | 'monthly',
+        startDate: Number(row.start_date),
+        endDate: row.end_date == null ? null : Number(row.end_date),
+      })),
+      spending: (spendingResult.values ?? []).map((row: Record<string, unknown>) => ({
+        categoryId: row.category_id as string,
+        categoryName: (row.category_name as string) || 'Uncategorized',
+        actualSpending: Number(row.actual_spending ?? 0),
+      })),
+      trend: (trendResult.values ?? []).map((row: Record<string, unknown>) => ({
+        date: row.date as string,
+        categoryId: row.category_id as string,
+        actualSpending: Number(row.actual_spending ?? 0),
+      })),
+    };
   }
 }
