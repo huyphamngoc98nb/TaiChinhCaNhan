@@ -60,6 +60,31 @@ describe('Reports UI - DateRangePicker', () => {
     expect(onPresetChange).toHaveBeenCalledWith('this_week');
   });
 
+  it('renders last month as an active preset without custom date inputs', async () => {
+    const onPresetChange = vi.fn();
+
+    renderWithProviders(
+      <DateRangePicker
+        preset="last_month"
+        granularity="day"
+        customRange={{ startDate: 1, endDate: 2 }}
+        onPresetChange={onPresetChange}
+        onGranularityChange={vi.fn()}
+        onCustomRangeChange={vi.fn()}
+        onReset={vi.fn()}
+      />
+    );
+
+    const lastMonthButton = await screen.findByRole('button', { name: /Last Month/i });
+
+    expect(lastMonthButton.className).toContain('bg-gray-900');
+    expect(screen.queryByLabelText(/Start date/i)).toBeNull();
+    expect(screen.queryByLabelText(/End date/i)).toBeNull();
+
+    fireEvent.click(lastMonthButton);
+    expect(onPresetChange).toHaveBeenCalledWith('last_month');
+  });
+
   it('calls onGranularityChange when a new granularity is selected', async () => {
     const onPresetChange = vi.fn();
     const onGranularityChange = vi.fn();

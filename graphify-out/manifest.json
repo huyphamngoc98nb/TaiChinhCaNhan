@@ -35,8 +35,8 @@
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\version.config.json": {
-    "mtime": 1782892271.2629025,
-    "ast_hash": "58572dd7684a09ef2572e5cab9eec2d2",
+    "mtime": 1782978331.1579108,
+    "ast_hash": "c367f61d6e2facf8e018349e83b826b6",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\vite.config.ts": {
@@ -50,8 +50,8 @@
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\android\\capacitor.settings.gradle": {
-    "mtime": 1782959105.9371588,
-    "ast_hash": "c89f8a9fb8985d509ab045f851538429",
+    "mtime": 1782978289.5324402,
+    "ast_hash": "0a57c9b509250026b543b2cf88b67665",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\android\\gradlew": {
@@ -75,7 +75,7 @@
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\android\\app\\capacitor.build.gradle": {
-    "mtime": 1782959107.1729484,
+    "mtime": 1782978289.5324402,
     "ast_hash": "6a1fff52a34d0c8866d6d61bb2715926",
     "semantic_hash": ""
   },
@@ -85,13 +85,13 @@
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\android\\app\\src\\main\\assets\\capacitor.config.json": {
-    "mtime": 1782892208.8782976,
+    "mtime": 1782978288.9993446,
     "ast_hash": "5faad82265b616885f2ca4175082f59a",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\android\\app\\src\\main\\assets\\capacitor.plugins.json": {
-    "mtime": 1782892208.9672315,
-    "ast_hash": "8062f9058ba4ac6f81610e29eb707414",
+    "mtime": 1782978289.0791292,
+    "ast_hash": "b2b87dc4f55f29a4a44c6f1bef8cfec2",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\android\\app\\src\\main\\java\\com\\taixiucanhan\\app\\DocumentSaverPlugin.java": {
@@ -120,12 +120,12 @@
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\android\\capacitor-cordova-android-plugins\\build.gradle": {
-    "mtime": 1782892209.481505,
+    "mtime": 1782978289.5344412,
     "ast_hash": "2af61653d70c95d20802c8b5c433ba90",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\android\\capacitor-cordova-android-plugins\\cordova.variables.gradle": {
-    "mtime": 1782892209.4825046,
+    "mtime": 1782978289.5344412,
     "ast_hash": "d2372a0ae9aa60abb8d03e7f06bf9194",
     "semantic_hash": ""
   },
@@ -960,8 +960,8 @@
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\modules\\reports\\components\\DateRangePicker.tsx": {
-    "mtime": 1781254561.60746,
-    "ast_hash": "d1440a67b583687b3aa3516774cd6055",
+    "mtime": 1783063568.940991,
+    "ast_hash": "2e13208b8d4c1d47aaf56b48df5ffa15",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\modules\\reports\\components\\normalize-donut-data.ts": {
@@ -1830,8 +1830,8 @@
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\tests\\reports-ui.test.tsx": {
-    "mtime": 1781254605.079442,
-    "ast_hash": "4d8d7c0033bb297c516334e1cb1cf58e",
+    "mtime": 1783063570.2419794,
+    "ast_hash": "3ab89a4c6bc030b9e1d8bbfe39e7b30f",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\tests\\reports.test.ts": {

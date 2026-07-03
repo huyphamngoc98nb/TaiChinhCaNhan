@@ -40,6 +40,7 @@ export const DateRangePicker: React.FC<Props> = ({
   const presetOptions: Array<{ value: DateRangePreset; label: string }> = [
     { value: 'this_week', label: t('reports.period_this_week') },
     { value: 'this_month', label: t('reports.period_this_month') },
+    { value: 'last_month', label: t('reports.period_last_month') },
     { value: 'this_quarter', label: t('reports.period_this_quarter') },
     { value: 'custom', label: t('reports.period_custom') },
   ];
