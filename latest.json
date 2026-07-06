@@ -1,13 +1,13 @@
 {
   "platform": "android",
-  "versionName": "0.1.32",
-  "versionCode": 132,
+  "versionName": "0.1.33",
+  "versionCode": 133,
   "minSupportedVersionCode": 100,
   "mandatory": false,
-  "apkUrl": "https://github.com/huyphamngoc98nb/TaiChinhCaNhan/releases/download/v0.1.32/TaiChinhCaNhan-v0.1.32.apk",
-  "sha256": "6f799a55af6158091d2f8acb7108a63c9050a76dbd707d6dfd7e5002cb3a38da",
+  "apkUrl": "https://github.com/huyphamngoc98nb/TaiChinhCaNhan/releases/download/v0.1.33/TaiChinhCaNhan-v0.1.33.apk",
+  "sha256": "a1d322702a70df0f2c1bfadfa0b3aaf3b091273bbb5f3078b125ccf08d0253b4",
   "releaseDate": "2026-07-06",
   "releaseNotes": [
-    "Android release v0.1.32"
+    "Android release v0.1.33"
   ]
 }
