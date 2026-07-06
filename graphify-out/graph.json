@@ -2745,7 +2745,7 @@
       "source_file": "src/main.tsx",
       "source_location": "L1",
       "id": "src_main_tsx",
-      "community": 142,
+      "community": 130,
       "norm_label": "main.tsx"
     },
     {
@@ -2763,7 +2763,7 @@
       "source_file": "src/app/layouts/AppLayout.tsx",
       "source_location": "L1",
       "id": "src_app_layouts_applayout_tsx",
-      "community": 157,
+      "community": 142,
       "norm_label": "applayout.tsx"
     },
     {
@@ -2772,7 +2772,7 @@
       "source_file": "src/app/layouts/AppLayout.tsx",
       "source_location": "L6",
       "id": "layouts_applayout_applayout",
-      "community": 157,
+      "community": 142,
       "norm_label": "applayout()"
     },
     {
@@ -2943,7 +2943,7 @@
       "source_file": "src/app/providers/AppProvider.tsx",
       "source_location": "L1",
       "id": "src_app_providers_appprovider_tsx",
-      "community": 142,
+      "community": 130,
       "norm_label": "appprovider.tsx"
     },
     {
@@ -2952,7 +2952,7 @@
       "source_file": "src/app/providers/AppProvider.tsx",
       "source_location": "L14",
       "id": "providers_appprovider_appprovider",
-      "community": 142,
+      "community": 130,
       "norm_label": "appprovider()"
     },
     {
@@ -3078,7 +3078,7 @@
       "source_file": "src/app/router/index.tsx",
       "source_location": "L22",
       "id": "router_index_router",
-      "community": 142,
+      "community": 130,
       "norm_label": "router"
     },
     {
@@ -5211,7 +5211,7 @@
       "source_file": "src/modules/app-update/components/AppUpdateGate.tsx",
       "source_location": "L8",
       "id": "components_appupdategate_appupdategate",
-      "community": 157,
+      "community": 142,
       "norm_label": "appupdategate()"
     },
     {
@@ -5337,7 +5337,7 @@
       "source_file": "src/modules/app-update/hooks/useAppUpdate.ts",
       "source_location": "L48",
       "id": "hooks_useappupdate_useappupdate",
-      "community": 157,
+      "community": 142,
       "norm_label": "useappupdate()"
     },
     {
@@ -6012,7 +6012,7 @@
       "source_file": "src/modules/backup/pages/BackupPage.tsx",
       "source_location": "L64",
       "id": "pages_backuppage_backuppage",
-      "community": 140,
+      "community": 142,
       "norm_label": "backuppage()"
     },
     {
@@ -7308,7 +7308,7 @@
       "source_file": "src/modules/budgets/components/BudgetScopeBadge.tsx",
       "source_location": "L8",
       "id": "components_budgetscopebadge_budgetscopebadge",
-      "community": 157,
+      "community": 174,
       "norm_label": "budgetscopebadge()"
     },
     {
@@ -7425,7 +7425,7 @@
       "source_file": "src/modules/budgets/components/EmptyBudgetPrompt.tsx",
       "source_location": "L1",
       "id": "src_modules_budgets_components_emptybudgetprompt_tsx",
-      "community": 157,
+      "community": 142,
       "norm_label": "emptybudgetprompt.tsx"
     },
     {
@@ -7434,7 +7434,7 @@
       "source_file": "src/modules/budgets/components/EmptyBudgetPrompt.tsx",
       "source_location": "L4",
       "id": "components_emptybudgetprompt_emptybudgetprompt",
-      "community": 157,
+      "community": 142,
       "norm_label": "emptybudgetprompt()"
     },
     {
@@ -8802,7 +8802,7 @@
       "source_file": "src/modules/export/pages/ExportPage.tsx",
       "source_location": "L19",
       "id": "pages_exportpage_exportpage",
-      "community": 140,
+      "community": 142,
       "norm_label": "exportpage()"
     },
     {
@@ -10908,7 +10908,7 @@
       "source_file": "src/modules/recurring-bills/pages/AddRecurringBillPage.tsx",
       "source_location": "L14",
       "id": "pages_addrecurringbillpage_addrecurringbillpage",
-      "community": 140,
+      "community": 142,
       "norm_label": "addrecurringbillpage()"
     },
     {
@@ -10926,7 +10926,7 @@
       "source_file": "src/modules/recurring-bills/pages/EditRecurringBillPage.tsx",
       "source_location": "L12",
       "id": "pages_editrecurringbillpage_editrecurringbillpage",
-      "community": 140,
+      "community": 142,
       "norm_label": "editrecurringbillpage()"
     },
     {
@@ -12618,7 +12618,7 @@
       "source_file": "src/modules/settings/components/BiometricUnlockSettings.tsx",
       "source_location": "L1",
       "id": "src_modules_settings_components_biometricunlocksettings_tsx",
-      "community": 157,
+      "community": 142,
       "norm_label": "biometricunlocksettings.tsx"
     },
     {
@@ -12627,7 +12627,7 @@
       "source_file": "src/modules/settings/components/BiometricUnlockSettings.tsx",
       "source_location": "L7",
       "id": "components_biometricunlocksettings_biometricunlocksettings",
-      "community": 157,
+      "community": 142,
       "norm_label": "biometricunlocksettings()"
     },
     {
@@ -12636,7 +12636,7 @@
       "source_file": "src/modules/settings/components/CurrencySettings.tsx",
       "source_location": "L1",
       "id": "src_modules_settings_components_currencysettings_tsx",
-      "community": 157,
+      "community": 142,
       "norm_label": "currencysettings.tsx"
     },
     {
@@ -12645,7 +12645,7 @@
       "source_file": "src/modules/settings/components/CurrencySettings.tsx",
       "source_location": "L7",
       "id": "components_currencysettings_currencysettings",
-      "community": 157,
+      "community": 142,
       "norm_label": "currencysettings()"
     },
     {
@@ -12663,7 +12663,7 @@
       "source_file": "src/modules/settings/components/DatabaseDiagnostics.tsx",
       "source_location": "L5",
       "id": "components_databasediagnostics_databasediagnostics",
-      "community": 157,
+      "community": 142,
       "norm_label": "databasediagnostics()"
     },
     {
@@ -12726,7 +12726,7 @@
       "source_file": "src/modules/settings/components/DisplayFormatSettings.tsx",
       "source_location": "L100",
       "id": "components_displayformatsettings_displayformatsettings",
-      "community": 157,
+      "community": 142,
       "norm_label": "displayformatsettings()"
     },
     {
@@ -12735,7 +12735,7 @@
       "source_file": "src/modules/settings/components/LanguageSettings.tsx",
       "source_location": "L1",
       "id": "src_modules_settings_components_languagesettings_tsx",
-      "community": 157,
+      "community": 142,
       "norm_label": "languagesettings.tsx"
     },
     {
@@ -12744,7 +12744,7 @@
       "source_file": "src/modules/settings/components/LanguageSettings.tsx",
       "source_location": "L5",
       "id": "components_languagesettings_languagesettings",
-      "community": 157,
+      "community": 142,
       "norm_label": "languagesettings()"
     },
     {
@@ -12753,7 +12753,7 @@
       "source_file": "src/modules/settings/components/SecuritySettings.tsx",
       "source_location": "L1",
       "id": "src_modules_settings_components_securitysettings_tsx",
-      "community": 157,
+      "community": 142,
       "norm_label": "securitysettings.tsx"
     },
     {
@@ -12762,7 +12762,7 @@
       "source_file": "src/modules/settings/components/SecuritySettings.tsx",
       "source_location": "L10",
       "id": "components_securitysettings_securitysettings",
-      "community": 157,
+      "community": 142,
       "norm_label": "securitysettings()"
     },
     {
@@ -12942,7 +12942,7 @@
       "source_file": "src/modules/settings/pages/SettingsPage.tsx",
       "source_location": "L1",
       "id": "src_modules_settings_pages_settingspage_tsx",
-      "community": 157,
+      "community": 142,
       "norm_label": "settingspage.tsx"
     },
     {
@@ -12951,7 +12951,7 @@
       "source_file": "src/modules/settings/pages/SettingsPage.tsx",
       "source_location": "L37",
       "id": "pages_settingspage_settingspage",
-      "community": 157,
+      "community": 142,
       "norm_label": "settingspage()"
     },
     {
@@ -13545,7 +13545,7 @@
       "source_file": "src/modules/settings/services/ui-personalization-settings.service.ts",
       "source_location": "L4",
       "id": "services_ui_personalization_settings_service_startupscreen",
-      "community": 140,
+      "community": 175,
       "norm_label": "startupscreen"
     },
     {
@@ -15561,7 +15561,7 @@
       "source_file": "src/modules/wallets/components/CreditCardAlertsPanel.tsx",
       "source_location": "L13",
       "id": "components_creditcardalertspanel_creditcardalertspanel",
-      "community": 157,
+      "community": 174,
       "norm_label": "creditcardalertspanel()"
     },
     {
@@ -16110,7 +16110,7 @@
       "source_file": "src/modules/wallets/services/credit-card.service.ts",
       "source_location": "L1",
       "id": "src_modules_wallets_services_credit_card_service_ts",
-      "community": 161,
+      "community": 10,
       "norm_label": "credit-card.service.ts"
     },
     {
@@ -16119,7 +16119,7 @@
       "source_file": "src/modules/wallets/services/credit-card.service.ts",
       "source_location": "L4",
       "id": "services_credit_card_service_defaulttext",
-      "community": 161,
+      "community": 10,
       "norm_label": "defaulttext()"
     },
     {
@@ -16146,7 +16146,7 @@
       "source_file": "src/modules/wallets/services/credit-card.service.ts",
       "source_location": "L33",
       "id": "services_credit_card_service_daysinmonth",
-      "community": 161,
+      "community": 10,
       "norm_label": "daysinmonth()"
     },
     {
@@ -16155,7 +16155,7 @@
       "source_file": "src/modules/wallets/services/credit-card.service.ts",
       "source_location": "L37",
       "id": "services_credit_card_service_clampeddate",
-      "community": 161,
+      "community": 10,
       "norm_label": "clampeddate()"
     },
     {
@@ -16164,7 +16164,7 @@
       "source_file": "src/modules/wallets/services/credit-card.service.ts",
       "source_location": "L53",
       "id": "services_credit_card_service_addmonths",
-      "community": 161,
+      "community": 10,
       "norm_label": "addmonths()"
     },
     {
@@ -16173,7 +16173,7 @@
       "source_file": "src/modules/wallets/services/credit-card.service.ts",
       "source_location": "L57",
       "id": "services_credit_card_service_adddays",
-      "community": 161,
+      "community": 10,
       "norm_label": "adddays()"
     },
     {
@@ -16182,7 +16182,7 @@
       "source_file": "src/modules/wallets/services/credit-card.service.ts",
       "source_location": "L63",
       "id": "services_credit_card_service_buildduedate",
-      "community": 161,
+      "community": 10,
       "norm_label": "buildduedate()"
     },
     {
@@ -16191,7 +16191,7 @@
       "source_file": "src/modules/wallets/services/credit-card.service.ts",
       "source_location": "L73",
       "id": "services_credit_card_service_getcreditcardstatementperiod",
-      "community": 161,
+      "community": 10,
       "norm_label": "getcreditcardstatementperiod()"
     },
     {
@@ -16218,7 +16218,7 @@
       "source_file": "src/modules/wallets/services/credit-card.service.ts",
       "source_location": "L114",
       "id": "services_credit_card_service_creditcardservice_getsummary",
-      "community": 161,
+      "community": 10,
       "norm_label": ".getsummary()"
     },
     {
@@ -17064,7 +17064,7 @@
       "source_file": "src/shared/components/LoadingScreen.tsx",
       "source_location": "L1",
       "id": "src_shared_components_loadingscreen_tsx",
-      "community": 157,
+      "community": 142,
       "norm_label": "loadingscreen.tsx"
     },
     {
@@ -17073,7 +17073,7 @@
       "source_file": "src/shared/components/LoadingScreen.tsx",
       "source_location": "L4",
       "id": "components_loadingscreen_loadingscreen",
-      "community": 157,
+      "community": 142,
       "norm_label": "loadingscreen()"
     },
     {
@@ -17082,7 +17082,7 @@
       "source_file": "src/shared/components/StartupScreenRedirector.tsx",
       "source_location": "L1",
       "id": "src_shared_components_startupscreenredirector_tsx",
-      "community": 140,
+      "community": 175,
       "norm_label": "startupscreenredirector.tsx"
     },
     {
@@ -17091,7 +17091,7 @@
       "source_file": "src/shared/components/StartupScreenRedirector.tsx",
       "source_location": "L9",
       "id": "components_startupscreenredirector_hasstartupredirectbeenapplied",
-      "community": 140,
+      "community": 175,
       "norm_label": "hasstartupredirectbeenapplied()"
     },
     {
@@ -17100,7 +17100,7 @@
       "source_file": "src/shared/components/StartupScreenRedirector.tsx",
       "source_location": "L17",
       "id": "components_startupscreenredirector_markstartupredirectapplied",
-      "community": 140,
+      "community": 175,
       "norm_label": "markstartupredirectapplied()"
     },
     {
@@ -17109,7 +17109,7 @@
       "source_file": "src/shared/components/StartupScreenRedirector.tsx",
       "source_location": "L25",
       "id": "components_startupscreenredirector_startupscreenredirector",
-      "community": 140,
+      "community": 175,
       "norm_label": "startupscreenredirector()"
     },
     {
@@ -17118,7 +17118,7 @@
       "source_file": "src/shared/components/ConfirmDialog/ConfirmContext.tsx",
       "source_location": "L1",
       "id": "src_shared_components_confirmdialog_confirmcontext_tsx",
-      "community": 142,
+      "community": 130,
       "norm_label": "confirmcontext.tsx"
     },
     {
@@ -17127,7 +17127,7 @@
       "source_file": "src/shared/components/ConfirmDialog/ConfirmContext.tsx",
       "source_location": "L4",
       "id": "confirmdialog_confirmcontext_confirmoptions",
-      "community": 142,
+      "community": 130,
       "norm_label": "confirmoptions"
     },
     {
@@ -17136,7 +17136,7 @@
       "source_file": "src/shared/components/ConfirmDialog/ConfirmContext.tsx",
       "source_location": "L12",
       "id": "confirmdialog_confirmcontext_confirmcontexttype",
-      "community": 142,
+      "community": 130,
       "norm_label": "confirmcontexttype"
     },
     {
@@ -17145,7 +17145,7 @@
       "source_file": "src/shared/components/ConfirmDialog/ConfirmContext.tsx",
       "source_location": "L16",
       "id": "confirmdialog_confirmcontext_confirmcontext",
-      "community": 142,
+      "community": 130,
       "norm_label": "confirmcontext"
     },
     {
@@ -17154,7 +17154,7 @@
       "source_file": "src/shared/components/ConfirmDialog/ConfirmContext.tsx",
       "source_location": "L18",
       "id": "confirmdialog_confirmcontext_confirmprovider",
-      "community": 142,
+      "community": 130,
       "norm_label": "confirmprovider()"
     },
     {
@@ -17172,7 +17172,7 @@
       "source_file": "src/shared/components/ConfirmDialog/ConfirmDialog.tsx",
       "source_location": "L1",
       "id": "src_shared_components_confirmdialog_confirmdialog_tsx",
-      "community": 142,
+      "community": 130,
       "norm_label": "confirmdialog.tsx"
     },
     {
@@ -17181,7 +17181,7 @@
       "source_file": "src/shared/components/ConfirmDialog/ConfirmDialog.tsx",
       "source_location": "L5",
       "id": "confirmdialog_confirmdialog_confirmdialogprops",
-      "community": 142,
+      "community": 130,
       "norm_label": "confirmdialogprops"
     },
     {
@@ -17190,7 +17190,7 @@
       "source_file": "src/shared/components/ConfirmDialog/ConfirmDialog.tsx",
       "source_location": "L15",
       "id": "confirmdialog_confirmdialog_confirmdialog",
-      "community": 142,
+      "community": 130,
       "norm_label": "confirmdialog()"
     },
     {
@@ -17946,7 +17946,7 @@
       "source_file": "src/shared/components/Toast/ToastContext.tsx",
       "source_location": "L16",
       "id": "toast_toastcontext_toastprovider",
-      "community": 142,
+      "community": 130,
       "norm_label": "toastprovider()"
     },
     {
@@ -17955,7 +17955,7 @@
       "source_file": "src/shared/components/Toast/ToastContext.tsx",
       "source_location": "L60",
       "id": "toast_toastcontext_usetoast",
-      "community": 140,
+      "community": 142,
       "norm_label": "usetoast()"
     },
     {
@@ -18126,7 +18126,7 @@
       "source_file": "src/shared/context/LanguageContext.tsx",
       "source_location": "L1",
       "id": "src_shared_context_languagecontext_tsx",
-      "community": 157,
+      "community": 140,
       "norm_label": "languagecontext.tsx"
     },
     {
@@ -18135,7 +18135,7 @@
       "source_file": "src/shared/context/LanguageContext.tsx",
       "source_location": "L7",
       "id": "context_languagecontext_languagecontexttype",
-      "community": 157,
+      "community": 140,
       "norm_label": "languagecontexttype"
     },
     {
@@ -18144,7 +18144,7 @@
       "source_file": "src/shared/context/LanguageContext.tsx",
       "source_location": "L13",
       "id": "context_languagecontext_languagecontext",
-      "community": 157,
+      "community": 140,
       "norm_label": "languagecontext"
     },
     {
@@ -18153,7 +18153,7 @@
       "source_file": "src/shared/context/LanguageContext.tsx",
       "source_location": "L15",
       "id": "context_languagecontext_languageprovider",
-      "community": 157,
+      "community": 130,
       "norm_label": "languageprovider()"
     },
     {
@@ -18162,7 +18162,7 @@
       "source_file": "src/shared/context/LanguageContext.tsx",
       "source_location": "L83",
       "id": "context_languagecontext_uselanguage",
-      "community": 157,
+      "community": 142,
       "norm_label": "uselanguage()"
     },
     {
@@ -19269,7 +19269,7 @@
       "source_file": "src/shared/utils/startup-screen.test.ts",
       "source_location": "L1",
       "id": "src_shared_utils_startup_screen_test_ts",
-      "community": 140,
+      "community": 175,
       "norm_label": "startup-screen.test.ts"
     },
     {
@@ -19278,7 +19278,7 @@
       "source_file": "src/shared/utils/startup-screen.ts",
       "source_location": "L1",
       "id": "src_shared_utils_startup_screen_ts",
-      "community": 140,
+      "community": 175,
       "norm_label": "startup-screen.ts"
     },
     {
@@ -19287,7 +19287,7 @@
       "source_file": "src/shared/utils/startup-screen.ts",
       "source_location": "L4",
       "id": "utils_startup_screen_startup_screen_route_map",
-      "community": 140,
+      "community": 175,
       "norm_label": "startup_screen_route_map"
     },
     {
@@ -19296,7 +19296,7 @@
       "source_file": "src/shared/utils/startup-screen.ts",
       "source_location": "L12",
       "id": "utils_startup_screen_getstartupscreenroute",
-      "community": 140,
+      "community": 175,
       "norm_label": "getstartupscreenroute()"
     },
     {
@@ -19867,19 +19867,10 @@
       "norm_label": "report"
     },
     {
-      "label": "travel",
-      "file_type": "code",
-      "source_file": "src/tests/budget-report.test.ts",
-      "source_location": "L107",
-      "id": "tests_budget_report_test_travel",
-      "community": 5,
-      "norm_label": "travel"
-    },
-    {
       "label": "query",
       "file_type": "code",
       "source_file": "src/tests/budget-report.test.ts",
-      "source_location": "L149",
+      "source_location": "L197",
       "id": "tests_budget_report_test_query",
       "community": 5,
       "norm_label": "query"
@@ -19888,7 +19879,7 @@
       "label": "spendingSql",
       "file_type": "code",
       "source_file": "src/tests/budget-report.test.ts",
-      "source_location": "L154",
+      "source_location": "L202",
       "id": "tests_budget_report_test_spendingsql",
       "community": 5,
       "norm_label": "spendingsql"
@@ -19897,7 +19888,7 @@
       "label": "budgetSql",
       "file_type": "code",
       "source_file": "src/tests/budget-report.test.ts",
-      "source_location": "L174",
+      "source_location": "L222",
       "id": "tests_budget_report_test_budgetsql",
       "community": 5,
       "norm_label": "budgetsql"
@@ -20898,7 +20889,7 @@
       "source_file": "src/tests/language-context.test.tsx",
       "source_location": "L1",
       "id": "src_tests_language_context_test_tsx",
-      "community": 157,
+      "community": 130,
       "norm_label": "language-context.test.tsx"
     },
     {
@@ -20907,7 +20898,7 @@
       "source_file": "src/tests/language-context.test.tsx",
       "source_location": "L5",
       "id": "tests_language_context_test_preferencesmock",
-      "community": 157,
+      "community": 130,
       "norm_label": "preferencesmock"
     },
     {
@@ -20916,7 +20907,7 @@
       "source_file": "src/tests/language-context.test.tsx",
       "source_location": "L20",
       "id": "tests_language_context_test_probe",
-      "community": 157,
+      "community": 130,
       "norm_label": "probe()"
     },
     {
@@ -24565,6 +24556,15 @@
       "norm_label": "markbackupfilemissing"
     },
     {
+      "label": "travel",
+      "file_type": "code",
+      "source_file": "src/tests/budget-report.test.ts",
+      "source_location": "L107",
+      "community": 5,
+      "norm_label": "travel",
+      "id": "tests_budget_report_test_travel"
+    },
+    {
       "label": "parseOptionalReleaseNoteItemString()",
       "file_type": "code",
       "source_file": "src/modules/app-update/services/app-update.service.ts",
@@ -25118,7 +25118,7 @@
       "file_type": "code",
       "source_file": "src/modules/app-update/hooks/useAppUpdatePrompt.ts",
       "source_location": "L47",
-      "community": 157,
+      "community": 142,
       "norm_label": "useappupdateprompt()",
       "id": "hooks_useappupdateprompt_useappupdateprompt"
     },
@@ -26081,7 +26081,7 @@
       "file_type": "code",
       "source_file": "src/app/layouts/AppLayout.tsx",
       "source_location": "L1",
-      "community": 157,
+      "community": 142,
       "norm_label": "applayout.tsx",
       "id": "layouts_applayout"
     },
@@ -26108,7 +26108,7 @@
       "file_type": "code",
       "source_file": "src/app/providers/AppProvider.tsx",
       "source_location": "L1",
-      "community": 142,
+      "community": 130,
       "norm_label": "appprovider.tsx",
       "id": "providers_appprovider"
     },
@@ -26603,7 +26603,7 @@
       "file_type": "code",
       "source_file": "src/modules/budgets/components/EmptyBudgetPrompt.tsx",
       "source_location": "L1",
-      "community": 157,
+      "community": 142,
       "norm_label": "emptybudgetprompt.tsx",
       "id": "components_emptybudgetprompt"
     },
@@ -27368,7 +27368,7 @@
       "file_type": "code",
       "source_file": "src/modules/settings/components/BiometricUnlockSettings.tsx",
       "source_location": "L1",
-      "community": 157,
+      "community": 142,
       "norm_label": "biometricunlocksettings.tsx",
       "id": "components_biometricunlocksettings"
     },
@@ -27377,7 +27377,7 @@
       "file_type": "code",
       "source_file": "src/modules/settings/components/CurrencySettings.tsx",
       "source_location": "L1",
-      "community": 157,
+      "community": 142,
       "norm_label": "currencysettings.tsx",
       "id": "components_currencysettings"
     },
@@ -27404,7 +27404,7 @@
       "file_type": "code",
       "source_file": "src/modules/settings/components/LanguageSettings.tsx",
       "source_location": "L1",
-      "community": 157,
+      "community": 142,
       "norm_label": "languagesettings.tsx",
       "id": "components_languagesettings"
     },
@@ -27413,7 +27413,7 @@
       "file_type": "code",
       "source_file": "src/modules/settings/components/SecuritySettings.tsx",
       "source_location": "L1",
-      "community": 157,
+      "community": 142,
       "norm_label": "securitysettings.tsx",
       "id": "components_securitysettings"
     },
@@ -27449,7 +27449,7 @@
       "file_type": "code",
       "source_file": "src/modules/settings/pages/SettingsPage.tsx",
       "source_location": "L1",
-      "community": 157,
+      "community": 142,
       "norm_label": "settingspage.tsx",
       "id": "pages_settingspage"
     },
@@ -27989,7 +27989,7 @@
       "file_type": "code",
       "source_file": "src/modules/wallets/services/credit-card.service.ts",
       "source_location": "L1",
-      "community": 161,
+      "community": 10,
       "norm_label": "credit-card.service.ts",
       "id": "services_credit_card_service"
     },
@@ -28061,7 +28061,7 @@
       "file_type": "code",
       "source_file": "src/shared/components/ConfirmDialog/ConfirmContext.tsx",
       "source_location": "L1",
-      "community": 142,
+      "community": 130,
       "norm_label": "confirmcontext.tsx",
       "id": "confirmdialog_confirmcontext"
     },
@@ -28070,7 +28070,7 @@
       "file_type": "code",
       "source_file": "src/shared/components/ConfirmDialog/ConfirmDialog.tsx",
       "source_location": "L1",
-      "community": 142,
+      "community": 130,
       "norm_label": "confirmdialog.tsx",
       "id": "confirmdialog_confirmdialog"
     },
@@ -28178,7 +28178,7 @@
       "file_type": "code",
       "source_file": "src/shared/components/LoadingScreen.tsx",
       "source_location": "L1",
-      "community": 157,
+      "community": 142,
       "norm_label": "loadingscreen.tsx",
       "id": "components_loadingscreen"
     },
@@ -28277,7 +28277,7 @@
       "file_type": "code",
       "source_file": "src/shared/components/StartupScreenRedirector.tsx",
       "source_location": "L1",
-      "community": 140,
+      "community": 175,
       "norm_label": "startupscreenredirector.tsx",
       "id": "components_startupscreenredirector"
     },
@@ -28340,7 +28340,7 @@
       "file_type": "code",
       "source_file": "src/shared/context/LanguageContext.tsx",
       "source_location": "L1",
-      "community": 157,
+      "community": 140,
       "norm_label": "languagecontext.tsx",
       "id": "context_languagecontext"
     },
@@ -28556,7 +28556,7 @@
       "file_type": "code",
       "source_file": "src/shared/utils/startup-screen.test.ts",
       "source_location": "L1",
-      "community": 140,
+      "community": 175,
       "norm_label": "startup-screen.test.ts",
       "id": "utils_startup_screen_test"
     },
@@ -28565,7 +28565,7 @@
       "file_type": "code",
       "source_file": "src/shared/utils/startup-screen.ts",
       "source_location": "L1",
-      "community": 140,
+      "community": 175,
       "norm_label": "startup-screen.ts",
       "id": "utils_startup_screen"
     },
@@ -28745,7 +28745,7 @@
       "file_type": "code",
       "source_file": "src/tests/language-context.test.tsx",
       "source_location": "L1",
-      "community": 157,
+      "community": 130,
       "norm_label": "language-context.test.tsx",
       "id": "tests_language_context_test"
     },
@@ -29654,7 +29654,7 @@
       "file_type": "code",
       "source_file": "src/modules/settings/pages/SettingsPage.tsx",
       "source_location": "L25",
-      "community": 157,
+      "community": 142,
       "norm_label": "menuitem",
       "id": "pages_settingspage_menuitem"
     },
@@ -30311,7 +30311,7 @@
       "file_type": "code",
       "source_file": "src/modules/budgets/components/EmptyBudgetPrompt.tsx",
       "source_location": "L4",
-      "community": 157,
+      "community": 142,
       "norm_label": "props",
       "id": "components_emptybudgetprompt_props"
     },
@@ -87136,9 +87136,9 @@
       "source_file": "src/modules/reports/components/BudgetMonthNavigator.tsx",
       "source_location": "L2",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "src_modules_reports_components_budgetmonthnavigator_tsx",
-      "target": "src_shared_context_languagecontext_tsx",
-      "confidence_score": 1.0
+      "target": "src_shared_context_languagecontext_tsx"
     },
     {
       "relation": "imports",
@@ -87147,9 +87147,9 @@
       "source_file": "src/modules/reports/components/BudgetMonthNavigator.tsx",
       "source_location": "L2",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "src_modules_reports_components_budgetmonthnavigator_tsx",
-      "target": "context_languagecontext_uselanguage",
-      "confidence_score": 1.0
+      "target": "context_languagecontext_uselanguage"
     },
     {
       "relation": "contains",
@@ -87157,9 +87157,9 @@
       "source_file": "src/modules/reports/components/BudgetMonthNavigator.tsx",
       "source_location": "L4",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "src_modules_reports_components_budgetmonthnavigator_tsx",
-      "target": "components_budgetmonthnavigator_props",
-      "confidence_score": 1.0
+      "target": "components_budgetmonthnavigator_props"
     },
     {
       "relation": "contains",
@@ -87167,9 +87167,9 @@
       "source_file": "src/modules/reports/components/BudgetMonthNavigator.tsx",
       "source_location": "L12",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "src_modules_reports_components_budgetmonthnavigator_tsx",
-      "target": "components_budgetmonthnavigator_budgetmonthnavigator",
-      "confidence_score": 1.0
+      "target": "components_budgetmonthnavigator_budgetmonthnavigator"
     },
     {
       "relation": "imports_from",
@@ -87178,9 +87178,9 @@
       "source_file": "src/modules/reports/pages/BudgetReportPage.tsx",
       "source_location": "L17",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "src_modules_reports_pages_budgetreportpage_tsx",
-      "target": "src_modules_reports_components_budgetmonthnavigator_tsx",
-      "confidence_score": 1.0
+      "target": "src_modules_reports_components_budgetmonthnavigator_tsx"
     },
     {
       "relation": "imports_from",
@@ -87189,9 +87189,9 @@
       "source_file": "src/tests/budget-report-ui.test.tsx",
       "source_location": "L8",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "src_tests_budget_report_ui_test_tsx",
-      "target": "src_modules_reports_components_budgetmonthnavigator_tsx",
-      "confidence_score": 1.0
+      "target": "src_modules_reports_components_budgetmonthnavigator_tsx"
     },
     {
       "relation": "imports",
@@ -87200,9 +87200,9 @@
       "source_file": "src/modules/reports/pages/BudgetReportPage.tsx",
       "source_location": "L17",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "src_modules_reports_pages_budgetreportpage_tsx",
-      "target": "components_budgetmonthnavigator_budgetmonthnavigator",
-      "confidence_score": 1.0
+      "target": "components_budgetmonthnavigator_budgetmonthnavigator"
     },
     {
       "relation": "imports",
@@ -87211,9 +87211,9 @@
       "source_file": "src/tests/budget-report-ui.test.tsx",
       "source_location": "L8",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "src_tests_budget_report_ui_test_tsx",
-      "target": "components_budgetmonthnavigator_budgetmonthnavigator",
-      "confidence_score": 1.0
+      "target": "components_budgetmonthnavigator_budgetmonthnavigator"
     },
     {
       "relation": "calls",
@@ -89295,9 +89295,9 @@
       "source_file": "src/modules/reports/components/ReportTypeTabs.tsx",
       "source_location": "L1",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "src_modules_reports_components_reporttypetabs_tsx",
-      "target": "src_shared_context_languagecontext_tsx",
-      "confidence_score": 1.0
+      "target": "src_shared_context_languagecontext_tsx"
     },
     {
       "relation": "imports",
@@ -89306,9 +89306,9 @@
       "source_file": "src/modules/reports/components/ReportTypeTabs.tsx",
       "source_location": "L1",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "src_modules_reports_components_reporttypetabs_tsx",
-      "target": "context_languagecontext_uselanguage",
-      "confidence_score": 1.0
+      "target": "context_languagecontext_uselanguage"
     },
     {
       "relation": "contains",
@@ -89316,9 +89316,9 @@
       "source_file": "src/modules/reports/components/ReportTypeTabs.tsx",
       "source_location": "L3",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "src_modules_reports_components_reporttypetabs_tsx",
-      "target": "components_reporttypetabs_reporttype",
-      "confidence_score": 1.0
+      "target": "components_reporttypetabs_reporttype"
     },
     {
       "relation": "contains",
@@ -89326,9 +89326,9 @@
       "source_file": "src/modules/reports/components/ReportTypeTabs.tsx",
       "source_location": "L5",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "src_modules_reports_components_reporttypetabs_tsx",
-      "target": "components_reporttypetabs_props",
-      "confidence_score": 1.0
+      "target": "components_reporttypetabs_props"
     },
     {
       "relation": "contains",
@@ -89336,9 +89336,9 @@
       "source_file": "src/modules/reports/components/ReportTypeTabs.tsx",
       "source_location": "L10",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "src_modules_reports_components_reporttypetabs_tsx",
-      "target": "components_reporttypetabs_reporttypetabs",
-      "confidence_score": 1.0
+      "target": "components_reporttypetabs_reporttypetabs"
     },
     {
       "relation": "imports_from",
@@ -89347,9 +89347,9 @@
       "source_file": "src/modules/reports/pages/BudgetReportPage.tsx",
       "source_location": "L22",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "src_modules_reports_pages_budgetreportpage_tsx",
-      "target": "src_modules_reports_components_reporttypetabs_tsx",
-      "confidence_score": 1.0
+      "target": "src_modules_reports_components_reporttypetabs_tsx"
     },
     {
       "relation": "imports_from",
@@ -89358,9 +89358,9 @@
       "source_file": "src/modules/reports/pages/ReportsPage.tsx",
       "source_location": "L12",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "src_modules_reports_pages_reportspage_tsx",
-      "target": "src_modules_reports_components_reporttypetabs_tsx",
-      "confidence_score": 1.0
+      "target": "src_modules_reports_components_reporttypetabs_tsx"
     },
     {
       "relation": "imports_from",
@@ -89369,9 +89369,9 @@
       "source_file": "src/tests/budget-report-ui.test.tsx",
       "source_location": "L10",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "src_tests_budget_report_ui_test_tsx",
-      "target": "src_modules_reports_components_reporttypetabs_tsx",
-      "confidence_score": 1.0
+      "target": "src_modules_reports_components_reporttypetabs_tsx"
     },
     {
       "relation": "imports",
@@ -89380,9 +89380,9 @@
       "source_file": "src/modules/reports/pages/BudgetReportPage.tsx",
       "source_location": "L22",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "src_modules_reports_pages_budgetreportpage_tsx",
-      "target": "components_reporttypetabs_reporttypetabs",
-      "confidence_score": 1.0
+      "target": "components_reporttypetabs_reporttypetabs"
     },
     {
       "relation": "imports",
@@ -89391,9 +89391,9 @@
       "source_file": "src/modules/reports/pages/ReportsPage.tsx",
       "source_location": "L12",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "src_modules_reports_pages_reportspage_tsx",
-      "target": "components_reporttypetabs_reporttypetabs",
-      "confidence_score": 1.0
+      "target": "components_reporttypetabs_reporttypetabs"
     },
     {
       "relation": "imports",
@@ -89402,9 +89402,9 @@
       "source_file": "src/tests/budget-report-ui.test.tsx",
       "source_location": "L10",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "src_tests_budget_report_ui_test_tsx",
-      "target": "components_reporttypetabs_reporttypetabs",
-      "confidence_score": 1.0
+      "target": "components_reporttypetabs_reporttypetabs"
     },
     {
       "relation": "calls",
@@ -89799,9 +89799,9 @@
       "source_file": "src/modules/reports/services/budget-report-month.ts",
       "source_location": "L1",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "src_modules_reports_services_budget_report_month_ts",
-      "target": "src_modules_reports_domain_report_model_ts",
-      "confidence_score": 1.0
+      "target": "src_modules_reports_domain_report_model_ts"
     },
     {
       "relation": "imports_from",
@@ -89964,9 +89964,9 @@
       "source_file": "src/modules/reports/services/budget-report-month.ts",
       "source_location": "L1",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "src_modules_reports_services_budget_report_month_ts",
-      "target": "domain_report_model_daterange",
-      "confidence_score": 1.0
+      "target": "domain_report_model_daterange"
     },
     {
       "relation": "imports",
@@ -91333,9 +91333,9 @@
       "source_file": "src/modules/reports/pages/BudgetReportPage.tsx",
       "source_location": "L13",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "src_modules_reports_pages_budgetreportpage_tsx",
-      "target": "src_shared_utils_display_format_ts",
-      "confidence_score": 1.0
+      "target": "src_shared_utils_display_format_ts"
     },
     {
       "relation": "imports",
@@ -91344,9 +91344,9 @@
       "source_file": "src/modules/reports/pages/BudgetReportPage.tsx",
       "source_location": "L13",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "src_modules_reports_pages_budgetreportpage_tsx",
-      "target": "utils_display_format_formatappmonth",
-      "confidence_score": 1.0
+      "target": "utils_display_format_formatappmonth"
     },
     {
       "relation": "imports_from",
@@ -91377,9 +91377,9 @@
       "source_file": "src/modules/reports/pages/BudgetReportPage.tsx",
       "source_location": "L23",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "src_modules_reports_pages_budgetreportpage_tsx",
-      "target": "src_modules_reports_services_budget_report_month_ts",
-      "confidence_score": 1.0
+      "target": "src_modules_reports_services_budget_report_month_ts"
     },
     {
       "relation": "imports",
@@ -91388,9 +91388,9 @@
       "source_file": "src/modules/reports/pages/BudgetReportPage.tsx",
       "source_location": "L23",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "src_modules_reports_pages_budgetreportpage_tsx",
-      "target": "services_budget_report_month_buildbudgetmonthrange",
-      "confidence_score": 1.0
+      "target": "services_budget_report_month_buildbudgetmonthrange"
     },
     {
       "relation": "imports",
@@ -91399,9 +91399,9 @@
       "source_file": "src/modules/reports/pages/BudgetReportPage.tsx",
       "source_location": "L23",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "src_modules_reports_pages_budgetreportpage_tsx",
-      "target": "services_budget_report_month_iscurrentreportmonth",
-      "confidence_score": 1.0
+      "target": "services_budget_report_month_iscurrentreportmonth"
     },
     {
       "relation": "imports",
@@ -91410,9 +91410,9 @@
       "source_file": "src/modules/reports/pages/BudgetReportPage.tsx",
       "source_location": "L23",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "src_modules_reports_pages_budgetreportpage_tsx",
-      "target": "services_budget_report_month_normalizereportmonth",
-      "confidence_score": 1.0
+      "target": "services_budget_report_month_normalizereportmonth"
     },
     {
       "relation": "imports",
@@ -91421,9 +91421,9 @@
       "source_file": "src/modules/reports/pages/BudgetReportPage.tsx",
       "source_location": "L23",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "src_modules_reports_pages_budgetreportpage_tsx",
-      "target": "services_budget_report_month_shiftreportmonth",
-      "confidence_score": 1.0
+      "target": "services_budget_report_month_shiftreportmonth"
     },
     {
       "relation": "imports_from",
@@ -92438,9 +92438,9 @@
       "source_file": "src/modules/reports/services/budget-report-month.ts",
       "source_location": "L3",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "src_modules_reports_services_budget_report_month_ts",
-      "target": "services_budget_report_month_normalizereportmonth",
-      "confidence_score": 1.0
+      "target": "services_budget_report_month_normalizereportmonth"
     },
     {
       "relation": "contains",
@@ -92448,9 +92448,9 @@
       "source_file": "src/modules/reports/services/budget-report-month.ts",
       "source_location": "L8",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "src_modules_reports_services_budget_report_month_ts",
-      "target": "services_budget_report_month_buildbudgetmonthrange",
-      "confidence_score": 1.0
+      "target": "services_budget_report_month_buildbudgetmonthrange"
     },
     {
       "relation": "contains",
@@ -92458,9 +92458,9 @@
       "source_file": "src/modules/reports/services/budget-report-month.ts",
       "source_location": "L25",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "src_modules_reports_services_budget_report_month_ts",
-      "target": "services_budget_report_month_shiftreportmonth",
-      "confidence_score": 1.0
+      "target": "services_budget_report_month_shiftreportmonth"
     },
     {
       "relation": "contains",
@@ -92468,9 +92468,9 @@
       "source_file": "src/modules/reports/services/budget-report-month.ts",
       "source_location": "L30",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "src_modules_reports_services_budget_report_month_ts",
-      "target": "services_budget_report_month_iscurrentreportmonth",
-      "confidence_score": 1.0
+      "target": "services_budget_report_month_iscurrentreportmonth"
     },
     {
       "relation": "imports_from",
@@ -92479,9 +92479,9 @@
       "source_file": "src/tests/budget-report-month.test.ts",
       "source_location": "L2",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "src_tests_budget_report_month_test_ts",
-      "target": "src_modules_reports_services_budget_report_month_ts",
-      "confidence_score": 1.0
+      "target": "src_modules_reports_services_budget_report_month_ts"
     },
     {
       "relation": "calls",
@@ -92490,9 +92490,9 @@
       "source_file": "src/modules/reports/services/budget-report-month.ts",
       "source_location": "L9",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "services_budget_report_month_buildbudgetmonthrange",
-      "target": "services_budget_report_month_normalizereportmonth",
-      "confidence_score": 1.0
+      "target": "services_budget_report_month_normalizereportmonth"
     },
     {
       "relation": "calls",
@@ -92501,9 +92501,9 @@
       "source_file": "src/modules/reports/services/budget-report-month.ts",
       "source_location": "L26",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "services_budget_report_month_shiftreportmonth",
-      "target": "services_budget_report_month_normalizereportmonth",
-      "confidence_score": 1.0
+      "target": "services_budget_report_month_normalizereportmonth"
     },
     {
       "relation": "calls",
@@ -92512,9 +92512,9 @@
       "source_file": "src/modules/reports/services/budget-report-month.ts",
       "source_location": "L31",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "services_budget_report_month_iscurrentreportmonth",
-      "target": "services_budget_report_month_normalizereportmonth",
-      "confidence_score": 1.0
+      "target": "services_budget_report_month_normalizereportmonth"
     },
     {
       "relation": "imports",
@@ -92523,9 +92523,9 @@
       "source_file": "src/tests/budget-report-month.test.ts",
       "source_location": "L2",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "src_tests_budget_report_month_test_ts",
-      "target": "services_budget_report_month_normalizereportmonth",
-      "confidence_score": 1.0
+      "target": "services_budget_report_month_normalizereportmonth"
     },
     {
       "relation": "imports",
@@ -92534,9 +92534,9 @@
       "source_file": "src/tests/budget-report-month.test.ts",
       "source_location": "L2",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "src_tests_budget_report_month_test_ts",
-      "target": "services_budget_report_month_buildbudgetmonthrange",
-      "confidence_score": 1.0
+      "target": "services_budget_report_month_buildbudgetmonthrange"
     },
     {
       "relation": "imports",
@@ -92545,9 +92545,9 @@
       "source_file": "src/tests/budget-report-month.test.ts",
       "source_location": "L2",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "src_tests_budget_report_month_test_ts",
-      "target": "services_budget_report_month_shiftreportmonth",
-      "confidence_score": 1.0
+      "target": "services_budget_report_month_shiftreportmonth"
     },
     {
       "relation": "imports",
@@ -92556,9 +92556,9 @@
       "source_file": "src/tests/budget-report-month.test.ts",
       "source_location": "L2",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "src_tests_budget_report_month_test_ts",
-      "target": "services_budget_report_month_iscurrentreportmonth",
-      "confidence_score": 1.0
+      "target": "services_budget_report_month_iscurrentreportmonth"
     },
     {
       "relation": "imports_from",
@@ -130251,9 +130251,9 @@
       "source_file": "src/tests/budget-report-month.test.ts",
       "source_location": "L11",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "src_tests_budget_report_month_test_ts",
-      "target": "tests_budget_report_month_test_range",
-      "confidence_score": 1.0
+      "target": "tests_budget_report_month_test_range"
     },
     {
       "relation": "contains",
@@ -130261,9 +130261,9 @@
       "source_file": "src/tests/budget-report-month.test.ts",
       "source_location": "L18",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "src_tests_budget_report_month_test_ts",
-      "target": "tests_budget_report_month_test_december",
-      "confidence_score": 1.0
+      "target": "tests_budget_report_month_test_december"
     },
     {
       "relation": "contains",
@@ -130271,9 +130271,9 @@
       "source_file": "src/tests/budget-report-month.test.ts",
       "source_location": "L25",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "src_tests_budget_report_month_test_ts",
-      "target": "tests_budget_report_month_test_now",
-      "confidence_score": 1.0
+      "target": "tests_budget_report_month_test_now"
     },
     {
       "relation": "contains",
@@ -130311,9 +130311,9 @@
       "source_file": "src/tests/budget-report-ui.test.tsx",
       "source_location": "L96",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "src_tests_budget_report_ui_test_tsx",
-      "target": "tests_budget_report_ui_test_onpreviousmonth",
-      "confidence_score": 1.0
+      "target": "tests_budget_report_ui_test_onpreviousmonth"
     },
     {
       "relation": "contains",
@@ -130321,9 +130321,9 @@
       "source_file": "src/tests/budget-report-ui.test.tsx",
       "source_location": "L97",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "src_tests_budget_report_ui_test_tsx",
-      "target": "tests_budget_report_ui_test_onnextmonth",
-      "confidence_score": 1.0
+      "target": "tests_budget_report_ui_test_onnextmonth"
     },
     {
       "relation": "contains",
@@ -130331,9 +130331,9 @@
       "source_file": "src/tests/budget-report-ui.test.tsx",
       "source_location": "L98",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "src_tests_budget_report_ui_test_tsx",
-      "target": "tests_budget_report_ui_test_oncurrentmonth",
-      "confidence_score": 1.0
+      "target": "tests_budget_report_ui_test_oncurrentmonth"
     },
     {
       "relation": "contains",
@@ -130341,9 +130341,9 @@
       "source_file": "src/tests/budget-report-ui.test.tsx",
       "source_location": "L136",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "src_tests_budget_report_ui_test_tsx",
-      "target": "tests_budget_report_ui_test_onchange",
-      "confidence_score": 1.0
+      "target": "tests_budget_report_ui_test_onchange"
     },
     {
       "relation": "contains",
@@ -130399,16 +130399,6 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/tests/budget-report.test.ts",
-      "source_location": "L107",
-      "weight": 1.0,
-      "source": "src_tests_budget_report_test_ts",
-      "target": "tests_budget_report_test_travel",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/tests/budget-report.test.ts",
       "source_location": "L142",
       "weight": 1.0,
       "confidence_score": 1.0,
@@ -130434,6 +130424,16 @@
       "confidence_score": 1.0,
       "source": "src_tests_budget_report_test_ts",
       "target": "tests_budget_report_test_budgetsql"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/tests/budget-report.test.ts",
+      "source_location": "L107",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "src_tests_budget_report_test_ts",
+      "target": "tests_budget_report_test_travel"
     },
     {
       "relation": "calls",
@@ -151424,5 +151424,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "1879acbc41cd8edb64ff843346037909e597d933"
+  "built_at_commit": "5072d76c4b3349bc6c794b08dec0347962e1696e"
 }

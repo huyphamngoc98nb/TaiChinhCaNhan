@@ -82,10 +82,16 @@ describe('Budget Report calculations', () => {
   it('reports no budget safely without dividing by zero', () => {
     const report = calculateBudgetReport(source({ budgets: [] }), { range: january });
 
+    expect(report.summary.totalBudget).toBe(0);
+    expect(report.summary.totalActualSpending).toBe(0);
     expect(report.summary.status).toBe('NO_BUDGET');
     expect(report.summary.usagePercentage).toBe(0);
-    expect(report.summary.overspentAmount).toBe(2_000);
+    expect(report.summary.remainingAmount).toBe(0);
+    expect(report.summary.overspentAmount).toBe(0);
+    expect(report.categories).toEqual([]);
+    expect(report.trend).toEqual([]);
     expect(report.hasBudget).toBe(false);
+    expect(report.hasSpending).toBe(false);
   });
 
   it('reports a configured budget safely when there is no spending', () => {
@@ -98,16 +104,58 @@ describe('Budget Report calculations', () => {
     expect(report.hasSpending).toBe(false);
   });
 
-  it('keeps spending from a category without a budget isolated and safe', () => {
+  it('excludes spending from categories without a budget', () => {
     const report = calculateBudgetReport(source({
       spending: [{ categoryId: 'travel', categoryName: 'Travel', actualSpending: 500 }],
-      trend: [],
+      trend: [{ date: '2026-01-10', categoryId: 'travel', actualSpending: 500 }],
     }), { range: january });
 
-    const travel = report.categories.find((item) => item.categoryId === 'travel');
-    expect(travel?.budgetAmount).toBe(0);
-    expect(travel?.usagePercentage).toBe(0);
-    expect(travel?.status).toBe('NO_BUDGET');
+    expect(report.categories.map((item) => item.categoryId)).toEqual(['food']);
+    expect(report.summary.totalActualSpending).toBe(0);
+    expect(report.summary.remainingAmount).toBeCloseTo(3_100);
+    expect(report.summary.overspentAmount).toBe(0);
+    expect(report.summary.usagePercentage).toBe(0);
+    expect(report.trend).toEqual([]);
+  });
+
+  it('calculates totals from budgeted categories only', () => {
+    const report = calculateBudgetReport(source({
+      budgets: [
+        budget({ amount: 3_000 }),
+        budget({ id: 'budget-travel', categoryId: 'travel', categoryName: 'Travel', amount: 1_500 }),
+      ],
+      spending: [
+        { categoryId: 'food', categoryName: 'Food', actualSpending: 2_700 },
+        { categoryId: 'travel', categoryName: 'Travel', actualSpending: 800 },
+        { categoryId: 'shopping', categoryName: 'Shopping', actualSpending: 2_000 },
+        { categoryId: 'entertainment', categoryName: 'Entertainment', actualSpending: 500 },
+      ],
+      trend: [
+        { date: '2026-01-10', categoryId: 'food', actualSpending: 2_700 },
+        { date: '2026-01-11', categoryId: 'travel', actualSpending: 800 },
+        { date: '2026-01-12', categoryId: 'shopping', actualSpending: 2_000 },
+        { date: '2026-01-13', categoryId: 'entertainment', actualSpending: 500 },
+      ],
+    }), { range: january });
+
+    expect(report.categories.map((item) => item.categoryId).sort()).toEqual(['food', 'travel']);
+    expect(report.summary.totalBudget).toBeCloseTo(4_500);
+    expect(report.summary.totalActualSpending).toBe(3_500);
+    expect(report.summary.remainingAmount).toBeCloseTo(1_000);
+    expect(report.summary.overspentAmount).toBe(0);
+    expect(report.summary.usagePercentage).toBeCloseTo((3_500 / 4_500) * 100);
+    expect(report.trend.reduce((sum, item) => sum + item.actualSpending, 0)).toBe(3_500);
+  });
+
+  it('ignores zero-value budgets and remains division-by-zero safe', () => {
+    const report = calculateBudgetReport(source({
+      budgets: [budget({ amount: 0 })],
+    }), { range: january });
+
+    expect(report.summary.totalBudget).toBe(0);
+    expect(report.summary.totalActualSpending).toBe(0);
+    expect(report.summary.usagePercentage).toBe(0);
+    expect(report.categories).toEqual([]);
   });
 
   it('aggregates category budgets and sorts categories by actual spending descending', () => {

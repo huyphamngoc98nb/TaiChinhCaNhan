@@ -1,16 +1,16 @@
 # Graph Report - TaiXiuCaNhan  (2026-07-06)
 
 ## Corpus Check
-- 446 files · ~191,137 words
+- 446 files · ~191,297 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 3377 nodes · 11348 edges · 183 communities (170 shown, 13 thin omitted)
+- 3377 nodes · 11348 edges · 184 communities (171 shown, 13 thin omitted)
 - Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 101 edges (avg confidence: 0.8)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `1879acbc`
+- Built from commit: `5072d76c`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -156,6 +156,7 @@
 - [[_COMMUNITY_Community 172|Community 172]]
 - [[_COMMUNITY_Community 173|Community 173]]
 - [[_COMMUNITY_Community 174|Community 174]]
+- [[_COMMUNITY_Community 175|Community 175]]
 - [[_COMMUNITY_Community 176|Community 176]]
 - [[_COMMUNITY_Community 177|Community 177]]
 - [[_COMMUNITY_Community 180|Community 180]]
@@ -178,6 +179,8 @@
 10. `getDbConnectionForTransaction()` - 52 edges
 
 ## Surprising Connections (you probably didn't know these)
+- `AppLayout()` --calls--> `t()`  [INFERRED]
+  src/app/layouts/AppLayout.tsx → src/modules/app-update/app-update.errors.test.ts
 - `MainLayout()` --calls--> `t()`  [INFERRED]
   src/app/layouts/MainLayout.tsx → src/modules/app-update/app-update.errors.test.ts
 - `AppBootstrap()` --calls--> `t()`  [INFERRED]
@@ -186,10 +189,8 @@
   src/app/providers/AppUnlock.tsx → src/modules/app-update/app-update.errors.test.ts
 - `RecoveryResetDialog()` --calls--> `t()`  [INFERRED]
   src/core/auth/RecoveryResetDialog.tsx → src/modules/app-update/app-update.errors.test.ts
-- `deleteLoan()` --calls--> `runInTransaction()`  [INFERRED]
-  src/modules/loans/services/delete-loan.ts → src/core/db/sqlite/transaction.ts
 
-## Communities (183 total, 13 thin omitted)
+## Communities (184 total, 13 thin omitted)
 
 ### Community 0 - "Community 0"
 Cohesion: 0.14
@@ -232,8 +233,8 @@ Cohesion: 0.17
 Nodes (30): AUTO_BACKUP_INTERVAL_MS, AUTO_BACKUP_INTERVALS, AUTO_BACKUP_SETTING_KEYS, AutoBackupInterval, AutoBackupRunReason, AutoBackupRunResult, AutoBackupSettings, clearAutoBackupEncryptionPassword() (+22 more)
 
 ### Community 10 - "Community 10"
-Cohesion: 0.19
-Nodes (15): CreditCardAlertBanner(), CreditCardAlertBannerProps, fmtDayMonth(), getAlertTitle(), CreditCardAlertsPanelProps, CreditCardAlert, CreditCardAlertType, computeCreditCardAlerts() (+7 more)
+Cohesion: 0.15
+Nodes (22): CreditCardAlertBanner(), CreditCardAlertBannerProps, fmtDayMonth(), getAlertTitle(), CreditCardAlertsPanelProps, CreditCardAlert, CreditCardAlertType, computeCreditCardAlerts() (+14 more)
 
 ### Community 11 - "Community 11"
 Cohesion: 0.06
@@ -566,8 +567,8 @@ Cohesion: 0.32
 Nodes (8): BackupMetadata, BackupPayload, BackupRow, ValidationResult, exportBackupJson(), LegacyRestorableBackupPayload, RestorableBackupPayload, value()
 
 ### Community 130 - "Community 130"
-Cohesion: 0.18
-Nodes (11): buildCashflowTrendData(), getCashflowXAxisTicks(), WalletForm(), CurrencyProvider(), data, longRange, ticks, { container } (+3 more)
+Cohesion: 0.10
+Nodes (23): buildCashflowTrendData(), getCashflowXAxisTicks(), WalletForm(), ConfirmContext, ConfirmContextType, ConfirmOptions, ConfirmProvider(), ConfirmDialog() (+15 more)
 
 ### Community 132 - "Community 132"
 Cohesion: 0.25
@@ -594,16 +595,16 @@ Cohesion: 0.29
 Nodes (7): 3. Quản lý ví, Chỉnh sửa ví và cập nhật số dư, Các loại ví, Không tính ví vào tổng, Thẻ tín dụng, Tạo ví mới, Xóa ví
 
 ### Community 140 - "Community 140"
-Cohesion: 0.08
-Nodes (49): BackButton(), BackButtonProps, FormTransition(), RecurringBillForm(), hasStartupRedirectBeenApplied(), markStartupRedirectApplied(), StartupScreenRedirector(), TransactionForm() (+41 more)
+Cohesion: 0.09
+Nodes (40): BackButton(), BackButtonProps, FormTransition(), RecurringBillForm(), TransactionForm(), useConfirm(), ROUTES, LanguageContext (+32 more)
 
 ### Community 141 - "Community 141"
 Cohesion: 0.13
 Nodes (14): code:text (latest.json), code:json ({), code:text (https://huyphamngoc98nb.github.io/TaiChinhCaNhan/latest.json), code:dotenv (VITE_ANDROID_LATEST_JSON_URL=<url-to-latest.json>), code:bash (npm run generate:android-release-metadata), Environment and configuration, Error and retry behavior, In-app updates (+6 more)
 
 ### Community 142 - "Community 142"
-Cohesion: 0.09
-Nodes (20): ConfirmContext, ConfirmContextType, ConfirmOptions, ConfirmProvider(), ConfirmDialog(), ConfirmDialogProps, AvailableUpdate, isInstallActive() (+12 more)
+Cohesion: 0.08
+Nodes (32): AppUpdateGate(), BiometricUnlockSettings(), CurrencySettings(), DatabaseDiagnostics(), DisplayFormatSettings(), EmptyBudgetPrompt(), Props, LanguageSettings() (+24 more)
 
 ### Community 143 - "Community 143"
 Cohesion: 0.25
@@ -654,8 +655,8 @@ Cohesion: 0.15
 Nodes (11): cleanupError, cleanupUpdateCacheMock, confirmMock, { container }, error, getAutoCheckEnabledMock, hookValue, loggerMock (+3 more)
 
 ### Community 157 - "Community 157"
-Cohesion: 0.07
-Nodes (48): t(), AppUpdateGate(), BiometricUnlockSettings(), BudgetCategoryBreakdown(), BudgetMonthNavigator(), Props, BudgetReportEmptyStates(), Props (+40 more)
+Cohesion: 0.10
+Nodes (25): t(), BudgetCategoryBreakdown(), BudgetMonthNavigator(), Props, BudgetReportEmptyStates(), Props, BudgetReportFilters(), badgeStatus() (+17 more)
 
 ### Community 158 - "Community 158"
 Cohesion: 0.17
@@ -663,7 +664,7 @@ Nodes (15): BudgetAddSheet(), BudgetCategoryList(), EditableCategoryBudget, Prop
 
 ### Community 161 - "Community 161"
 Cohesion: 0.10
-Nodes (30): CreditCardStatementStatus, addDays(), addMonths(), buildDueDate(), clampedDate(), daysInMonth(), defaultText(), getCreditCardStatementPeriod() (+22 more)
+Nodes (23): CreditCardStatementStatus, deriveStatus(), getStatementPeriodForLifecycle(), SyncCreditCardStatementUseCase, syncQueue, asOf, closedStatementAsOf, creditCard (+15 more)
 
 ### Community 163 - "Community 163"
 Cohesion: 0.12
@@ -710,8 +711,12 @@ Cohesion: 0.17
 Nodes (16): immediateTransactionRunner(), TransactionRunner, StoredStatement, UpsertCreditCardStatementInput, CreateCreditCardPaymentUseCase, createTransaction, creditCardWallet, execute() (+8 more)
 
 ### Community 174 - "Community 174"
-Cohesion: 0.08
-Nodes (65): AppUiPreferencesApplier(), ACCOUNT_TYPE_ICONS, BudgetByAccountTypeSummary(), Props, STATUS_COLORS, BudgetCategoryItem(), CashflowBarChart(), CashflowXAxisTick() (+57 more)
+Cohesion: 0.07
+Nodes (67): AppUiPreferencesApplier(), ACCOUNT_TYPE_ICONS, BudgetByAccountTypeSummary(), Props, STATUS_COLORS, BudgetCategoryItem(), BudgetScopeBadge(), CashflowBarChart() (+59 more)
+
+### Community 175 - "Community 175"
+Cohesion: 0.30
+Nodes (6): hasStartupRedirectBeenApplied(), markStartupRedirectApplied(), StartupScreenRedirector(), StartupScreen, getStartupScreenRoute(), STARTUP_SCREEN_ROUTE_MAP
 
 ### Community 176 - "Community 176"
 Cohesion: 0.67
@@ -753,12 +758,12 @@ Nodes (6): buildErrorLogExportPayload(), ErrorLogExportItem, ErrorLogExportPaylo
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `useLanguage()` connect `Community 157` to `Community 1`, `Community 130`, `Community 8`, `Community 10`, `Community 11`, `Community 140`, `Community 142`, `Community 143`, `Community 144`, `Community 23`, `Community 154`, `Community 155`, `Community 29`, `Community 158`, `Community 33`, `Community 34`, `Community 174`, `Community 76`, `Community 79`, `Community 86`, `Community 89`, `Community 96`, `Community 98`, `Community 105`, `Community 108`, `Community 111`, `Community 112`, `Community 113`, `Community 116`, `Community 119`, `Community 127`?**
-  _High betweenness centrality (0.123) - this node is a cross-community bridge._
+- **Why does `useLanguage()` connect `Community 142` to `Community 1`, `Community 130`, `Community 8`, `Community 10`, `Community 11`, `Community 140`, `Community 143`, `Community 144`, `Community 23`, `Community 154`, `Community 155`, `Community 157`, `Community 158`, `Community 29`, `Community 33`, `Community 34`, `Community 174`, `Community 76`, `Community 79`, `Community 86`, `Community 89`, `Community 96`, `Community 98`, `Community 105`, `Community 108`, `Community 111`, `Community 112`, `Community 113`, `Community 116`, `Community 119`, `Community 127`?**
+  _High betweenness centrality (0.124) - this node is a cross-community bridge._
 - **Why does `getDbConnection()` connect `Community 13` to `Community 129`, `Community 4`, `Community 5`, `Community 8`, `Community 9`, `Community 143`, `Community 23`, `Community 152`, `Community 28`, `Community 29`, `Community 34`, `Community 162`, `Community 36`, `Community 170`, `Community 173`, `Community 76`, `Community 79`, `Community 84`, `Community 96`, `Community 99`, `Community 105`, `Community 110`, `Community 120`?**
   _High betweenness centrality (0.033) - this node is a cross-community bridge._
 - **Why does `Wallet` connect `Community 8` to `Community 130`, `Community 10`, `Community 140`, `Community 13`, `Community 144`, `Community 22`, `Community 157`, `Community 161`, `Community 173`, `Community 174`, `Community 177`, `Community 73`, `Community 85`, `Community 86`, `Community 88`, `Community 90`, `Community 96`, `Community 107`, `Community 113`, `Community 116`, `Community 118`, `Community 119`?**
-  _High betweenness centrality (0.030) - this node is a cross-community bridge._
+  _High betweenness centrality (0.029) - this node is a cross-community bridge._
 - **Are the 83 inferred relationships involving `t()` (e.g. with `AppLayout()` and `MainLayout()`) actually correct?**
   _`t()` has 83 INFERRED edges - model-reasoned connections that need verification._
 - **What connects `config`, `dev`, `build` to the rest of the system?**

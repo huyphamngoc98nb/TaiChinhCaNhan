@@ -143,23 +143,23 @@ export function calculateBudgetReport(
   const categories = new Map<string, { categoryName: string; budgetAmount: number; actualSpending: number }>();
 
   source.budgets.forEach((budget) => {
+    const budgetAmount = calculateBudgetAmountForRange(budget, filters.range);
+    if (budgetAmount <= 0) return;
+
     const current = categories.get(budget.categoryId) ?? {
       categoryName: budget.categoryName,
       budgetAmount: 0,
       actualSpending: 0,
     };
-    current.budgetAmount += calculateBudgetAmountForRange(budget, filters.range);
+    current.budgetAmount += budgetAmount;
     categories.set(budget.categoryId, current);
   });
 
   source.spending.forEach((spending) => {
-    const current = categories.get(spending.categoryId) ?? {
-      categoryName: spending.categoryName,
-      budgetAmount: 0,
-      actualSpending: 0,
-    };
+    const current = categories.get(spending.categoryId);
+    if (!current) return;
+
     current.actualSpending += Math.max(spending.actualSpending, 0);
-    categories.set(spending.categoryId, current);
   });
 
   const categoryRows: BudgetReportCategory[] = [...categories.entries()]

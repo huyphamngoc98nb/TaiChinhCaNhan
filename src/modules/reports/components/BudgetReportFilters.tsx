@@ -145,7 +145,6 @@ export function BudgetReportFilters({
             className="h-11 w-full rounded-[10px] border border-border bg-surface-muted px-3 text-sm font-semibold text-text"
           >
             <option value="">{t('budget_report.all_statuses')}</option>
-            <option value="NO_BUDGET">{t('budget_report.status_no_budget')}</option>
             <option value="IN_BUDGET">{t('budget_report.status_in_budget')}</option>
             <option value="NEAR_LIMIT">{t('budget_report.status_near_limit')}</option>
             <option value="OVER_BUDGET">{t('budget_report.status_over_budget')}</option>
