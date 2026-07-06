@@ -1,5 +1,6 @@
 import type { Category } from '@/modules/categories/domain/category.model';
 import type { Wallet } from '@/modules/wallets/repositories/wallet.repository';
+import { DropdownList } from '@/shared/components/DropdownList';
 import { useLanguage } from '@/shared/context/LanguageContext';
 import type { BudgetReportStatus, DateRange } from '../domain/report.model';
 import type { DateRangePreset } from '../services/build-date-range';
@@ -110,46 +111,46 @@ export function BudgetReportFilters({
       )}
 
       <div className={`${showPeriodPicker ? 'mt-4' : ''} grid grid-cols-1 gap-3 sm:grid-cols-3`}>
-        <label className="space-y-1">
+        <div className="space-y-1">
           <span className="text-[11px] font-semibold uppercase text-muted">{t('budget_report.category_filter')}</span>
-          <select
-            aria-label={t('budget_report.category_filter')}
+          <DropdownList
             value={categoryId}
-            onChange={(event) => onCategoryChange(event.target.value)}
-            className="h-11 w-full rounded-[10px] border border-border bg-surface-muted px-3 text-sm font-semibold text-text"
-          >
-            <option value="">{t('budget_report.all_categories')}</option>
-            {categories.map((category) => <option key={category.id} value={category.id}>{category.name}</option>)}
-          </select>
-        </label>
+            onChange={onCategoryChange}
+            ariaLabel={t('budget_report.category_filter')}
+            options={[
+              { value: '', label: t('budget_report.all_categories') },
+              ...categories.map((category) => ({ value: category.id, label: category.name })),
+            ]}
+          />
+        </div>
 
-        <label className="space-y-1">
+        <div className="space-y-1">
           <span className="text-[11px] font-semibold uppercase text-muted">{t('budget_report.wallet_filter')}</span>
-          <select
-            aria-label={t('budget_report.wallet_filter')}
+          <DropdownList
             value={walletId}
-            onChange={(event) => onWalletChange(event.target.value)}
-            className="h-11 w-full rounded-[10px] border border-border bg-surface-muted px-3 text-sm font-semibold text-text"
-          >
-            <option value="">{t('budget_report.all_wallets')}</option>
-            {wallets.map((wallet) => <option key={wallet.id} value={wallet.id}>{wallet.name}</option>)}
-          </select>
-        </label>
+            onChange={onWalletChange}
+            ariaLabel={t('budget_report.wallet_filter')}
+            options={[
+              { value: '', label: t('budget_report.all_wallets') },
+              ...wallets.map((wallet) => ({ value: wallet.id, label: wallet.name })),
+            ]}
+          />
+        </div>
 
-        <label className="space-y-1">
+        <div className="space-y-1">
           <span className="text-[11px] font-semibold uppercase text-muted">{t('budget_report.status_filter')}</span>
-          <select
-            aria-label={t('budget_report.status_filter')}
+          <DropdownList<'' | BudgetReportStatus>
             value={status}
-            onChange={(event) => onStatusChange(event.target.value as '' | BudgetReportStatus)}
-            className="h-11 w-full rounded-[10px] border border-border bg-surface-muted px-3 text-sm font-semibold text-text"
-          >
-            <option value="">{t('budget_report.all_statuses')}</option>
-            <option value="IN_BUDGET">{t('budget_report.status_in_budget')}</option>
-            <option value="NEAR_LIMIT">{t('budget_report.status_near_limit')}</option>
-            <option value="OVER_BUDGET">{t('budget_report.status_over_budget')}</option>
-          </select>
-        </label>
+            onChange={onStatusChange}
+            ariaLabel={t('budget_report.status_filter')}
+            options={[
+              { value: '', label: t('budget_report.all_statuses') },
+              { value: 'IN_BUDGET', label: t('budget_report.status_in_budget') },
+              { value: 'NEAR_LIMIT', label: t('budget_report.status_near_limit') },
+              { value: 'OVER_BUDGET', label: t('budget_report.status_over_budget') },
+            ]}
+          />
+        </div>
       </div>
 
       <p className="mt-3 text-xs leading-5 text-muted">{t('budget_report.expense_only_hint')}</p>

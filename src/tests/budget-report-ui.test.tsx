@@ -84,12 +84,31 @@ describe('Budget Report UI', () => {
     renderWithLanguage(<StatefulFilters />);
 
     fireEvent.click(await screen.findByRole('button', { name: 'Today' }));
-    fireEvent.change(screen.getByLabelText('Category'), { target: { value: 'food' } });
-    fireEvent.change(screen.getByLabelText('Budget status'), { target: { value: 'OVER_BUDGET' } });
+    const categoryDropdown = screen.getByRole('button', { name: 'Category' });
+    fireEvent.click(categoryDropdown);
+    fireEvent.click(screen.getByRole('option', { name: 'Food' }));
+
+    const statusDropdown = screen.getByRole('button', { name: 'Budget status' });
+    fireEvent.click(statusDropdown);
+    fireEvent.click(screen.getByRole('option', { name: 'Over budget' }));
 
     expect(screen.getByRole('button', { name: 'Today' }).className).toContain('bg-primary');
-    expect((screen.getByLabelText('Category') as HTMLSelectElement).value).toBe('food');
-    expect((screen.getByLabelText('Budget status') as HTMLSelectElement).value).toBe('OVER_BUDGET');
+    expect(categoryDropdown.textContent).toContain('Food');
+    expect(statusDropdown.textContent).toContain('Over budget');
+    expect(document.activeElement).toBe(statusDropdown);
+  });
+
+  it('uses app dropdowns and keeps an empty wallet filter usable', async () => {
+    const { container } = renderWithLanguage(<StatefulFilters />);
+
+    expect(container.querySelector('select')).toBeNull();
+
+    const walletDropdown = await screen.findByRole('button', { name: 'Wallet / account' });
+    fireEvent.click(walletDropdown);
+
+    const listbox = screen.getByRole('listbox', { name: 'Wallet / account' });
+    expect(listbox).toBeTruthy();
+    expect(screen.getByRole('option', { name: 'All wallets' })).toBeTruthy();
   });
 
   it('supports previous, next, and current-month navigation', async () => {

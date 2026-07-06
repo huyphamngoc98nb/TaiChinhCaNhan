@@ -10,6 +10,10 @@ on:
         description: 'Existing release tag to build, for example v0.1.15'
         required: false
         type: string
+      release_notes_body:
+        description: 'Optional Markdown release notes. Overrides RELEASE_NOTES.md and is useful when rerunning an existing tag.'
+        required: false
+        type: string
 
 permissions:
   contents: write
@@ -126,15 +130,31 @@ jobs:
 
       - name: Prepare release notes
         shell: bash
+        env:
+          RELEASE_NOTES_BODY: ${{ inputs.release_notes_body || '' }}
         run: |
           set -euo pipefail
           mkdir -p dist-release
 
-          if [ -f RELEASE_NOTES.md ]; then
+          if [[ "${RELEASE_NOTES_BODY}" =~ [^[:space:]] ]]; then
+            printf '%s\n' "${RELEASE_NOTES_BODY}" > dist-release/release-notes.md
+            echo "RELEASE_NOTES_SOURCE=workflow_dispatch_input" >> "${GITHUB_ENV}"
+          elif [ -f RELEASE_NOTES.md ]; then
             cp RELEASE_NOTES.md dist-release/release-notes.md
+            echo "RELEASE_NOTES_SOURCE=repository_file" >> "${GITHUB_ENV}"
           else
             printf '%s\n' "- Android release ${RELEASE_TAG}" > dist-release/release-notes.md
+            echo "RELEASE_NOTES_SOURCE=fallback" >> "${GITHUB_ENV}"
+            echo "::warning title=Missing detailed Android release notes::Neither release_notes_body nor RELEASE_NOTES.md was provided for ${RELEASE_TAG}. Publishing the generic fallback note."
           fi
+
+      - name: Checkout current release metadata generator
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          path: .release-automation
+          sparse-checkout: scripts/generate-android-release-metadata.cjs
+          sparse-checkout-cone-mode: false
 
       - name: Generate Android release metadata
         env:
@@ -143,7 +163,44 @@ jobs:
           RELEASE_TAG: ${{ env.RELEASE_TAG }}
           RELEASE_NOTES_PATH: dist-release/release-notes.md
           OUTPUT_DIR: dist-release
-        run: npm run generate:android-release-metadata
+        run: |
+          cp .release-automation/scripts/generate-android-release-metadata.cjs scripts/generate-android-release-metadata.cjs
+          npm run generate:android-release-metadata
+
+      - name: Validate Android release notes metadata
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          node <<'NODE'
+          const fs = require('fs');
+
+          const latest = JSON.parse(fs.readFileSync('dist-release/latest.json', 'utf8'));
+          const source = process.env.RELEASE_NOTES_SOURCE;
+          const releaseNotes = Array.isArray(latest.releaseNotes)
+            ? latest.releaseNotes.filter((note) => typeof note === 'string' && note.trim())
+            : [];
+
+          if (releaseNotes.length === 0) {
+            console.error('::error title=Invalid Android release notes metadata::latest.json must contain at least one flat releaseNotes item.');
+            process.exit(1);
+          }
+
+          if (source !== 'fallback') {
+            const hasSummary = typeof latest.releaseSummary === 'string' && latest.releaseSummary.trim();
+            const hasSections = Array.isArray(latest.releaseNoteSections)
+              && latest.releaseNoteSections.some(
+                (section) => Array.isArray(section?.items) && section.items.length > 0,
+              );
+
+            if (latest.releaseNotesVersion !== 2 || !hasSummary || !hasSections) {
+              console.error('::error title=Invalid structured Android release notes::Detailed release notes must produce releaseNotesVersion 2, a non-empty releaseSummary, and at least one releaseNoteSections item.');
+              process.exit(1);
+            }
+          }
+
+          console.log(`[android-release] validated ${source} release notes metadata`);
+          NODE
 
       - name: Publish latest.json to GitHub Pages
         shell: bash

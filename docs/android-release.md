@@ -101,7 +101,7 @@ git tag v0.1.15
 git push origin v0.1.15
 ```
 
-For manual reruns, open the Android Release workflow and use `workflow_dispatch` with an existing tag such as `v0.1.15`.
+For manual reruns, open the Android Release workflow from the current default branch and use `workflow_dispatch` with an existing tag such as `v0.1.15`. If that tag does not contain the reviewed root `RELEASE_NOTES.md`, paste the complete Markdown into `release_notes_body`. This input takes priority over the file from the tag checkout, and the workflow uses the current metadata generator while keeping the APK build source pinned to the tag. The release can therefore be repaired without moving or recreating the tag.
 
 ## Check the GitHub Release
 
@@ -121,7 +121,7 @@ Check `latest.json` includes:
 - `releaseNoteSections` containing the expected section titles and bullets.
 - `releaseNotes` containing the flat, prefixed fallback used by older app versions.
 
-If `RELEASE_NOTES.md` exists at the repo root, the workflow uses it as the GitHub Release notes. Otherwise it uses `Android release vX.Y.Z`.
+For `workflow_dispatch`, a non-empty `release_notes_body` is used first. Otherwise, if `RELEASE_NOTES.md` exists at the checked-out tag root, the workflow uses that file. If neither source is available, it emits a GitHub Actions warning and uses `Android release vX.Y.Z`.
 
 ## GitHub Pages manifest
 
@@ -172,7 +172,7 @@ The Android metadata generator reads these headings:
 
 - `Tóm tắt` or `Summary` becomes `releaseSummary`. Multiple non-empty paragraph lines are joined with spaces.
 - `Tính năng mới`, `Cải thiện`, `Sửa lỗi`, `Bảo mật`, `Thay đổi dữ liệu`, `Vấn đề đã biết`, and `User cần lưu ý` become typed entries in `releaseNoteSections`. Equivalent supported English headings are also accepted.
-- Each top-level line starting with `- ` becomes an item. Nested bullets are not parsed in this format version.
+- Each top-level line starting with `- ` or `* ` becomes an item. Nested bullets are not parsed in this format version.
 
 A generated structured manifest uses this shape:
 

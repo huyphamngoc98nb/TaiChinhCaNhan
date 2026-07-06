@@ -58,33 +58,52 @@ describe('generate Android release metadata', () => {
     const latest = generateLatest(`# v${versionConfig.nativeVersionName}
 
 ## Tóm tắt
-Dòng tóm tắt thứ nhất.
-Dòng tóm tắt thứ hai.
+Bản cập nhật này bổ sung báo cáo ngân sách và cải thiện trải nghiệm kiểm tra cập nhật.
 
 ## Tính năng mới
-* Thêm mô tả cập nhật theo nhóm.
+* Bổ sung báo cáo ngân sách để theo dõi mức đã chi và hạn mức còn lại.
+
+## Cải thiện
+* Cải thiện hiển thị release note trong hộp thoại cập nhật Android.
 
 ## Sửa lỗi
-* Sửa lỗi đồng bộ số dư.
+* Sửa lỗi metadata cập nhật chỉ hiển thị Android release vX.Y.Z.
 `);
 
     expect(latest.releaseNotesVersion).toBe(2);
-    expect(latest.releaseSummary).toBe('Dòng tóm tắt thứ nhất. Dòng tóm tắt thứ hai.');
+    expect(latest.releaseSummary).toBe(
+      'Bản cập nhật này bổ sung báo cáo ngân sách và cải thiện trải nghiệm kiểm tra cập nhật.',
+    );
     expect(latest.releaseNoteSections).toEqual([
       {
         type: 'new_features',
         title: 'Tính năng mới',
-        items: [{ title: 'Thêm mô tả cập nhật theo nhóm.' }],
+        items: [
+          { title: 'Bổ sung báo cáo ngân sách để theo dõi mức đã chi và hạn mức còn lại.' },
+        ],
+      },
+      {
+        type: 'improvements',
+        title: 'Cải thiện',
+        items: [
+          { title: 'Cải thiện hiển thị release note trong hộp thoại cập nhật Android.' },
+        ],
       },
       {
         type: 'bug_fixes',
         title: 'Sửa lỗi',
-        items: [{ title: 'Sửa lỗi đồng bộ số dư.' }],
+        items: [
+          { title: 'Sửa lỗi metadata cập nhật chỉ hiển thị Android release vX.Y.Z.' },
+        ],
       },
     ]);
     expect(latest.releaseNotes).toEqual([
-      'Tính năng mới: Thêm mô tả cập nhật theo nhóm.',
-      'Sửa lỗi: Sửa lỗi đồng bộ số dư.',
+      'Tính năng mới: Bổ sung báo cáo ngân sách để theo dõi mức đã chi và hạn mức còn lại.',
+      'Cải thiện: Cải thiện hiển thị release note trong hộp thoại cập nhật Android.',
+      'Sửa lỗi: Sửa lỗi metadata cập nhật chỉ hiển thị Android release vX.Y.Z.',
+    ]);
+    expect(latest.releaseNotes).not.toEqual([
+      `Android release v${versionConfig.nativeVersionName}`,
     ]);
   });
 

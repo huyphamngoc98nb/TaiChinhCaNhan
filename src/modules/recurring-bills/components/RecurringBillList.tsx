@@ -78,7 +78,7 @@ export const RecurringBillList: React.FC<Props> = ({ bills, onEdit, onDelete, on
             </div>
 
             <div style={{ display: 'flex', gap: '6px', marginTop: '12px', justifyContent: 'flex-end' }}>
-              {isActive && (status === 'due_today' || status === 'overdue') && (
+              {isActive && (
                 <button onClick={() => onAdvanceDueDate(bill)} title={t('recurring_bills.mark_paid_advance')}
                   style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '6px 10px', borderRadius: '8px', border: '1px solid #d1fae5', background: 'rgba(16,185,129,0.08)', color: '#059669', fontSize: '0.78rem', fontWeight: '600', cursor: 'pointer' }}>
                   <CalendarCheck size={14} /> {t('recurring_bills.paid')}
