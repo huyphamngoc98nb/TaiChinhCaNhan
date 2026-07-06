@@ -9,6 +9,7 @@ import { ReportSummaryCards } from '../components/ReportSummaryCards';
 import { DateRangePicker } from '../components/DateRangePicker';
 import { CashflowTrendChart } from '../components/CashflowTrendChart';
 import { ReportDonutCard } from '../components/ReportDonutCard';
+import { ReportTypeTabs } from '../components/ReportTypeTabs';
 
 import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '@/shared/constants/routes';
@@ -216,6 +217,13 @@ export const ReportsPage = () => {
           <FileText size={19} />
         </button>
       </div>
+
+      <ReportTypeTabs
+        active="cashflow"
+        onChange={(value) => {
+          if (value === 'budget') navigate(ROUTES.BUDGET_REPORT);
+        }}
+      />
 
       <DateRangePicker
         preset={preset}

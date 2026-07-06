@@ -17,7 +17,6 @@ import {
   Download,
   Database,
   Tags,
-  TrendingUp,
 } from 'lucide-react';
 import { ROUTES } from '@/shared/constants/routes';
 import { StartupScreenRedirector } from '@/shared/components/StartupScreenRedirector';
@@ -187,7 +186,6 @@ export function MainLayout() {
     { icon: <Wallet size={22} />, label: t('wallets.title'), route: ROUTES.WALLETS },
     { icon: <Tags size={22} />, label: t('categories.title'), route: ROUTES.CATEGORIES },
     { icon: <BarChart3 size={22} />, label: t('navigation.reports'), route: ROUTES.REPORTS },
-    { icon: <TrendingUp size={22} />, label: t('navigation.budget_report'), route: ROUTES.BUDGET_REPORT },
     {
       icon: <RefreshCcw size={22} />,
       label: t('recurring_bills.title'),
@@ -198,7 +196,7 @@ export function MainLayout() {
     { icon: <Database size={22} />, label: t('settings.backup_restore'), route: ROUTES.BACKUP },
     { icon: <Settings size={22} />, label: t('navigation.settings'), route: ROUTES.SETTINGS },
   ];
-  const moreRoutes = menuItems.map((item) => item.route);
+  const moreRoutes = [...menuItems.map((item) => item.route), ROUTES.BUDGET_REPORT];
   const activeNavIndex =
     location.pathname === ROUTES.HOME
       ? 0

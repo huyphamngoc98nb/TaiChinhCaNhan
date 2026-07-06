@@ -5,6 +5,7 @@ import type { BudgetReportStatus, DateRange } from '../domain/report.model';
 import type { DateRangePreset } from '../services/build-date-range';
 
 interface Props {
+  showPeriodPicker?: boolean;
   preset: DateRangePreset;
   customRange: DateRange;
   categoryId: string;
@@ -32,6 +33,7 @@ function parseInputDate(value: string, endOfDay = false): number {
 }
 
 export function BudgetReportFilters({
+  showPeriodPicker = true,
   preset,
   customRange,
   categoryId,
@@ -56,54 +58,58 @@ export function BudgetReportFilters({
 
   return (
     <section className="mb-4 rounded-[16px] border border-border bg-surface p-4 shadow-sm">
-      <div className="mb-2 text-[11px] font-semibold uppercase text-muted">
-        {t('reports.period_label')}
-      </div>
-      <div className="flex flex-wrap gap-2" role="group" aria-label={t('reports.period_label')}>
-        {periods.map((period) => (
-          <button
-            key={period.value}
-            type="button"
-            onClick={() => onPresetChange(period.value)}
-            className={`min-h-9 rounded-full border px-3 text-[13px] font-semibold transition-colors ${
-              preset === period.value
-                ? 'border-primary bg-primary text-white'
-                : 'border-border bg-surface-muted text-text'
-            }`}
-          >
-            {period.label}
-          </button>
-        ))}
-      </div>
+      {showPeriodPicker && (
+        <>
+          <div className="mb-2 text-[11px] font-semibold uppercase text-muted">
+            {t('reports.period_label')}
+          </div>
+          <div className="flex flex-wrap gap-2" role="group" aria-label={t('reports.period_label')}>
+            {periods.map((period) => (
+              <button
+                key={period.value}
+                type="button"
+                onClick={() => onPresetChange(period.value)}
+                className={`min-h-9 rounded-full border px-3 text-[13px] font-semibold transition-colors ${
+                  preset === period.value
+                    ? 'border-primary bg-primary text-white'
+                    : 'border-border bg-surface-muted text-text'
+                }`}
+              >
+                {period.label}
+              </button>
+            ))}
+          </div>
 
-      {preset === 'custom' && (
-        <div className="mt-3 grid grid-cols-2 gap-2">
-          <input
-            type="date"
-            aria-label={t('reports.custom_start')}
-            value={toInputDate(customRange.startDate)}
-            max={toInputDate(customRange.endDate)}
-            onChange={(event) => onCustomRangeChange({
-              ...customRange,
-              startDate: parseInputDate(event.target.value),
-            })}
-            className="h-11 min-w-0 rounded-[10px] border border-border bg-surface-muted px-2 text-[13px] font-semibold text-text"
-          />
-          <input
-            type="date"
-            aria-label={t('reports.custom_end')}
-            value={toInputDate(customRange.endDate)}
-            min={toInputDate(customRange.startDate)}
-            onChange={(event) => onCustomRangeChange({
-              ...customRange,
-              endDate: parseInputDate(event.target.value, true),
-            })}
-            className="h-11 min-w-0 rounded-[10px] border border-border bg-surface-muted px-2 text-[13px] font-semibold text-text"
-          />
-        </div>
+          {preset === 'custom' && (
+            <div className="mt-3 grid grid-cols-2 gap-2">
+              <input
+                type="date"
+                aria-label={t('reports.custom_start')}
+                value={toInputDate(customRange.startDate)}
+                max={toInputDate(customRange.endDate)}
+                onChange={(event) => onCustomRangeChange({
+                  ...customRange,
+                  startDate: parseInputDate(event.target.value),
+                })}
+                className="h-11 min-w-0 rounded-[10px] border border-border bg-surface-muted px-2 text-[13px] font-semibold text-text"
+              />
+              <input
+                type="date"
+                aria-label={t('reports.custom_end')}
+                value={toInputDate(customRange.endDate)}
+                min={toInputDate(customRange.startDate)}
+                onChange={(event) => onCustomRangeChange({
+                  ...customRange,
+                  endDate: parseInputDate(event.target.value, true),
+                })}
+                className="h-11 min-w-0 rounded-[10px] border border-border bg-surface-muted px-2 text-[13px] font-semibold text-text"
+              />
+            </div>
+          )}
+        </>
       )}
 
-      <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-3">
+      <div className={`${showPeriodPicker ? 'mt-4' : ''} grid grid-cols-1 gap-3 sm:grid-cols-3`}>
         <label className="space-y-1">
           <span className="text-[11px] font-semibold uppercase text-muted">{t('budget_report.category_filter')}</span>
           <select

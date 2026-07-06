@@ -40,8 +40,8 @@ export function classifyBudgetReportStatus(
   actualSpending: number,
 ): BudgetReportStatus {
   if (budgetAmount <= 0) return 'NO_BUDGET';
-  if (actualSpending > budgetAmount) return 'OVER_BUDGET';
-  if (actualSpending > budgetAmount * 0.8) return 'NEAR_LIMIT';
+  if (actualSpending >= budgetAmount) return 'OVER_BUDGET';
+  if (actualSpending >= budgetAmount * 0.8) return 'NEAR_LIMIT';
   return 'IN_BUDGET';
 }
 

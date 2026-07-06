@@ -5,7 +5,9 @@ import { Preferences } from '@capacitor/preferences';
 import { LanguageProvider } from '@/shared/context/LanguageContext';
 import { BudgetReportEmptyStates } from '@/modules/reports/components/BudgetReportEmptyStates';
 import { BudgetReportFilters } from '@/modules/reports/components/BudgetReportFilters';
+import { BudgetMonthNavigator } from '@/modules/reports/components/BudgetMonthNavigator';
 import { BudgetReportSummary } from '@/modules/reports/components/BudgetReportSummary';
+import { ReportTypeTabs } from '@/modules/reports/components/ReportTypeTabs';
 import type { BudgetReport, BudgetReportStatus } from '@/modules/reports/domain/report.model';
 import type { DateRangePreset } from '@/modules/reports/services/build-date-range';
 
@@ -88,5 +90,57 @@ describe('Budget Report UI', () => {
     expect(screen.getByRole('button', { name: 'Today' }).className).toContain('bg-primary');
     expect((screen.getByLabelText('Category') as HTMLSelectElement).value).toBe('food');
     expect((screen.getByLabelText('Budget status') as HTMLSelectElement).value).toBe('OVER_BUDGET');
+  });
+
+  it('supports previous, next, and current-month navigation', async () => {
+    const onPreviousMonth = vi.fn();
+    const onNextMonth = vi.fn();
+    const onCurrentMonth = vi.fn();
+
+    renderWithLanguage(
+      <BudgetMonthNavigator
+        label="Month 07/2026"
+        isCurrentMonth={false}
+        onPreviousMonth={onPreviousMonth}
+        onNextMonth={onNextMonth}
+        onCurrentMonth={onCurrentMonth}
+      />,
+    );
+
+    fireEvent.click(await screen.findByRole('button', { name: 'Previous month' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Next month' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Current month' }));
+
+    expect(onPreviousMonth).toHaveBeenCalledOnce();
+    expect(onNextMonth).toHaveBeenCalledOnce();
+    expect(onCurrentMonth).toHaveBeenCalledOnce();
+    expect(screen.getByText('Month 07/2026')).toBeTruthy();
+  });
+
+  it('hides the current-month shortcut while viewing the current month', async () => {
+    renderWithLanguage(
+      <BudgetMonthNavigator
+        label="Month 07/2026"
+        isCurrentMonth
+        onPreviousMonth={vi.fn()}
+        onNextMonth={vi.fn()}
+        onCurrentMonth={vi.fn()}
+      />,
+    );
+
+    expect(await screen.findByText('Month 07/2026')).toBeTruthy();
+    expect(screen.queryByRole('button', { name: 'Current month' })).toBeNull();
+  });
+
+  it('exposes budget as a tab within reports', async () => {
+    const onChange = vi.fn();
+    renderWithLanguage(<ReportTypeTabs active="cashflow" onChange={onChange} />);
+
+    const budgetTab = await screen.findByRole('tab', { name: 'Budgets' });
+    fireEvent.click(budgetTab);
+
+    expect(onChange).toHaveBeenCalledWith('budget');
+    expect(budgetTab.getAttribute('aria-selected')).toBe('false');
+    expect(screen.getByRole('tab', { name: 'Cashflow' }).getAttribute('aria-selected')).toBe('true');
   });
 });

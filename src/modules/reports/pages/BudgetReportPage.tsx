@@ -10,14 +10,22 @@ import { useCurrency } from '@/shared/context/CurrencyContext';
 import { useLanguage } from '@/shared/context/LanguageContext';
 import { HIDDEN_AMOUNT, useAmountVisibility } from '@/shared/hooks/useAmountVisibility';
 import { useDisplayFormatSettings } from '@/shared/hooks/useDisplayFormatSettings';
+import { formatAppMonth } from '@/shared/utils/display-format';
 import { getAppLocale } from '@/shared/utils/locale';
-import type { BudgetReport, BudgetReportStatus, DateRange } from '../domain/report.model';
+import type { BudgetReport, BudgetReportStatus } from '../domain/report.model';
 import { BudgetCategoryBreakdown } from '../components/BudgetCategoryBreakdown';
+import { BudgetMonthNavigator } from '../components/BudgetMonthNavigator';
 import { BudgetReportFilters } from '../components/BudgetReportFilters';
 import { BudgetReportSummary } from '../components/BudgetReportSummary';
 import { BudgetReportEmptyStates } from '../components/BudgetReportEmptyStates';
 import { BudgetSpendingTrend } from '../components/BudgetSpendingTrend';
-import { buildDateRange, type DateRangePreset } from '../services/build-date-range';
+import { ReportTypeTabs } from '../components/ReportTypeTabs';
+import {
+  buildBudgetMonthRange,
+  isCurrentReportMonth,
+  normalizeReportMonth,
+  shiftReportMonth,
+} from '../services/budget-report-month';
 import { GetBudgetReportUseCase } from '../services/get-budget-report';
 
 export function BudgetReportPage() {
@@ -29,8 +37,7 @@ export function BudgetReportPage() {
   const locale = getAppLocale(language);
   const displayAmount = (amount: number) => showAmounts ? formatAmount(amount, locale) : HIDDEN_AMOUNT;
 
-  const [preset, setPreset] = useState<DateRangePreset>('this_month');
-  const [customRange, setCustomRange] = useState<DateRange>(() => buildDateRange('this_month'));
+  const [selectedMonth, setSelectedMonth] = useState(() => normalizeReportMonth(Date.now()));
   const [categoryId, setCategoryId] = useState('');
   const [walletId, setWalletId] = useState('');
   const [status, setStatus] = useState<'' | BudgetReportStatus>('');
@@ -42,9 +49,10 @@ export function BudgetReportPage() {
   const [reloadKey, setReloadKey] = useState(0);
 
   const useCase = useMemo(() => new GetBudgetReportUseCase(appRepositories.report), []);
-  const range = useMemo(
-    () => buildDateRange(preset, customRange, displayFormatSettings),
-    [customRange, displayFormatSettings, preset],
+  const range = useMemo(() => buildBudgetMonthRange(selectedMonth), [selectedMonth]);
+  const monthLabel = t('budget_report.month_label').replace(
+    '{month}',
+    formatAppMonth(selectedMonth, displayFormatSettings, locale),
   );
 
   useEffect(() => {
@@ -90,23 +98,38 @@ export function BudgetReportPage() {
   return (
     <div className="mx-auto min-h-full max-w-4xl bg-bg p-4 pb-24 text-text">
       <header className="mb-4 flex items-center gap-3">
-        <BackButton onClick={() => navigate(ROUTES.HOME)} ariaLabel={t('common.back')} />
+        <BackButton onClick={() => navigate(ROUTES.REPORTS)} ariaLabel={t('common.back')} />
         <div className="min-w-0 flex-1">
-          <h1 className="truncate text-2xl font-bold">{t('budget_report.title')}</h1>
-          <p className="mt-0.5 text-sm text-muted">{t('budget_report.subtitle')}</p>
+          <h1 className="truncate text-2xl font-bold">{t('reports.title')}</h1>
         </div>
       </header>
 
+      <ReportTypeTabs
+        active="budget"
+        onChange={(value) => {
+          if (value === 'cashflow') navigate(ROUTES.REPORTS);
+        }}
+      />
+
+      <BudgetMonthNavigator
+        label={monthLabel}
+        isCurrentMonth={isCurrentReportMonth(selectedMonth)}
+        onPreviousMonth={() => setSelectedMonth((month) => shiftReportMonth(month, -1))}
+        onNextMonth={() => setSelectedMonth((month) => shiftReportMonth(month, 1))}
+        onCurrentMonth={() => setSelectedMonth(normalizeReportMonth(Date.now()))}
+      />
+
       <BudgetReportFilters
-        preset={preset}
-        customRange={customRange}
+        showPeriodPicker={false}
+        preset="this_month"
+        customRange={range}
         categoryId={categoryId}
         walletId={walletId}
         status={status}
         categories={categories}
         wallets={wallets}
-        onPresetChange={setPreset}
-        onCustomRangeChange={setCustomRange}
+        onPresetChange={() => undefined}
+        onCustomRangeChange={() => undefined}
         onCategoryChange={setCategoryId}
         onWalletChange={setWalletId}
         onStatusChange={setStatus}

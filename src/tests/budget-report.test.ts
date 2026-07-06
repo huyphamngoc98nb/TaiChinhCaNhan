@@ -66,16 +66,17 @@ describe('Budget Report calculations', () => {
 
   it.each([
     [0, 100, 'NO_BUDGET'],
-    [100, 80, 'IN_BUDGET'],
-    [100, 100, 'NEAR_LIMIT'],
-    [100, 101, 'OVER_BUDGET'],
+    [100, 79.99, 'IN_BUDGET'],
+    [100, 80, 'NEAR_LIMIT'],
+    [100, 99.99, 'NEAR_LIMIT'],
+    [100, 100, 'OVER_BUDGET'],
   ] as const)('classifies budget %s with spending %s as %s', (limit, spending, expected) => {
     expect(classifyBudgetReportStatus(limit, spending)).toBe(expected);
   });
 
-  it('uses the strict above-80-percent rule for near limit', () => {
-    expect(classifyBudgetReportStatus(100, 80)).toBe('IN_BUDGET');
-    expect(classifyBudgetReportStatus(100, 80.01)).toBe('NEAR_LIMIT');
+  it('uses inclusive 80-percent and 100-percent status thresholds', () => {
+    expect(classifyBudgetReportStatus(100, 80)).toBe('NEAR_LIMIT');
+    expect(classifyBudgetReportStatus(100, 100)).toBe('OVER_BUDGET');
   });
 
   it('reports no budget safely without dividing by zero', () => {
@@ -85,6 +86,28 @@ describe('Budget Report calculations', () => {
     expect(report.summary.usagePercentage).toBe(0);
     expect(report.summary.overspentAmount).toBe(2_000);
     expect(report.hasBudget).toBe(false);
+  });
+
+  it('reports a configured budget safely when there is no spending', () => {
+    const report = calculateBudgetReport(source({ spending: [], trend: [] }), { range: january });
+
+    expect(report.summary.totalActualSpending).toBe(0);
+    expect(report.summary.remainingAmount).toBeCloseTo(3_100);
+    expect(report.summary.usagePercentage).toBe(0);
+    expect(report.summary.status).toBe('IN_BUDGET');
+    expect(report.hasSpending).toBe(false);
+  });
+
+  it('keeps spending from a category without a budget isolated and safe', () => {
+    const report = calculateBudgetReport(source({
+      spending: [{ categoryId: 'travel', categoryName: 'Travel', actualSpending: 500 }],
+      trend: [],
+    }), { range: january });
+
+    const travel = report.categories.find((item) => item.categoryId === 'travel');
+    expect(travel?.budgetAmount).toBe(0);
+    expect(travel?.usagePercentage).toBe(0);
+    expect(travel?.status).toBe('NO_BUDGET');
   });
 
   it('aggregates category budgets and sorts categories by actual spending descending', () => {
