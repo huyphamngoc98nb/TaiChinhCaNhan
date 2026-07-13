@@ -1,13 +1,13 @@
 {
   "platform": "android",
-  "versionName": "0.1.34",
-  "versionCode": 134,
+  "versionName": "0.1.35",
+  "versionCode": 135,
   "minSupportedVersionCode": 100,
   "mandatory": false,
-  "apkUrl": "https://github.com/huyphamngoc98nb/TaiChinhCaNhan/releases/download/v0.1.34/TaiChinhCaNhan-v0.1.34.apk",
-  "sha256": "efb253302b5ab8fefd26d2df034f7dd3e04e3f65631087c95ab79555072559b4",
-  "releaseDate": "2026-07-06",
+  "apkUrl": "https://github.com/huyphamngoc98nb/TaiChinhCaNhan/releases/download/v0.1.35/TaiChinhCaNhan-v0.1.35.apk",
+  "sha256": "751257fb30de0c0284795585d35c6de398d978306f2006d7c8b52a96cb3dd905",
+  "releaseDate": "2026-07-13",
   "releaseNotes": [
-    "Android release v0.1.34"
+    "Android release v0.1.35"
   ]
 }
