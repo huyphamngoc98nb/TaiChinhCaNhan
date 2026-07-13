@@ -49,9 +49,9 @@ export function BudgetEditForm({
   void isNew;
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex h-full min-h-0 flex-col overflow-hidden">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6 pt-4">
+      <div className="mb-6 flex shrink-0 items-center justify-between pt-4">
         <div className="flex items-center space-x-3">
           <div
             className="w-8 h-8 rounded-full flex items-center justify-center text-lg"
@@ -76,7 +76,11 @@ export function BudgetEditForm({
       </div>
 
       {/* Form Body */}
-      <div className="flex-1 space-y-6">
+      <div
+        data-modal-scroll-container="true"
+        className="form-scroll-container min-h-0 max-h-full flex-1 pr-1"
+      >
+        <div className="space-y-6 pb-[calc(1rem+env(safe-area-inset-bottom))]">
         {/* Error banner — same pattern as TransactionForm */}
         {error && (
           <div className="px-4 py-3 bg-red-50 border border-red-200 rounded-[12px] text-[13px] text-red-600 font-medium">
@@ -116,7 +120,7 @@ export function BudgetEditForm({
         />
 
         {/* Amount Input */}
-        <div className="space-y-1.5">
+        <div className="space-y-1.5" data-keyboard-scroll-target="true">
           <p className="text-[13px] font-semibold text-gray-700">{t('budgets.amount')}</p>
           <CurrencyAmountInput
             currency={currency}
@@ -151,20 +155,20 @@ export function BudgetEditForm({
             {t('budgets.remove_budget')}
           </button>
         )}
-      </div>
-
-      {/* Footer */}
-      <div className="mt-8 pt-4 border-t border-gray-100">
-        <button
-          onClick={onSave}
-          disabled={isSaving}
-          className={`w-full h-[54px] rounded-[14px] bg-indigo-500 text-white text-[16px] font-bold
-            transition-all active:scale-[0.98] ${
-            isSaving ? 'opacity-50' : 'shadow-lg shadow-indigo-500/20'
-          }`}
-        >
-          {isSaving ? t('common.saving') : t('budgets.save_budget')}
-        </button>
+          {/* Footer stays in the scroll flow so it remains reachable above the keyboard. */}
+          <div className="border-t border-gray-100 pt-4">
+            <button
+              onClick={onSave}
+              disabled={isSaving}
+              className={`w-full h-[54px] rounded-[14px] bg-indigo-500 text-white text-[16px] font-bold
+                transition-all active:scale-[0.98] ${
+                isSaving ? 'opacity-50' : 'shadow-lg shadow-indigo-500/20'
+              }`}
+            >
+              {isSaving ? t('common.saving') : t('budgets.save_budget')}
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );
