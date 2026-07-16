@@ -1,13 +1,44 @@
 {
   "platform": "android",
-  "versionName": "0.1.35",
-  "versionCode": 135,
+  "versionName": "0.1.36",
+  "versionCode": 136,
   "minSupportedVersionCode": 100,
   "mandatory": false,
-  "apkUrl": "https://github.com/huyphamngoc98nb/TaiChinhCaNhan/releases/download/v0.1.35/TaiChinhCaNhan-v0.1.35.apk",
-  "sha256": "751257fb30de0c0284795585d35c6de398d978306f2006d7c8b52a96cb3dd905",
-  "releaseDate": "2026-07-13",
+  "apkUrl": "https://github.com/huyphamngoc98nb/TaiChinhCaNhan/releases/download/v0.1.36/TaiChinhCaNhan-v0.1.36.apk",
+  "sha256": "9659c32d1147d304e586faa62685ea6e3f43e5d1cc3e1080831061144d9754b8",
+  "releaseDate": "2026-07-16",
+  "releaseNotesVersion": 2,
+  "releaseSummary": "Bản cập nhật này siết chặt quy trình Android Release để mọi bản phát hành luôn kèm ghi chú thay đổi chi tiết đã được commit cùng mã nguồn.",
+  "releaseNoteSections": [
+    {
+      "type": "improvements",
+      "title": "Cải thiện",
+      "items": [
+        {
+          "title": "Bắt buộc kiểm tra `RELEASE_NOTES.md`, version heading, phần tóm tắt và bullet thay đổi trước khi build Android."
+        },
+        {
+          "title": "Dùng cùng một file release notes đã commit để tạo GitHub Release và metadata cập nhật trong `latest.json`."
+        }
+      ]
+    },
+    {
+      "type": "bug_fixes",
+      "title": "Sửa lỗi",
+      "items": [
+        {
+          "title": "Loại bỏ fallback `Android release vX.Y.Z` để workflow không thể publish release thiếu nội dung thay đổi thực tế."
+        },
+        {
+          "title": "Dừng workflow trước khi publish nếu metadata không có summary, structured sections hoặc flat release notes hợp lệ."
+        }
+      ]
+    }
+  ],
   "releaseNotes": [
-    "Android release v0.1.35"
+    "Cải thiện: Bắt buộc kiểm tra `RELEASE_NOTES.md`, version heading, phần tóm tắt và bullet thay đổi trước khi build Android.",
+    "Cải thiện: Dùng cùng một file release notes đã commit để tạo GitHub Release và metadata cập nhật trong `latest.json`.",
+    "Sửa lỗi: Loại bỏ fallback `Android release vX.Y.Z` để workflow không thể publish release thiếu nội dung thay đổi thực tế.",
+    "Sửa lỗi: Dừng workflow trước khi publish nếu metadata không có summary, structured sections hoặc flat release notes hợp lệ."
   ]
 }
