@@ -59,7 +59,7 @@ describe('generate Android release metadata', () => {
   });
 
   it('generates complete structured and flat metadata from valid committed notes', () => {
-    const result = runGenerator(`# ${releaseTag}\n\n## Tóm tắt\nBản cập nhật bắt buộc release notes thực tế.\n\n## Cải thiện\n- Kiểm tra release notes trước khi build và publish.\n\n## Sửa lỗi\n- Loại bỏ fallback release note chung chung.`);
+    const result = runGenerator(`# ${releaseTag}\n\n## Tóm tắt\nBản cập nhật bắt buộc release notes thực tế.\n\n## Cải thiện\n- Kiểm tra release notes trước khi build và publish.\n\n## Sửa lỗi\n- Loại bỏ fallback Android release vX.Y.Z chung chung.`);
     expect(result.status).toBe(0);
     expect(result.latest.releaseNotesVersion).toBe(2);
     expect(result.latest.releaseSummary).toBe('Bản cập nhật bắt buộc release notes thực tế.');

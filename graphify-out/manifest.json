@@ -35,8 +35,8 @@
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\version.config.json": {
-    "mtime": 1783910845.650755,
-    "ast_hash": "26cd194861d6c47beed2f9539fa42634",
+    "mtime": 1784191783.9148436,
+    "ast_hash": "cde5dba3146e140f518fc9685cd2433d",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\vite.config.ts": {
@@ -50,7 +50,7 @@
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\android\\capacitor.settings.gradle": {
-    "mtime": 1783910757.083112,
+    "mtime": 1784191695.9614458,
     "ast_hash": "0a57c9b509250026b543b2cf88b67665",
     "semantic_hash": ""
   },
@@ -75,7 +75,7 @@
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\android\\app\\capacitor.build.gradle": {
-    "mtime": 1783910757.083112,
+    "mtime": 1784191695.9614458,
     "ast_hash": "6a1fff52a34d0c8866d6d61bb2715926",
     "semantic_hash": ""
   },
@@ -85,12 +85,12 @@
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\android\\app\\src\\main\\assets\\capacitor.config.json": {
-    "mtime": 1783910756.4731653,
+    "mtime": 1784191695.519405,
     "ast_hash": "5faad82265b616885f2ca4175082f59a",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\android\\app\\src\\main\\assets\\capacitor.plugins.json": {
-    "mtime": 1783910756.6246753,
+    "mtime": 1784191695.6015215,
     "ast_hash": "b2b87dc4f55f29a4a44c6f1bef8cfec2",
     "semantic_hash": ""
   },
@@ -120,12 +120,12 @@
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\android\\capacitor-cordova-android-plugins\\build.gradle": {
-    "mtime": 1783910757.083112,
+    "mtime": 1784191695.963444,
     "ast_hash": "2af61653d70c95d20802c8b5c433ba90",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\android\\capacitor-cordova-android-plugins\\cordova.variables.gradle": {
-    "mtime": 1783910757.083112,
+    "mtime": 1784191695.963444,
     "ast_hash": "d2372a0ae9aa60abb8d03e7f06bf9194",
     "semantic_hash": ""
   },
@@ -2340,8 +2340,8 @@
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\scripts\\generate-android-release-metadata.test.mjs": {
-    "mtime": 1784191254.0082164,
-    "ast_hash": "c3515a52145720de523cb06ac930b8d9",
+    "mtime": 1784192689.086099,
+    "ast_hash": "f07e4a7bce6734a9cfdc27115c32f507",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\modules\\reports\\components\\BudgetCategoryBreakdown.tsx": {
@@ -2425,8 +2425,8 @@
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\RELEASE_NOTES.md": {
-    "mtime": 1784191300.233323,
-    "ast_hash": "6be29be0113945b3dabcf90ce67ed28e",
+    "mtime": 1784192329.5933905,
+    "ast_hash": "4e5c8e79dc4f1b4353af685d3bec7ddc",
     "semantic_hash": ""
   }
 }

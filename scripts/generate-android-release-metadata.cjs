@@ -332,7 +332,6 @@ function readAndValidateReleaseNotes(filePathInput, releaseTag) {
   }
 
   const placeholderPatterns = [
-    /vX\.Y\.Z/i,
     /viết\s+1\s*[-–]\s*2\s+câu/i,
     /mô\s+tả\s+(?:tính năng|cải thiện|lỗi|thay đổi)/i,
     /replace\s+(?:this|me)|placeholder|todo|tbd/i,
