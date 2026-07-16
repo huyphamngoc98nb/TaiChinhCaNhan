@@ -10,17 +10,18 @@ The frontend endpoint can be overridden at build time with `VITE_ANDROID_LATEST_
 
 Use this checklist for every Android release:
 
-- Step 1: Update `version.config.json`.
-- Step 2: Before creating the tag, update the root `RELEASE_NOTES.md` from [`docs/templates/RELEASE_NOTES.template.md`](./templates/RELEASE_NOTES.template.md). It must include `Tóm tắt`; a release with actual user-visible changes must also include at least one usable item under `Sửa lỗi` or `Cải thiện`.
-- Step 3: Review every bullet for user-facing language. Remove placeholder text and do not claim work that is not in the release build.
-- Step 4: Commit the version and release-note changes.
-- Step 5: Create tag `vX.Y.Z` matching `nativeVersionName`.
-- Step 6: Push the tag.
-- Step 7: Check GitHub Actions for the Android Release workflow.
-- Step 8: Check GitHub Release assets and confirm its notes match the original Markdown.
-- Step 9: Inspect generated `latest.json`: structured notes must include `releaseNotesVersion: 2`, `releaseSummary` when supplied, non-empty `releaseNoteSections`, and the flat `releaseNotes` compatibility fallback.
-- Step 10: Download the APK and install it over the previous version on a phone.
-- Step 11: Run the release-note manual QA below. The dialog must render structured notes as summary and section groups, while legacy manifests must still render the flat list.
+- Step 1: Hoàn thành code cho release.
+- Step 2: Update `version.config.json`, then create or update root `RELEASE_NOTES.md` from [`docs/templates/RELEASE_NOTES.template.md`](./templates/RELEASE_NOTES.template.md). Its first heading and `nativeVersionName` must match the release tag.
+- Step 3: Review nội dung release notes: heading version phải khớp tag, bắt buộc có summary và ít nhất một bullet thay đổi, không còn placeholder.
+- Step 4: Commit `version.config.json`, `RELEASE_NOTES.md` và các thay đổi liên quan trong cùng source commit.
+- Step 5: Push commit và xác nhận commit đã tồn tại trên remote.
+- Step 6: Chỉ sau đó tạo tag `vX.Y.Z` trỏ tới commit đã review.
+- Step 7: Push tag để trigger Android Release workflow.
+- Step 8: Check GitHub Actions for the Android Release workflow.
+- Step 9: Check GitHub Release assets and confirm its notes match the original Markdown.
+- Step 10: Inspect generated `latest.json`: structured notes must include `releaseNotesVersion: 2`, non-empty `releaseSummary`, non-empty `releaseNoteSections`, and the flat `releaseNotes` compatibility fallback.
+- Step 11: Download the APK and install it over the previous version on a phone.
+- Step 12: Run the release-note manual QA below. The dialog must render structured notes as summary and section groups, while legacy manifests must still render the flat list.
 
 ## Definition of Done
 
@@ -101,7 +102,7 @@ git tag v0.1.15
 git push origin v0.1.15
 ```
 
-For manual reruns, open the Android Release workflow from the current default branch and use `workflow_dispatch` with an existing tag such as `v0.1.15`. If that tag does not contain the reviewed root `RELEASE_NOTES.md`, paste the complete Markdown into `release_notes_body`. This input takes priority over the file from the tag checkout, and the workflow uses the current metadata generator while keeping the APK build source pinned to the tag. The release can therefore be repaired without moving or recreating the tag.
+For manual reruns, use `workflow_dispatch` with an existing tag such as `v0.1.15`. The workflow only accepts the root `RELEASE_NOTES.md` committed at that tag. A tag without valid committed notes cannot be repaired with workflow input; create a new release commit and a new matching tag instead.
 
 ## Check the GitHub Release
 
@@ -116,12 +117,12 @@ Check `latest.json` includes:
 - `versionCode` matching `version.config.json`.
 - `apkUrl` pointing to the APK asset on the same GitHub Release.
 - `sha256` matching the uploaded APK.
-- `releaseNotesVersion: 2` when `releaseSummary` or `releaseNoteSections` is present.
-- `releaseSummary` matching the `Tóm tắt`/`Summary` paragraph, when supplied.
+- `releaseNotesVersion: 2`.
+- A non-empty `releaseSummary` matching the required `Tóm tắt`/`Summary` paragraph.
 - `releaseNoteSections` containing the expected section titles and bullets.
 - `releaseNotes` containing the flat, prefixed fallback used by older app versions.
 
-For `workflow_dispatch`, a non-empty `release_notes_body` is used first. Otherwise, if `RELEASE_NOTES.md` exists at the checked-out tag root, the workflow uses that file. If neither source is available, it emits a GitHub Actions warning and uses `Android release vX.Y.Z`.
+The checked-out tag's root `RELEASE_NOTES.md` is the only release-note source for GitHub Release and `latest.json`. Missing, empty, mismatched, placeholder-only, or structurally incomplete notes fail before the Android build. There is no generic fallback.
 
 ## GitHub Pages manifest
 

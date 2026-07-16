@@ -35,8 +35,8 @@
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\version.config.json": {
-    "mtime": 1783328827.6653922,
-    "ast_hash": "b20faece7681a7220566af662e8d4de8",
+    "mtime": 1783910845.650755,
+    "ast_hash": "26cd194861d6c47beed2f9539fa42634",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\vite.config.ts": {
@@ -50,7 +50,7 @@
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\android\\capacitor.settings.gradle": {
-    "mtime": 1783328785.344615,
+    "mtime": 1783910757.083112,
     "ast_hash": "0a57c9b509250026b543b2cf88b67665",
     "semantic_hash": ""
   },
@@ -75,7 +75,7 @@
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\android\\app\\capacitor.build.gradle": {
-    "mtime": 1783328785.344615,
+    "mtime": 1783910757.083112,
     "ast_hash": "6a1fff52a34d0c8866d6d61bb2715926",
     "semantic_hash": ""
   },
@@ -85,12 +85,12 @@
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\android\\app\\src\\main\\assets\\capacitor.config.json": {
-    "mtime": 1783328784.6122696,
+    "mtime": 1783910756.4731653,
     "ast_hash": "5faad82265b616885f2ca4175082f59a",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\android\\app\\src\\main\\assets\\capacitor.plugins.json": {
-    "mtime": 1783328784.714766,
+    "mtime": 1783910756.6246753,
     "ast_hash": "b2b87dc4f55f29a4a44c6f1bef8cfec2",
     "semantic_hash": ""
   },
@@ -120,12 +120,12 @@
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\android\\capacitor-cordova-android-plugins\\build.gradle": {
-    "mtime": 1783328785.344615,
+    "mtime": 1783910757.083112,
     "ast_hash": "2af61653d70c95d20802c8b5c433ba90",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\android\\capacitor-cordova-android-plugins\\cordova.variables.gradle": {
-    "mtime": 1783328785.3559792,
+    "mtime": 1783910757.083112,
     "ast_hash": "d2372a0ae9aa60abb8d03e7f06bf9194",
     "semantic_hash": ""
   },
@@ -2120,13 +2120,13 @@
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\.github\\workflows\\android-release.yml": {
-    "mtime": 1783327492.3828225,
-    "ast_hash": "aab799319a9eab7c59298e7f275b2edf",
+    "mtime": 1784191215.5031614,
+    "ast_hash": "7e7692fa9de330485edc678d929aa94e",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\docs\\android-release.md": {
-    "mtime": 1783327496.3782573,
-    "ast_hash": "fdc26c331f8413521f48621605c671e2",
+    "mtime": 1784191441.6350482,
+    "ast_hash": "7cf9ed14c87d8f989de187196c546398",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\modules\\app-update\\index.ts": {
@@ -2340,8 +2340,8 @@
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\scripts\\generate-android-release-metadata.test.mjs": {
-    "mtime": 1783327405.2210672,
-    "ast_hash": "3eb487495161e90e31bccd7e277ddb3c",
+    "mtime": 1784191254.0082164,
+    "ast_hash": "c3515a52145720de523cb06ac930b8d9",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\modules\\reports\\components\\BudgetCategoryBreakdown.tsx": {
@@ -2420,8 +2420,13 @@
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\scripts\\android-release-workflow.test.mjs": {
-    "mtime": 1783327494.5217793,
-    "ast_hash": "6585a9ed6bd8b7a1cb449f453b372247",
+    "mtime": 1784191256.933326,
+    "ast_hash": "24f924dd9d0472247c09cab63cfe0b92",
+    "semantic_hash": ""
+  },
+  "D:\\Personal Project\\TaiXiuCaNhan\\RELEASE_NOTES.md": {
+    "mtime": 1784191300.233323,
+    "ast_hash": "6be29be0113945b3dabcf90ce67ed28e",
     "semantic_hash": ""
   }
 }

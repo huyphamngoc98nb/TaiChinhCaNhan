@@ -33,6 +33,12 @@ function main() {
     fail(`release tag "${releaseTag}" must match nativeVersionName "${versionName}".`);
   }
 
+  const releaseNotesMetadata = readAndValidateReleaseNotes(releaseNotesPathInput, releaseTag);
+  if (options['validate-release-notes-only']) {
+    console.log(`[android-release] validated release notes for ${releaseTag}`);
+    return;
+  }
+
   const apkPath = resolveFromRepo(apkPathInput, 'APK_PATH');
   if (!fs.existsSync(apkPath) || !fs.statSync(apkPath).isFile()) {
     fail(`APK_PATH must point to an existing file: ${apkPathInput || '(missing)'}.`);
@@ -49,10 +55,6 @@ function main() {
   const assetPath = path.join(outputDir, assetFileName);
   const latestJsonPath = path.join(outputDir, 'latest.json');
   const releaseEnvPath = path.join(outputDir, 'release.env');
-  const releaseNotesMetadata = ensureReleaseNotesFallback(
-    readReleaseNotes(releaseNotesPathInput),
-    `Android release v${versionName}`,
-  );
   const assetRelativePath = toRepoRelativePath(assetPath);
   const latestJsonRelativePath = toRepoRelativePath(latestJsonPath);
 
@@ -106,6 +108,11 @@ function parseArgs(args) {
 
     if (arg === '--help' || arg === '-h') {
       options.help = true;
+      continue;
+    }
+
+    if (arg === '--validate-release-notes-only') {
+      options['validate-release-notes-only'] = true;
       continue;
     }
 
@@ -305,40 +312,47 @@ function parseReleaseNotesMarkdown(markdown) {
   };
 }
 
-function emptyReleaseNotes() {
-  return {
-    releaseSummary: undefined,
-    releaseNoteSections: [],
-    releaseNotes: [],
-  };
-}
-
-function ensureReleaseNotesFallback(metadata, fallbackNote) {
-  if (metadata.releaseNotes.length > 0) {
-    return metadata;
-  }
-
-  return {
-    ...metadata,
-    releaseNotes: [fallbackNote],
-  };
-}
-
-function readReleaseNotes(filePathInput) {
+function readAndValidateReleaseNotes(filePathInput, releaseTag) {
   if (!filePathInput || filePathInput.trim() === '') {
-    return emptyReleaseNotes();
+    fail('RELEASE_NOTES_PATH is required.');
   }
 
-  try {
-    const filePath = path.resolve(repoRoot, filePathInput.trim());
-    if (!fs.existsSync(filePath) || !fs.statSync(filePath).isFile()) {
-      return emptyReleaseNotes();
-    }
-
-    return parseReleaseNotesMarkdown(fs.readFileSync(filePath, 'utf8'));
-  } catch {
-    return emptyReleaseNotes();
+  const filePath = path.resolve(repoRoot, filePathInput.trim());
+  if (!fs.existsSync(filePath) || !fs.statSync(filePath).isFile()) {
+    fail(`RELEASE_NOTES.md is required. Commit release notes before creating the release tag.`);
   }
+
+  const markdown = fs.readFileSync(filePath, 'utf8').replace(/^\uFEFF/, '');
+  if (!markdown.trim()) fail('RELEASE_NOTES.md must not be empty.');
+
+  const firstHeading = markdown.match(/^(#{1,6})\s+(.+?)\s*#*\s*(?:\r?\n|$)/);
+  const expectedHeading = `v${validateReleaseTag(releaseTag)}`;
+  if (!firstHeading || firstHeading[1] !== '#' || firstHeading[2].trim() !== expectedHeading) {
+    fail(`the first heading in RELEASE_NOTES.md must be "# ${expectedHeading}".`);
+  }
+
+  const placeholderPatterns = [
+    /vX\.Y\.Z/i,
+    /viết\s+1\s*[-–]\s*2\s+câu/i,
+    /mô\s+tả\s+(?:tính năng|cải thiện|lỗi|thay đổi)/i,
+    /replace\s+(?:this|me)|placeholder|todo|tbd/i,
+  ];
+  if (placeholderPatterns.some((pattern) => pattern.test(markdown))) {
+    fail('RELEASE_NOTES.md contains unreplaced template placeholder content.');
+  }
+
+  const metadata = parseReleaseNotesMarkdown(markdown);
+  if (!metadata.releaseSummary || !metadata.releaseSummary.trim()) {
+    fail('RELEASE_NOTES.md must contain a non-empty "## Tóm tắt" or "## Summary" section.');
+  }
+  if (!metadata.releaseNoteSections.some((section) => section.items.length > 0)) {
+    fail('RELEASE_NOTES.md must contain at least one bullet in a supported release-note section.');
+  }
+  if (metadata.releaseNotes.length === 0) {
+    fail('RELEASE_NOTES.md must produce at least one flat release note item.');
+  }
+
+  return metadata;
 }
 
 function toRepoRelativePath(filePath) {
@@ -350,7 +364,7 @@ function toRepoRelativePath(filePath) {
 function printUsage() {
   console.log(
     [
-      'Usage: node scripts/generate-android-release-metadata.cjs --apk-path <apk> --github-repository <owner/repo> --release-tag <vX.Y.Z>',
+      'Usage: node scripts/generate-android-release-metadata.cjs --apk-path <apk> --github-repository <owner/repo> --release-tag <vX.Y.Z> --release-notes-path <file>',
       '',
       'Inputs can also be provided through APK_PATH, GITHUB_REPOSITORY, RELEASE_TAG/GITHUB_REF_NAME, RELEASE_NOTES_PATH, and OUTPUT_DIR.',
     ].join('\n'),
@@ -372,5 +386,5 @@ if (require.main === module) {
 
 module.exports = {
   parseReleaseNotesMarkdown,
-  readReleaseNotes,
+  readAndValidateReleaseNotes,
 };
