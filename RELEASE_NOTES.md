@@ -1,4 +1,4 @@
-# v0.1.36
+# v0.1.37
 
 ## Tóm tắt
 Bản cập nhật này siết chặt quy trình Android Release để mọi bản phát hành luôn kèm ghi chú thay đổi chi tiết đã được commit cùng mã nguồn.
