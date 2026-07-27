@@ -4,13 +4,19 @@ import { ResetLocalDataError } from '@/core/db/reset-local-data';
 import { ImeTextInput } from '@/shared/components/ImeTextInput';
 import { useLanguage } from '@/shared/context/LanguageContext';
 import { useBodyScrollLock } from '@/shared/hooks/useBodyScrollLock';
+import { requireStepUpAuthentication } from './step-up-authentication';
 
 interface RecoveryResetDialogProps {
   onCancel: () => void;
   onReset: () => void;
+  requireAuthentication?: boolean;
 }
 
-export function RecoveryResetDialog({ onCancel, onReset }: RecoveryResetDialogProps) {
+export function RecoveryResetDialog({
+  onCancel,
+  onReset,
+  requireAuthentication = false,
+}: RecoveryResetDialogProps) {
   const { t } = useLanguage();
   const [acknowledged, setAcknowledged] = useState(false);
   const [confirmation, setConfirmation] = useState('');
@@ -25,6 +31,14 @@ export function RecoveryResetDialog({ onCancel, onReset }: RecoveryResetDialogPr
     setResetting(true);
     setError(null);
     try {
+      if (requireAuthentication) {
+        const authentication = await requireStepUpAuthentication('DELETE_ALL_DATA');
+        if (authentication !== 'SUCCESS') {
+          if (authentication !== 'CANCELLED') setError(t('app_lock.unlock_error'));
+          setResetting(false);
+          return;
+        }
+      }
       await recoveryService.resetLocalData();
       recoveryService.completeResetNavigationState();
       onReset();

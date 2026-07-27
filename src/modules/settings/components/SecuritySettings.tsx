@@ -6,8 +6,11 @@ import { useLanguage } from '@/shared/context/LanguageContext';
 import { translations } from '@/shared/constants/translations';
 import { useToast } from '@/shared/components/Toast/ToastContext';
 import { BiometricUnlockSettings } from './BiometricUnlockSettings';
+import { useSecureScreen } from '@/shared/hooks/useSecureScreen';
+import { AppLockTimeoutSettings } from './AppLockTimeoutSettings';
 
 export function SecuritySettings() {
+  useSecureScreen();
   const { t } = useLanguage();
   const toast = useToast();
   const nativeSecurity = authService.requiresUnlock();
@@ -59,6 +62,7 @@ export function SecuritySettings() {
         </div>
 
         {nativeSecurity && <div className="px-4 py-3"><BiometricUnlockSettings /></div>}
+        {nativeSecurity && <AppLockTimeoutSettings />}
 
         <button type="button" onClick={() => setShowChangePin(true)} disabled={!nativeSecurity} className="flex w-full items-center gap-3 px-4 py-3 text-left disabled:opacity-50">
           <KeyRound size={20} className="text-indigo-500" />
@@ -108,6 +112,7 @@ export function SecuritySettings() {
         <RecoveryResetDialog
           onCancel={() => setShowReset(false)}
           onReset={() => window.location.reload()}
+          requireAuthentication
         />
       )}
     </>

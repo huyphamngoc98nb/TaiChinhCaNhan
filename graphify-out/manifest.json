@@ -35,8 +35,8 @@
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\version.config.json": {
-    "mtime": 1784191783.9148436,
-    "ast_hash": "cde5dba3146e140f518fc9685cd2433d",
+    "mtime": 1785118195.0198824,
+    "ast_hash": "8ab8c4a8e9c0c4fc420d2172de6721e9",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\vite.config.ts": {
@@ -50,7 +50,7 @@
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\android\\capacitor.settings.gradle": {
-    "mtime": 1784191695.9614458,
+    "mtime": 1785118128.6019082,
     "ast_hash": "0a57c9b509250026b543b2cf88b67665",
     "semantic_hash": ""
   },
@@ -75,7 +75,7 @@
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\android\\app\\capacitor.build.gradle": {
-    "mtime": 1784191695.9614458,
+    "mtime": 1785118128.6019082,
     "ast_hash": "6a1fff52a34d0c8866d6d61bb2715926",
     "semantic_hash": ""
   },
@@ -85,12 +85,12 @@
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\android\\app\\src\\main\\assets\\capacitor.config.json": {
-    "mtime": 1784191695.519405,
+    "mtime": 1785118128.0781155,
     "ast_hash": "5faad82265b616885f2ca4175082f59a",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\android\\app\\src\\main\\assets\\capacitor.plugins.json": {
-    "mtime": 1784191695.6015215,
+    "mtime": 1785118128.164015,
     "ast_hash": "b2b87dc4f55f29a4a44c6f1bef8cfec2",
     "semantic_hash": ""
   },
@@ -105,8 +105,8 @@
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\android\\app\\src\\main\\java\\com\\taixiucanhan\\app\\MainActivity.java": {
-    "mtime": 1782723881.974487,
-    "ast_hash": "586c2f4f81ddc33d9c9d063baea23f27",
+    "mtime": 1785122684.7757418,
+    "ast_hash": "ac47f22228b6a4ab013af6295811fd91",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\android\\app\\src\\main\\java\\com\\taixiucanhan\\app\\NativeBiometricPlugin.java": {
@@ -120,12 +120,12 @@
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\android\\capacitor-cordova-android-plugins\\build.gradle": {
-    "mtime": 1784191695.963444,
+    "mtime": 1785118128.6019082,
     "ast_hash": "2af61653d70c95d20802c8b5c433ba90",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\android\\capacitor-cordova-android-plugins\\cordova.variables.gradle": {
-    "mtime": 1784191695.963444,
+    "mtime": 1785118128.6019082,
     "ast_hash": "d2372a0ae9aa60abb8d03e7f06bf9194",
     "semantic_hash": ""
   },
@@ -184,24 +184,19 @@
     "ast_hash": "4bea0e53450f9916a0a9f0ba5172e3ec",
     "semantic_hash": ""
   },
-  "D:\\Personal Project\\TaiXiuCaNhan\\src\\app\\providers\\app-lock-events.ts": {
-    "mtime": 1780027657.4115918,
-    "ast_hash": "fe7a391b51ad41cacdfa1b0c19e9317b",
-    "semantic_hash": ""
-  },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\app\\providers\\AppBootstrap.tsx": {
-    "mtime": 1782958710.965821,
-    "ast_hash": "edba4f0b3a9046e984962d6b47a89424",
+    "mtime": 1785125432.3849568,
+    "ast_hash": "1e064f025041c504353561a599e7db7f",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\app\\providers\\AppProvider.tsx": {
-    "mtime": 1782291041.406415,
-    "ast_hash": "f13f4753dd0ff082cfaf035d9efd67d7",
+    "mtime": 1785123395.2362175,
+    "ast_hash": "4e59c2561bb9497607cc770f16fd6ac4",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\app\\providers\\AppUnlock.tsx": {
-    "mtime": 1781489416.8447757,
-    "ast_hash": "969aebd4d9541fe266302fa59134e6d0",
+    "mtime": 1785125431.0357437,
+    "ast_hash": "af9319dc89849d43aec3cd5c7cabd154",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\app\\providers\\GlobalErrorBoundary.tsx": {
@@ -230,8 +225,8 @@
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\core\\auth\\RecoveryResetDialog.tsx": {
-    "mtime": 1781660554.5357847,
-    "ast_hash": "3833e403e131e7d77747b733715f5301",
+    "mtime": 1785123488.180956,
+    "ast_hash": "82f0c8955731b36ebc85efd929e4f821",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\core\\db\\reset-local-data.ts": {
@@ -515,8 +510,8 @@
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\modules\\backup\\pages\\BackupPage.tsx": {
-    "mtime": 1782437139.5708714,
-    "ast_hash": "7de986ccbb3d47725fd31db10e2168e1",
+    "mtime": 1785125327.846535,
+    "ast_hash": "cbc70ef4b5903892bcfe0791c867f4ff",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\modules\\backup\\services\\auto-backup.service.ts": {
@@ -750,8 +745,8 @@
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\modules\\export\\pages\\ExportPage.tsx": {
-    "mtime": 1781668921.1518493,
-    "ast_hash": "c88af69daeae29f2e231d582e8e80e6a",
+    "mtime": 1785123487.1044123,
+    "ast_hash": "4fcb4c99bbddf7bf324f6903cf6c7dbc",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\modules\\export\\services\\build-export-dataset.ts": {
@@ -1035,8 +1030,8 @@
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\modules\\settings\\components\\BiometricUnlockSettings.tsx": {
-    "mtime": 1780545603.5675333,
-    "ast_hash": "fc08cf9ca0b3913bbaf04237c0362f9f",
+    "mtime": 1785123490.270151,
+    "ast_hash": "dc8ae8cf62ca070ccbf08f6c20801caf",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\modules\\settings\\components\\CurrencySettings.tsx": {
@@ -1060,8 +1055,8 @@
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\modules\\settings\\components\\SecuritySettings.tsx": {
-    "mtime": 1781678739.456655,
-    "ast_hash": "b10a7803df4391ff64b65359823a4349",
+    "mtime": 1785124380.6988542,
+    "ast_hash": "6952a0982824f9657771b361b6b3463a",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\modules\\settings\\components\\ThemeSelector.tsx": {
@@ -1560,8 +1555,8 @@
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\shared\\constants\\translations.ts": {
-    "mtime": 1785117596.324896,
-    "ast_hash": "648e0bad1b1d9b122b112475f7163259",
+    "mtime": 1785124429.999579,
+    "ast_hash": "0fdd73fdbb69da72b08d9a01d0cf87b4",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\shared\\context\\CurrencyContext.tsx": {
@@ -1700,13 +1695,13 @@
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\tests\\app-bootstrap-lock.test.tsx": {
-    "mtime": 1782872809.2825558,
-    "ast_hash": "033a12ba7adfa5ceddcec45ad513e1da",
+    "mtime": 1785125354.3089883,
+    "ast_hash": "8835f87c0138f891aea48d17b089853a",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\tests\\app-unlock.test.tsx": {
-    "mtime": 1781489416.8500905,
-    "ast_hash": "30c7c081ef23c35c1cca8b2116e47ff5",
+    "mtime": 1785125457.757844,
+    "ast_hash": "2db3c6b2d74130b119ec239eaa52fbc2",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\tests\\auth-service.test.ts": {
@@ -2425,8 +2420,123 @@
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\RELEASE_NOTES.md": {
-    "mtime": 1785117681.92458,
-    "ast_hash": "da12d54962016b8bce7038d9fb82185c",
+    "mtime": 1785125484.7463639,
+    "ast_hash": "3c5e9c23d2d4d06adc277eb8d1782423",
+    "semantic_hash": ""
+  },
+  "D:\\Personal Project\\TaiXiuCaNhan\\src\\app\\providers\\app-lock-state.ts": {
+    "mtime": 1785125352.8056905,
+    "ast_hash": "fedd6be001392f589049b931fc63c3c3",
+    "semantic_hash": ""
+  },
+  "D:\\Personal Project\\TaiXiuCaNhan\\src\\tests\\app-lock-state.test.ts": {
+    "mtime": 1785122167.169278,
+    "ast_hash": "5a277d7dbbd7cd32d84e0009b903f7c1",
+    "semantic_hash": ""
+  },
+  "D:\\Personal Project\\TaiXiuCaNhan\\android\\app\\src\\main\\java\\com\\taixiucanhan\\app\\AppLockClockPlugin.java": {
+    "mtime": 1785121789.1686523,
+    "ast_hash": "738462b8036132da4d71e35bc4e849a3",
+    "semantic_hash": ""
+  },
+  "D:\\Personal Project\\TaiXiuCaNhan\\src\\app\\providers\\app-lock-clock.ts": {
+    "mtime": 1785121987.311501,
+    "ast_hash": "ee02e719144c98c125f433df0fb89972",
+    "semantic_hash": ""
+  },
+  "D:\\Personal Project\\TaiXiuCaNhan\\src\\app\\providers\\app-lock-timeout.ts": {
+    "mtime": 1785124378.552133,
+    "ast_hash": "575c75428b919a774d23ff72fe19b490",
+    "semantic_hash": ""
+  },
+  "D:\\Personal Project\\TaiXiuCaNhan\\src\\tests\\app-lock-timeout.test.ts": {
+    "mtime": 1785124519.4564738,
+    "ast_hash": "7d38f1a0a79084c9965ebc198cf09792",
+    "semantic_hash": ""
+  },
+  "D:\\Personal Project\\TaiXiuCaNhan\\android\\app\\src\\main\\java\\com\\taixiucanhan\\app\\DeviceLockPlugin.java": {
+    "mtime": 1785122128.2784753,
+    "ast_hash": "41e20e1592c1ca9a27e0f0251503c4ed",
+    "semantic_hash": ""
+  },
+  "D:\\Personal Project\\TaiXiuCaNhan\\src\\app\\providers\\device-lock.ts": {
+    "mtime": 1785122127.11064,
+    "ast_hash": "bbf1f55d418a7ab06c157fc2616c42e8",
+    "semantic_hash": ""
+  },
+  "D:\\Personal Project\\TaiXiuCaNhan\\src\\tests\\device-lock.test.ts": {
+    "mtime": 1785122176.2702944,
+    "ast_hash": "9b1851fe406e5f617426353a50138e53",
+    "semantic_hash": ""
+  },
+  "D:\\Personal Project\\TaiXiuCaNhan\\android\\app\\src\\main\\java\\com\\taixiucanhan\\app\\PrivacyShieldPlugin.java": {
+    "mtime": 1785122471.5808315,
+    "ast_hash": "55dffa8670e19a0f297d4d9be934eaad",
+    "semantic_hash": ""
+  },
+  "D:\\Personal Project\\TaiXiuCaNhan\\android\\app\\src\\main\\java\\com\\taixiucanhan\\app\\ScreenSecurityPlugin.java": {
+    "mtime": 1785122683.6403656,
+    "ast_hash": "8b9b151385b58bdeb4b91b4cdfcdd93d",
+    "semantic_hash": ""
+  },
+  "D:\\Personal Project\\TaiXiuCaNhan\\src\\app\\providers\\privacy-shield.ts": {
+    "mtime": 1785122470.4592168,
+    "ast_hash": "17dee83ca09bd07ca5b95dccffea89b7",
+    "semantic_hash": ""
+  },
+  "D:\\Personal Project\\TaiXiuCaNhan\\src\\app\\providers\\PrivacyShield.tsx": {
+    "mtime": 1785122469.2559936,
+    "ast_hash": "9f21a8e6ff42a295b6fed697c1b1c7c8",
+    "semantic_hash": ""
+  },
+  "D:\\Personal Project\\TaiXiuCaNhan\\src\\shared\\hooks\\useSecureScreen.test.tsx": {
+    "mtime": 1785122740.231331,
+    "ast_hash": "ca17d38aaeb0371d032a016a4ed2027c",
+    "semantic_hash": ""
+  },
+  "D:\\Personal Project\\TaiXiuCaNhan\\src\\shared\\hooks\\useSecureScreen.ts": {
+    "mtime": 1785122706.2573931,
+    "ast_hash": "807b475338b7381b7b5812827daac2c9",
+    "semantic_hash": ""
+  },
+  "D:\\Personal Project\\TaiXiuCaNhan\\src\\tests\\privacy-shield.test.tsx": {
+    "mtime": 1785122495.074952,
+    "ast_hash": "e0af7ab9969a425c01101e77cf88684f",
+    "semantic_hash": ""
+  },
+  "D:\\Personal Project\\TaiXiuCaNhan\\src\\core\\auth\\step-up-authentication.ts": {
+    "mtime": 1785125290.5828786,
+    "ast_hash": "c86b0a01ce7ebeab0f9a22e9d41a3a30",
+    "semantic_hash": ""
+  },
+  "D:\\Personal Project\\TaiXiuCaNhan\\src\\core\\auth\\StepUpAuthenticationProvider.tsx": {
+    "mtime": 1785125291.9165492,
+    "ast_hash": "de977efd99311648b22bef84c454fbde",
+    "semantic_hash": ""
+  },
+  "D:\\Personal Project\\TaiXiuCaNhan\\src\\tests\\step-up-authentication.test.ts": {
+    "mtime": 1785125330.672922,
+    "ast_hash": "5f8e0d6c40cb6c73bb02fd2a45b0df5f",
+    "semantic_hash": ""
+  },
+  "D:\\Personal Project\\TaiXiuCaNhan\\src\\modules\\settings\\components\\AppLockTimeoutSettings.tsx": {
+    "mtime": 1785124377.3533065,
+    "ast_hash": "dc857ebe7796bed8ddbde84f4ccc9432",
+    "semantic_hash": ""
+  },
+  "D:\\Personal Project\\TaiXiuCaNhan\\src\\modules\\settings\\services\\app-lock-timeout-settings.service.test.ts": {
+    "mtime": 1785124515.413436,
+    "ast_hash": "47e1687d0fc7d346d4cdba056e94124b",
+    "semantic_hash": ""
+  },
+  "D:\\Personal Project\\TaiXiuCaNhan\\src\\modules\\settings\\services\\app-lock-timeout-settings.service.ts": {
+    "mtime": 1785124514.026237,
+    "ast_hash": "ee78375227d5f2ff44893b99af4aace7",
+    "semantic_hash": ""
+  },
+  "D:\\Personal Project\\TaiXiuCaNhan\\docs\\app-lock-android-qa.md": {
+    "mtime": 1785125483.382409,
+    "ast_hash": "9879cb2c723b4ce98db7129f3ae15606",
     "semantic_hash": ""
   }
 }

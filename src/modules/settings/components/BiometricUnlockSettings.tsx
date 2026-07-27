@@ -3,6 +3,7 @@ import { Fingerprint } from 'lucide-react';
 import { authService } from '@/core/auth/auth.service';
 import { useToast } from '@/shared/components/Toast/ToastContext';
 import { useLanguage } from '@/shared/context/LanguageContext';
+import { requireStepUpAuthentication } from '@/core/auth/step-up-authentication';
 
 export function BiometricUnlockSettings() {
   const toast = useToast();
@@ -46,6 +47,13 @@ export function BiometricUnlockSettings() {
     const nextEnabled = !enabled;
     setSaving(true);
     try {
+      if (!nextEnabled) {
+        const authentication = await requireStepUpAuthentication('CHANGE_BIOMETRIC_SETTINGS');
+        if (authentication !== 'SUCCESS') {
+          if (authentication !== 'CANCELLED') toast.error(t('app_lock.unlock_error'));
+          return;
+        }
+      }
       await authService.setBiometricUnlockEnabled(nextEnabled);
       setEnabled(nextEnabled);
       toast.success(nextEnabled ? t('settings.biometric_enabled') : t('settings.biometric_disabled'));

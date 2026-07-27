@@ -23,10 +23,18 @@ vi.mock('@capacitor/preferences', () => ({
   },
 }));
 
-function renderAppUnlock(onUnlocked = vi.fn()) {
+function renderAppUnlock(
+  onUnlocked = vi.fn(),
+  onAuthenticationStarted = vi.fn(),
+  onAuthenticationFailed = vi.fn(),
+) {
   return render(
     <LanguageProvider>
-      <AppUnlock onUnlocked={onUnlocked} />
+      <AppUnlock
+        onUnlocked={onUnlocked}
+        onAuthenticationStarted={onAuthenticationStarted}
+        onAuthenticationFailed={onAuthenticationFailed}
+      />
     </LanguageProvider>,
   );
 }
@@ -94,5 +102,49 @@ describe('AppUnlock', () => {
 
     expect(await screen.findByRole('heading', { name: 'Unlock data' })).toBeTruthy();
     expect(screen.queryByRole('button', { name: 'Forgot PIN?' })).toBeNull();
+  });
+
+  it('reports PIN authentication state without unlocking after a failed attempt', async () => {
+    const onUnlocked = vi.fn();
+    const onAuthenticationStarted = vi.fn();
+    const onAuthenticationFailed = vi.fn();
+    authServiceMock.hasStoredSecret.mockResolvedValue(true);
+    authServiceMock.unlockWithPin.mockRejectedValue(new Error('Invalid PIN'));
+    renderAppUnlock(onUnlocked, onAuthenticationStarted, onAuthenticationFailed);
+    expect(await screen.findByRole('heading', { name: 'Unlock data' })).toBeTruthy();
+
+    enterPin('123456');
+
+    await waitFor(() => {
+      expect(onAuthenticationStarted).toHaveBeenCalledTimes(1);
+      expect(onAuthenticationFailed).toHaveBeenCalledTimes(1);
+    });
+    expect(onUnlocked).not.toHaveBeenCalled();
+  });
+
+  it('does not restart automatic biometrics when the parent rerenders', async () => {
+    const onUnlocked = vi.fn();
+    const onAuthenticationStarted = vi.fn();
+    const onAuthenticationFailed = vi.fn();
+    authServiceMock.hasStoredSecret.mockResolvedValue(true);
+    authServiceMock.isBiometricUnlockEnabled.mockResolvedValue(true);
+    const view = renderAppUnlock(
+      onUnlocked,
+      onAuthenticationStarted,
+      onAuthenticationFailed,
+    );
+
+    await waitFor(() => expect(authServiceMock.unlockWithBiometrics).toHaveBeenCalledTimes(1));
+    view.rerender(
+      <LanguageProvider>
+        <AppUnlock
+          onUnlocked={onUnlocked}
+          onAuthenticationStarted={onAuthenticationStarted}
+          onAuthenticationFailed={onAuthenticationFailed}
+        />
+      </LanguageProvider>,
+    );
+
+    await waitFor(() => expect(authServiceMock.unlockWithBiometrics).toHaveBeenCalledTimes(1));
   });
 });

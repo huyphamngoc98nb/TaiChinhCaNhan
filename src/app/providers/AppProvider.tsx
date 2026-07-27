@@ -10,6 +10,7 @@ import { GlobalErrorBoundary } from './GlobalErrorBoundary';
 import { useKeyboardSafeFocus } from '@/shared/hooks/useKeyboardSafeFocus';
 import { AppUiPreferencesApplier } from '@/shared/components/AppUiPreferencesApplier';
 import { AppUpdateGate } from '@/modules/app-update/components/AppUpdateGate';
+import { StepUpAuthenticationProvider } from '@/core/auth/StepUpAuthenticationProvider';
 
 export function AppProvider() {
   useKeyboardSafeFocus();
@@ -22,10 +23,12 @@ export function AppProvider() {
           <CurrencyProvider>
             <ToastProvider>
               <ConfirmProvider>
-                <AppBootstrap>
-                  <AppUpdateGate />
-                  <RouterProvider router={router} />
-                </AppBootstrap>
+                <StepUpAuthenticationProvider>
+                  <AppBootstrap>
+                    <AppUpdateGate />
+                    <RouterProvider router={router} />
+                  </AppBootstrap>
+                </StepUpAuthenticationProvider>
               </ConfirmProvider>
             </ToastProvider>
           </CurrencyProvider>

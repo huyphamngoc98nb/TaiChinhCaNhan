@@ -3,9 +3,12 @@ import { FormEvent, useCallback, useEffect, useRef, useState } from 'react';
 import { Delete, Fingerprint, LockKeyhole } from 'lucide-react';
 import { authService } from '@/core/auth/auth.service';
 import { useLanguage } from '@/shared/context/LanguageContext';
+import { useSecureScreen } from '@/shared/hooks/useSecureScreen';
 
 interface AppUnlockProps {
   onUnlocked: () => void;
+  onAuthenticationStarted?: () => void;
+  onAuthenticationFailed?: () => void;
 }
 
 const PIN_MIN_LENGTH = 6;
@@ -17,7 +20,12 @@ const PIN_KEY_BUTTON_CLASS =
   'flex h-[84px] w-[84px] items-center justify-center rounded-2xl border-none bg-surface text-[25px] font-semibold text-text shadow-[0_6px_18px_var(--shadow-color)] outline-none ring-0 transition-[transform,background-color,box-shadow] duration-100 active:scale-[0.96] active:bg-surface-muted active:shadow-[0_3px_10px_var(--shadow-color)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 disabled:opacity-50 sm:h-[88px] sm:w-[88px]';
 type UnlockMode = 'loading' | 'setup' | 'confirm' | 'unlock';
 
-export function AppUnlock({ onUnlocked }: AppUnlockProps) {
+export function AppUnlock({
+  onUnlocked,
+  onAuthenticationStarted,
+  onAuthenticationFailed,
+}: AppUnlockProps) {
+  useSecureScreen();
   const { t } = useLanguage();
   const [pin, setPin] = useState('');
   const [firstPin, setFirstPin] = useState('');
@@ -103,16 +111,20 @@ export function AppUnlock({ onUnlocked }: AppUnlockProps) {
   }, [removePinDigit]);
 
   const unlockFromBiometrics = useCallback(async () => {
+    onAuthenticationStarted?.();
     try {
       const result = await authService.unlockWithBiometrics();
       if (result?.authenticated) {
         setPin('');
         onUnlocked();
+      } else {
+        onAuthenticationFailed?.();
       }
     } catch {
+      onAuthenticationFailed?.();
       // PIN remains available when biometric auth is canceled, unavailable, or not set up.
     }
-  }, [onUnlocked]);
+  }, [onAuthenticationFailed, onAuthenticationStarted, onUnlocked]);
 
   const submitPin = useCallback(async () => {
     if (!canSubmit || inputLocked || mode === 'loading') return;
@@ -127,6 +139,7 @@ export function AppUnlock({ onUnlocked }: AppUnlockProps) {
 
     setSubmitting(true);
     setError(null);
+    if (mode === 'unlock') onAuthenticationStarted?.();
 
     try {
       if (mode === 'confirm') {
@@ -144,11 +157,23 @@ export function AppUnlock({ onUnlocked }: AppUnlockProps) {
       setFirstPin('');
       onUnlocked();
     } catch {
+      if (mode === 'unlock') onAuthenticationFailed?.();
       showPinError(mode === 'unlock' ? t('app_lock.invalid_pin') : t('app_lock.setup_failed'));
     } finally {
       setSubmitting(false);
     }
-  }, [canSubmit, firstPin, inputLocked, mode, onUnlocked, pin, showPinError, t]);
+  }, [
+    canSubmit,
+    firstPin,
+    inputLocked,
+    mode,
+    onAuthenticationFailed,
+    onAuthenticationStarted,
+    onUnlocked,
+    pin,
+    showPinError,
+    t,
+  ]);
 
   useEffect(() => {
     let isMounted = true;

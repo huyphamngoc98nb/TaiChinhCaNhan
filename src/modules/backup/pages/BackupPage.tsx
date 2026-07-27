@@ -5,7 +5,6 @@ import { BackButton } from '@/shared/components/BackButton';
 import { useToast } from '@/shared/components/Toast/ToastContext';
 import { useConfirm } from '@/shared/components/ConfirmDialog/ConfirmContext';
 import { useLanguage } from '@/shared/context/LanguageContext';
-import { forceAppUnlock, resumeAppLock, suspendAppLock } from '@/app/providers/app-lock-events';
 import { ROUTES } from '@/shared/constants/routes';
 import { logAppError } from '@/core/telemetry/error.service';
 import { exportBackupJson } from '../services/export-backup-json';
@@ -29,10 +28,12 @@ import {
 } from '../services/auto-backup.service';
 import { isSecureSecretStoreAvailable } from '@/core/security/secure-secret-store';
 import type { BackupRetentionSettings } from '../domain/backup-file.model';
+import { useSecureScreen } from '@/shared/hooks/useSecureScreen';
 import {
   getAutoBackupRetentionSettings,
   updateAutoBackupRetentionSettings,
 } from '../services/backup-retention.service';
+import { requireStepUpAuthentication } from '@/core/auth/step-up-authentication';
 
 function formatLastRunAt(timestamp: number | null, locale: string, fallback: string) {
   if (!timestamp) return fallback;
@@ -62,6 +63,7 @@ function backupFileMetadata(file: File | null) {
 }
 
 export function BackupPage() {
+  useSecureScreen();
   const navigate = useNavigate();
   const { success: showSuccessToast, error: showErrorToast } = useToast();
   const { confirm } = useConfirm();
@@ -130,7 +132,6 @@ export function BackupPage() {
 
     return () => {
       mounted = false;
-      resumeAppLock();
     };
   }, [showErrorToast, showSuccessToast, t]);
 
@@ -273,6 +274,12 @@ export function BackupPage() {
     });
     if (!ok) return;
 
+    const authentication = await requireStepUpAuthentication('EXPORT_DATA');
+    if (authentication !== 'SUCCESS') {
+      if (authentication !== 'CANCELLED') showErrorToast(t('app_lock.unlock_error'));
+      return;
+    }
+
     setLoading(true);
     try {
       const payload = await exportBackupJson();
@@ -284,7 +291,6 @@ export function BackupPage() {
 
       if (saved) {
         showSuccessToast(t('backup.export_success'));
-        forceAppUnlock();
         navigate(ROUTES.HOME, { replace: true });
       }
     } catch (error: unknown) {
@@ -297,25 +303,8 @@ export function BackupPage() {
   const handleSelectBackupFile = async () => {
     if (loading) return;
 
-    suspendAppLock();
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
-      window.addEventListener(
-        'focus',
-        () => {
-          window.setTimeout(() => {
-            if (
-              !restoreInProgressRef.current &&
-              !pendingImport &&
-              !pendingEncryptedImport &&
-              !fileInputRef.current?.files?.length
-            ) {
-              resumeAppLock();
-            }
-          }, 1000);
-        },
-        { once: true },
-      );
       fileInputRef.current.click();
     }
   };
@@ -325,7 +314,6 @@ export function BackupPage() {
     let awaitingPassword = false;
     let preparedForPreview = false;
     if (!file) {
-      resumeAppLock();
       return;
     }
 
@@ -353,7 +341,6 @@ export function BackupPage() {
       });
       showErrorToast(userMessage);
       event.target.value = ''; // Reset input
-      resumeAppLock();
     } finally {
       setLoading(false);
       if (!awaitingPassword && !preparedForPreview && !fileInputRef.current?.files?.length) {
@@ -393,7 +380,6 @@ export function BackupPage() {
     if (loading) return;
     setPendingEncryptedImport(null);
     restoreInProgressRef.current = false;
-    resumeAppLock();
   };
 
   const handleConfirmImport = async () => {
@@ -407,13 +393,18 @@ export function BackupPage() {
     });
     if (!ok) return;
 
+    const authentication = await requireStepUpAuthentication('RESTORE_DATA');
+    if (authentication !== 'SUCCESS') {
+      if (authentication !== 'CANCELLED') showErrorToast(t('app_lock.unlock_error'));
+      return;
+    }
+
     setLoading(true);
     try {
       await importPreparedBackup(pendingImport);
       setPendingImport(null);
       restoreInProgressRef.current = false;
       showSuccessToast(t('backup.restore_success'));
-      forceAppUnlock();
       navigate(ROUTES.HOME, { replace: true });
     } catch (error: unknown) {
       const userMessage = `${t('backup.restore_failed')} ${errorMessage(error)}`;
@@ -429,7 +420,6 @@ export function BackupPage() {
         },
       });
       showErrorToast(userMessage);
-      resumeAppLock();
     } finally {
       setLoading(false);
     }
@@ -439,7 +429,6 @@ export function BackupPage() {
     if (loading) return;
     setPendingImport(null);
     restoreInProgressRef.current = false;
-    resumeAppLock();
   };
 
   const intervalOptions: Array<{ value: AutoBackupInterval; label: string }> = [

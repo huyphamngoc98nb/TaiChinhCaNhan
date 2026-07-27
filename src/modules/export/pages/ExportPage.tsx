@@ -15,6 +15,7 @@ import { useLanguage } from '@/shared/context/LanguageContext';
 import { useCurrency } from '@/shared/context/CurrencyContext';
 import { getAppLocale } from '@/shared/utils/locale';
 import { ROUTES } from '@/shared/constants/routes';
+import { requireStepUpAuthentication } from '@/core/auth/step-up-authentication';
 
 export function ExportPage() {
   const navigate = useNavigate();
@@ -35,6 +36,12 @@ export function ExportPage() {
   });
 
   const handleExport = async (format: 'pdf' | 'csv') => {
+    const authentication = await requireStepUpAuthentication('EXPORT_DATA');
+    if (authentication !== 'SUCCESS') {
+      if (authentication !== 'CANCELLED') toast.error(t('app_lock.unlock_error'));
+      return;
+    }
+
     setLoading(true);
     try {
       const range = {

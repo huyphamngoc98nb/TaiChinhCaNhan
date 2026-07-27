@@ -1,4 +1,4 @@
-import { ReactNode, useCallback, useEffect, useRef, useState } from 'react';
+import { ReactNode, useCallback, useEffect, useReducer, useRef, useState } from 'react';
 import { App as CapacitorApp } from '@capacitor/app';
 import { Capacitor } from '@capacitor/core';
 import { LoadingScreen } from '@/shared/components/LoadingScreen';
@@ -18,18 +18,18 @@ import { useWebPersistWarning } from '@/core/db/sqlite/use-web-persist-warning';
 import { useToast } from '@/shared/components/Toast/ToastContext';
 import { useLanguage } from '@/shared/context/LanguageContext';
 import { AppUnlock } from './AppUnlock';
-import {
-  APP_LOCK_FORCE_UNLOCK_EVENT,
-  APP_LOCK_RESUME_EVENT,
-  APP_LOCK_SUSPEND_EVENT,
-} from './app-lock-events';
+import { createInitialAppLockState, reduceAppLockState } from './app-lock-state';
+import { appLockClock } from './app-lock-clock';
+import { BackgroundTimeoutTracker } from './app-lock-timeout';
+import { deviceLock } from './device-lock';
+import { PrivacyShield } from './PrivacyShield';
+import { privacyShield } from './privacy-shield';
+import { invalidateStepUpAuthentication } from '@/core/auth/step-up-authentication';
+import { getAppLockTimeoutMs } from '@/modules/settings/services/app-lock-timeout-settings.service';
 
 interface AppBootstrapProps {
   children: ReactNode;
 }
-
-const MOBILE_IDLE_LOCK_TIMEOUT_MS = 2 * 60 * 1000;
-const ACTIVITY_EVENTS = ['pointerdown', 'touchstart', 'keydown', 'input', 'scroll'] as const;
 
 let globalInitPromise: Promise<void> | null = null;
 let hasStartedLegacyReceiptCleanup = false;
@@ -52,12 +52,20 @@ function startLegacyReceiptCleanup() {
 }
 
 export function AppBootstrap({ children }: AppBootstrapProps) {
-  const [isUnlocked, setIsUnlocked] = useState(() => !authService.requiresUnlock());
+  const [appLockState, dispatchAppLock] = useReducer(
+    reduceAppLockState,
+    authService.requiresUnlock(),
+    createInitialAppLockState,
+  );
   const [isReady, setIsReady] = useState(false);
   const [error, setError] = useState<Error | null>(null);
-  const idleTimerRef = useRef<number | null>(null);
-  const isUnlockedRef = useRef(isUnlocked);
-  const appLockSuspendedRef = useRef(false);
+  const [isPrivacyShieldVisible, setIsPrivacyShieldVisible] = useState(false);
+  const timeoutTrackerRef = useRef(new BackgroundTimeoutTracker(appLockClock));
+  const lifecycleQueueRef = useRef(Promise.resolve());
+  const isUnlocked =
+    appLockState === 'UNLOCKED_FOREGROUND' || appLockState === 'UNLOCKED_BACKGROUND';
+  const requiresAuthentication =
+    appLockState === 'LOCK_REQUIRED' || appLockState === 'AUTHENTICATING';
 
   const { showToast } = useToast();
   const { t } = useLanguage();
@@ -69,70 +77,36 @@ export function AppBootstrap({ children }: AppBootstrapProps) {
 
   useWebPersistWarning(handlePersistFail);
 
-  useEffect(() => {
-    isUnlockedRef.current = isUnlocked;
-  }, [isUnlocked]);
-
-  const clearIdleTimer = useCallback(() => {
-    if (idleTimerRef.current) {
-      window.clearTimeout(idleTimerRef.current);
-      idleTimerRef.current = null;
-    }
-  }, []);
-
   const triggerAutoBackupCheck = useCallback(() => {
     void runAutoBackupIfDue();
   }, []);
 
-  const lockApp = useCallback(() => {
-    if (!authService.requiresUnlock() || appLockSuspendedRef.current || !isUnlockedRef.current) return;
-    clearIdleTimer();
-    setIsReady(false);
-    setIsUnlocked(false);
-  }, [clearIdleTimer]);
+  const handleAuthenticationStarted = useCallback(() => {
+    dispatchAppLock({ type: 'AUTHENTICATION_STARTED' });
+  }, []);
 
-  const resetIdleTimer = useCallback(() => {
-    if (
-      !authService.requiresUnlock() ||
-      appLockSuspendedRef.current ||
-      Capacitor.getPlatform() === 'web' ||
-      !isUnlockedRef.current
-    ) {
-      clearIdleTimer();
-      return;
-    }
+  const handleAuthenticationFailed = useCallback(() => {
+    dispatchAppLock({ type: 'AUTHENTICATION_FAILED' });
+  }, []);
 
-    clearIdleTimer();
-    idleTimerRef.current = window.setTimeout(lockApp, MOBILE_IDLE_LOCK_TIMEOUT_MS);
-  }, [clearIdleTimer, lockApp]);
+  const handleUnlocked = useCallback(() => {
+    void (async () => {
+      timeoutTrackerRef.current.reset();
+      await deviceLock.clearSignal();
+      dispatchAppLock({ type: 'AUTHENTICATION_SUCCEEDED' });
+    })();
+  }, []);
 
   useEffect(() => {
-    const suspendAppLock = () => {
-      appLockSuspendedRef.current = true;
-      clearIdleTimer();
-    };
-    const resumeAppLock = () => {
-      appLockSuspendedRef.current = false;
-      resetIdleTimer();
-    };
-    const forceUnlock = () => {
-      appLockSuspendedRef.current = false;
-      setIsUnlocked(true);
-    };
+    if (!requiresAuthentication || !isPrivacyShieldVisible) return;
 
-    window.addEventListener(APP_LOCK_SUSPEND_EVENT, suspendAppLock);
-    window.addEventListener(APP_LOCK_RESUME_EVENT, resumeAppLock);
-    window.addEventListener(APP_LOCK_FORCE_UNLOCK_EVENT, forceUnlock);
-
-    return () => {
-      window.removeEventListener(APP_LOCK_SUSPEND_EVENT, suspendAppLock);
-      window.removeEventListener(APP_LOCK_RESUME_EVENT, resumeAppLock);
-      window.removeEventListener(APP_LOCK_FORCE_UNLOCK_EVENT, forceUnlock);
-    };
-  }, [clearIdleTimer, resetIdleTimer]);
+    void privacyShield.hide().finally(() => {
+      setIsPrivacyShieldVisible(false);
+    });
+  }, [isPrivacyShieldVisible, requiresAuthentication]);
 
   useEffect(() => {
-    if (!isUnlocked) return;
+    if (!isUnlocked || isReady) return;
 
     let isMounted = true;
 
@@ -177,24 +151,54 @@ export function AppBootstrap({ children }: AppBootstrapProps) {
     return () => {
       isMounted = false;
     };
-  }, [isUnlocked, triggerAutoBackupCheck]);
+  }, [isReady, isUnlocked, triggerAutoBackupCheck]);
 
   useEffect(() => {
-    if (!isReady || !isUnlocked) return;
-
     let removeAppStateListener: (() => Promise<void>) | undefined;
     const listenerOptions: AddEventListenerOptions = { capture: true, passive: true };
+
+    const queueLifecycleChange = (isActive: boolean) => {
+      lifecycleQueueRef.current = lifecycleQueueRef.current.then(async () => {
+        if (!isActive) {
+          invalidateStepUpAuthentication();
+          setIsPrivacyShieldVisible(true);
+          dispatchAppLock({ type: 'APP_MOVED_TO_BACKGROUND' });
+          const timeoutMs = await getAppLockTimeoutMs();
+          // Capacitor can report inactive for a system dialog or native activity.
+          // Only a hidden WebView starts a real background timeout interval.
+          if (document.hidden) {
+            await timeoutTrackerRef.current.recordBackgroundStarted(timeoutMs);
+          }
+          return;
+        }
+
+        const deviceWasLocked = await deviceLock.consumeSignal();
+        if (deviceWasLocked) {
+          timeoutTrackerRef.current.reset();
+          dispatchAppLock({ type: 'DEVICE_LOCK_DETECTED' });
+          return;
+        }
+
+        const shouldLock = await timeoutTrackerRef.current.consumeForegroundLockRequirement();
+        if (shouldLock) {
+          dispatchAppLock({ type: 'BACKGROUND_TIMEOUT_EXPIRED' });
+          return;
+        }
+
+        dispatchAppLock({ type: 'APP_MOVED_TO_FOREGROUND' });
+        await privacyShield.hide();
+        setIsPrivacyShieldVisible(false);
+        if (isReady && isUnlocked) triggerAutoBackupCheck();
+      });
+    };
+
     const handleVisibilityChange = () => {
-      if (!document.hidden) {
-        triggerAutoBackupCheck();
-      }
+      queueLifecycleChange(!document.hidden);
     };
 
     async function registerAppStateListener() {
       const listener = await CapacitorApp.addListener('appStateChange', ({ isActive }) => {
-        if (isActive) {
-          triggerAutoBackupCheck();
-        }
+        queueLifecycleChange(isActive);
       });
 
       removeAppStateListener = () => listener.remove();
@@ -210,52 +214,6 @@ export function AppBootstrap({ children }: AppBootstrapProps) {
       }
     };
   }, [isReady, isUnlocked, triggerAutoBackupCheck]);
-
-  useEffect(() => {
-    if (!authService.requiresUnlock() || Capacitor.getPlatform() === 'web') return;
-
-    let removeAppStateListener: (() => Promise<void>) | undefined;
-    const activityListenerOptions: AddEventListenerOptions = { capture: true, passive: true };
-    const handleVisibilityChange = () => {
-      if (document.hidden) {
-        lockApp();
-        return;
-      }
-
-      resetIdleTimer();
-    };
-
-    async function registerAppStateListener() {
-      const listener = await CapacitorApp.addListener('appStateChange', ({ isActive }) => {
-        if (!isActive) {
-          lockApp();
-          return;
-        }
-
-        resetIdleTimer();
-      });
-
-      removeAppStateListener = () => listener.remove();
-    }
-
-    ACTIVITY_EVENTS.forEach((eventName) => {
-      window.addEventListener(eventName, resetIdleTimer, activityListenerOptions);
-    });
-    document.addEventListener('visibilitychange', handleVisibilityChange, activityListenerOptions);
-    resetIdleTimer();
-    void registerAppStateListener();
-
-    return () => {
-      clearIdleTimer();
-      ACTIVITY_EVENTS.forEach((eventName) => {
-        window.removeEventListener(eventName, resetIdleTimer, activityListenerOptions);
-      });
-      document.removeEventListener('visibilitychange', handleVisibilityChange, activityListenerOptions);
-      if (removeAppStateListener) {
-        void removeAppStateListener();
-      }
-    };
-  }, [clearIdleTimer, lockApp, resetIdleTimer]);
 
   if (error) {
     void error;
@@ -276,13 +234,36 @@ export function AppBootstrap({ children }: AppBootstrapProps) {
     );
   }
 
-  if (!isUnlocked) {
-    return <AppUnlock onUnlocked={() => setIsUnlocked(true)} />;
+  const unlockScreen = (
+    <AppUnlock
+      onUnlocked={handleUnlocked}
+      onAuthenticationStarted={handleAuthenticationStarted}
+      onAuthenticationFailed={handleAuthenticationFailed}
+    />
+  );
+
+  if (requiresAuthentication && !isReady) {
+    return unlockScreen;
   }
 
   if (!isReady) {
     return <LoadingScreen />;
   }
 
-  return <>{children}</>;
+  if (requiresAuthentication) {
+    return (
+      <>
+        {children}
+        <div className="fixed inset-0 z-[100] bg-bg">{unlockScreen}</div>
+        {isPrivacyShieldVisible && <PrivacyShield />}
+      </>
+    );
+  }
+
+  return (
+    <>
+      {children}
+      {isPrivacyShieldVisible && <PrivacyShield />}
+    </>
+  );
 }
