@@ -1,12 +1,12 @@
 {
   "platform": "android",
-  "versionName": "0.1.36",
-  "versionCode": 136,
+  "versionName": "0.1.37",
+  "versionCode": 137,
   "minSupportedVersionCode": 100,
   "mandatory": false,
-  "apkUrl": "https://github.com/huyphamngoc98nb/TaiChinhCaNhan/releases/download/v0.1.36/TaiChinhCaNhan-v0.1.36.apk",
-  "sha256": "9659c32d1147d304e586faa62685ea6e3f43e5d1cc3e1080831061144d9754b8",
-  "releaseDate": "2026-07-16",
+  "apkUrl": "https://github.com/huyphamngoc98nb/TaiChinhCaNhan/releases/download/v0.1.37/TaiChinhCaNhan-v0.1.37.apk",
+  "sha256": "d3331a437f34f58b86dc4b71a525fc7fcad0d2f33f8eee259a3b7f3f05ebdc22",
+  "releaseDate": "2026-07-27",
   "releaseNotesVersion": 2,
   "releaseSummary": "Bản cập nhật này siết chặt quy trình Android Release để mọi bản phát hành luôn kèm ghi chú thay đổi chi tiết đã được commit cùng mã nguồn.",
   "releaseNoteSections": [
@@ -36,6 +36,7 @@
     }
   ],
   "releaseNotes": [
+    "Các giao dịch được tạo từ chức năng vay nợ hiện mặc định không được tính vào tổng thu chi. Giao dịch vẫn hiển thị trong lịch sử và người dùng có thể thay đổi lựa chọn này trước khi lưu.",
     "Cải thiện: Bắt buộc kiểm tra `RELEASE_NOTES.md`, version heading, phần tóm tắt và bullet thay đổi trước khi build Android.",
     "Cải thiện: Dùng cùng một file release notes đã commit để tạo GitHub Release và metadata cập nhật trong `latest.json`.",
     "Sửa lỗi: Loại bỏ fallback `Android release vX.Y.Z` để workflow không thể publish release thiếu nội dung thay đổi thực tế.",
