@@ -1,4 +1,4 @@
-# v0.1.36
+# v0.1.37
 
 ## Cập nhật vay nợ
 - Các giao dịch được tạo từ chức năng vay nợ hiện mặc định không được tính vào tổng thu chi. Giao dịch vẫn hiển thị trong lịch sử và người dùng có thể thay đổi lựa chọn này trước khi lưu.
