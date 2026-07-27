@@ -1,6 +1,9 @@
 # v0.1.38
 
-## App Lock
+## Tóm tắt
+Bản cập nhật hoàn thiện cơ chế App Lock trên Android, bảo vệ dữ liệu tài chính khi ứng dụng ở nền và cho phép người dùng tùy chỉnh thời gian tự động khóa mà vẫn giữ nguyên màn hình đang thao tác.
+
+## Bảo mật
 - Hoàn thiện App Lock qua kiểm thử tích hợp: loại bỏ đường mở khóa cưỡng bức và listener cũ, không tính system dialog/file picker là thời gian background, hủy xác thực thao tác nhạy cảm khi ứng dụng rời foreground và ngăn sinh trắc học bật lặp do render lại.
 - Có thể chọn thời gian tự động khóa trong phần Bảo mật: ngay lập tức, 30 giây, 1/2/5/15 phút hoặc không tự động khóa. Mặc định vẫn là 2 phút; khóa thiết bị luôn yêu cầu mở khóa lại bất kể lựa chọn này.
 - Thêm xác thực tăng cường trước khi xuất dữ liệu, khôi phục ghi đè, xóa toàn bộ dữ liệu và tắt mở khóa sinh trắc học. Xác thực ưu tiên sinh trắc học, cho phép dùng PIN dự phòng, chỉ được tái sử dụng trong 5 phút của cùng phiên foreground; khôi phục, xóa dữ liệu và đổi PIN luôn yêu cầu xác thực mới.
