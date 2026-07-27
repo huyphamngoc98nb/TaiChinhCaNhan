@@ -213,6 +213,7 @@ export function BudgetSettingsPage() {
         isOpen={editForm.isOpen}
         onClose={editForm.close}
         onExited={editForm.resetAfterClose}
+        fullScreenOnAndroid
         transitionKey={editForm.selectedCategory?.category_id ?? 'edit-budget'}
         title={t('budgets.save_budget')}
         logContext="BudgetEditForm"

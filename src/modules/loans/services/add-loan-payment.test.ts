@@ -177,10 +177,27 @@ describe('addLoanPayment', () => {
       source_type: 'loan_payment',
       source_id: 'payment-id',
       source_event: 'payment',
+      exclude_from_total: true,
     }));
     await expect(walletRepo.getById(wallet.id)).resolves.toMatchObject({
       balance: 250_000,
     });
+  });
+
+  it('preserves an explicit choice to include a loan payment in totals', async () => {
+    const { deps, transactionCreate } = makeDeps('lend');
+
+    await addLoanPayment({
+      loan_id: 'loan-1',
+      wallet_id: wallet.id,
+      amount: 250_000,
+      payment_date: 1_000,
+      exclude_from_total: false,
+    }, deps);
+
+    expect(transactionCreate).toHaveBeenCalledWith(expect.objectContaining({
+      exclude_from_total: false,
+    }));
   });
 
   it('should credit wallet when collecting debt (lend loan payment)', async () => {

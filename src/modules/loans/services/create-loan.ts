@@ -113,6 +113,7 @@ export function msToLocalDate(timestamp: number): string {
 export async function createLoan(input: CreateLoanInput, deps: CreateLoanDeps): Promise<Loan> {
   validateCreateLoan(input);
   const skipTransaction = input.skip_transaction ?? false;
+  const excludeFromTotal = input.exclude_from_total ?? true;
 
   let categoryId: string | null = null;
   const walletId: string | null = input.wallet_id ?? null;
@@ -166,6 +167,7 @@ export async function createLoan(input: CreateLoanInput, deps: CreateLoanDeps): 
         source_type: 'loan',
         source_id: loanId,
         source_event: 'opening',
+        exclude_from_total: excludeFromTotal,
         created_at: now,
         updated_at: now,
       });

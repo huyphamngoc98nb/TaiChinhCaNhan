@@ -55,6 +55,23 @@ describe('LoanForm', () => {
     }));
   });
 
+  it('excludes a new loan transaction by default and preserves an explicit opt-in', async () => {
+    const onSubmit = vi.fn().mockResolvedValue(undefined);
+    const { container } = renderLoanForm(<LoanForm onSubmit={onSubmit} loading={false} />);
+
+    await fillRequiredFields();
+    const excludeFromTotal = screen.getByRole('checkbox', { name: /tổng thu chi/i });
+    expect((excludeFromTotal as HTMLInputElement).checked).toBe(true);
+
+    fireEvent.click(excludeFromTotal);
+    fireEvent.submit(container.querySelector('form') as HTMLFormElement);
+
+    await waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(1));
+    expect(onSubmit).toHaveBeenCalledWith(expect.objectContaining({
+      exclude_from_total: false,
+    }));
+  });
+
   it('shows the corresponding loan date label and submits the selected date', async () => {
     const onSubmit = vi.fn().mockResolvedValue(undefined);
     const { container } = renderLoanForm(<LoanForm onSubmit={onSubmit} loading={false} />);

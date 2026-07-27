@@ -22,3 +22,24 @@ Rules:
 - Prefer command-line checks that run in the local development environment, such as unit tests, type checks, lint, or targeted npm scripts.
 - Unless a higher-priority instruction explicitly requires it, do not commit changes and do not create GitHub pull requests automatically.
 - Focus on editing code and reporting the commands that were run.
+
+## Release Notes Policy
+
+Every change that affects application behavior, user interface, data, reports, APIs, or how users use a feature must update the repository's existing release notes in the same change set.
+
+Before completing a task, coding agents must:
+
+1. Find the repository's existing release-notes mechanism.
+2. Add the user-facing change to the current release section or equivalent location.
+3. Use the repository's existing language, format, and categories.
+4. Do not create a second release-notes mechanism.
+5. If release notes are not needed, state the reason in the final summary.
+
+## Completion Checklist
+
+- [ ] Checked the impact scope of the change.
+- [ ] Added or updated relevant tests.
+- [ ] Ran appropriate lint, type checks, tests, and build.
+- [ ] Updated Release Notes.
+- [ ] Confirmed there are no unrelated changes.
+- [ ] Summarized changed files and verification results.

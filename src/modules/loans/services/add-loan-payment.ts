@@ -45,6 +45,7 @@ export async function addLoanPayment(
   deps: AddLoanPaymentDeps
 ): Promise<LoanPayment> {
   validateCreateLoanPayment(input);
+  const excludeFromTotal = input.exclude_from_total ?? true;
 
   const loan = await deps.loanRepo.getLoanById(input.loan_id);
   if (!loan) throw new Error(defaultText('loans.errors.notFound'));
@@ -98,6 +99,7 @@ export async function addLoanPayment(
       source_type: 'loan_payment',
       source_id: paymentId,
       source_event: 'payment',
+      exclude_from_total: excludeFromTotal,
       created_at: now,
       updated_at: now,
     });

@@ -297,6 +297,7 @@ describe('updateLoan', () => {
       source_type: 'loan',
       source_id: 'loan-1',
       source_event: 'opening',
+      exclude_from_total: true,
     }));
     expect(walletUpdateBalanceDelta).toHaveBeenCalledWith(wallet.id, -1_000_000, 789);
     expect(loanUpdateLoan).toHaveBeenCalledWith('loan-1', expect.objectContaining({

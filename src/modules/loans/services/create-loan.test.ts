@@ -193,8 +193,19 @@ describe('createLoan', () => {
         category_id: 'cat-cho-vay',
         type: 'expense',
         amount: 1_000_000,
+        exclude_from_total: true,
       }),
     );
+  });
+
+  it('preserves an explicit choice to include the opening transaction in totals', async () => {
+    const { deps, transactionCreate } = makeDeps();
+
+    await createLoan({ ...baseInput('lend'), exclude_from_total: false }, deps);
+
+    expect(transactionCreate).toHaveBeenCalledWith(expect.objectContaining({
+      exclude_from_total: false,
+    }));
   });
 
   it('uses loan_date for the linked transaction date', async () => {

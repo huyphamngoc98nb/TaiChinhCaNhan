@@ -7,6 +7,7 @@ export interface Loan {
   wallet_id: string | null;
   skip_transaction: boolean;
   linked_transaction_id?: string | null;
+  exclude_from_total?: boolean;
   type: LoanType;
   contact_name: string;
   contact_info: string | null;
@@ -40,6 +41,7 @@ export interface CreateLoanInput {
   wallet_id?: string | null;
   skip_transaction?: boolean;
   linked_transaction_id?: string | null;
+  exclude_from_total?: boolean;
   type: LoanType;
   contact_name: string;
   contact_info?: string;
@@ -57,6 +59,7 @@ export interface CreateLoanPaymentInput {
   amount: number;
   payment_date: number;
   note?: string;
+  exclude_from_total?: boolean;
 }
 
 export interface LoanFilter {

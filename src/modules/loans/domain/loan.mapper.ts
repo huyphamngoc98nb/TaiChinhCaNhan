@@ -21,6 +21,7 @@ export function mapToLoan(row: unknown[]): Loan {
     updated_at: Number(row[10]),
     deleted_at: row[11] == null ? null : Number(row[11]),
     loan_date: (row[14] as string | null) ?? null,
+    exclude_from_total: row[15] == null ? undefined : mapBooleanFlag(row[15]),
   };
 }
 
@@ -38,12 +39,12 @@ export function mapToLoanPayment(row: unknown[]): LoanPayment {
 
 export function mapToLoanWithSummary(row: unknown[]): LoanWithSummary {
   const loan = mapToLoan(row);
-  const walletName = row[17] as string | null | undefined;
+  const walletName = row[18] as string | null | undefined;
 
   return {
     ...loan,
-    paid_amount: Number(row[15] ?? 0),
-    remaining: Number(row[16] ?? 0),
+    paid_amount: Number(row[16] ?? 0),
+    remaining: Number(row[17] ?? 0),
     ...(walletName == null ? {} : { wallet_name: walletName }),
   };
 }

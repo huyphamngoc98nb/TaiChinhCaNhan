@@ -47,6 +47,7 @@ export function LoanForm({
   const { t } = useLanguage();
   const { wallets, loading: walletsLoading } = useWallets();
   const skipTransactionId = useId();
+  const excludeFromTotalId = useId();
   const [type, setType] = useState<LoanType>(initialLoan?.type ?? 'lend');
   const [contactName, setContactName] = useState(initialLoan?.contact_name ?? '');
   const [contactInfo, setContactInfo] = useState(initialLoan?.contact_info ?? '');
@@ -59,6 +60,9 @@ export function LoanForm({
   const [dueDate, setDueDate] = useState(() => dateStringToTimestamp(initialLoan?.due_date));
   const [note, setNote] = useState(initialLoan?.note ?? '');
   const [skipTransaction, setSkipTransaction] = useState(initialLoan?.skip_transaction ?? false);
+  const [excludeFromTotal, setExcludeFromTotal] = useState(
+    initialLoan?.exclude_from_total ?? true
+  );
   const [error, setError] = useState<string | null>(null);
   const TYPE_OPTIONS = useMemo(() => [
     { id: 'lend' as LoanType, label: t('loans.form.typeLabel.lend'), activeClass: 'bg-amber-500 text-white' },
@@ -101,6 +105,7 @@ export function LoanForm({
       await onSubmit({
         wallet_id: skipTransaction ? null : walletId,
         skip_transaction: skipTransaction,
+        exclude_from_total: excludeFromTotal,
         type,
         contact_name: contactName.trim(),
         contact_info: contactInfo.trim() || undefined,
@@ -216,6 +221,29 @@ export function LoanForm({
       </div>
 
       <div className="space-y-2">
+        {!skipTransaction && (
+          <label
+            htmlFor={excludeFromTotalId}
+            className="flex cursor-pointer select-none items-start gap-3 rounded-[12px] border border-gray-200 bg-gray-50 px-4 py-3"
+          >
+            <input
+              id={excludeFromTotalId}
+              type="checkbox"
+              aria-label={t('loans.form.excludeFromTotalAria')}
+              checked={excludeFromTotal}
+              onChange={(event) => setExcludeFromTotal(event.target.checked)}
+              className="mt-0.5 h-5 w-5 cursor-pointer rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+            />
+            <span className="min-w-0 flex-1">
+              <span className="block text-[13px] font-bold text-gray-800">
+                {t('loans.form.excludeFromTotal')}
+              </span>
+              <span className="mt-0.5 block text-[12px] font-medium text-gray-500">
+                {t('loans.form.excludeFromTotalSub')}
+              </span>
+            </span>
+          </label>
+        )}
         <label
           htmlFor={skipTransactionId}
           className="flex cursor-pointer select-none items-start gap-3 rounded-[12px] border border-gray-200 bg-gray-50 px-4 py-3"

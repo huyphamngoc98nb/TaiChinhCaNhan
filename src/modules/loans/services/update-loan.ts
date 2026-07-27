@@ -49,6 +49,7 @@ export async function updateLoan(
 
     const wasSkipping = existingLoan.skip_transaction === true;
     const willSkip = input.skip_transaction ?? wasSkipping;
+    const excludeFromTotal = input.exclude_from_total ?? true;
     const isOpeningTransition = wasSkipping && !willSkip;
     if (isOpeningTransition && existingLoan.status !== 'active') {
       throw new Error(defaultText('loans.errors.inactive'));
@@ -116,6 +117,7 @@ export async function updateLoan(
         source_type: 'loan',
         source_id: existingLoan.id,
         source_event: 'opening',
+        exclude_from_total: excludeFromTotal,
         created_at: now,
         updated_at: now,
       });
@@ -149,6 +151,11 @@ export async function updateLoan(
         ));
       }
       linkedTransactionId = openingTransaction.id;
+    } else if (linkedTransactionId && input.exclude_from_total !== undefined) {
+      await deps.transactionRepo.update(linkedTransactionId, {
+        exclude_from_total: input.exclude_from_total,
+        updated_at: now,
+      });
     }
 
     const loan = await deps.loanRepo.updateLoan(id, {

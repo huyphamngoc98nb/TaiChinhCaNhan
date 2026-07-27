@@ -1,4 +1,4 @@
-import { FormEvent, useEffect, useMemo, useState } from 'react';
+import { FormEvent, useEffect, useId, useMemo, useState } from 'react';
 import { CurrencyAmountInput } from '@/shared/components/CurrencyAmountInput';
 import { DateTimePicker } from '@/shared/components/DateTimePicker';
 import { DropdownList } from '@/shared/components/DropdownList';
@@ -31,10 +31,12 @@ export function PaymentForm({ loan, onSubmit, loading }: PaymentFormProps) {
   const { t } = useLanguage();
   const { showAmounts } = useAmountVisibility();
   const { wallets, loading: walletsLoading } = useWallets();
+  const excludeFromTotalId = useId();
   const [walletId, setWalletId] = useState(loan.wallet_id ?? '');
   const [amount, setAmount] = useState('');
   const [paymentDate, setPaymentDate] = useState<number | null>(() => startOfLocalDay(Date.now()));
   const [note, setNote] = useState('');
+  const [excludeFromTotal, setExcludeFromTotal] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -70,6 +72,7 @@ export function PaymentForm({ loan, onSubmit, loading }: PaymentFormProps) {
         amount: numericAmount,
         payment_date: startOfLocalDay(paymentDate),
         note: note.trim() || undefined,
+        exclude_from_total: excludeFromTotal,
       });
     } catch (err) {
       setError(err instanceof Error ? err.message : t('loans.payment.errorSaveFailed'));
@@ -133,6 +136,28 @@ export function PaymentForm({ loan, onSubmit, loading }: PaymentFormProps) {
         required
         error={error === t('date_time.error_required') ? error : null}
       />
+
+      <label
+        htmlFor={excludeFromTotalId}
+        className="flex cursor-pointer select-none items-start gap-3 rounded-[12px] border border-gray-200 bg-gray-50 px-4 py-3"
+      >
+        <input
+          id={excludeFromTotalId}
+          type="checkbox"
+          aria-label={t('loans.form.excludeFromTotalAria')}
+          checked={excludeFromTotal}
+          onChange={(event) => setExcludeFromTotal(event.target.checked)}
+          className="mt-0.5 h-5 w-5 cursor-pointer rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+        />
+        <span className="min-w-0 flex-1">
+          <span className="block text-[13px] font-bold text-gray-800">
+            {t('loans.form.excludeFromTotal')}
+          </span>
+          <span className="mt-0.5 block text-[12px] font-medium text-gray-500">
+            {t('loans.form.excludeFromTotalSub')}
+          </span>
+        </span>
+      </label>
 
       <div className="space-y-1.5">
         <p className="text-[13px] font-semibold text-gray-700">{t('loans.payment.note')}</p>

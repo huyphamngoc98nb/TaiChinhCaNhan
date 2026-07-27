@@ -19,10 +19,11 @@ const LOAN_PAYMENT_COLUMNS = `
 
 function loanRowToArray(row: unknown): unknown[] {
   if (Array.isArray(row)) {
-    if (row.length >= 15) return row;
-    if (row.length === 14) return [...row, null];
-    if (row.length === 13) return [...row, null];
-    return [...row, 0, null];
+    if (row.length >= 16) return row;
+    if (row.length === 15) return [...row, null];
+    if (row.length === 14) return [...row, null, null];
+    if (row.length === 13) return [...row, null, null, null];
+    return [...row, 0, null, null, null];
   }
 
   const record = row as Record<string, unknown>;
@@ -42,15 +43,17 @@ function loanRowToArray(row: unknown): unknown[] {
     record.skip_transaction ?? 0,
     record.linked_transaction_id ?? null,
     record.loan_date ?? null,
+    record.exclude_from_total ?? null,
   ];
 }
 
 function loanWithSummaryRowToArray(row: unknown): unknown[] {
   if (Array.isArray(row)) {
-    if (row.length >= 18) return row;
-    if (row.length === 17) return [...row.slice(0, 14), null, ...row.slice(14)];
-    if (row.length === 16) return [...row.slice(0, 13), null, null, ...row.slice(13)];
-    return [...row.slice(0, 12), 0, null, null, ...row.slice(12)];
+    if (row.length >= 19) return row;
+    if (row.length === 18) return [...row.slice(0, 15), null, ...row.slice(15)];
+    if (row.length === 17) return [...row.slice(0, 14), null, null, ...row.slice(14)];
+    if (row.length === 16) return [...row.slice(0, 13), null, null, null, ...row.slice(13)];
+    return [...row.slice(0, 12), 0, null, null, null, ...row.slice(12)];
   }
 
   const record = row as Record<string, unknown>;
@@ -115,9 +118,10 @@ export class SQLiteLoanRepository implements ILoanRepository {
   async getLoanById(id: string): Promise<Loan | null> {
     const db = await getDbConnection();
     const sql = `
-      SELECT loans.*
+      SELECT loans.*, opening_tx.exclude_from_total
       FROM loans
       LEFT JOIN wallets w ON loans.wallet_id = w.id
+      LEFT JOIN transactions opening_tx ON opening_tx.id = loans.linked_transaction_id
       WHERE loans.id = ? AND loans.deleted_at IS NULL
       LIMIT 1
     `;
@@ -170,12 +174,14 @@ export class SQLiteLoanRepository implements ILoanRepository {
     let sql = `
       SELECT
         loans.*,
+        opening_tx.exclude_from_total,
         COALESCE(SUM(lp.amount), 0) AS paid_amount,
         (loans.principal - COALESCE(SUM(lp.amount), 0)) AS remaining,
         w.name AS wallet_name
       FROM loans
       LEFT JOIN loan_payments lp ON lp.loan_id = loans.id
       LEFT JOIN wallets w ON loans.wallet_id = w.id
+      LEFT JOIN transactions opening_tx ON opening_tx.id = loans.linked_transaction_id
       WHERE 1=1
     `;
     const values: unknown[] = [];
