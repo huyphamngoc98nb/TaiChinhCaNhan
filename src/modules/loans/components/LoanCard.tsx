@@ -5,6 +5,7 @@ import { HIDDEN_AMOUNT, useAmountVisibility } from '@/shared/hooks/useAmountVisi
 import { useDisplayFormatSettings } from '@/shared/hooks/useDisplayFormatSettings';
 import { useUiPersonalizationSettings } from '@/shared/hooks/useUiPersonalizationSettings';
 import { formatAppDate } from '@/shared/utils/display-format';
+import { loanDateToLocalTimestamp } from '../domain/loan-date';
 import type { LoanWithSummary } from '../domain/loan.model';
 
 interface LoanCardProps {
@@ -25,7 +26,8 @@ export function LoanCard({ loan, onPress }: LoanCardProps) {
   );
 
   function formatDate(value: string): string {
-    return formatAppDate(new Date(`${value}T00:00:00`).getTime(), displayFormatSettings);
+    const timestamp = loanDateToLocalTimestamp(value);
+    return timestamp === null ? '' : formatAppDate(timestamp, displayFormatSettings);
   }
 
   const isDeleted = loan.deleted_at != null;

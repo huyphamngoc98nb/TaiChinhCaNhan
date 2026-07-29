@@ -2,12 +2,19 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import type { PointerEvent } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { BackButton } from '@/shared/components/BackButton';
+import { DropdownList } from '@/shared/components/DropdownList';
 import { FormSheet } from '@/shared/components/FormSheet';
 import { useConfirm } from '@/shared/components/ConfirmDialog/ConfirmContext';
 import { useToast } from '@/shared/components/Toast/ToastContext';
 import { ROUTES } from '@/shared/constants/routes';
 import { useLanguage } from '@/shared/context/LanguageContext';
-import type { CreateLoanInput, LoanFilter, LoanType, LoanWithSummary } from '../domain/loan.model';
+import type {
+  CreateLoanInput,
+  LoanFilter,
+  LoanSortOrder,
+  LoanType,
+  LoanWithSummary,
+} from '../domain/loan.model';
 import { LoanCard } from '../components/LoanCard';
 import { LoanForm } from '../components/LoanForm';
 import { useLoans } from '../hooks/useLoans';
@@ -102,6 +109,7 @@ export function LoanListPage() {
   const [activeTab, setActiveTab] = useState<FilterTab>('all');
   const [formOpen, setFormOpen] = useState(false);
   const [showDeleted, setShowDeleted] = useState(false);
+  const [sortOrder, setSortOrder] = useState<LoanSortOrder>('loanDateDesc');
   const filterTabs = useMemo<Array<{ id: FilterTab; label: string }>>(() => [
     { id: 'all', label: t('loans.pages.list.filterAll') },
     { id: 'lend', label: t('loans.card.typeLend') },
@@ -109,9 +117,17 @@ export function LoanListPage() {
     { id: 'settled', label: t('loans.card.statusSettled') },
   ], [t]);
   const isCreateRoute = location.pathname === ROUTES.LOANS_NEW;
+  const sortOptions = useMemo(() => [
+    { value: 'loanDateDesc' as const, label: t('loans.pages.list.sortNewest') },
+    { value: 'loanDateAsc' as const, label: t('loans.pages.list.sortOldest') },
+  ], [t]);
   const filter = useMemo(
-    () => ({ ...filterFromTab(activeTab), includeDeleted: showDeleted }),
-    [activeTab, showDeleted],
+    () => ({
+      ...filterFromTab(activeTab),
+      includeDeleted: showDeleted,
+      sortOrder,
+    }),
+    [activeTab, showDeleted, sortOrder],
   );
   const { loans, loading, error, reload } = useLoans(filter);
   const { createLoan, deleteLoan, loading: mutationLoading } = useLoanMutations();
@@ -196,6 +212,20 @@ export function LoanListPage() {
             className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
           />
         </label>
+
+        <div className="mt-3 flex items-center gap-3 rounded-[12px] border border-border bg-surface px-3 py-2 shadow-sm">
+          <span className="min-w-fit text-[12px] font-bold text-muted">
+            {t('loans.pages.list.sortLabel')}
+          </span>
+          <DropdownList
+            value={sortOrder}
+            onChange={setSortOrder}
+            ariaLabel={t('loans.pages.list.sortLabel')}
+            options={sortOptions}
+            className="min-w-0 flex-1"
+            buttonClassName="min-h-[40px] border-0 bg-transparent px-2 shadow-none"
+          />
+        </div>
       </div>
 
       <div className="px-4 pt-4">

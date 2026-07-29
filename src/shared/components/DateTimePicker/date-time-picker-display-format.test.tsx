@@ -16,8 +16,10 @@ vi.mock('@/shared/context/LanguageContext', () => ({
         'date_time.today': 'Today',
         'date_time.custom': 'Custom',
         'date_time.clear': 'Clear date',
+        'date_time.clear_date': 'Clear date',
         'date_time.select_date': 'Select date',
         'date_time.invalid': 'Invalid date and time.',
+        'date_time.invalid_date': 'Invalid date.',
       };
       return messages[key] ?? key;
     },
@@ -55,5 +57,20 @@ describe('DateTimePicker display format integration', () => {
     );
 
     expect(screen.getByText(/01\/02\/2026 10:30 AM/)).toBeTruthy();
+  });
+
+  it('renders a date-only preview without midnight or any other time', () => {
+    updateDisplayFormatSettings({ dateFormat: 'dd/MM/yyyy', timeFormat: '24h' });
+
+    render(
+      <DateTimePicker
+        value={new Date(2026, 0, 2, 10, 30).getTime()}
+        onChange={vi.fn()}
+        dateOnly
+      />,
+    );
+
+    expect(screen.getByText(/02\/01\/2026/)).toBeTruthy();
+    expect(screen.queryByText(/10:30|00:00/)).toBeNull();
   });
 });

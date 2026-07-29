@@ -1,6 +1,7 @@
 import { BackupMetadata, BackupPayload, BackupRow, ValidationResult } from '../domain/backup.model';
 import { CURRENT_BACKUP_VERSION, CURRENT_SCHEMA_VERSION } from './export-backup-json';
 import { translations, type TranslationPath } from '@/shared/constants/translations';
+import { normalizeLoanDate } from '@/modules/loans/domain/loan-date';
 
 function defaultText(path: TranslationPath): string {
   const keys = path.split('.');
@@ -409,7 +410,7 @@ function validateDateString(sectionName: string, rows: BackupRow[], fieldName: s
   for (let index = 0; index < rows.length; index += 1) {
     const value = rows[index][fieldName];
     if (value === null || value === undefined || value === '') continue;
-    if (typeof value !== 'string' || Number.isNaN(new Date(`${value}T00:00:00`).getTime())) {
+    if (typeof value !== 'string' || normalizeLoanDate(value) === null) {
       return { isValid: false, error: `${sectionName}[${index}].${fieldName} is not a valid date` };
     }
   }

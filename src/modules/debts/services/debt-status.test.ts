@@ -32,6 +32,22 @@ describe('debt status helpers', () => {
     }, AS_OF)).toBe('paidOff');
   });
 
+  it('compares legacy datetime due values by calendar date, regardless of time', () => {
+    const endOfDueDay = new Date(2026, 5, 15, 23, 59).getTime();
+
+    expect(computeLoanDebtStatus({
+      due_date: '2026-06-15T00:01:00.000Z',
+      remaining: 1_000_000,
+      status: 'active',
+    }, endOfDueDay)).toBe('dueSoon');
+
+    expect(computeLoanDebtStatus({
+      due_date: '2026-06-14T23:59:59.999Z',
+      remaining: 1_000_000,
+      status: 'active',
+    }, endOfDueDay)).toBe('overdue');
+  });
+
   it('computes credit utilization and due status', () => {
     const status = computeCreditCardDebtStatus({
       wallet: { credit_limit: 10_000_000 },

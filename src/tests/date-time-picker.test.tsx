@@ -12,8 +12,10 @@ vi.mock('@/shared/context/LanguageContext', () => ({
         'date_time.today': 'Hôm nay',
         'date_time.custom': 'Tùy chọn',
         'date_time.clear': 'Xóa ngày giờ',
+        'date_time.clear_date': 'Xóa ngày',
         'date_time.select_date': 'Chọn ngày',
         'date_time.invalid': 'Vui lòng chọn ngày và giờ hợp lệ.',
+        'date_time.invalid_date': 'Vui lòng chọn ngày hợp lệ.',
         'date_time.error_required': 'Vui lòng chọn ngày giờ.',
       };
       return messages[key] ?? key;
@@ -26,6 +28,18 @@ function renderPicker(onChange = vi.fn()) {
     <DateTimePicker
       value={new Date(2026, 0, 2, 10, 30).getTime()}
       onChange={onChange}
+    />,
+  );
+
+  return { ...result, onChange };
+}
+
+function renderDateOnlyPicker(onChange = vi.fn()) {
+  const result = render(
+    <DateTimePicker
+      value={new Date(2026, 0, 2, 10, 30).getTime()}
+      onChange={onChange}
+      dateOnly
     />,
   );
 
@@ -97,5 +111,17 @@ describe('DateTimePicker', () => {
 
     expect(screen.getByText('Vui lòng chọn ngày và giờ hợp lệ.')).toBeTruthy();
     expect(screen.queryByText(/Invalid Date|Invalid time value/i)).toBeNull();
+  });
+
+  it('supports a date-only mode without rendering or emitting a time', () => {
+    const { container, onChange } = renderDateOnlyPicker();
+
+    expect(container.querySelector('input[type="time"]')).toBeNull();
+    expect(screen.queryByText(/10:30/)).toBeNull();
+
+    const dateInput = container.querySelector('input[type="date"]') as HTMLInputElement;
+    fireEvent.change(dateInput, { target: { value: '2026-08-09' } });
+
+    expect(onChange).toHaveBeenCalledWith(new Date(2026, 7, 9).getTime());
   });
 });

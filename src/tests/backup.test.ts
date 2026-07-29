@@ -118,6 +118,31 @@ describe('Backup Module Tests', () => {
       expect(result.isValid).toBe(true);
     });
 
+    it('accepts legacy loan datetime strings without shifting their calendar date', () => {
+      const result = validateBackupPayload({
+        ...validPayload,
+        loans: [{
+          id: 'legacy-loan-date',
+          wallet_id: null,
+          type: 'borrow',
+          contact_name: 'Legacy',
+          contact_info: null,
+          principal: 1_000,
+          loan_date: '2026-01-02T23:45:00.000Z',
+          due_date: '2026-02-03 08:30:00',
+          note: null,
+          status: 'active',
+          created_at: 1,
+          updated_at: 1,
+          deleted_at: null,
+          skip_transaction: 1,
+          linked_transaction_id: null,
+        }],
+      });
+
+      expect(result.isValid).toBe(true);
+    });
+
     it('exports loans and loan payments in the backup payload', async () => {
       const rowsByTable: Record<string, unknown[]> = {
         wallets: [],

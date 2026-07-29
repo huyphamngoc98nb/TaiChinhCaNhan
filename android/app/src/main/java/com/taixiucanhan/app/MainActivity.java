@@ -28,6 +28,7 @@ public class MainActivity extends BridgeActivity {
         registerPlugin(DeviceLockPlugin.class);
         registerPlugin(PrivacyShieldPlugin.class);
         registerPlugin(ScreenSecurityPlugin.class);
+        registerPlugin(NotificationReminderPlugin.class);
         super.onCreate(savedInstanceState);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {

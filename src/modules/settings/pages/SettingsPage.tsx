@@ -24,6 +24,7 @@ import { UiPersonalizationSettings } from '../components/UiPersonalizationSettin
 import { TransactionInputSettings } from '../components/TransactionInputSettings';
 import { SecuritySettings } from '../components/SecuritySettings';
 import { AppUpdateSettings } from '../components/AppUpdateSettings';
+import { NotificationReminderSettings } from '../components/NotificationReminderSettings';
 import { ThemeSelector } from '../components/ThemeSelector';
 import { useLanguage } from '@/shared/context/LanguageContext';
 import {
@@ -168,6 +169,8 @@ export function SettingsPage() {
           <div className="px-4 py-3"><UiPersonalizationSettings /></div>
           <div className="px-4 py-3"><TransactionInputSettings /></div>
         </div>
+
+        <NotificationReminderSettings />
 
         <SecuritySettings />
 

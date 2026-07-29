@@ -15,6 +15,8 @@ interface Props {
   label?: string;
   required?: boolean;
   error?: string | null;
+  /** Hides time controls and always emits local midnight for the selected date. */
+  dateOnly?: boolean;
 }
 
 const INVALID_DATE_TIME_USER_MESSAGE = 'Ngày giờ không hợp lệ. Vui lòng chọn lại.';
@@ -68,6 +70,18 @@ function safeBuildTimestamp(dateStr: string, timeStr: string): number | null {
   }
 }
 
+function safeBuildDateTimestamp(dateStr: string): number | null {
+  try {
+    if (!isValidDateInput(dateStr)) return null;
+
+    const [year, month, day] = dateStr.split('-').map(Number);
+    const timestamp = new Date(year, month - 1, day).getTime();
+    return Number.isFinite(timestamp) ? timestamp : null;
+  } catch {
+    return null;
+  }
+}
+
 function formatDateDisplay(
   dateStr: string,
   displayFormatSettings: ReturnType<typeof useDisplayFormatSettings>
@@ -84,12 +98,16 @@ function formatDateDisplay(
 function formatPreview(
   ts: number,
   locale: string,
-  displayFormatSettings: ReturnType<typeof useDisplayFormatSettings>
+  displayFormatSettings: ReturnType<typeof useDisplayFormatSettings>,
+  dateOnly: boolean
 ): string {
   const date = new Date(ts);
   const weekday = new Intl.DateTimeFormat(locale, { weekday: 'short' }).format(date);
+  const formattedValue = dateOnly
+    ? formatAppDate(ts, displayFormatSettings)
+    : formatAppDateTime(ts, displayFormatSettings, locale);
 
-  return `${weekday}, ${formatAppDateTime(ts, displayFormatSettings, locale)}`;
+  return `${weekday}, ${formattedValue}`;
 }
 
 function getDateTimePickerErrorContext(action: string, extra?: Record<string, unknown>) {
@@ -123,11 +141,13 @@ export function DateTimePicker({
   label,
   required = false,
   error = null,
+  dateOnly = false,
 }: Props) {
   const { t, language } = useLanguage();
   const locale = getAppLocale(language);
   const displayFormatSettings = useDisplayFormatSettings();
-  const invalidMessage = t('date_time.invalid');
+  const invalidMessage = t(dateOnly ? 'date_time.invalid_date' : 'date_time.invalid');
+  const clearLabel = t(dateOnly ? 'date_time.clear_date' : 'date_time.clear');
   const dateInputRef = useRef<HTMLInputElement>(null);
   const [mode, setMode] = useState<QuickMode>(() => (
     isValidTimestamp(value) ? detectMode(value) : 'custom'
@@ -175,7 +195,7 @@ export function DateTimePicker({
     }
 
     try {
-      setPreview(formatPreview(value, locale, displayFormatSettings));
+      setPreview(formatPreview(value, locale, displayFormatSettings, dateOnly));
     } catch (errorValue) {
       setPreview(null);
       setInternalError(invalidMessage);
@@ -185,10 +205,20 @@ export function DateTimePicker({
         language,
       });
     }
-  }, [value, locale, language, displayFormatSettings, invalidMessage, reportInvalidDateTime]);
+  }, [
+    value,
+    locale,
+    language,
+    displayFormatSettings,
+    invalidMessage,
+    reportInvalidDateTime,
+    dateOnly,
+  ]);
 
   const commitIfValid = useCallback((nextDate: string, nextTime: string) => {
-    const timestamp = safeBuildTimestamp(nextDate, nextTime);
+    const timestamp = dateOnly
+      ? safeBuildDateTimestamp(nextDate)
+      : safeBuildTimestamp(nextDate, nextTime);
     if (timestamp === null) {
       setInternalError(invalidMessage);
       reportInvalidDateTime(new Error('Invalid date/time input'), 'buildTimestamp', {
@@ -200,7 +230,7 @@ export function DateTimePicker({
 
     setInternalError(null);
     onChange(timestamp);
-  }, [onChange, invalidMessage]);
+  }, [onChange, invalidMessage, dateOnly]);
 
   const applyQuickMode = useCallback((m: QuickMode) => {
     setMode(m);
@@ -210,11 +240,11 @@ export function DateTimePicker({
     if (m === 'yesterday') now.setDate(now.getDate() - 1);
 
     const d = toDateInput(now.getTime());
-    const tValue = toTimeInput(Date.now());
+    const tValue = dateOnly ? '00:00' : toTimeInput(Date.now());
     setDateStr(d);
     setTimeStr(tValue);
     commitIfValid(d, tValue);
-  }, [commitIfValid]);
+  }, [commitIfValid, dateOnly]);
 
   const handleDateChange = useCallback((nextDate: string) => {
     setDateStr(nextDate);
@@ -230,9 +260,9 @@ export function DateTimePicker({
     setMode('custom');
     setDateStr('');
     setTimeStr('');
-    setInternalError(invalidMessage);
+    setInternalError(dateOnly && !required ? null : invalidMessage);
     onChange(null);
-  }, [onChange, invalidMessage]);
+  }, [onChange, invalidMessage, dateOnly, required]);
 
   const openDatePicker = useCallback(() => {
     const input = dateInputRef.current;
@@ -262,7 +292,7 @@ export function DateTimePicker({
           <button
             type="button"
             onClick={handleClear}
-            aria-label={t('date_time.clear')}
+            aria-label={clearLabel}
             className="flex h-8 w-8 items-center justify-center rounded-full bg-surface-muted text-muted transition-all active:scale-95"
           >
             <X size={14} />
@@ -292,7 +322,7 @@ export function DateTimePicker({
 
       {mode === 'custom' && (
         <div className="flex gap-2">
-          <label className="flex-[3] relative">
+          <label className={`${dateOnly ? 'flex-1' : 'flex-[3]'} relative`}>
             <span className="absolute left-3 top-1/2 -translate-y-1/2 text-indigo-400 pointer-events-none">
               <Calendar size={15} />
             </span>
@@ -324,20 +354,22 @@ export function DateTimePicker({
             />
           </label>
 
-          <label className="flex-[2] relative">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-indigo-400 pointer-events-none">
-              <Clock size={15} />
-            </span>
-            <input
-              type="time"
-              value={timeStr}
-              onChange={e => handleTimeChange(e.target.value)}
-              onInvalid={e => e.preventDefault()}
-              className="w-full h-[48px] pl-9 pr-3 bg-bg-subtle border border-border
-                rounded-[12px] text-[14px] text-text font-medium
-                focus:outline-none focus:border-primary appearance-none"
-            />
-          </label>
+          {!dateOnly && (
+            <label className="flex-[2] relative">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-indigo-400 pointer-events-none">
+                <Clock size={15} />
+              </span>
+              <input
+                type="time"
+                value={timeStr}
+                onChange={e => handleTimeChange(e.target.value)}
+                onInvalid={e => e.preventDefault()}
+                className="w-full h-[48px] pl-9 pr-3 bg-bg-subtle border border-border
+                  rounded-[12px] text-[14px] text-text font-medium
+                  focus:outline-none focus:border-primary appearance-none"
+              />
+            </label>
+          )}
         </div>
       )}
 

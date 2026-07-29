@@ -6,6 +6,7 @@ import { ImeTextInput } from '@/shared/components/ImeTextInput';
 import { ImeTextarea } from '@/shared/components/ImeTextarea';
 import { useLanguage } from '@/shared/context/LanguageContext';
 import { useWallets } from '@/modules/wallets/hooks/useWallets';
+import { loanDateToLocalTimestamp, timestampToLoanDate } from '../domain/loan-date';
 import type { CreateLoanInput, Loan, LoanType } from '../domain/loan.model';
 
 interface LoanFormProps {
@@ -23,17 +24,12 @@ function startOfLocalDay(timestamp: number): number {
 }
 
 function dateStringToTimestamp(value?: string | null): number | null {
-  if (!value) return null;
-  return new Date(`${value}T00:00:00`).getTime();
+  return loanDateToLocalTimestamp(value);
 }
 
 function timestampToDateString(timestamp: number | null): string | undefined {
   if (timestamp === null) return undefined;
-
-  const date = new Date(startOfLocalDay(timestamp));
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
-  return `${date.getFullYear()}-${month}-${day}`;
+  return timestampToLoanDate(startOfLocalDay(timestamp)) ?? undefined;
 }
 
 export function LoanForm({
@@ -208,6 +204,7 @@ export function LoanForm({
         value={dueDate}
         onChange={setDueDate}
         label={t('loans.form.dueDate')}
+        dateOnly
       />
 
       <div className="space-y-1.5">

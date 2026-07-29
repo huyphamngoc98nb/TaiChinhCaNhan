@@ -87,6 +87,10 @@ vi.mock('../components/SecuritySettings', () => ({
   SecuritySettings: () => <div>SecuritySettings</div>,
 }));
 
+vi.mock('../components/NotificationReminderSettings', () => ({
+  NotificationReminderSettings: () => <div>NotificationReminderSettings</div>,
+}));
+
 vi.mock('../components/AppUpdateSettings', () => ({
   AppUpdateSettings: () => <div>AppUpdateSettings</div>,
 }));

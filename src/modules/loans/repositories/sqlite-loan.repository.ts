@@ -200,7 +200,6 @@ export class SQLiteLoanRepository implements ILoanRepository {
 
     sql += `
       GROUP BY loans.id
-      ORDER BY loans.due_date ASC NULLS LAST, loans.created_at DESC
     `;
 
     const { values: rows } = await db.query(sql, values);

@@ -90,6 +90,63 @@ describe('LoanForm', () => {
     }));
   });
 
+  it('allows selecting a due date without a due-time control', async () => {
+    const onSubmit = vi.fn().mockResolvedValue(undefined);
+    const { container } = renderLoanForm(<LoanForm onSubmit={onSubmit} loading={false} />);
+
+    await fillRequiredFields();
+
+    const dateInputs = container.querySelectorAll<HTMLInputElement>('input[type="date"]');
+    const timeInputs = container.querySelectorAll<HTMLInputElement>('input[type="time"]');
+    expect(dateInputs).toHaveLength(1);
+    expect(timeInputs).toHaveLength(0);
+
+    fireEvent.change(dateInputs[0], { target: { value: '2026-08-09' } });
+    fireEvent.submit(container.querySelector('form') as HTMLFormElement);
+
+    await waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(1));
+    expect(onSubmit).toHaveBeenCalledWith(expect.objectContaining({
+      due_date: '2026-08-09',
+    }));
+  });
+
+  it('opens and submits a legacy datetime due value as its original calendar date', async () => {
+    const existingLoan: Loan = {
+      id: 'loan-legacy-date',
+      wallet_id: null,
+      skip_transaction: true,
+      type: 'borrow',
+      contact_name: 'Nguyen Van A',
+      contact_info: null,
+      principal: 500_000,
+      loan_date: '2001-12-01',
+      due_date: '2002-01-02T23:45:00.000Z',
+      note: null,
+      status: 'active',
+      created_at: 0,
+      updated_at: 0,
+      deleted_at: null,
+    };
+    const onSubmit = vi.fn().mockResolvedValue(undefined);
+    const { container } = renderLoanForm(
+      <LoanForm initialLoan={existingLoan} onSubmit={onSubmit} loading={false} />
+    );
+
+    await waitFor(() => expect(
+      Array.from(container.querySelectorAll<HTMLInputElement>('input[type="date"]'))
+        .some((input) => input.value === '2002-01-02')
+    ).toBe(true));
+    expect(container.querySelectorAll('input[type="time"]')).toHaveLength(1);
+    expect(screen.queryByDisplayValue('23:45')).toBeNull();
+
+    fireEvent.submit(container.querySelector('form') as HTMLFormElement);
+
+    await waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(1));
+    expect(onSubmit).toHaveBeenCalledWith(expect.objectContaining({
+      due_date: '2002-01-02',
+    }));
+  });
+
   it('initializes skip transaction in edit mode', async () => {
     const existingLoan: Loan = {
       id: 'loan-1',

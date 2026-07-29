@@ -1,7 +1,12 @@
-# v0.1.38
+# v2.0.0
 
 ## Tóm tắt
-Bản cập nhật hoàn thiện cơ chế App Lock trên Android, bảo vệ dữ liệu tài chính khi ứng dụng ở nền và cho phép người dùng tùy chỉnh thời gian tự động khóa mà vẫn giữ nguyên màn hình đang thao tác.
+Bản phát hành lớn 2.0.0 bổ sung lịch nhắc nhập số liệu hằng ngày, hoàn thiện quản lý khoản vay/nợ và củng cố App Lock trên Android để bảo vệ dữ liệu tài chính xuyên suốt các luồng sử dụng.
+
+## Tính năng mới
+- Bổ sung cài đặt nhắc nhập số liệu hằng ngày, hỗ trợ nhiều khung giờ thông báo và quản lý riêng từng lịch nhắc.
+- Bổ sung sắp xếp khoản vay/nợ theo thời gian vay gần nhất hoặc xa nhất; mặc định hiển thị khoản mới nhất trước.
+- Đơn giản hóa thời gian trả: chỉ cần chọn ngày thay vì ngày và giờ, đồng thời giữ đúng ngày với dữ liệu cũ.
 
 ## Bảo mật
 - Hoàn thiện App Lock qua kiểm thử tích hợp: loại bỏ đường mở khóa cưỡng bức và listener cũ, không tính system dialog/file picker là thời gian background, hủy xác thực thao tác nhạy cảm khi ứng dụng rời foreground và ngăn sinh trắc học bật lặp do render lại.

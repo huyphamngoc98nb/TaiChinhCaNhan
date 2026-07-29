@@ -2,6 +2,8 @@ export type LoanType = 'lend' | 'borrow';
 
 export type LoanStatus = 'active' | 'settled' | 'cancelled';
 
+export type LoanSortOrder = 'loanDateDesc' | 'loanDateAsc';
+
 export interface Loan {
   id: string;
   wallet_id: string | null;
@@ -66,4 +68,5 @@ export interface LoanFilter {
   status?: LoanStatus;
   type?: LoanType;
   includeDeleted?: boolean;
+  sortOrder?: LoanSortOrder;
 }

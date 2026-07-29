@@ -1,4 +1,5 @@
 import type { LoanWithSummary } from '@/modules/loans/domain/loan.model';
+import { loanDateToLocalTimestamp } from '@/modules/loans/domain/loan-date';
 import type { Wallet } from '@/modules/wallets/repositories/wallet.repository';
 import type { CreditCardStatementPeriod } from '@/modules/wallets/services/credit-card.service';
 
@@ -32,7 +33,11 @@ export function startOfLocalDay(value: number = Date.now()): number {
 }
 
 export function daysUntil(dueAt: number, asOf: number = Date.now()): number {
-  return Math.ceil((startOfLocalDay(dueAt) - startOfLocalDay(asOf)) / MS_PER_DAY);
+  const dueDate = new Date(dueAt);
+  const asOfDate = new Date(asOf);
+  const dueDay = Date.UTC(dueDate.getFullYear(), dueDate.getMonth(), dueDate.getDate());
+  const asOfDay = Date.UTC(asOfDate.getFullYear(), asOfDate.getMonth(), asOfDate.getDate());
+  return Math.round((dueDay - asOfDay) / MS_PER_DAY);
 }
 
 export function computeDueStatus(
@@ -56,7 +61,9 @@ export function computeLoanDebtStatus(
   if (loan.remaining <= 0 || loan.status === 'settled') return 'paidOff';
   if (loan.status !== 'active' || !loan.due_date) return 'active';
 
-  const dueAt = new Date(`${loan.due_date}T00:00:00`).getTime();
+  const dueAt = loanDateToLocalTimestamp(loan.due_date);
+  if (dueAt === null) return 'active';
+
   const dueStatus = computeDueStatus(dueAt, loan.remaining, asOf);
   if (dueStatus === 'overdue') return 'overdue';
   if (dueStatus === 'dueSoon') return 'dueSoon';

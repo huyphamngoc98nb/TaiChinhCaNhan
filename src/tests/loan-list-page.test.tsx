@@ -10,6 +10,7 @@ const mocks = vi.hoisted(() => ({
   deleteLoan: vi.fn(),
   reload: vi.fn(),
   toastSuccess: vi.fn(),
+  useLoansFilter: vi.fn(),
 }));
 
 vi.mock('@/shared/components/BackButton', () => ({
@@ -62,12 +63,15 @@ vi.mock('@/modules/loans/components/LoanForm', () => ({
 }));
 
 vi.mock('@/modules/loans/hooks/useLoans', () => ({
-  useLoans: () => ({
-    loans: [],
-    loading: false,
-    error: null,
-    reload: mocks.reload,
-  }),
+  useLoans: (filter: Record<string, unknown>) => {
+    mocks.useLoansFilter(filter);
+    return {
+      loans: [],
+      loading: false,
+      error: null,
+      reload: mocks.reload,
+    };
+  },
 }));
 
 vi.mock('@/modules/loans/hooks/useLoanMutations', () => ({
@@ -99,5 +103,26 @@ describe('LoanListPage', () => {
     await waitFor(() => expect(mocks.toastSuccess).toHaveBeenCalledWith('Đã thêm khoản vay.'));
     expect(mocks.createLoan).toHaveBeenCalledTimes(1);
     expect(mocks.reload).toHaveBeenCalledTimes(1);
+  });
+
+  it('uses newest loan date sorting by default and lets the user choose oldest first', async () => {
+    render(
+      <MemoryRouter initialEntries={['/loans']}>
+        <LanguageProvider>
+          <LoanListPage />
+        </LanguageProvider>
+      </MemoryRouter>,
+    );
+
+    await waitFor(() => expect(mocks.useLoansFilter).toHaveBeenCalledWith(
+      expect.objectContaining({ sortOrder: 'loanDateDesc' }),
+    ));
+
+    fireEvent.click(screen.getByRole('button', { name: 'Sắp xếp' }));
+    fireEvent.click(screen.getByRole('option', { name: 'Thời gian vay xa nhất' }));
+
+    await waitFor(() => expect(mocks.useLoansFilter).toHaveBeenLastCalledWith(
+      expect.objectContaining({ sortOrder: 'loanDateAsc' }),
+    ));
   });
 });

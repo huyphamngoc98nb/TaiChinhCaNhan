@@ -1,4 +1,5 @@
 import type { Loan, LoanPayment, LoanWithSummary } from './loan.model';
+import { normalizeLoanDate } from './loan-date';
 
 function mapBooleanFlag(value: unknown): boolean {
   return value === true || Number(value ?? 0) === 1;
@@ -14,13 +15,13 @@ export function mapToLoan(row: unknown[]): Loan {
     contact_name: row[3] as string,
     contact_info: (row[4] as string | null) ?? null,
     principal: Number(row[5]),
-    due_date: (row[6] as string | null) ?? null,
+    due_date: normalizeLoanDate(row[6] as string | null),
     note: (row[7] as string | null) ?? null,
     status: row[8] as Loan['status'],
     created_at: Number(row[9]),
     updated_at: Number(row[10]),
     deleted_at: row[11] == null ? null : Number(row[11]),
-    loan_date: (row[14] as string | null) ?? null,
+    loan_date: normalizeLoanDate(row[14] as string | null),
     exclude_from_total: row[15] == null ? undefined : mapBooleanFlag(row[15]),
   };
 }

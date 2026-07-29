@@ -12,6 +12,7 @@ import { useLanguage } from '@/shared/context/LanguageContext';
 import { HIDDEN_AMOUNT, useAmountVisibility } from '@/shared/hooks/useAmountVisibility';
 import { useDisplayFormatSettings } from '@/shared/hooks/useDisplayFormatSettings';
 import { formatAppDate } from '@/shared/utils/display-format';
+import { loanDateToLocalTimestamp } from '../domain/loan-date';
 import type { CreateLoanPaymentInput, LoanPayment, LoanWithSummary, UpdateLoanInput } from '../domain/loan.model';
 import { PaymentForm } from '../components/PaymentForm';
 import { LoanForm } from '../components/LoanForm';
@@ -61,7 +62,10 @@ export function LoanDetailPage({ loanId: loanIdProp }: LoanDetailPageProps = {})
 
   function formatIsoDate(value: string | null): string {
     if (!value) return t('loans.pages.detail.noDueDate');
-    return formatAppDate(new Date(`${value}T00:00:00`).getTime(), displayFormatSettings);
+    const timestamp = loanDateToLocalTimestamp(value);
+    return timestamp === null
+      ? t('loans.pages.detail.noDueDate')
+      : formatAppDate(timestamp, displayFormatSettings);
   }
 
   function formatMsDate(value: number): string {

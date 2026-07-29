@@ -1,4 +1,5 @@
 import type { CreateLoanInput, CreateLoanPaymentInput, LoanType, UpdateLoanInput } from './loan.model';
+import { isLoanDateOnly } from './loan-date';
 
 const LOAN_TYPES: LoanType[] = ['lend', 'borrow'];
 
@@ -15,8 +16,11 @@ function validateLoanFields(input: CreateLoanInput | UpdateLoanInput): void {
 
   if (!skipTransaction && !input.wallet_id) errors.push('wallet_id is required');
   if (!input.contact_name) errors.push('contact_name is required');
-  if (input.loan_date && !Number.isFinite(new Date(`${input.loan_date}T00:00:00`).getTime())) {
+  if (input.loan_date && !isLoanDateOnly(input.loan_date)) {
     errors.push('loan_date must be a valid date');
+  }
+  if (input.due_date && !isLoanDateOnly(input.due_date)) {
+    errors.push('due_date must be a valid date');
   }
 
   if (!LOAN_TYPES.includes(input.type)) {
