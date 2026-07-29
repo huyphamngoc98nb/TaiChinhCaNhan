@@ -1,15 +1,30 @@
 {
   "platform": "android",
-  "versionName": "0.1.38",
-  "versionCode": 138,
+  "versionName": "2.0.0",
+  "versionCode": 20000,
   "minSupportedVersionCode": 100,
   "mandatory": false,
-  "apkUrl": "https://github.com/huyphamngoc98nb/TaiChinhCaNhan/releases/download/v0.1.38/TaiChinhCaNhan-v0.1.38.apk",
-  "sha256": "c6a46a9d2f1fbb973df0e6f2fc4006656f44aadcfe66816324e1c56b77ff2f9c",
-  "releaseDate": "2026-07-27",
+  "apkUrl": "https://github.com/huyphamngoc98nb/TaiChinhCaNhan/releases/download/v2.0.0/TaiChinhCaNhan-v2.0.0.apk",
+  "sha256": "209c4e778e6e5fde9f952420a32fe2646fcfd689f7326ad91e6b333b172a4dff",
+  "releaseDate": "2026-07-29",
   "releaseNotesVersion": 2,
-  "releaseSummary": "Bản cập nhật hoàn thiện cơ chế App Lock trên Android, bảo vệ dữ liệu tài chính khi ứng dụng ở nền và cho phép người dùng tùy chỉnh thời gian tự động khóa mà vẫn giữ nguyên màn hình đang thao tác.",
+  "releaseSummary": "Bản phát hành lớn 2.0.0 bổ sung lịch nhắc nhập số liệu hằng ngày, hoàn thiện quản lý khoản vay/nợ và củng cố App Lock trên Android để bảo vệ dữ liệu tài chính xuyên suốt các luồng sử dụng.",
   "releaseNoteSections": [
+    {
+      "type": "new_features",
+      "title": "Tính năng mới",
+      "items": [
+        {
+          "title": "Bổ sung cài đặt nhắc nhập số liệu hằng ngày, hỗ trợ nhiều khung giờ thông báo và quản lý riêng từng lịch nhắc."
+        },
+        {
+          "title": "Bổ sung sắp xếp khoản vay/nợ theo thời gian vay gần nhất hoặc xa nhất; mặc định hiển thị khoản mới nhất trước."
+        },
+        {
+          "title": "Đơn giản hóa thời gian trả: chỉ cần chọn ngày thay vì ngày và giờ, đồng thời giữ đúng ngày với dữ liệu cũ."
+        }
+      ]
+    },
     {
       "type": "security",
       "title": "Bảo mật",
@@ -42,6 +57,9 @@
     }
   ],
   "releaseNotes": [
+    "Tính năng mới: Bổ sung cài đặt nhắc nhập số liệu hằng ngày, hỗ trợ nhiều khung giờ thông báo và quản lý riêng từng lịch nhắc.",
+    "Tính năng mới: Bổ sung sắp xếp khoản vay/nợ theo thời gian vay gần nhất hoặc xa nhất; mặc định hiển thị khoản mới nhất trước.",
+    "Tính năng mới: Đơn giản hóa thời gian trả: chỉ cần chọn ngày thay vì ngày và giờ, đồng thời giữ đúng ngày với dữ liệu cũ.",
     "Bảo mật: Hoàn thiện App Lock qua kiểm thử tích hợp: loại bỏ đường mở khóa cưỡng bức và listener cũ, không tính system dialog/file picker là thời gian background, hủy xác thực thao tác nhạy cảm khi ứng dụng rời foreground và ngăn sinh trắc học bật lặp do render lại.",
     "Bảo mật: Có thể chọn thời gian tự động khóa trong phần Bảo mật: ngay lập tức, 30 giây, 1/2/5/15 phút hoặc không tự động khóa. Mặc định vẫn là 2 phút; khóa thiết bị luôn yêu cầu mở khóa lại bất kể lựa chọn này.",
     "Bảo mật: Thêm xác thực tăng cường trước khi xuất dữ liệu, khôi phục ghi đè, xóa toàn bộ dữ liệu và tắt mở khóa sinh trắc học. Xác thực ưu tiên sinh trắc học, cho phép dùng PIN dự phòng, chỉ được tái sử dụng trong 5 phút của cùng phiên foreground; khôi phục, xóa dữ liệu và đổi PIN luôn yêu cầu xác thực mới.",
