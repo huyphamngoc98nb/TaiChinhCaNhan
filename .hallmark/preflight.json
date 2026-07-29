@@ -1,0 +1,37 @@
+{
+  "date": "2026-07-29",
+  "phase": "5",
+  "scope": "transactions module",
+  "genre": "utilitarian",
+  "macrostructure": "Workbench",
+  "designSystem": "design.md",
+  "enrichment": "none",
+  "motionMode": "cut",
+  "invariants": [
+    "No database schema or migration changes",
+    "No repository or transaction use-case changes",
+    "No route contract changes",
+    "Preserve transfer, budget-offset, exclude-from-total, duplicate-warning, haptic and toast behavior",
+    "Preserve transaction input settings and hidden debt workflow categories"
+  ],
+  "plannedFiles": {
+    "modify": [
+      "src/modules/transactions/pages/TransactionsPage.tsx",
+      "src/modules/transactions/pages/TransactionsPage.css",
+      "src/modules/transactions/components/TransactionList.tsx",
+      "src/modules/transactions/components/TransactionItem.tsx",
+      "src/modules/transactions/components/AdvancedTransactionFilterSheet.tsx",
+      "src/modules/transactions/components/TransactionForm.tsx",
+      "src/modules/transactions/pages/AddTransactionPage.tsx",
+      "src/modules/transactions/pages/EditTransactionPage.tsx",
+      "src/shared/constants/translations.ts",
+      "RELEASE_NOTES.md"
+    ],
+    "create": [
+      "src/modules/transactions/components/TransactionForm.css",
+      "src/modules/transactions/components/transaction-list-grouping.ts",
+      "transaction module tests"
+    ],
+    "delete": []
+  }
+}

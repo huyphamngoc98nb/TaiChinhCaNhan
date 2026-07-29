@@ -23,6 +23,8 @@ interface TransactionNavigationState {
   title?: string;
 }
 
+const ADVANCED_FILTER_SHEET_ID = 'advanced-transaction-filter';
+
 export function TransactionsPage() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -51,9 +53,10 @@ export function TransactionsPage() {
   const isDayDetail = Boolean(drilldownSnapshot);
   const locale = getAppLocale(language);
   const selectedMonthRange = useMemo(() => getMonthDateRange(selectedMonth), [selectedMonth]);
-  const selectedMonthLabel = useMemo(() => {
-    return formatAppMonth(selectedMonthRange.startDate, displayFormatSettings, locale);
-  }, [displayFormatSettings, locale, selectedMonthRange.startDate]);
+  const selectedMonthLabel = useMemo(
+    () => formatAppMonth(selectedMonthRange.startDate, displayFormatSettings, locale),
+    [displayFormatSettings, locale, selectedMonthRange.startDate],
+  );
   const isNextMonthDisabled = isCurrentMonth(selectedMonth);
 
   const handleEdit = (id: string) => navigate(`/transactions/${id}/edit`);
@@ -91,26 +94,22 @@ export function TransactionsPage() {
     }
   };
 
-  const handleAdvancedFilterChange = (nextFilter: TransactionFilter) => {
-    const dateChanged =
-      nextFilter.startDate !== filter.startDate || nextFilter.endDate !== filter.endDate;
-
-    if (dateChanged) {
-      setHasCustomDateRange(
-        nextFilter.startDate !== selectedMonthRange.startDate ||
-          nextFilter.endDate !== selectedMonthRange.endDate,
-      );
-    }
-
-    setFilter(nextFilter);
+  const handleAdvancedFilterApply = (nextFilter: TransactionFilter) => {
+    setHasCustomDateRange(
+      nextFilter.startDate !== selectedMonthRange.startDate ||
+      nextFilter.endDate !== selectedMonthRange.endDate,
+    );
+    setFilter({ ...nextFilter });
   };
+
+  const getResetFilterDraft = (): TransactionFilter => ({
+    startDate: selectedMonthRange.startDate,
+    endDate: selectedMonthRange.endDate,
+  });
 
   const handleResetFilters = () => {
     setHasCustomDateRange(false);
-    setFilter({
-      startDate: selectedMonthRange.startDate,
-      endDate: selectedMonthRange.endDate,
-    });
+    setFilter(getResetFilterDraft());
   };
 
   const handleSelectSummaryRange = (range: {
@@ -140,9 +139,40 @@ export function TransactionsPage() {
     year: t('transactions.view_year'),
   };
 
-  const hasAdvancedFilter = Boolean(
-    hasCustomDateRange || filter.wallet_id || filter.type || filter.category_id || filter.note,
-  );
+  const activeFilterLabels = useMemo(() => {
+    const labels: string[] = [];
+
+    if (hasCustomDateRange) {
+      labels.push(t('transactions.custom_date_range'));
+    }
+    if (filter.wallet_id) {
+      labels.push(
+        wallets.find((wallet) => wallet.id === filter.wallet_id)?.name ??
+        t('transactions.wallet'),
+      );
+    }
+    if (filter.type === 'expense') {
+      labels.push(t('transactions.filter_expenses'));
+    } else if (filter.type === 'income') {
+      labels.push(t('transactions.filter_income'));
+    }
+    if (filter.category_id) {
+      labels.push(
+        categories.find((category) => category.id === filter.category_id)?.name ??
+        t('transactions.category'),
+      );
+    }
+    if (filter.note?.trim()) {
+      labels.push(`“${filter.note.trim()}”`);
+    }
+
+    return labels;
+  }, [categories, filter.category_id, filter.note, filter.type, filter.wallet_id, hasCustomDateRange, t, wallets]);
+  const activeFilterCount = activeFilterLabels.length;
+  const hasAdvancedFilter = activeFilterCount > 0;
+  const customPeriodLabel = hasCustomDateRange && filter.startDate && filter.endDate
+    ? `${formatAppDate(filter.startDate, displayFormatSettings)} – ${formatAppDate(filter.endDate, displayFormatSettings)}`
+    : null;
   const title =
     navigationState?.title ??
     drilldownSnapshot?.title ??
@@ -151,187 +181,117 @@ export function TransactionsPage() {
       : t('transactions.history_title'));
 
   return (
-    <div style={{ minHeight: '100%', paddingBottom: '80px' }}>
-      <div
-        style={{
-          position: 'sticky',
-          top: 0,
-          zIndex: 20,
-          padding: '16px 16px 12px',
-          background: 'var(--bg)',
-          boxShadow: '0 1px 0 rgba(15, 23, 42, 0.06)',
-        }}
-      >
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            gap: '10px',
-            flexWrap: 'wrap',
-            marginBottom: '14px',
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', minWidth: 0, flex: 1 }}>
-            <BackButton onClick={handleBack} ariaLabel={t('common.back')} />
-            <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', minWidth: 0 }}>{title}</h2>
-          </div>
+    <main className="transactions-page" aria-busy={loading}>
+      <header className="transactions-history-header">
+        <div className="transactions-history-header__top">
+          <BackButton onClick={handleBack} ariaLabel={t('common.back')} />
+          <h1 className="transactions-history-header__title">{title}</h1>
 
-          <div
-            className="transactions-history-toolbar"
-            style={{
-              display: isDayDetail ? 'none' : 'flex',
-              alignItems: 'center',
-              justifyContent: 'flex-end',
-              gap: '8px',
-              flexWrap: 'wrap',
-              marginLeft: 'auto',
-            }}
-          >
-            <div
-              className="transactions-month-navigator"
-              aria-label={t('transactions.current_month')}
-              style={{
-                minHeight: '38px',
-                display: 'flex',
-                alignItems: 'center',
-                border: '1px solid var(--border)',
-                borderRadius: '8px',
-                background: 'var(--surface)',
-                boxShadow: '0 1px 2px rgba(0,0,0,0.04)',
-                overflow: 'visible',
-                flex: '0 1 auto',
-                maxWidth: '100%',
-              }}
+          {!isDayDetail && (
+            <button
+              className="transactions-filter-button"
+              type="button"
+              onClick={() => setShowAdvancedFilter(true)}
+              aria-label={
+                hasAdvancedFilter
+                  ? `${t('transactions.advanced_filter')} (${activeFilterCount})`
+                  : t('transactions.advanced_filter')
+              }
+              aria-expanded={showAdvancedFilter}
+              aria-controls={ADVANCED_FILTER_SHEET_ID}
+              data-active={hasAdvancedFilter}
+            >
+              <SlidersHorizontal size={18} aria-hidden="true" />
+              <span>{t('transactions.filter_button')}</span>
+              {hasAdvancedFilter && <span aria-hidden="true">· {activeFilterCount}</span>}
+            </button>
+          )}
+        </div>
+
+        {!isDayDetail && (
+          <>
+            <nav
+              className="transactions-period"
+              aria-label={t('transactions.period_navigation')}
             >
               <button
-                className="transactions-month-button"
+                className="transactions-period__button"
                 type="button"
                 onClick={handlePreviousMonth}
                 aria-label={t('transactions.previous_month')}
-                style={{
-                  width: '38px',
-                  minHeight: '38px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  border: 'none',
-                  borderRight: '1px solid var(--border)',
-                  background: 'transparent',
-                  color: 'var(--text)',
-                }}
               >
-                <ChevronLeft size={16} />
+                <ChevronLeft size={20} aria-hidden="true" />
               </button>
-              <span
-                className="transactions-month-label"
-                style={{
-                  minWidth: '68px',
-                  padding: '0 8px',
-                  color: 'var(--text)',
-                  fontSize: '0.82rem',
-                  fontWeight: 700,
-                  textAlign: 'center',
-                  whiteSpace: 'nowrap',
-                }}
-              >
-                {selectedMonthLabel}
-              </span>
+
+              <div className="transactions-period__label" aria-live="polite">
+                <span className="transactions-period__value">
+                  {customPeriodLabel ?? selectedMonthLabel}
+                </span>
+                {customPeriodLabel && (
+                  <span className="transactions-period__hint">
+                    {t('transactions.custom_date_range')}
+                  </span>
+                )}
+              </div>
+
               <button
-                className="transactions-month-button"
+                className="transactions-period__button"
                 type="button"
                 onClick={handleNextMonth}
                 disabled={isNextMonthDisabled}
                 aria-label={t('transactions.next_month')}
-                style={{
-                  width: '38px',
-                  minHeight: '38px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  border: 'none',
-                  borderLeft: '1px solid var(--border)',
-                  background: 'transparent',
-                  color: isNextMonthDisabled ? 'var(--text-muted)' : 'var(--text)',
-                  opacity: isNextMonthDisabled ? 0.45 : 1,
-                  cursor: isNextMonthDisabled ? 'not-allowed' : 'pointer',
-                }}
               >
-                <ChevronRight size={16} />
+                <ChevronRight size={20} aria-hidden="true" />
               </button>
+            </nav>
+
+            {hasAdvancedFilter && (
+              <div className="transactions-active-filters" role="status">
+                <div className="transactions-active-filters__summary">
+                  {t('transactions.active_filters')}: {activeFilterLabels.join(' · ')}
+                </div>
+                <button
+                  type="button"
+                  className="transactions-active-filters__clear"
+                  onClick={handleResetFilters}
+                >
+                  {t('transactions.clear_filters')}
+                </button>
+              </div>
+            )}
+
+            <div className="transactions-view-switcher" aria-label={t('transactions.view_selector')}>
+              {(['day', 'month', 'year'] as ViewType[]).map((type) => (
+                <button
+                  key={type}
+                  type="button"
+                  className="transactions-view-switcher__button"
+                  onClick={() => setViewType(type)}
+                  aria-pressed={viewType === type}
+                >
+                  {viewLabels[type]}
+                </button>
+              ))}
             </div>
-
-            <button
-              className="transactions-advanced-filter-button"
-              type="button"
-              onClick={() => setShowAdvancedFilter((open) => !open)}
-              aria-label={t('transactions.advanced_filter')}
-              aria-expanded={showAdvancedFilter}
-              style={{
-                width: '40px',
-                height: '40px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                background: hasAdvancedFilter ? 'var(--primary)' : 'var(--surface)',
-                color: hasAdvancedFilter ? 'white' : 'var(--text)',
-                border: hasAdvancedFilter ? 'none' : '1px solid var(--border)',
-                borderRadius: '10px',
-                boxShadow: hasAdvancedFilter
-                  ? '0 4px 6px -1px rgba(14, 165, 233, 0.2)'
-                  : '0 1px 2px rgba(0,0,0,0.04)',
-                flexShrink: 0,
-              }}
-            >
-              <SlidersHorizontal size={18} />
-            </button>
-          </div>
-        </div>
-
-        <div
-          style={{
-            display: isDayDetail ? 'none' : 'flex',
-            background: 'var(--border)',
-            padding: '2px',
-            borderRadius: '10px',
-          }}
-        >
-          {(['day', 'month', 'year'] as ViewType[]).map((type) => (
-            <button
-              key={type}
-              type="button"
-              onClick={() => setViewType(type)}
-              style={{
-                flex: 1,
-                minHeight: '38px',
-                padding: '8px',
-                border: 'none',
-                borderRadius: '8px',
-                background: viewType === type ? 'var(--surface)' : 'transparent',
-                color: viewType === type ? 'var(--primary)' : 'var(--text-muted)',
-                fontSize: '0.85rem',
-                fontWeight: viewType === type ? '600' : '500',
-                cursor: 'pointer',
-                transition: 'all 0.2s',
-              }}
-            >
-              {viewLabels[type]}
-            </button>
-          ))}
-        </div>
-      </div>
+          </>
+        )}
+      </header>
 
       <AdvancedTransactionFilterSheet
+        id={ADVANCED_FILTER_SHEET_ID}
         isOpen={showAdvancedFilter}
         filter={filter}
         wallets={wallets}
         categories={categories}
-        onChange={handleAdvancedFilterChange}
-        onReset={handleResetFilters}
+        onApply={handleAdvancedFilterApply}
+        onResetDraft={getResetFilterDraft}
         onClose={() => setShowAdvancedFilter(false)}
       />
 
-      <div style={{ padding: '18px 16px 0' }}>
+      <section
+        className="transactions-history-content"
+        aria-label={t('transactions.history_content')}
+      >
         <TransactionList
           transactions={transactions}
           loading={loading}
@@ -342,7 +302,7 @@ export function TransactionsPage() {
           emptyMessage={
             hasAdvancedFilter
               ? t('transactions.empty_filtered')
-              : t('transactions.empty')
+              : t('transactions.empty_period')
           }
           emptyDescription={
             hasAdvancedFilter
@@ -354,22 +314,22 @@ export function TransactionsPage() {
               <button
                 type="button"
                 onClick={handleResetFilters}
-                className="h-11 rounded-[12px] bg-indigo-500 px-5 text-[14px] font-semibold text-white shadow-lg shadow-indigo-500/20 active:scale-95"
+                className="transactions-empty-state__action"
               >
-                {t('transactions.reset_filters')}
+                {t('transactions.clear_filters')}
               </button>
             ) : (
               <button
                 type="button"
                 onClick={() => navigate(ROUTES.TRANSACTIONS_NEW)}
-                className="h-11 rounded-[12px] bg-indigo-500 px-5 text-[14px] font-semibold text-white shadow-lg shadow-indigo-500/20 active:scale-95"
+                className="transactions-empty-state__action"
               >
                 {t('transactions.add_title')}
               </button>
             )
           }
         />
-      </div>
-    </div>
+      </section>
+    </main>
   );
 }

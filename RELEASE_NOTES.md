@@ -1,17 +1,26 @@
-# v2.0.1
+# v2.1.0
 
 ## Tóm tắt
 
-Bản cập nhật 2.0.1 cải thiện trải nghiệm báo cáo và màn hình chính, đồng thời sửa thao tác lưu/hủy giờ nhắc trên Android.
+Bản cập nhật 2.1.0 làm mới trải nghiệm Báo cáo, Lịch sử giao dịch và màn Thêm/Sửa giao dịch, giúp đọc số liệu, điều hướng theo kỳ và lọc dữ liệu rõ ràng hơn mà không thay đổi dữ liệu tài chính hay quy tắc tính toán hiện có.
 
 ## Tính năng mới
 
-- Có thể tạm loại trừ hoặc thêm lại danh mục trên biểu đồ tròn chi tiêu; biểu đồ, tổng chi đang hiển thị và tỷ lệ được tính lại mà không thay đổi dữ liệu giao dịch.
+- Bổ sung chế độ xem lịch sử giao dịch theo ngày, tháng và năm. Chế độ tháng có thể mở rộng từng tuần để xem theo ngày; chế độ năm có thể mở rộng từng quý để xem theo tháng và đi sâu vào đúng khoảng thời gian cần kiểm tra.
+- Bộ lọc giao dịch nâng cao hỗ trợ ghi chú, khoảng ngày tùy chỉnh, ví, loại và danh mục theo cơ chế bản nháp; danh sách chỉ cập nhật khi người dùng nhấn Áp dụng, kể cả sau khi đặt lại bộ lọc.
 
 ## Cải thiện
 
-- Tinh gọn màn hình chính bằng cách loại bỏ thẻ Nợ & hạn thanh toán; các cảnh báo thẻ tín dụng và tính năng vay/nợ riêng vẫn được giữ nguyên.
+- Redesign màn Báo cáo với phân cấp tổng quan tài chính, so sánh kỳ trước, xu hướng dòng tiền, cơ cấu thu chi và insight rõ ràng hơn; đồng thời hoàn thiện trạng thái tải, trống, lỗi, dark mode, điều hướng bàn phím, trình đọc màn hình và chế độ ẩn số tiền.
+- Cải thiện biểu đồ danh mục với số lượng mục đang hiển thị/đã loại trừ, thao tác xem thêm/thu gọn và mô tả hỗ trợ tiếp cận. Việc ẩn danh mục chỉ thay đổi biểu đồ đang xem, không làm thay đổi tổng báo cáo, xu hướng hoặc dữ liệu giao dịch.
+- Làm mới danh sách giao dịch với hướng tiền trực quan, nhãn trạng thái riêng, tổng hợp theo ngày/tuần/quý và các trạng thái tải hoặc không có kết quả rõ ràng hơn. Giao dịch bị loại trừ hoặc dùng để bù trừ ngân sách vẫn được đếm trong lịch sử nhưng không làm sai lệch các tổng thu chi.
+- Sắp xếp lại màn Thêm/Sửa giao dịch theo luồng ưu tiên số tiền, tách thông tin chính, thời gian và ghi chú, tùy chọn báo cáo cùng vùng xóa nguy hiểm; màn sửa cũng phân biệt rõ trạng thái đang tải, không tìm thấy và lỗi tải.
 
 ## Sửa lỗi
 
-- Sửa lỗi trên Android khiến nút Lưu và Hủy tại màn thêm/sửa giờ thông báo phải chạm hai lần mới hoạt động.
+- Ngăn thao tác chạm nhanh làm đổi loại giao dịch nhiều lần hoặc gửi biểu mẫu lặp, đồng thời giữ nguyên luồng cảnh báo và xác nhận khi phát hiện giao dịch có thể bị trùng.
+- Sửa trường hợp số tiền đã ẩn vẫn có thể xuất hiện trong nội dung hỗ trợ tiếp cận của biểu đồ hoặc phần tóm tắt.
+
+## Thay đổi dữ liệu
+
+- Không có migration, thay đổi định dạng sao lưu/khôi phục hoặc thao tác dữ liệu bắt buộc sau khi cập nhật.

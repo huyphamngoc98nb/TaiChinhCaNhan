@@ -2,7 +2,7 @@ import React from 'react';
 import { CashflowSummary } from '../domain/report.model';
 import { useLanguage } from '@/shared/context/LanguageContext';
 import { useCurrency } from '@/shared/context/CurrencyContext';
-import { ArrowDownCircle, ArrowUpCircle, PiggyBank } from 'lucide-react';
+import { ArrowDownCircle, ArrowDownRight, ArrowUpCircle, ArrowUpRight } from 'lucide-react';
 import { HIDDEN_AMOUNT, useAmountVisibility } from '@/shared/hooks/useAmountVisibility';
 
 interface Props {
@@ -24,64 +24,67 @@ export const ReportSummaryCards: React.FC<Props> = ({ data, previousData, loadin
   const displayAmount = (amount: number) => showAmounts ? formatAmount(amount, locale) : HIDDEN_AMOUNT;
 
   if (loading) {
-    return <div className="mb-5 rounded-[14px] bg-white p-4 text-sm text-gray-500 shadow-sm">{t('reports.loading_summaries')}</div>;
+    return (
+      <div className="grid grid-cols-1 divide-y divide-border border-t border-border min-[360px]:grid-cols-2 min-[360px]:divide-x min-[360px]:divide-y-0" aria-busy="true">
+        {[0, 1].map(item => (
+          <div key={item} className="space-y-2 p-4" aria-hidden="true">
+            <div className="h-4 w-20 rounded bg-surface-muted" />
+            <div className="h-7 w-32 max-w-full rounded bg-surface-muted" />
+            <div className="h-4 w-24 rounded bg-surface-muted" />
+          </div>
+        ))}
+        <span className="sr-only">{t('reports.loading_summaries')}</span>
+      </div>
+    );
   }
 
   const income = data?.totalIncome || 0;
   const expense = data?.totalExpense || 0;
-  const net = data?.netAmount || 0;
   const cards = [
     {
       label: t('reports.income'),
       value: income,
       previousValue: previousData?.totalIncome || 0,
       icon: ArrowUpCircle,
-      iconClassName: 'text-emerald-500',
-      amountClassName: 'text-emerald-600',
+      iconClassName: 'text-[var(--success)]',
+      amountClassName: 'text-[var(--success)]',
     },
     {
       label: t('reports.expense'),
       value: expense,
       previousValue: previousData?.totalExpense || 0,
       icon: ArrowDownCircle,
-      iconClassName: 'text-red-500',
-      amountClassName: 'text-red-600',
-    },
-    {
-      label: t('reports.savings_net'),
-      value: net,
-      previousValue: previousData?.netAmount || 0,
-      icon: PiggyBank,
-      iconClassName: net >= 0 ? 'text-emerald-500' : 'text-red-500',
-      amountClassName: net >= 0 ? 'text-emerald-600' : 'text-red-600',
+      iconClassName: 'text-[var(--chart-expense)]',
+      amountClassName: 'text-[var(--chart-expense)]',
     },
   ];
 
   return (
-    <div className="mb-5 grid grid-cols-1 gap-2 sm:grid-cols-3">
+    <div className="grid grid-cols-1 divide-y divide-border border-t border-border min-[360px]:grid-cols-2 min-[360px]:divide-x min-[360px]:divide-y-0">
       {cards.map((card) => {
         const Icon = card.icon;
         const change = percentChange(card.value, card.previousValue);
+        const ChangeIcon = change >= 0 ? ArrowUpRight : ArrowDownRight;
         return (
           <div
             key={card.label}
-            className="flex min-w-0 items-center gap-3 rounded-[14px] border border-gray-100 bg-white px-3 py-3 shadow-sm sm:flex-col sm:items-start sm:gap-2"
+            className="min-w-0 p-4"
           >
-            <div className="flex min-w-0 flex-1 items-center gap-2 sm:flex-none">
+            <div className="flex min-w-0 items-center gap-2">
               <Icon size={18} className={`shrink-0 ${card.iconClassName}`} />
-              <span className="truncate text-[12px] font-semibold uppercase text-gray-400">
+              <span className="min-w-0 truncate text-sm font-semibold text-muted">
                 {card.label}
               </span>
             </div>
-            <div className="min-w-0 flex-1 text-right sm:w-full sm:text-left">
-              <div
-                className={`break-words text-[15px] font-bold leading-tight tabular-nums sm:text-[16px] ${card.amountClassName}`}
-              >
-                {displayAmount(card.value)}
-              </div>
-              <div className={`mt-1 text-[11px] font-semibold ${change >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
-                {change >= 0 ? '+' : ''}{change.toFixed(0)}%
-              </div>
+            <div
+              className={`mt-2 break-words text-xl font-bold leading-6 tabular-nums ${card.amountClassName}`}
+            >
+              {displayAmount(card.value)}
+            </div>
+            <div className="mt-2 flex items-center gap-1 text-xs font-semibold text-muted">
+              <ChangeIcon size={14} aria-hidden="true" />
+              <span>{change >= 0 ? '+' : ''}{change.toFixed(0)}%</span>
+              <span className="font-normal">{t('reports.compared_with_previous_period')}</span>
             </div>
           </div>
         );

@@ -18,8 +18,20 @@ vi.mock('@capacitor/preferences', () => ({
 
 vi.mock('recharts', () => ({
   ResponsiveContainer: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
-  AreaChart: ({ children, data }: { children: React.ReactNode; data: Array<{ net: number }> }) => (
-    <div data-testid="area-chart" data-net-values={data.map((item) => item.net).join(',')}>
+  AreaChart: ({
+    children,
+    data,
+    accessibilityLayer,
+  }: {
+    children: React.ReactNode;
+    data: Array<{ net: number }>;
+    accessibilityLayer: boolean;
+  }) => (
+    <div
+      data-testid="area-chart"
+      data-net-values={data.map((item) => item.net).join(',')}
+      data-accessibility-layer={String(accessibilityLayer)}
+    >
       {children}
     </div>
   ),
@@ -91,9 +103,31 @@ describe('CashflowTrendChart', () => {
     expect(screen.getByTestId('zero-line')).toBeTruthy();
   });
 
+  it('provides a translated non-pointer summary for the active metric', async () => {
+    renderChart();
+
+    const summary = await screen.findByRole('status');
+    expect(summary.textContent).toContain('Income. 2 data points in this period.');
+    expect(summary.textContent).toContain('100');
+    expect(summary.textContent).toContain('20');
+    expect(screen.getByTestId('area-chart').getAttribute('data-accessibility-layer')).toBe('true');
+  });
+
+  it('masks accessible values and disables the raw chart accessibility layer when amounts are hidden', async () => {
+    localStorage.setItem('dashboard_show_amounts', 'false');
+    renderChart();
+
+    const summary = await screen.findByRole('status');
+    expect(summary.textContent).toContain('••••••');
+    expect(summary.textContent).not.toContain('100 ₫');
+    expect(summary.textContent).not.toContain('20 ₫');
+    expect(screen.getByTestId('area-chart').getAttribute('data-accessibility-layer')).toBe('false');
+  });
+
   it('shows the existing empty state when there is no period data', async () => {
     renderChart([]);
 
+    expect(await screen.findByRole('heading', { level: 2, name: 'Cashflow Over Time' })).toBeTruthy();
     expect(await screen.findByText('No cashflow data in this period.')).toBeTruthy();
     expect(screen.queryByTestId('area-chart')).toBeNull();
   });

@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
-import { PlusCircle, SearchX } from 'lucide-react';
-import { Transaction } from '../domain/transaction.model';
+import { ChevronRight, PlusCircle, SearchX } from 'lucide-react';
+import type { Transaction } from '../domain/transaction.model';
 import { TransactionItem } from './TransactionItem';
 import { useLanguage } from '@/shared/context/LanguageContext';
 import { useCurrency } from '@/shared/context/CurrencyContext';
@@ -15,6 +15,12 @@ import {
   getStartOfWeek,
 } from '@/shared/utils/display-format';
 import { toDateKey } from '@/shared/utils/date-range';
+import {
+  buildQuarterSummaryRows,
+  buildWeeklySummaryRows,
+  groupTransactions,
+  type TransactionSummary,
+} from './transaction-list-grouping';
 
 interface Props {
   transactions: Transaction[];
@@ -28,30 +34,30 @@ interface Props {
   emptyVariant?: 'default' | 'filtered';
 }
 
-interface SummaryRow {
-  key: string;
-  label: string;
-  count: number;
-  income: number;
-  expense: number;
+interface SummaryMetricsProps {
+  summary: TransactionSummary;
+  displayAmount: (amount: number) => string;
+  t: ReturnType<typeof useLanguage>['t'];
 }
 
-interface DaySummaryRow extends SummaryRow {
-  startDate: number;
-  endDate: number;
+function SummaryMetrics({ summary, displayAmount, t }: SummaryMetricsProps) {
+  return (
+    <div className="transaction-summary-metrics">
+      <span className="transaction-summary-metrics__item transaction-summary-metrics__item--income">
+        {t('transactions.label_income')} {displayAmount(summary.income)}
+      </span>
+      <span className="transaction-summary-metrics__item transaction-summary-metrics__item--expense">
+        {t('transactions.label_expense')} {displayAmount(summary.expense)}
+      </span>
+      <span className="transaction-summary-metrics__item transaction-summary-metrics__item--balance">
+        {t('transactions.label_balance')} {displayAmount(summary.balance)}
+      </span>
+    </div>
+  );
 }
 
-interface WeekSummaryRow extends SummaryRow {
-  dayRows: DaySummaryRow[];
-}
-
-interface QuarterSummaryRow extends SummaryRow {
-  monthRows: YearMonthSummaryRow[];
-}
-
-interface YearMonthSummaryRow extends SummaryRow {
-  startDate: number;
-  endDate: number;
+function capitalizeLabel(label: string) {
+  return label ? label.charAt(0).toUpperCase() + label.slice(1) : label;
 }
 
 export function TransactionList({
@@ -70,25 +76,106 @@ export function TransactionList({
   const { showAmounts } = useAmountVisibility();
   const displayFormatSettings = useDisplayFormatSettings();
   const locale = getAppLocale(language);
-  const displayAmount = (amount: number) => showAmounts ? formatAmount(amount, locale) : HIDDEN_AMOUNT;
+  const displayAmount = (amount: number) => (
+    showAmounts ? formatAmount(amount, locale) : HIDDEN_AMOUNT
+  );
   const [expandedQuarterKey, setExpandedQuarterKey] = useState<string | null>(() => {
     const now = new Date();
     const quarter = Math.floor(now.getMonth() / 3) + 1;
     return `${now.getFullYear()}-Q${quarter}`;
   });
   const [expandedWeekKey, setExpandedWeekKey] = useState<string | null>(() =>
-    toDateKey(startOfLocalWeek(new Date())),
+    toDateKey(getStartOfWeek(new Date(), displayFormatSettings)),
   );
 
   useEffect(() => {
     setExpandedWeekKey(toDateKey(getStartOfWeek(new Date(), displayFormatSettings)));
   }, [displayFormatSettings]);
 
+  const groups = useMemo(() => groupTransactions(
+    transactions,
+    (transaction) => {
+      const date = new Date(transaction.transaction_date);
+
+      if (viewType === 'day') return toDateKey(date);
+      if (viewType === 'month') {
+        return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+      }
+      return String(date.getFullYear());
+    },
+    (transaction) => {
+      const date = new Date(transaction.transaction_date);
+
+      if (viewType === 'day') {
+        return capitalizeLabel(formatAppDate(transaction.transaction_date, displayFormatSettings));
+      }
+      if (viewType === 'month') {
+        return capitalizeLabel(
+          formatAppMonth(transaction.transaction_date, displayFormatSettings, locale),
+        );
+      }
+      return String(date.getFullYear());
+    },
+  ), [displayFormatSettings, locale, transactions, viewType]);
+
+  const weeklyRowsByGroup = useMemo(() => {
+    if (viewType !== 'month') return new Map<string, ReturnType<typeof buildWeeklySummaryRows>>();
+
+    return new Map(groups.map((group) => [
+      group.key,
+      buildWeeklySummaryRows(
+        group.items,
+        (date) => getStartOfWeek(date, displayFormatSettings),
+        (date) => getEndOfWeek(date, displayFormatSettings),
+        (start, end) => (
+          `${t('transactions.label_week')} ${formatAppDate(start.getTime(), displayFormatSettings)} – ${formatAppDate(end.getTime(), displayFormatSettings)}`
+        ),
+        (transaction) => {
+          const date = new Date(transaction.transaction_date);
+          const weekday = new Intl.DateTimeFormat(locale, { weekday: 'short' }).format(date);
+          return `${weekday} ${formatAppDate(transaction.transaction_date, displayFormatSettings)}`;
+        },
+      ),
+    ]));
+  }, [displayFormatSettings, groups, locale, t, viewType]);
+
+  const quarterRowsByGroup = useMemo(() => {
+    if (viewType !== 'year') return new Map<string, ReturnType<typeof buildQuarterSummaryRows>>();
+
+    return new Map(groups.map((group) => [
+      group.key,
+      buildQuarterSummaryRows(
+        group.items,
+        (quarter) => `${t('transactions.label_quarter')} ${quarter}`,
+        (timestamp) => capitalizeLabel(
+          formatAppMonth(timestamp, displayFormatSettings, locale),
+        ),
+      ),
+    ]));
+  }, [displayFormatSettings, groups, locale, t, viewType]);
+
   if (loading) {
     return (
-      <div className="space-y-3">
-        {[1, 2, 3].map((item) => (
-          <div key={item} className="h-16 animate-pulse rounded-[10px] bg-gray-100" />
+      <div
+        className="transactions-loading"
+        role="status"
+        aria-label={t('transactions.loading_history')}
+      >
+        {[0, 1].map((group) => (
+          <div className="transactions-loading__group" key={group} aria-hidden="true">
+            <div className="transactions-loading__heading" />
+            <div className="transactions-loading__rows">
+              {[0, 1].map((row) => (
+                <div className="transactions-loading__row" key={row}>
+                  <div className="transactions-loading__row-copy">
+                    <div className="transactions-loading__row-line" />
+                    <div className="transactions-loading__row-line" />
+                  </div>
+                  <div className="transactions-loading__amount" />
+                </div>
+              ))}
+            </div>
+          </div>
         ))}
       </div>
     );
@@ -98,603 +185,208 @@ export function TransactionList({
     const EmptyIcon = emptyVariant === 'filtered' ? SearchX : PlusCircle;
 
     return (
-      <div className="flex flex-col items-center px-5 py-10 text-center">
-        <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-indigo-50 text-indigo-500">
-          <EmptyIcon size={27} />
+      <div className="transactions-empty-state">
+        <div className="transactions-empty-state__icon" aria-hidden="true">
+          <EmptyIcon size={24} />
         </div>
-        <h3 className="text-[17px] font-bold text-gray-900">
+        <h2 className="transactions-empty-state__title">
           {emptyMessage ?? t('transactions.empty')}
-        </h3>
+        </h2>
         {emptyDescription && (
-          <p className="mt-2 max-w-[300px] text-[13px] leading-5 text-gray-500">
-            {emptyDescription}
-          </p>
+          <p className="transactions-empty-state__description">{emptyDescription}</p>
         )}
-        {emptyAction && <div className="mt-5">{emptyAction}</div>}
+        {emptyAction}
       </div>
     );
   }
 
-  const sortedTransactions = [...transactions].sort(
-    (a, b) => b.transaction_date - a.transaction_date,
-  );
-
-  const groups: { label: string; items: Transaction[]; income: number; expense: number }[] = [];
-  let currentGroup: {
-    label: string;
-    items: Transaction[];
-    income: number;
-    expense: number;
-  } | null = null;
-
-  sortedTransactions.forEach((tx) => {
-    const date = new Date(tx.transaction_date);
-    let label = '';
-
-    if (viewType === 'day') {
-      label = formatAppDate(tx.transaction_date, displayFormatSettings);
-    } else if (viewType === 'month') {
-      label = formatAppMonth(tx.transaction_date, displayFormatSettings, locale);
-    } else if (viewType === 'year') {
-      label = String(date.getFullYear());
-    }
-
-    // Capitalize first character
-    label = label.charAt(0).toUpperCase() + label.slice(1);
-
-    if (!currentGroup || currentGroup.label !== label) {
-      currentGroup = { label, items: [], income: 0, expense: 0 };
-      groups.push(currentGroup);
-    }
-
-    currentGroup.items.push(tx);
-    if (tx.exclude_from_total || tx.is_budget_offset) return;
-    if (tx.type === 'income') currentGroup.income += tx.amount;
-    else if (tx.type === 'expense') currentGroup.expense += tx.amount;
-  });
-
-  function addTransactionAmount(row: SummaryRow, tx: Transaction) {
-    row.count += 1;
-    if (tx.exclude_from_total || tx.is_budget_offset) return;
-    if (tx.type === 'income') row.income += tx.amount;
-    else if (tx.type === 'expense') row.expense += tx.amount;
-  }
-
-  function formatShortDate(date: Date) {
-    return formatAppDate(date.getTime(), displayFormatSettings);
-  }
-
-  function startOfLocalWeek(date: Date) {
-    return getStartOfWeek(date, displayFormatSettings);
-  }
-
-  function buildDailySummaryRows(items: Transaction[]): DaySummaryRow[] {
-    const rows: DaySummaryRow[] = [];
-    let currentRow: DaySummaryRow | null = null;
-
-    items.forEach((tx) => {
-      const date = new Date(tx.transaction_date);
-      const key = toDateKey(date);
-      const weekday = new Intl.DateTimeFormat(locale, { weekday: 'short' }).format(date);
-      const label = `${weekday} ${formatAppDate(tx.transaction_date, displayFormatSettings)}`;
-
-      if (!currentRow || currentRow.key !== key) {
-        currentRow = {
-          key,
-          label,
-          count: 0,
-          income: 0,
-          expense: 0,
-          startDate: new Date(
-            date.getFullYear(),
-            date.getMonth(),
-            date.getDate(),
-            0,
-            0,
-            0,
-            0,
-          ).getTime(),
-          endDate: new Date(
-            date.getFullYear(),
-            date.getMonth(),
-            date.getDate(),
-            23,
-            59,
-            59,
-            999,
-          ).getTime(),
-        };
-        rows.push(currentRow);
-      }
-
-      addTransactionAmount(currentRow, tx);
-    });
-
-    return rows;
-  }
-
-  function buildWeeklySummaryRows(items: Transaction[]): WeekSummaryRow[] {
-    type DraftWeekSummaryRow = WeekSummaryRow & { items: Transaction[] };
-
-    const rows: DraftWeekSummaryRow[] = [];
-    let currentRow: DraftWeekSummaryRow | null = null;
-
-    items.forEach((tx) => {
-      const date = new Date(tx.transaction_date);
-      const weekStart = startOfLocalWeek(date);
-      const weekEnd = getEndOfWeek(date, displayFormatSettings);
-      const key = toDateKey(weekStart);
-      const label = `${t('transactions.label_week')} ${formatShortDate(weekStart)} - ${formatShortDate(weekEnd)}`;
-
-      if (!currentRow || currentRow.key !== key) {
-        currentRow = {
-          key,
-          label,
-          count: 0,
-          income: 0,
-          expense: 0,
-          dayRows: [],
-          items: [],
-        };
-        rows.push(currentRow);
-      }
-
-      currentRow.items.push(tx);
-      addTransactionAmount(currentRow, tx);
-    });
-
-    return rows.map(({ items: weekItems, ...row }) => ({
-      ...row,
-      dayRows: buildDailySummaryRows(weekItems),
-    }));
-  }
-
-  function buildQuarterSummaryRows(items: Transaction[]): QuarterSummaryRow[] {
-    const rows: QuarterSummaryRow[] = [];
-    let currentQuarterRow: QuarterSummaryRow | null = null;
-    let currentMonthRow: YearMonthSummaryRow | null = null;
-
-    items.forEach((tx) => {
-      const date = new Date(tx.transaction_date);
-      const year = date.getFullYear();
-      const monthIndex = date.getMonth();
-      const quarter = Math.floor(monthIndex / 3) + 1;
-      const quarterKey = `${year}-Q${quarter}`;
-
-      if (!currentQuarterRow || currentQuarterRow.key !== quarterKey) {
-        currentQuarterRow = {
-          key: quarterKey,
-          label: `${t('transactions.label_quarter')} ${quarter}`,
-          count: 0,
-          income: 0,
-          expense: 0,
-          monthRows: [],
-        };
-        rows.push(currentQuarterRow);
-        currentMonthRow = null;
-      }
-
-      const monthKey = `${year}-${String(monthIndex + 1).padStart(2, '0')}`;
-
-      if (!currentMonthRow || currentMonthRow.key !== monthKey) {
-        const monthStart = new Date(year, monthIndex, 1, 0, 0, 0, 0);
-        const monthEnd = new Date(year, monthIndex + 1, 0, 23, 59, 59, 999);
-        const label = formatAppMonth(monthStart.getTime(), displayFormatSettings, locale);
-
-        currentMonthRow = {
-          key: monthKey,
-          label: label.charAt(0).toUpperCase() + label.slice(1),
-          count: 0,
-          income: 0,
-          expense: 0,
-          startDate: monthStart.getTime(),
-          endDate: monthEnd.getTime(),
-        };
-        currentQuarterRow.monthRows.push(currentMonthRow);
-      }
-
-      addTransactionAmount(currentQuarterRow, tx);
-      addTransactionAmount(currentMonthRow, tx);
-    });
-
-    return rows;
-  }
-
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+    <div className="transactions-list">
       {groups.map((group) => (
-        <div key={group.label}>
-          <div
-            style={{
-              fontSize: '0.9rem',
-              fontWeight: 'bold',
-              color: 'var(--text)',
-              marginBottom: '10px',
-              paddingBottom: '8px',
-              borderBottom: '1px solid var(--border)',
-            }}
-          >
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                marginBottom: '4px',
-              }}
-            >
-              <span style={{ fontSize: '1rem' }}>{group.label}</span>
-              <span
-                style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: 'normal' }}
-              >
-                {group.items.length}{' '}
-                {group.items.length === 1
+        <section className="transaction-day-group" key={group.key}>
+          <header className="transaction-group-header">
+            <div className="transaction-group-header__top">
+              <h2 className="transaction-group-header__title">{group.label}</h2>
+              <span className="transaction-group-header__count">
+                {group.count}{' '}
+                {group.count === 1
                   ? t('transactions.records_one')
                   : t('transactions.records_many')}
               </span>
             </div>
+            <SummaryMetrics summary={group} displayAmount={displayAmount} t={t} />
+          </header>
 
-            <div style={{ display: 'flex', gap: '16px', fontSize: '0.8rem', fontWeight: '500' }}>
-              <div style={{ color: '#059669' }}>
-                {t('transactions.label_income')}: {displayAmount(group.income)}
-              </div>
-              <div style={{ color: '#e11d48' }}>
-                {t('transactions.label_expense')}: {displayAmount(group.expense)}
-              </div>
-              <div style={{ marginLeft: 'auto', color: 'var(--text-muted)' }}>
-                {t('transactions.label_balance')}:{' '}
-                {displayAmount(group.income - group.expense)}
-              </div>
-            </div>
-          </div>
-
-          {viewType === 'month' ? (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              {buildWeeklySummaryRows(group.items).map((weekRow) => {
-                const isWeekExpanded = expandedWeekKey === weekRow.key;
-
-                return (
-                  <div
-                    key={weekRow.key}
-                    style={{
-                      background: 'var(--surface)',
-                      borderRadius: '10px',
-                      border: '1px solid var(--border)',
-                      boxShadow: '0 1px 2px var(--shadow-color)',
-                      overflow: 'hidden',
-                    }}
-                  >
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setExpandedWeekKey((current) =>
-                          current === weekRow.key ? null : weekRow.key,
-                        )
-                      }
-                      aria-expanded={isWeekExpanded}
-                      style={{
-                        width: '100%',
-                        padding: '10px 12px',
-                        background: 'var(--surface)',
-                        border: 'none',
-                        minHeight: '66px',
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        gap: '12px',
-                        textAlign: 'left',
-                        cursor: 'pointer',
-                      }}
-                    >
-                      <div style={{ minWidth: 0 }}>
-                        <div style={{ fontWeight: 700, fontSize: '0.95rem', color: 'var(--text)' }}>
-                          {weekRow.label}
-                        </div>
-                        <div
-                          style={{
-                            marginTop: '3px',
-                            fontSize: '0.75rem',
-                            color: 'var(--text-muted)',
-                          }}
-                        >
-                          {weekRow.count}{' '}
-                          {weekRow.count === 1
-                            ? t('transactions.records_one')
-                            : t('transactions.records_many')}
-                        </div>
-                      </div>
-
-                      <div
-                        style={{ display: 'grid', gap: '4px', textAlign: 'right', flexShrink: 0 }}
-                      >
-                        <div
-                          style={{
-                            fontSize: '0.82rem',
-                            fontWeight: 700,
-                            color: '#059669',
-                            whiteSpace: 'nowrap',
-                          }}
-                        >
-                          {t('transactions.label_income')}: {displayAmount(weekRow.income)}
-                        </div>
-                        <div
-                          style={{
-                            fontSize: '0.82rem',
-                            fontWeight: 700,
-                            color: '#e11d48',
-                            whiteSpace: 'nowrap',
-                          }}
-                        >
-                          {t('transactions.label_expense')}: {displayAmount(weekRow.expense)}
-                        </div>
-                      </div>
-                    </button>
-
-                    {isWeekExpanded && (
-                      <div
-                        style={{
-                          display: 'flex',
-                          flexDirection: 'column',
-                          gap: '8px',
-                          background: 'var(--bg-subtle)',
-                          borderTop: '1px solid var(--border)',
-                          padding: '8px',
-                        }}
-                      >
-                        {weekRow.dayRows.map((dayRow) => (
-                          <button
-                            key={`${weekRow.key}-${dayRow.key}`}
-                            type="button"
-                            onClick={() =>
-                              onSelectSummaryRange?.({
-                                startDate: dayRow.startDate,
-                                endDate: dayRow.endDate,
-                                title: dayRow.label,
-                              })
-                            }
-                            style={{
-                              padding: '9px 12px',
-                              background: 'var(--surface-muted)',
-                              border: '1px solid var(--border)',
-                              borderRadius: '8px',
-                              display: 'flex',
-                              justifyContent: 'space-between',
-                              alignItems: 'center',
-                              gap: '10px',
-                              textAlign: 'left',
-                              cursor: onSelectSummaryRange ? 'pointer' : 'default',
-                            }}
-                          >
-                            <div style={{ minWidth: 0 }}>
-                              <div
-                                style={{
-                                  fontSize: '0.82rem',
-                                  fontWeight: 700,
-                                  color: 'var(--text)',
-                                  whiteSpace: 'nowrap',
-                                }}
-                              >
-                                {dayRow.label}
-                              </div>
-                              <div
-                                style={{
-                                  marginTop: '2px',
-                                  fontSize: '0.7rem',
-                                  color: 'var(--text-muted)',
-                                }}
-                              >
-                                {dayRow.count}{' '}
-                                {dayRow.count === 1
-                                  ? t('transactions.records_one')
-                                  : t('transactions.records_many')}
-                              </div>
-                            </div>
-
-                            <div
-                              style={{
-                                display: 'grid',
-                                gap: '2px',
-                                textAlign: 'right',
-                                flexShrink: 0,
-                                fontSize: '0.76rem',
-                                fontWeight: 700,
-                              }}
-                            >
-                              <div style={{ color: '#059669', whiteSpace: 'nowrap' }}>
-                                {displayAmount(dayRow.income)}
-                              </div>
-                              <div style={{ color: '#e11d48', whiteSpace: 'nowrap' }}>
-                                {displayAmount(dayRow.expense)}
-                              </div>
-                            </div>
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          ) : viewType === 'year' ? (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              {buildQuarterSummaryRows(group.items).map((quarterRow) => {
-                const isQuarterExpanded = expandedQuarterKey === quarterRow.key;
-
-                return (
-                  <div
-                    key={quarterRow.key}
-                    style={{
-                      background: 'var(--surface)',
-                      borderRadius: '10px',
-                      border: '1px solid var(--border)',
-                      boxShadow: '0 1px 2px var(--shadow-color)',
-                      overflow: 'hidden',
-                    }}
-                  >
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setExpandedQuarterKey((current) =>
-                          current === quarterRow.key ? null : quarterRow.key,
-                        )
-                      }
-                      aria-expanded={isQuarterExpanded}
-                      style={{
-                        width: '100%',
-                        padding: '10px 12px',
-                        background: 'var(--surface)',
-                        border: 'none',
-                        minHeight: '66px',
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        gap: '12px',
-                        textAlign: 'left',
-                        cursor: 'pointer',
-                      }}
-                    >
-                      <div style={{ minWidth: 0 }}>
-                        <div style={{ fontWeight: 700, fontSize: '0.95rem', color: 'var(--text)' }}>
-                          {quarterRow.label}
-                        </div>
-                        <div
-                          style={{
-                            marginTop: '3px',
-                            fontSize: '0.75rem',
-                            color: 'var(--text-muted)',
-                          }}
-                        >
-                          {quarterRow.count}{' '}
-                          {quarterRow.count === 1
-                            ? t('transactions.records_one')
-                            : t('transactions.records_many')}
-                        </div>
-                      </div>
-
-                      <div
-                        style={{ display: 'grid', gap: '4px', textAlign: 'right', flexShrink: 0 }}
-                      >
-                        <div
-                          style={{
-                            fontSize: '0.82rem',
-                            fontWeight: 700,
-                            color: '#059669',
-                            whiteSpace: 'nowrap',
-                          }}
-                        >
-                          {t('transactions.label_income')}: {displayAmount(quarterRow.income)}
-                        </div>
-                        <div
-                          style={{
-                            fontSize: '0.82rem',
-                            fontWeight: 700,
-                            color: '#e11d48',
-                            whiteSpace: 'nowrap',
-                          }}
-                        >
-                          {t('transactions.label_expense')}:{' '}
-                          {displayAmount(quarterRow.expense)}
-                        </div>
-                      </div>
-                    </button>
-
-                    {isQuarterExpanded && (
-                      <div
-                        style={{
-                          display: 'flex',
-                          flexDirection: 'column',
-                          gap: '8px',
-                          background: 'var(--bg-subtle)',
-                          borderTop: '1px solid var(--border)',
-                          padding: '8px',
-                        }}
-                      >
-                        {quarterRow.monthRows.map((monthRow) => (
-                          <button
-                            key={`${quarterRow.key}-${monthRow.key}`}
-                            type="button"
-                            onClick={() =>
-                              onSelectSummaryRange?.({
-                                startDate: monthRow.startDate,
-                                endDate: monthRow.endDate,
-                                title: `${monthRow.label} ${group.label}`,
-                              })
-                            }
-                            style={{
-                              padding: '9px 12px',
-                              background: 'var(--surface-muted)',
-                              border: '1px solid var(--border)',
-                              borderRadius: '8px',
-                              display: 'flex',
-                              justifyContent: 'space-between',
-                              alignItems: 'center',
-                              gap: '10px',
-                              textAlign: 'left',
-                              cursor: onSelectSummaryRange ? 'pointer' : 'default',
-                            }}
-                          >
-                            <div style={{ minWidth: 0 }}>
-                              <div
-                                style={{
-                                  fontSize: '0.82rem',
-                                  fontWeight: 700,
-                                  color: 'var(--text)',
-                                  whiteSpace: 'nowrap',
-                                }}
-                              >
-                                {monthRow.label}
-                              </div>
-                              <div
-                                style={{
-                                  marginTop: '2px',
-                                  fontSize: '0.7rem',
-                                  color: 'var(--text-muted)',
-                                }}
-                              >
-                                {monthRow.count}{' '}
-                                {monthRow.count === 1
-                                  ? t('transactions.records_one')
-                                  : t('transactions.records_many')}
-                              </div>
-                            </div>
-
-                            <div
-                              style={{
-                                display: 'grid',
-                                gap: '2px',
-                                textAlign: 'right',
-                                flexShrink: 0,
-                                fontSize: '0.76rem',
-                                fontWeight: 700,
-                              }}
-                            >
-                              <div style={{ color: '#059669', whiteSpace: 'nowrap' }}>
-                                {displayAmount(monthRow.income)}
-                              </div>
-                              <div style={{ color: '#e11d48', whiteSpace: 'nowrap' }}>
-                                {displayAmount(monthRow.expense)}
-                              </div>
-                            </div>
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              {group.items.map((tx) => (
+          {viewType === 'day' && (
+            <div className="transaction-day-group__items">
+              {group.items.map((transaction) => (
                 <TransactionItem
-                  key={tx.id}
-                  transaction={tx}
+                  key={transaction.id}
+                  transaction={transaction}
                   onSelect={onSelect}
-                  showDate={viewType !== 'day'}
                 />
               ))}
             </div>
           )}
-        </div>
+
+          {viewType === 'month' && (
+            <div className="transaction-summary-list">
+              {(weeklyRowsByGroup.get(group.key) ?? []).map((weekRow) => {
+                const isExpanded = expandedWeekKey === weekRow.key;
+
+                return (
+                  <div className="transaction-summary-group" key={weekRow.key}>
+                    <button
+                      type="button"
+                      className="transaction-summary-group__toggle"
+                      onClick={() => setExpandedWeekKey((current) => (
+                        current === weekRow.key ? null : weekRow.key
+                      ))}
+                      aria-expanded={isExpanded}
+                    >
+                      <span className="transaction-summary-row__identity">
+                        <span className="transaction-summary-row__label">{weekRow.label}</span>
+                        <span className="transaction-summary-row__count">
+                          {weekRow.count}{' '}
+                          {weekRow.count === 1
+                            ? t('transactions.records_one')
+                            : t('transactions.records_many')}
+                        </span>
+                      </span>
+                      <span className="transaction-summary-row__aside">
+                        <span className="transaction-summary-row__metrics">
+                          <span>{t('transactions.label_income')} {displayAmount(weekRow.income)}</span>
+                          <span>{t('transactions.label_expense')} {displayAmount(weekRow.expense)}</span>
+                          <span className="transaction-summary-row__balance">
+                            {t('transactions.label_balance')} {displayAmount(weekRow.balance)}
+                          </span>
+                        </span>
+                        <ChevronRight
+                          size={20}
+                          className="transaction-summary-row__chevron"
+                          aria-hidden="true"
+                        />
+                      </span>
+                    </button>
+
+                    {isExpanded && weekRow.dayRows.map((dayRow) => (
+                      <button
+                        key={`${weekRow.key}-${dayRow.key}`}
+                        type="button"
+                        className="transaction-summary-row"
+                        onClick={() => onSelectSummaryRange?.({
+                          startDate: dayRow.startDate,
+                          endDate: dayRow.endDate,
+                          title: dayRow.label,
+                        })}
+                        aria-label={`${t('transactions.open_day_detail')}: ${dayRow.label}`}
+                      >
+                        <span className="transaction-summary-row__identity">
+                          <span className="transaction-summary-row__label">{dayRow.label}</span>
+                          <span className="transaction-summary-row__count">
+                            {dayRow.count}{' '}
+                            {dayRow.count === 1
+                              ? t('transactions.records_one')
+                              : t('transactions.records_many')}
+                          </span>
+                        </span>
+                        <span className="transaction-summary-row__aside">
+                          <span className="transaction-summary-row__metrics">
+                            <span>{t('transactions.label_income')} {displayAmount(dayRow.income)}</span>
+                            <span>{t('transactions.label_expense')} {displayAmount(dayRow.expense)}</span>
+                            <span className="transaction-summary-row__balance">
+                              {t('transactions.label_balance')} {displayAmount(dayRow.balance)}
+                            </span>
+                          </span>
+                          <ChevronRight size={20} aria-hidden="true" />
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+          {viewType === 'year' && (
+            <div className="transaction-summary-list">
+              {(quarterRowsByGroup.get(group.key) ?? []).map((quarterRow) => {
+                const isExpanded = expandedQuarterKey === quarterRow.key;
+
+                return (
+                  <div className="transaction-summary-group" key={quarterRow.key}>
+                    <button
+                      type="button"
+                      className="transaction-summary-group__toggle"
+                      onClick={() => setExpandedQuarterKey((current) => (
+                        current === quarterRow.key ? null : quarterRow.key
+                      ))}
+                      aria-expanded={isExpanded}
+                    >
+                      <span className="transaction-summary-row__identity">
+                        <span className="transaction-summary-row__label">{quarterRow.label}</span>
+                        <span className="transaction-summary-row__count">
+                          {quarterRow.count}{' '}
+                          {quarterRow.count === 1
+                            ? t('transactions.records_one')
+                            : t('transactions.records_many')}
+                        </span>
+                      </span>
+                      <span className="transaction-summary-row__aside">
+                        <span className="transaction-summary-row__metrics">
+                          <span>{t('transactions.label_income')} {displayAmount(quarterRow.income)}</span>
+                          <span>{t('transactions.label_expense')} {displayAmount(quarterRow.expense)}</span>
+                          <span className="transaction-summary-row__balance">
+                            {t('transactions.label_balance')} {displayAmount(quarterRow.balance)}
+                          </span>
+                        </span>
+                        <ChevronRight
+                          size={20}
+                          className="transaction-summary-row__chevron"
+                          aria-hidden="true"
+                        />
+                      </span>
+                    </button>
+
+                    {isExpanded && quarterRow.monthRows.map((monthRow) => (
+                      <button
+                        key={`${quarterRow.key}-${monthRow.key}`}
+                        type="button"
+                        className="transaction-summary-row"
+                        onClick={() => onSelectSummaryRange?.({
+                          startDate: monthRow.startDate,
+                          endDate: monthRow.endDate,
+                          title: `${monthRow.label} ${group.label}`,
+                        })}
+                        aria-label={`${t('transactions.open_month_detail')}: ${monthRow.label}`}
+                      >
+                        <span className="transaction-summary-row__identity">
+                          <span className="transaction-summary-row__label">{monthRow.label}</span>
+                          <span className="transaction-summary-row__count">
+                            {monthRow.count}{' '}
+                            {monthRow.count === 1
+                              ? t('transactions.records_one')
+                              : t('transactions.records_many')}
+                          </span>
+                        </span>
+                        <span className="transaction-summary-row__aside">
+                          <span className="transaction-summary-row__metrics">
+                            <span>{t('transactions.label_income')} {displayAmount(monthRow.income)}</span>
+                            <span>{t('transactions.label_expense')} {displayAmount(monthRow.expense)}</span>
+                            <span className="transaction-summary-row__balance">
+                              {t('transactions.label_balance')} {displayAmount(monthRow.balance)}
+                            </span>
+                          </span>
+                          <ChevronRight size={20} aria-hidden="true" />
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </section>
       ))}
     </div>
   );

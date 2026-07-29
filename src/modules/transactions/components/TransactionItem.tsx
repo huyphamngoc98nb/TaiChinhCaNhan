@@ -1,5 +1,6 @@
-import { Transaction } from '../domain/transaction.model';
+import type { CSSProperties } from 'react';
 import { ArrowLeftRight } from 'lucide-react';
+import type { Transaction } from '../domain/transaction.model';
 import { useLanguage } from '@/shared/context/LanguageContext';
 import { useCurrency } from '@/shared/context/CurrencyContext';
 import { CategoryIcon } from '@/modules/categories/components/CategoryIcon';
@@ -22,127 +23,82 @@ export function TransactionItem({ transaction, onSelect, showDate = false }: Pro
   const displayFormatSettings = useDisplayFormatSettings();
   const { listDensity } = useUiPersonalizationSettings();
   const locale = getAppLocale(language);
-  const isCompact = listDensity === 'compact';
   const isExpense = transaction.type === 'expense';
   const isTransfer = transaction.type === 'transfer';
-  const amountColor = isTransfer ? '#4f46e5' : isExpense ? '#e11d48' : '#059669';
-  const amountPrefix = isTransfer ? '' : isExpense ? '-' : '+';
-  const amountText = showAmounts ? `${amountPrefix}${formatAmount(transaction.amount, locale)}` : HIDDEN_AMOUNT;
-  const categoryColor = transaction.category_color ?? (isExpense ? '#e11d48' : '#059669');
+  const amountPrefix = isTransfer ? '' : isExpense ? '−' : '+';
+  const amountText = showAmounts
+    ? `${amountPrefix}${formatAmount(transaction.amount, locale)}`
+    : HIDDEN_AMOUNT;
   const title = isTransfer
-    ? `${transaction.wallet_name ?? transaction.wallet_id} -> ${transaction.to_wallet_name ?? transaction.to_wallet_id ?? ''}`
+    ? `${transaction.wallet_name ?? transaction.wallet_id} → ${transaction.to_wallet_name ?? transaction.to_wallet_id ?? ''}`
     : transaction.category_name ?? transaction.category_id;
+  const typeLabel = transaction.type === 'income'
+    ? t('form.type_income')
+    : transaction.type === 'expense'
+      ? t('form.type_expense')
+      : t('transactions.transfer');
+  const markerStyle = transaction.category_color && !isTransfer
+    ? ({ '--transaction-category-color': transaction.category_color } as CSSProperties)
+    : undefined;
 
   return (
     <button
       type="button"
       onClick={() => onSelect(transaction.id)}
-      style={{
-      padding: isCompact ? '6px 8px' : '8px 10px',
-      background: 'var(--surface)',
-      borderRadius: '10px',
-      border: '1px solid var(--border)',
-      width: '100%',
-      minHeight: isCompact ? '46px' : '56px',
-      display: 'flex',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      boxShadow: '0 1px 2px var(--shadow-color)',
-      textAlign: 'left',
-      cursor: 'pointer',
-    }}
+      className="transaction-item"
+      data-density={listDensity}
+      data-transaction-type={transaction.type}
     >
-      <div style={{ display: 'flex', gap: isCompact ? '7px' : '8px', alignItems: 'center', minWidth: 0, flex: '1 1 auto' }}>
-        <div style={{
-          width: isCompact ? '28px' : '32px',
-          height: isCompact ? '28px' : '32px',
-          borderRadius: isCompact ? '8px' : '9px',
-          background: isTransfer
-            ? 'rgba(79, 70, 229, 0.1)'
-            : `${categoryColor}1A`,
-          color: isTransfer ? '#4f46e5' : categoryColor,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          fontSize: isCompact ? '1.05rem' : '1.2rem',
-          flexShrink: 0,
-        }}>
+      <span className="transaction-item__identity">
+        <span className="transaction-item__marker" style={markerStyle} aria-hidden="true">
           {isTransfer ? (
-            <ArrowLeftRight size={isCompact ? 14 : 16} color="#4f46e5" />
+            <ArrowLeftRight size={18} />
           ) : (
             <CategoryIcon
               icon={transaction.category_icon}
               name={transaction.category_name ?? transaction.category_id}
               type={isExpense ? 'expense' : 'income'}
-              size={isCompact ? 14 : 16}
+              size={18}
             />
           )}
-        </div>
-        <div style={{ minWidth: 0, flex: '1 1 auto' }}>
-          <div style={{ fontWeight: '600', fontSize: isCompact ? '0.84rem' : '0.9rem', lineHeight: '1.25', color: 'var(--text)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-            {title}
-          </div>
-          <div style={{ fontSize: isCompact ? '0.68rem' : '0.72rem', lineHeight: '1.3', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '4px', minWidth: 0, marginTop: isCompact ? '1px' : '2px' }}>
-            {showDate
-              ? formatAppDate(transaction.transaction_date, displayFormatSettings)
-              : formatAppTime(transaction.transaction_date, displayFormatSettings, locale)}
+        </span>
+
+        <span className="transaction-item__content">
+          <span className="transaction-item__title">{title}</span>
+          <span className="transaction-item__meta">
+            <span className="transaction-item__kind">{typeLabel}</span>
+            <span aria-hidden="true">·</span>
+            <span className="transaction-item__time">
+              {showDate
+                ? formatAppDate(transaction.transaction_date, displayFormatSettings)
+                : formatAppTime(transaction.transaction_date, displayFormatSettings, locale)}
+            </span>
             {transaction.note && (
               <>
-                <span style={{ opacity: 0.5 }}>-</span>
-                <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', minWidth: 0 }}>{transaction.note}</span>
+                <span aria-hidden="true">·</span>
+                <span className="transaction-item__note">{transaction.note}</span>
               </>
             )}
-            {transaction.exclude_from_total && (
-              <span
-                style={{
-                  display: 'inline-block',
-                  fontSize: isCompact ? '0.62rem' : '0.65rem',
-                  color: 'var(--text-muted)',
-                  background: 'var(--surface)',
-                  border: '1px solid var(--border)',
-                  borderRadius: '4px',
-                  padding: isCompact ? '0 4px' : '1px 5px',
-                  marginLeft: isCompact ? '4px' : '6px',
-                  verticalAlign: 'middle',
-                  whiteSpace: 'nowrap',
-                }}
-              >
-                {t('transactions.excluded_from_total')}
-              </span>
-            )}
-            {transaction.is_budget_offset && (
-              <span
-                style={{
-                  display: 'inline-block',
-                  fontSize: isCompact ? '0.62rem' : '0.65rem',
-                  color: '#047857',
-                  background: 'rgba(16, 185, 129, 0.1)',
-                  border: '1px solid rgba(16, 185, 129, 0.2)',
-                  borderRadius: '4px',
-                  padding: isCompact ? '0 4px' : '1px 5px',
-                  marginLeft: isCompact ? '4px' : '6px',
-                  verticalAlign: 'middle',
-                  whiteSpace: 'nowrap',
-                }}
-              >
-                {t('transactions.budget_offset_badge')}
-              </span>
-            )}
-          </div>
-        </div>
-      </div>
+          </span>
 
-      <div style={{ textAlign: 'right', marginLeft: isCompact ? '8px' : '10px' }}>
-        <div style={{
-          fontWeight: '700',
-          fontSize: isCompact ? '0.88rem' : '0.95rem',
-          lineHeight: '1.25',
-          color: amountColor,
-          whiteSpace: 'nowrap',
-        }}>
-          {amountText}
-        </div>
-      </div>
+          {(transaction.exclude_from_total || transaction.is_budget_offset) && (
+            <span className="transaction-item__badges">
+              {transaction.exclude_from_total && (
+                <span className="transaction-status-badge">
+                  {t('transactions.excluded_from_total')}
+                </span>
+              )}
+              {transaction.is_budget_offset && (
+                <span className="transaction-status-badge transaction-status-badge--offset">
+                  {t('transactions.budget_offset_badge')}
+                </span>
+              )}
+            </span>
+          )}
+        </span>
+      </span>
+
+      <span className="transaction-item__amount">{amountText}</span>
     </button>
   );
 }

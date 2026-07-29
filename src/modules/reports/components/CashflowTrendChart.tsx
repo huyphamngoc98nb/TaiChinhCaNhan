@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useId, useMemo, useState } from 'react';
 import {
   Area,
   AreaChart,
@@ -32,9 +32,9 @@ interface CashflowXAxisTickProps extends XAxisTickContentProps {
 }
 
 const METRIC_COLORS: Record<CashflowMetric, string> = {
-  income: '#059669',
-  expense: '#E11D48',
-  net: '#4F46E5',
+  income: 'var(--chart-income)',
+  expense: 'var(--chart-expense)',
+  net: 'var(--chart-net)',
 };
 
 export function buildCashflowTrendData(data: PeriodSummary[]): CashflowTrendDatum[] {
@@ -68,8 +68,8 @@ const CashflowXAxisTick: React.FC<CashflowXAxisTickProps> = ({
     y={y}
     dy={16}
     textAnchor="middle"
-    fill="var(--text-subtle)"
-    fontSize={11}
+    fill="var(--chart-label)"
+    fontSize={12}
     tabIndex={-1}
     focusable="false"
     aria-hidden="true"
@@ -86,6 +86,9 @@ export const CashflowTrendChart: React.FC<Props> = ({ data }) => {
   const displayFormatSettings = useDisplayFormatSettings();
   const locale = getAppLocale(language);
   const [metric, setMetric] = useState<CashflowMetric>('income');
+  const summaryId = useId();
+  const focusRingClasses =
+    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)]';
 
   const chartData = useMemo(() => buildCashflowTrendData(data), [data]);
   const xAxisTicks = useMemo(() => getCashflowXAxisTicks(data), [data]);
@@ -96,6 +99,13 @@ export const CashflowTrendChart: React.FC<Props> = ({ data }) => {
   ];
   const activeMetric = metrics.find((item) => item.key === metric) ?? metrics[0];
   const activeColor = METRIC_COLORS[metric];
+  const replacePlaceholders = (
+    template: string,
+    values: Record<string, string | number>,
+  ) => Object.entries(values).reduce(
+    (message, [key, value]) => message.split(`{${key}}`).join(String(value)),
+    template,
+  );
 
   const formatTooltipValue = (value: unknown) => (
     showAmounts ? formatAmount(Number(value || 0), locale) : HIDDEN_AMOUNT
@@ -125,20 +135,28 @@ export const CashflowTrendChart: React.FC<Props> = ({ data }) => {
 
   if (!data || data.length === 0) {
     return (
-      <div className="flex min-h-[240px] items-center justify-center rounded-[14px] border border-gray-100 bg-white p-4 shadow-sm">
-        <div className="text-sm text-gray-400">{t('reports.no_cashflow_data')}</div>
-      </div>
+      <section className="rounded-2xl border border-border bg-surface p-4">
+        <h2 className="text-base font-bold leading-5 text-text">{t('reports.cashflow_title')}</h2>
+        <div className="mt-4 flex min-h-40 items-center justify-center bg-surface-muted px-4 text-center text-sm leading-5 text-text">
+          {t('reports.no_cashflow_data')}
+        </div>
+      </section>
     );
   }
 
+  const accessibleSummary = replacePlaceholders(
+    t('reports.trend_accessible_summary'),
+    { metric: activeMetric.label, count: chartData.length },
+  );
+
   return (
-    <section className="mb-5 min-w-0 overflow-hidden rounded-[14px] border border-gray-100 bg-white p-3 shadow-sm">
-      <h3 className="min-w-0 truncate text-[15px] font-bold text-gray-900">
+    <section className="min-w-0 overflow-hidden rounded-2xl border border-border bg-surface p-4">
+      <h2 className="min-w-0 text-base font-bold leading-5 text-text">
         {t('reports.cashflow_title')}
-      </h3>
+      </h2>
 
       <div
-        className="mt-3 grid min-w-0 grid-cols-3 gap-1 rounded-[12px] bg-gray-100 p-1"
+        className="mt-3 grid min-w-0 grid-cols-3 gap-1 rounded-xl border border-border bg-surface-muted p-1"
         role="tablist"
         aria-label={t('reports.cashflow_title')}
       >
@@ -153,13 +171,13 @@ export const CashflowTrendChart: React.FC<Props> = ({ data }) => {
               aria-selected={selected}
               aria-controls="cashflow-trend-panel"
               onClick={() => setMetric(item.key)}
-              className={`min-h-11 min-w-0 rounded-[9px] px-1.5 text-[12px] font-semibold leading-4 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-indigo-500 ${
+              className={`min-h-11 min-w-0 whitespace-nowrap rounded-[10px] border px-1.5 text-xs font-semibold leading-4 transition-colors ${focusRingClasses} ${
                 selected
-                  ? 'bg-white text-gray-900 shadow-sm'
-                  : 'text-gray-500 active:bg-white/60'
+                  ? 'border-[var(--selected-border)] bg-surface text-[var(--selected-text)]'
+                  : 'border-transparent text-muted active:bg-surface'
               }`}
             >
-              <span className="block truncate">{item.label}</span>
+              <span className="block">{item.label}</span>
             </button>
           );
         })}
@@ -169,69 +187,87 @@ export const CashflowTrendChart: React.FC<Props> = ({ data }) => {
         id="cashflow-trend-panel"
         role="tabpanel"
         aria-labelledby={`cashflow-${metric}-tab`}
-        className="cashflow-chart-frame h-[204px] min-w-0 overflow-hidden pt-2"
-        onFocusCapture={(event) => {
-          const target = event.target as HTMLElement;
-          target.blur?.();
-        }}
+        aria-describedby={summaryId}
+        className="cashflow-chart-frame min-w-0 pt-2"
       >
-        <ResponsiveContainer width="100%" height="100%">
-          <AreaChart
-            accessibilityLayer={false}
-            tabIndex={-1}
-            data={chartData}
-            margin={{ top: 8, right: 8, left: 8, bottom: 0 }}
-            style={{ outline: 'none', touchAction: 'pan-y' }}
-          >
-            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" />
-            <XAxis
-              dataKey="period"
-              axisLine={false}
-              tickLine={false}
-              ticks={xAxisTicks}
-              interval={0}
-              padding={{ left: 28, right: 28 }}
-              tick={(tickProps) => (
-                <CashflowXAxisTick {...tickProps} formatPeriod={formatPeriod} />
+        <div
+          className="h-[220px] min-w-0 overflow-hidden"
+          aria-hidden={showAmounts ? undefined : true}
+        >
+          <ResponsiveContainer width="100%" height="100%">
+            <AreaChart
+              accessibilityLayer={showAmounts}
+              data={chartData}
+              margin={{ top: 8, right: 8, left: 8, bottom: 0 }}
+              style={{ touchAction: 'pan-y' }}
+            >
+              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--chart-grid)" />
+              <XAxis
+                dataKey="period"
+                axisLine={false}
+                tickLine={false}
+                ticks={xAxisTicks}
+                interval={0}
+                padding={{ left: 28, right: 28 }}
+                tick={(tickProps) => (
+                  <CashflowXAxisTick {...tickProps} formatPeriod={formatPeriod} />
+                )}
+                tickFormatter={formatPeriod}
+                tickMargin={8}
+              />
+              {metric === 'net' && (
+                <ReferenceLine y={0} stroke="var(--chart-muted)" strokeDasharray="4 4" />
               )}
-              tickFormatter={formatPeriod}
-              tickMargin={8}
-            />
-            {metric === 'net' && (
-              <ReferenceLine y={0} stroke="var(--text-subtle)" strokeDasharray="4 4" />
-            )}
-            <Tooltip
-              formatter={(value) => [formatTooltipValue(value), activeMetric.label]}
-              labelFormatter={formatPeriod}
-              cursor={{ stroke: activeColor, strokeOpacity: 0.14, strokeWidth: 18 }}
-              allowEscapeViewBox={{ x: false, y: false }}
-              wrapperStyle={{ maxWidth: 'calc(100% - 16px)', pointerEvents: 'none' }}
-              contentStyle={{
-                borderRadius: 12,
-                border: '1px solid var(--border)',
-                background: 'var(--surface)',
-                boxShadow: '0 8px 20px var(--shadow-color)',
-                color: 'var(--text)',
-                fontSize: 12,
-                padding: '10px 12px',
-              }}
-              labelStyle={{ color: 'var(--text)', fontWeight: 600 }}
-              itemStyle={{ color: activeColor, fontWeight: 600 }}
-            />
-            <Area
-              type="linear"
-              dataKey={metric}
-              name={activeMetric.label}
-              stroke={activeColor}
-              strokeWidth={2.5}
-              fill={activeColor}
-              fillOpacity={0.12}
-              dot={chartData.length <= 12 ? { r: 2.5, strokeWidth: 1.5, fill: 'var(--surface)' } : false}
-              activeDot={{ r: 6, stroke: 'var(--surface)', strokeWidth: 3 }}
-              isAnimationActive={false}
-            />
-          </AreaChart>
-        </ResponsiveContainer>
+              <Tooltip
+                formatter={(value) => [formatTooltipValue(value), activeMetric.label]}
+                labelFormatter={formatPeriod}
+                cursor={{ stroke: activeColor, strokeOpacity: 0.14, strokeWidth: 18 }}
+                allowEscapeViewBox={{ x: false, y: false }}
+                wrapperStyle={{ maxWidth: 'calc(100% - 16px)', pointerEvents: 'none' }}
+                contentStyle={{
+                  borderRadius: 12,
+                  border: '1px solid var(--border)',
+                  background: 'var(--surface-elevated)',
+                  boxShadow: '0 8px 20px var(--shadow-color)',
+                  color: 'var(--text)',
+                  fontSize: 13,
+                  padding: '10px 12px',
+                }}
+                labelStyle={{ color: 'var(--text)', fontWeight: 600 }}
+                itemStyle={{ color: activeColor, fontWeight: 600 }}
+              />
+              <Area
+                type="linear"
+                dataKey={metric}
+                name={activeMetric.label}
+                stroke={activeColor}
+                strokeWidth={2.5}
+                fill={activeColor}
+                fillOpacity={0.12}
+                dot={chartData.length <= 12 ? { r: 2.5, strokeWidth: 1.5, fill: 'var(--surface)' } : false}
+                activeDot={{ r: 6, stroke: 'var(--surface)', strokeWidth: 3 }}
+                isAnimationActive={false}
+              />
+            </AreaChart>
+          </ResponsiveContainer>
+        </div>
+
+        <div id={summaryId} className="sr-only" role="status" aria-live="polite">
+          <p>{accessibleSummary}</p>
+          <ul>
+            {chartData.map(item => (
+              <li key={item.period}>
+                {replacePlaceholders(
+                  t('reports.trend_data_point'),
+                  {
+                    period: formatPeriod(item.period),
+                    amount: formatTooltipValue(item[metric]),
+                  },
+                )}
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
     </section>
   );

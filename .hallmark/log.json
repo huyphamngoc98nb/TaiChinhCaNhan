@@ -1,0 +1,18 @@
+[
+  {
+    "date": "2026-07-29",
+    "macrostructure": "Workbench",
+    "theme": "locked design.md",
+    "enrichment": "none",
+    "brief": "Phase 5 utilitarian redesign for transaction history and add/edit flows",
+    "scope": "module"
+  },
+  {
+    "date": "2026-07-29",
+    "macrostructure": "Stat-Led",
+    "theme": "locked design.md",
+    "enrichment": "none",
+    "brief": "Phase 4 utilitarian redesign for the Reports page",
+    "scope": "app"
+  }
+]

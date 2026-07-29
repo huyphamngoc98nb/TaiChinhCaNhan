@@ -13,7 +13,7 @@ export function AddTransactionPage() {
       header={
         <>
           <BackButton onClick={() => navigate(ROUTES.TRANSACTIONS)} ariaLabel={t('common.back')} />
-          <h2 className="transaction-form-title">{t('transactions.add_title')}</h2>
+          <h1 className="transaction-form-title">{t('transactions.add_title')}</h1>
         </>
       }
       pinTypeSelector

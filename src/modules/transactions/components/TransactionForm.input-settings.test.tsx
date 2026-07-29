@@ -10,6 +10,7 @@ const mocks = vi.hoisted(() => ({
   save: vi.fn(),
   confirm: vi.fn(),
   findDuplicateTransaction: vi.fn(),
+  setFormData: vi.fn(),
 }));
 
 vi.mock('../hooks/useTransactionForm', () => ({
@@ -64,7 +65,15 @@ vi.mock('@/shared/components/FormTransition', () => ({
 }));
 
 vi.mock('@/shared/components/DropdownList', () => ({
-  DropdownList: () => <div data-testid="dropdown-list" />,
+  DropdownList: ({
+    options,
+  }: {
+    options: Array<{ value: string; label: string }>;
+  }) => (
+    <div data-testid="dropdown-list">
+      {options.map(option => <span key={option.value}>{option.label}</span>)}
+    </div>
+  ),
 }));
 
 vi.mock('@/shared/components/ImeTextInput', () => ({
@@ -88,7 +97,14 @@ const existingTransaction: Transaction = {
   deleted_at: null,
 };
 
-function mockTransactionFormState(overrides: Partial<Transaction> = {}) {
+function mockTransactionFormState(
+  overrides: Partial<Transaction> = {},
+  optionOverrides: {
+    wallets?: unknown[];
+    categories?: unknown[];
+    budgets?: unknown[];
+  } = {},
+) {
   mocks.save.mockResolvedValue(true);
   mocks.useTransactionForm.mockReturnValue({
     formData: {
@@ -102,13 +118,13 @@ function mockTransactionFormState(overrides: Partial<Transaction> = {}) {
       is_budget_offset: overrides.is_budget_offset ?? false,
       offset_budget_id: overrides.offset_budget_id ?? null,
     },
-    setFormData: vi.fn(),
+    setFormData: mocks.setFormData,
     save: mocks.save,
     submitting: false,
     options: {
-      wallets: [],
-      categories: [],
-      budgets: [],
+      wallets: optionOverrides.wallets ?? [],
+      categories: optionOverrides.categories ?? [],
+      budgets: optionOverrides.budgets ?? [],
     },
   });
 }
@@ -209,5 +225,59 @@ describe('TransactionForm input settings', () => {
     await waitFor(() => expect(mocks.save).toHaveBeenCalledTimes(1));
     expect(mocks.findDuplicateTransaction).not.toHaveBeenCalled();
     expect(mocks.confirm).not.toHaveBeenCalled();
+  });
+
+  it('changes transaction type exactly once for a touch interaction', () => {
+    render(<TransactionForm onSuccess={vi.fn()} />);
+
+    const incomeButton = screen.getByRole('button', { name: 'form.type_income' });
+    fireEvent.pointerDown(incomeButton, { pointerType: 'touch' });
+    fireEvent.click(incomeButton);
+
+    expect(mocks.setFormData).toHaveBeenCalledTimes(1);
+    expect(mocks.setFormData).toHaveBeenCalledWith(expect.objectContaining({
+      type: 'income',
+      category_id: '',
+    }));
+  });
+
+  it('guards the duplicate check and save against rapid repeated submits', async () => {
+    updateTransactionInputSettings({ duplicateWarningEnabled: true });
+    let resolveDuplicate: ((value: null) => void) | undefined;
+    mocks.findDuplicateTransaction.mockImplementation(() => new Promise<null>((resolve) => {
+      resolveDuplicate = resolve;
+    }));
+    mockTransactionFormState({
+      amount: 50_000,
+      wallet_id: 'wallet-1',
+      category_id: 'cat-food',
+      transaction_date: 1_717_200_000_000,
+    });
+
+    const { container } = render(<TransactionForm onSuccess={vi.fn()} />);
+    const form = container.querySelector('form') as HTMLFormElement;
+
+    fireEvent.submit(form);
+    fireEvent.submit(form);
+
+    expect(mocks.findDuplicateTransaction).toHaveBeenCalledTimes(1);
+    resolveDuplicate?.(null);
+    await waitFor(() => expect(mocks.save).toHaveBeenCalledTimes(1));
+  });
+
+  it('keeps debt workflow categories out of the manual category picker', () => {
+    mockTransactionFormState({}, {
+      categories: [
+        { id: 'cat-food', name: 'Food', type: 'expense', slug: 'food' },
+        { id: 'cat-loan', name: 'Cho vay', type: 'expense', slug: 'cho-vay' },
+        { id: 'cat-debt', name: 'Trả nợ', type: 'expense', slug: 'tra-no' },
+      ],
+    });
+
+    render(<TransactionForm onSuccess={vi.fn()} />);
+
+    expect(screen.getByText('Food')).toBeTruthy();
+    expect(screen.queryByText('Cho vay')).toBeNull();
+    expect(screen.queryByText('Trả nợ')).toBeNull();
   });
 });

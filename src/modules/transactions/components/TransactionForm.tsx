@@ -1,4 +1,12 @@
-import { FocusEvent, FormEvent, PointerEvent, ReactNode, useEffect, useState } from 'react';
+import {
+  FocusEvent,
+  FormEvent,
+  PointerEvent,
+  ReactNode,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import { Transaction, TransactionType } from '../domain/transaction.model';
 import { TRANSFER_CATEGORY_ID, useTransactionForm } from '../hooks/useTransactionForm';
 import { useLanguage } from '@/shared/context/LanguageContext';
@@ -14,6 +22,7 @@ import {
   DuplicateTransactionCheckInput,
   findDuplicateTransaction,
 } from '../services/duplicate-transaction.service';
+import './TransactionForm.css';
 
 interface Props {
   existing?: Transaction;
@@ -21,6 +30,7 @@ interface Props {
   onDelete?: () => Promise<void>;
   header?: ReactNode;
   pinTypeSelector?: boolean;
+  deleting?: boolean;
 }
 
 const HIDDEN_MANUAL_TRANSACTION_CATEGORY_KEYS = new Set([
@@ -75,6 +85,7 @@ export function TransactionForm({
   onDelete,
   header,
   pinTypeSelector = false,
+  deleting = false,
 }: Props) {
   const { formData, setFormData, save, submitting, options } =
     useTransactionForm(existing);
@@ -86,58 +97,13 @@ export function TransactionForm({
     formData.amount ? String(formData.amount) : ''
   ));
   const [dateTimeError, setDateTimeError] = useState<string | null>(null);
-  const [excludeFromTotal, setExcludeFromTotal] = useState<boolean>(
-    existing?.exclude_from_total ?? false
-  );
+  const [checkingDuplicate, setCheckingDuplicate] = useState(false);
+  const submitGuardRef = useRef(false);
+  const noteScrollTimeoutsRef = useRef<number[]>([]);
 
-  useEffect(() => {
-    setFormData(current => (
-      current.exclude_from_total === excludeFromTotal
-        ? current
-        : { ...current, exclude_from_total: excludeFromTotal }
-    ));
-  }, [excludeFromTotal, setFormData]);
-
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
-    if (!formData.transaction_date) {
-      setDateTimeError(t('date_time.error_required'));
-      return;
-    }
-
-    if (!existing && transactionInputSettings.duplicateWarningEnabled) {
-      const duplicateCheckInput = getDuplicateCheckInput();
-
-      if (duplicateCheckInput) {
-        try {
-          const duplicate = await findDuplicateTransaction(duplicateCheckInput);
-
-          if (duplicate) {
-            const shouldContinue = await confirm({
-              title: t('transactions.duplicate_warning_title'),
-              message: t('transactions.duplicate_warning_message'),
-              cancelText: t('transactions.duplicate_warning_cancel'),
-              confirmText: t('transactions.duplicate_warning_continue'),
-            });
-
-            if (!shouldContinue) {
-              return;
-            }
-          }
-        } catch (error) {
-          console.error('Failed to check duplicate transaction', error);
-        }
-      }
-    }
-
-    const ok = await save();
-    if (ok) {
-      if (!existing) {
-        setAmountInput('');
-      }
-      onSuccess();
-    }
-  };
+  useEffect(() => () => {
+    noteScrollTimeoutsRef.current.forEach(window.clearTimeout);
+  }, []);
 
   const getDuplicateCheckInput = (): DuplicateTransactionCheckInput | null => {
     const type = formData.type;
@@ -148,8 +114,7 @@ export function TransactionForm({
 
     if (!isDuplicateCheckTransactionType(type)) return null;
     if (!Number.isFinite(amount) || amount <= 0) return null;
-    if (!walletId) return null;
-    if (!categoryId) return null;
+    if (!walletId || !categoryId) return null;
     if (typeof transactionDate !== 'number' || !Number.isFinite(transactionDate)) return null;
 
     return {
@@ -161,24 +126,76 @@ export function TransactionForm({
     };
   };
 
-  const handleNoteFocus = (e: FocusEvent<HTMLInputElement>) => {
-    const target = e.currentTarget;
+  const handleSubmit = async (event: FormEvent) => {
+    event.preventDefault();
+    if (submitGuardRef.current || submitting || deleting) return;
+
+    if (!formData.transaction_date) {
+      setDateTimeError(t('date_time.error_required'));
+      return;
+    }
+
+    submitGuardRef.current = true;
+    setCheckingDuplicate(true);
+
+    try {
+      if (!existing && transactionInputSettings.duplicateWarningEnabled) {
+        const duplicateCheckInput = getDuplicateCheckInput();
+
+        if (duplicateCheckInput) {
+          try {
+            const duplicate = await findDuplicateTransaction(duplicateCheckInput);
+
+            if (duplicate) {
+              const shouldContinue = await confirm({
+                title: t('transactions.duplicate_warning_title'),
+                message: t('transactions.duplicate_warning_message'),
+                cancelText: t('transactions.duplicate_warning_cancel'),
+                confirmText: t('transactions.duplicate_warning_continue'),
+              });
+
+              if (!shouldContinue) return;
+            }
+          } catch (error) {
+            console.error('Failed to check duplicate transaction', error);
+          }
+        }
+      }
+
+      const ok = await save();
+      if (ok) {
+        if (!existing) setAmountInput('');
+        onSuccess();
+      }
+    } finally {
+      submitGuardRef.current = false;
+      setCheckingDuplicate(false);
+    }
+  };
+
+  const handleNoteFocus = (event: FocusEvent<HTMLInputElement>) => {
+    noteScrollTimeoutsRef.current.forEach(window.clearTimeout);
+    const target = event.currentTarget;
     const scrollNoteIntoView = () => {
       target.scrollIntoView({ block: 'center', behavior: 'smooth' });
     };
 
     scrollNoteIntoView();
-    window.setTimeout(scrollNoteIntoView, 180);
-    window.setTimeout(scrollNoteIntoView, 360);
+    noteScrollTimeoutsRef.current = [
+      window.setTimeout(scrollNoteIntoView, 180),
+      window.setTimeout(scrollNoteIntoView, 360),
+    ];
   };
 
-  const transactionTypes: { id: TransactionType; label: string; active: string }[] = [
-    { id: 'expense', label: t('form.type_expense'), active: 'bg-rose-500 text-white' },
-    { id: 'income', label: t('form.type_income'), active: 'bg-emerald-500 text-white' },
-    { id: 'transfer', label: t('transactions.transfer'), active: 'bg-indigo-500 text-white' },
+  const transactionTypes: { id: TransactionType; label: string }[] = [
+    { id: 'expense', label: t('form.type_expense') },
+    { id: 'income', label: t('form.type_income') },
+    { id: 'transfer', label: t('transactions.transfer') },
   ];
 
   const handleTypeChange = (type: TransactionType) => {
+    if (formData.type === type) return;
+
     setFormData({
       ...formData,
       type,
@@ -189,14 +206,8 @@ export function TransactionForm({
     });
   };
 
-  const handleTypePointerDown = (
-    event: PointerEvent<HTMLButtonElement>,
-    type: TransactionType,
-  ) => {
-    if (event.pointerType === 'mouse') return;
-
-    blurActiveEditableElement();
-    handleTypeChange(type);
+  const handleTypePointerDown = (event: PointerEvent<HTMLButtonElement>) => {
+    if (event.pointerType !== 'mouse') blurActiveEditableElement();
   };
 
   const selectableDestinationWallets = options.wallets.filter(
@@ -211,259 +222,23 @@ export function TransactionForm({
     formData.offset_budget_id &&
     options.budgets.some((budget: { id: string }) => budget.id === formData.offset_budget_id),
   );
-
-  const amountAccentClass =
-    formData.type === 'expense'
-      ? 'border-rose-200'
-      : formData.type === 'income'
-        ? 'border-emerald-200'
-        : 'border-indigo-200';
-
-  const submitClass =
-    formData.type === 'expense'
-      ? 'bg-rose-500 shadow-lg shadow-rose-300/40'
-      : formData.type === 'income'
-        ? 'bg-emerald-500 shadow-lg shadow-emerald-300/40'
-        : 'bg-indigo-500 shadow-lg shadow-indigo-300/40';
-
-  const fields = (
-    <>
-      <div className="space-y-1.5">
-        <p className="text-[13px] font-semibold text-gray-700">{t('form.label_amount')}</p>
-        <CurrencyAmountInput
-          currency={currency}
-          value={amountInput}
-          onValueChange={value => {
-            setAmountInput(value);
-            setFormData({ ...formData, amount: Number(value) });
-          }}
-          required
-          className={amountAccentClass}
-          enableMoneyKeyboard={transactionInputSettings.enableMoneyKeyboard}
-          autoFocus={transactionInputSettings.autoFocusAmount && !existing}
-        />
-      </div>
-
-      {options.wallets.length > 0 && (
-        <div className="space-y-1.5">
-          <p className="text-[13px] font-semibold text-gray-700">
-            {isCreditCardPayment ? t('transactions.payment_from_wallet') : t('transactions.wallet')}
-          </p>
-          <DropdownList
-            value={formData.wallet_id || ''}
-            onChange={value => {
-              const nextData = { ...formData, wallet_id: value };
-              if (nextData.to_wallet_id === value) {
-                nextData.to_wallet_id = '';
-              }
-              setFormData(nextData);
-            }}
-            ariaLabel={t('transactions.wallet')}
-            placeholder={t('transactions.select_wallet')}
-            openOnInputBlurPointerDown
-            options={[
-              { value: '', label: t('transactions.select_wallet'), disabled: true },
-              ...options.wallets.map((wallet: { id: string; name: string }) => ({
-                value: wallet.id,
-                label: wallet.name,
-              })),
-            ]}
-          />
-        </div>
-      )}
-
-      {formData.type === 'transfer' && options.wallets.length > 0 && (
-        <div className="space-y-1.5">
-          <p className="text-[13px] font-semibold text-gray-700">
-            {isCreditCardPayment
-              ? t('transactions.payment_to_card')
-              : t('transactions.destination_wallet')}
-          </p>
-          <DropdownList
-            value={formData.to_wallet_id || ''}
-            onChange={value => setFormData({ ...formData, to_wallet_id: value, category_id: TRANSFER_CATEGORY_ID })}
-            ariaLabel={t('transactions.destination_wallet')}
-            placeholder={t('transactions.select_destination_wallet')}
-            openOnInputBlurPointerDown
-            options={[
-              { value: '', label: t('transactions.select_destination_wallet'), disabled: true },
-              ...selectableDestinationWallets.map((wallet: { id: string; name: string; account_type?: string }) => ({
-                value: wallet.id,
-                label: wallet.account_type === 'credit_card'
-                  ? `${wallet.name} (${t('transactions.credit_card_payment')})`
-                  : wallet.name,
-              })),
-            ]}
-          />
-        </div>
-      )}
-
-      {formData.type !== 'transfer' && (
-        <div className="space-y-1.5">
-          <p className="text-[13px] font-semibold text-gray-700">{t('form.label_category')}</p>
-          <DropdownList
-            value={formData.category_id || ''}
-            onChange={value => setFormData({ ...formData, category_id: value })}
-            ariaLabel={t('form.label_category')}
-            placeholder={t('form.select_category')}
-            openOnInputBlurPointerDown
-            options={[
-              { value: '', label: t('form.select_category'), disabled: true },
-              ...options.categories
-                .filter((category: TransactionFormCategoryOption) => (
-                  category.id !== TRANSFER_CATEGORY_ID
-                    && category.type === formData.type
-                    && !isHiddenManualTransactionCategory(category)
-                ))
-                .map((category: TransactionFormCategoryOption) => ({
-                  value: category.id,
-                  label: category.name,
-                })),
-            ]}
-          />
-        </div>
-      )}
-
-      <DateTimePicker
-        value={formData.transaction_date ?? null}
-        onChange={timestamp => {
-          setFormData({ ...formData, transaction_date: timestamp });
-          setDateTimeError(timestamp ? null : t('date_time.error_required'));
-        }}
-        required
-        error={dateTimeError}
-      />
-
-      {formData.type === 'income' && (
-        <div className="space-y-2 rounded-[12px] border border-emerald-100 bg-emerald-50/60 p-3 dark:border-emerald-400/30 dark:bg-emerald-400/10">
-          <label className="flex items-center gap-2 text-[14px] font-semibold text-gray-700 dark:text-text">
-            <input
-              type="checkbox"
-              checked={formData.is_budget_offset ?? false}
-              onChange={(e) => {
-                const checked = e.target.checked;
-                setFormData({
-                  ...formData,
-                  is_budget_offset: checked,
-                  offset_budget_id: checked ? formData.offset_budget_id ?? null : null,
-                });
-              }}
-              className="h-4 w-4 cursor-pointer"
-            />
-            {t('transactions.budget_offset')}
-          </label>
-
-          {formData.is_budget_offset && (
-            <div className="space-y-1.5">
-              <p className="text-[13px] font-semibold text-gray-700 dark:text-muted">
-                {t('transactions.offset_budget')}
-              </p>
-              <DropdownList
-                value={formData.offset_budget_id || ''}
-                onChange={value => setFormData({ ...formData, offset_budget_id: value })}
-                ariaLabel={t('transactions.offset_budget')}
-                placeholder={t('transactions.select_offset_budget')}
-                openOnInputBlurPointerDown
-                options={[
-                  { value: '', label: t('transactions.select_offset_budget'), disabled: true },
-                  ...(!hasSelectedOffsetBudget && formData.offset_budget_id
-                    ? [{ value: formData.offset_budget_id, label: t('transactions.deleted_budget') }]
-                    : []),
-                  ...options.budgets.map((budget: {
-                    id: string;
-                    category_name: string;
-                    period: string;
-                  }) => ({
-                    value: budget.id,
-                    label: `${budget.category_name} (${budget.period === 'weekly' ? t('budgets.weekly') : t('budgets.monthly')})`,
-                  })),
-                ]}
-              />
-            </div>
-          )}
-        </div>
-      )}
-
-      <div className="space-y-1.5">
-        <p className="text-[13px] font-semibold text-gray-700">{t('form.label_note')}</p>
-        <ImeTextInput
-          type="text"
-          value={formData.note || ''}
-          onValueChange={value => setFormData({ ...formData, note: value })}
-          onFocus={handleNoteFocus}
-          placeholder={t('form.note_placeholder')}
-          enterKeyHint="done"
-          className="w-full h-[46px] px-4 bg-gray-50 border border-gray-200 rounded-[12px]
-            text-[14px] text-gray-800 focus:outline-none focus:border-indigo-400"
-        />
-      </div>
-
-      {formData.type !== 'transfer' && (
-        <label
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            fontSize: '0.9rem',
-            color: 'var(--text)',
-            padding: '8px 0',
-            cursor: 'pointer',
-          }}
-        >
-          <input
-            type="checkbox"
-            checked={excludeFromTotal}
-            onChange={(e) => {
-              const checked = e.target.checked;
-              setExcludeFromTotal(checked);
-              setFormData({ ...formData, exclude_from_total: checked });
-            }}
-            style={{
-              width: '16px',
-              height: '16px',
-              borderColor: 'var(--border)',
-              cursor: 'pointer',
-            }}
-          />
-          {t('transactions.exclude_from_income_expense_total')}
-        </label>
-      )}
-
-      <button
-        type="submit"
-        disabled={submitting}
-        className={`w-full h-[54px] rounded-[14px] text-white text-[16px] font-bold
-          transition-all active:scale-[0.98] mt-2 ${
-            submitClass
-          } ${submitting ? 'opacity-50' : ''}`}
-      >
-        {submitting ? t('form.saving') : t('form.save')}
-      </button>
-
-      {existing && onDelete && (
-        <button
-          type="button"
-          disabled={submitting}
-          onClick={onDelete}
-          className="w-full h-[48px] rounded-[14px] border border-red-200 text-red-500 text-[14px] font-semibold transition-all active:scale-[0.98] disabled:opacity-50"
-        >
-          {t('transactions.delete_confirm_btn')}
-        </button>
-      )}
-    </>
-  );
+  const isBusy = submitting || checkingDuplicate || deleting;
 
   const typeSelector = (
-    <div className="flex h-[48px] rounded-[12px] bg-gray-100 p-1">
+    <div
+      className="transaction-form__type-switcher"
+      role="group"
+      aria-label={t('transactions.type')}
+    >
       {transactionTypes.map(type => (
         <button
           key={type.id}
           type="button"
-          onPointerDown={event => handleTypePointerDown(event, type.id)}
+          data-transaction-type={type.id}
+          aria-pressed={formData.type === type.id}
+          onPointerDown={handleTypePointerDown}
           onClick={() => handleTypeChange(type.id)}
-          className={`flex-1 rounded-[9px] text-[14px] font-semibold transition-all ${
-            formData.type === type.id ? `${type.active} shadow-sm` : 'text-gray-500'
-          }`}
+          className="transaction-form__type-option"
         >
           {type.label}
         </button>
@@ -471,38 +246,281 @@ export function TransactionForm({
     </div>
   );
 
-  if (header || pinTypeSelector) {
-    return (
-      <form onSubmit={handleSubmit} className="transaction-form-page">
-        <div className="transaction-form-sticky-shell">
-          {header && (
-            <div className="transaction-form-header">
-              {header}
+  const fields = (
+    <>
+      <section className="transaction-form__section" aria-labelledby="transaction-primary-heading">
+        <div className="transaction-form__section-heading">
+          <h2 id="transaction-primary-heading">{t('transactions.form_primary_details')}</h2>
+          <p>{t('transactions.form_primary_details_hint')}</p>
+        </div>
+
+        <label className="transaction-form__field transaction-form__field--amount">
+          <span className="transaction-form__label">
+            {t('form.label_amount')}
+          </span>
+          <CurrencyAmountInput
+            currency={currency}
+            value={amountInput}
+            onValueChange={value => {
+              setAmountInput(value);
+              setFormData({ ...formData, amount: Number(value) });
+            }}
+            required
+            className="transaction-form__amount-input"
+            enableMoneyKeyboard={transactionInputSettings.enableMoneyKeyboard}
+            autoFocus={transactionInputSettings.autoFocusAmount && !existing}
+          />
+        </label>
+
+        {options.wallets.length > 0 && (
+          <div className="transaction-form__field">
+            <p className="transaction-form__label">
+              {isCreditCardPayment ? t('transactions.payment_from_wallet') : t('transactions.wallet')}
+            </p>
+            <DropdownList
+              value={formData.wallet_id || ''}
+              onChange={value => {
+                const nextData = { ...formData, wallet_id: value };
+                if (nextData.to_wallet_id === value) nextData.to_wallet_id = '';
+                setFormData(nextData);
+              }}
+              ariaLabel={t('transactions.wallet')}
+              placeholder={t('transactions.select_wallet')}
+              openOnInputBlurPointerDown
+              options={[
+                { value: '', label: t('transactions.select_wallet'), disabled: true },
+                ...options.wallets.map((wallet: { id: string; name: string }) => ({
+                  value: wallet.id,
+                  label: wallet.name,
+                })),
+              ]}
+            />
+          </div>
+        )}
+
+        {formData.type === 'transfer' && options.wallets.length > 0 && (
+          <div className="transaction-form__field">
+            <p className="transaction-form__label">
+              {isCreditCardPayment
+                ? t('transactions.payment_to_card')
+                : t('transactions.destination_wallet')}
+            </p>
+            <DropdownList
+              value={formData.to_wallet_id || ''}
+              onChange={value => setFormData({
+                ...formData,
+                to_wallet_id: value,
+                category_id: TRANSFER_CATEGORY_ID,
+              })}
+              ariaLabel={t('transactions.destination_wallet')}
+              placeholder={t('transactions.select_destination_wallet')}
+              openOnInputBlurPointerDown
+              options={[
+                { value: '', label: t('transactions.select_destination_wallet'), disabled: true },
+                ...selectableDestinationWallets.map((wallet: {
+                  id: string;
+                  name: string;
+                  account_type?: string;
+                }) => ({
+                  value: wallet.id,
+                  label: wallet.account_type === 'credit_card'
+                    ? `${wallet.name} (${t('transactions.credit_card_payment')})`
+                    : wallet.name,
+                })),
+              ]}
+            />
+          </div>
+        )}
+
+        {formData.type !== 'transfer' && (
+          <div className="transaction-form__field">
+            <p className="transaction-form__label">{t('form.label_category')}</p>
+            <DropdownList
+              value={formData.category_id || ''}
+              onChange={value => setFormData({ ...formData, category_id: value })}
+              ariaLabel={t('form.label_category')}
+              placeholder={t('form.select_category')}
+              openOnInputBlurPointerDown
+              options={[
+                { value: '', label: t('form.select_category'), disabled: true },
+                ...options.categories
+                  .filter((category: TransactionFormCategoryOption) => (
+                    category.id !== TRANSFER_CATEGORY_ID
+                      && category.type === formData.type
+                      && !isHiddenManualTransactionCategory(category)
+                  ))
+                  .map((category: TransactionFormCategoryOption) => ({
+                    value: category.id,
+                    label: category.name,
+                  })),
+              ]}
+            />
+          </div>
+        )}
+      </section>
+
+      <section className="transaction-form__section" aria-labelledby="transaction-additional-heading">
+        <div className="transaction-form__section-heading">
+          <h2 id="transaction-additional-heading">{t('transactions.form_additional_details')}</h2>
+        </div>
+
+        <div className="transaction-form__field">
+          <DateTimePicker
+            label={t('form.label_date')}
+            value={formData.transaction_date ?? null}
+            onChange={timestamp => {
+              setFormData({ ...formData, transaction_date: timestamp });
+              setDateTimeError(timestamp ? null : t('date_time.error_required'));
+            }}
+            required
+            error={dateTimeError}
+          />
+        </div>
+
+        <div className="transaction-form__field">
+          <label className="transaction-form__label" htmlFor="transaction-note">
+            {t('form.label_note')}
+          </label>
+          <ImeTextInput
+            id="transaction-note"
+            type="text"
+            value={formData.note || ''}
+            onValueChange={value => setFormData({ ...formData, note: value })}
+            onFocus={handleNoteFocus}
+            placeholder={t('form.note_placeholder')}
+            enterKeyHint="done"
+            className="transaction-form__text-input"
+          />
+        </div>
+      </section>
+
+      {formData.type !== 'transfer' && (
+        <section className="transaction-form__section" aria-labelledby="transaction-report-heading">
+          <div className="transaction-form__section-heading">
+            <h2 id="transaction-report-heading">{t('transactions.report_options')}</h2>
+          </div>
+
+          {formData.type === 'income' && (
+            <div className="transaction-form__setting">
+              <label className="transaction-form__check-row">
+                <input
+                  type="checkbox"
+                  checked={formData.is_budget_offset ?? false}
+                  onChange={event => {
+                    const checked = event.target.checked;
+                    setFormData({
+                      ...formData,
+                      is_budget_offset: checked,
+                      offset_budget_id: checked ? formData.offset_budget_id ?? null : null,
+                    });
+                  }}
+                />
+                <span>
+                  <strong>{t('transactions.budget_offset')}</strong>
+                  <small>{t('transactions.budget_offset_hint')}</small>
+                </span>
+              </label>
+
+              {formData.is_budget_offset && (
+                <div className="transaction-form__nested-field">
+                  <p className="transaction-form__label">{t('transactions.offset_budget')}</p>
+                  <DropdownList
+                    value={formData.offset_budget_id || ''}
+                    onChange={value => setFormData({ ...formData, offset_budget_id: value })}
+                    ariaLabel={t('transactions.offset_budget')}
+                    placeholder={t('transactions.select_offset_budget')}
+                    openOnInputBlurPointerDown
+                    options={[
+                      { value: '', label: t('transactions.select_offset_budget'), disabled: true },
+                      ...(!hasSelectedOffsetBudget && formData.offset_budget_id
+                        ? [{ value: formData.offset_budget_id, label: t('transactions.deleted_budget') }]
+                        : []),
+                      ...options.budgets.map((budget: {
+                        id: string;
+                        category_name: string;
+                        period: string;
+                      }) => ({
+                        value: budget.id,
+                        label: `${budget.category_name} (${budget.period === 'weekly'
+                          ? t('budgets.weekly')
+                          : t('budgets.monthly')})`,
+                      })),
+                    ]}
+                  />
+                </div>
+              )}
             </div>
           )}
 
-          <div className="transaction-form-type-switcher">
-            {typeSelector}
+          <div className="transaction-form__setting">
+            <label className="transaction-form__check-row">
+              <input
+                type="checkbox"
+                checked={Boolean(formData.exclude_from_total)}
+                onChange={event => setFormData({
+                  ...formData,
+                  exclude_from_total: event.target.checked,
+                })}
+              />
+              <span>
+                <strong>{t('transactions.exclude_from_income_expense_total')}</strong>
+                <small>{t('transactions.exclude_from_total_hint')}</small>
+              </span>
+            </label>
           </div>
-        </div>
+        </section>
+      )}
 
-        <FormTransition
-          className="transaction-form-content space-y-5"
-          transitionKey={existing?.id ?? 'new-transaction'}
+      <div className="transaction-form__actions">
+        <button
+          type="submit"
+          disabled={isBusy}
+          aria-busy={isBusy}
+          className="transaction-form__save"
         >
-          {fields}
-        </FormTransition>
-      </form>
-    );
-  }
+          {isBusy && !deleting ? t('form.saving') : t('form.save')}
+        </button>
+      </div>
+
+      {existing && onDelete && (
+        <section className="transaction-form__danger-zone" aria-labelledby="transaction-danger-heading">
+          <div>
+            <h2 id="transaction-danger-heading">{t('transactions.delete_section_title')}</h2>
+            <p>{t('transactions.delete_section_hint')}</p>
+          </div>
+          <button
+            type="button"
+            disabled={isBusy}
+            onClick={() => void onDelete()}
+            className="transaction-form__delete"
+          >
+            {t('transactions.delete_confirm_btn')}
+          </button>
+        </section>
+      )}
+    </>
+  );
 
   return (
-    <form onSubmit={handleSubmit}>
-      <FormTransition className="space-y-5" transitionKey={existing?.id ?? 'inline-transaction'}>
-        <div className="shrink-0">
-          {typeSelector}
+    <form
+      onSubmit={handleSubmit}
+      className={`transaction-form-page${header || pinTypeSelector ? ' transaction-form-page--screen' : ''}`}
+      aria-busy={isBusy}
+    >
+      {(header || pinTypeSelector) && (
+        <div className="transaction-form-sticky-shell">
+          {header && <div className="transaction-form-header">{header}</div>}
+          <div className="transaction-form-type-switcher">{typeSelector}</div>
         </div>
+      )}
 
+      <FormTransition
+        className="transaction-form-content"
+        transitionKey={existing?.id ?? (header || pinTypeSelector
+          ? 'new-transaction'
+          : 'inline-transaction')}
+      >
+        {!header && !pinTypeSelector && typeSelector}
         {fields}
       </FormTransition>
     </form>

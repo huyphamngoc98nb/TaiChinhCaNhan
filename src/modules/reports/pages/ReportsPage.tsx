@@ -1,3 +1,8 @@
+/* Hallmark · pre-emit critique: P5 H5 E4 S5 R5 V4 */
+/*
+ * Hallmark · genre: utilitarian · macrostructure: Stat-Led
+ * design-system: design.md · designed-as-app · enrichment: none
+ */
 import { useState, useEffect } from 'react';
 import { GetCashflowSummaryUseCase } from '../services/get-cashflow-summary';
 import { GetCategorySummaryUseCase } from '../services/get-category-summary';
@@ -14,7 +19,17 @@ import { ReportTypeTabs } from '../components/ReportTypeTabs';
 import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '@/shared/constants/routes';
 import { BackButton } from '@/shared/components/BackButton';
-import { AlertTriangle, BarChart3, CalendarDays, FileText, PlusCircle, TrendingDown, TrendingUp, WalletCards } from 'lucide-react';
+import {
+  AlertTriangle,
+  BarChart3,
+  CalendarDays,
+  FileText,
+  PlusCircle,
+  Tags,
+  TrendingDown,
+  TrendingUp,
+  WalletCards,
+} from 'lucide-react';
 import { useLanguage } from '@/shared/context/LanguageContext';
 import { useCurrency } from '@/shared/context/CurrencyContext';
 import { appRepositories } from '@/core/repositories/app-repositories';
@@ -24,15 +39,63 @@ import { useDisplayFormatSettings } from '@/shared/hooks/useDisplayFormatSetting
 import { formatAppDate, formatAppMonth } from '@/shared/utils/display-format';
 
 const EXPENSE_DONUT_COLORS = [
-  '#E11D48', '#F97316', '#F59E0B', '#A855F7',
-  '#EC4899', '#64748B', '#EF4444', '#FB923C',
-  '#FBBF24', '#C084FC', '#F472B6', '#94A3B8',
+  'var(--chart-expense)',
+  'var(--warning)',
+  'var(--chart-series-5)',
+  'var(--chart-series-4)',
+  'var(--primary)',
+  'var(--success)',
+  'var(--danger)',
+  'var(--chart-net)',
 ];
 const INCOME_DONUT_COLORS = [
-  '#059669', '#14B8A6', '#0EA5E9', '#6366F1',
-  '#84CC16', '#64748B', '#10B981', '#2DD4BF',
-  '#38BDF8', '#818CF8', '#A3E635', '#CBD5E1',
+  'var(--chart-income)',
+  'var(--chart-series-4)',
+  'var(--chart-net)',
+  'var(--chart-series-5)',
+  'var(--success)',
+  'var(--primary)',
+  'var(--warning)',
+  'var(--chart-muted)',
 ];
+
+const focusRingClasses =
+  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--focus-ring-offset)]';
+
+function ReportsPageSkeleton({ label }: { label: string }) {
+  return (
+    <div className="space-y-6" role="status" aria-label={label}>
+      <div className="overflow-hidden rounded-2xl border border-border bg-surface" aria-hidden="true">
+        <div className="space-y-3 p-4">
+          <div className="h-4 w-32 rounded bg-surface-muted" />
+          <div className="h-9 w-52 max-w-full rounded bg-surface-muted" />
+          <div className="h-4 w-48 max-w-full rounded bg-surface-muted" />
+        </div>
+        <div className="grid grid-cols-1 divide-y divide-border border-t border-border min-[360px]:grid-cols-2 min-[360px]:divide-x min-[360px]:divide-y-0">
+          {[0, 1].map(item => (
+            <div key={item} className="space-y-2 p-4">
+              <div className="h-4 w-20 rounded bg-surface-muted" />
+              <div className="h-7 w-32 max-w-full rounded bg-surface-muted" />
+              <div className="h-4 w-24 rounded bg-surface-muted" />
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="rounded-2xl border border-border bg-surface p-4" aria-hidden="true">
+        <div className="h-5 w-40 rounded bg-surface-muted" />
+        <div className="mt-4 h-56 rounded-xl bg-surface-muted" />
+      </div>
+
+      <div className="space-y-3" aria-hidden="true">
+        <div className="h-5 w-36 rounded bg-surface-muted" />
+        <div className="h-80 rounded-2xl border border-border bg-surface p-4">
+          <div className="mx-auto h-48 w-48 rounded-full border-[24px] border-surface-muted" />
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export const ReportsPage = () => {
   const navigate = useNavigate();
@@ -169,7 +232,7 @@ export const ReportsPage = () => {
       label: t('reports.insight_top_category'),
       value: biggestCategory ? biggestCategory.category_name : t('reports.no_data'),
       detail: biggestCategory && totalExpense > 0 ? `${((biggestCategory.amount / totalExpense) * 100).toFixed(0)}% ${t('reports.of_period_expense')}` : '',
-      icon: TrendingUp,
+      icon: Tags,
     },
     {
       label: t('reports.insight_highest_day'),
@@ -184,7 +247,7 @@ export const ReportsPage = () => {
       icon: WalletCards,
     },
     {
-      label: t('reports.insight_unusual_transaction'),
+      label: t('reports.insight_unusual_day'),
       value: unusualDay ? formatPeriodLabel(unusualDay.period) : t('reports.no_unusual_transaction'),
       detail: unusualDay ? t('reports.unusual_transaction_detail') : '',
       icon: AlertTriangle,
@@ -202,21 +265,27 @@ export const ReportsPage = () => {
   );
 
   return (
-    <div className="mx-auto min-h-full max-w-4xl bg-bg p-4 pb-24 text-text">
-      <div className="mb-4 flex items-center gap-3">
+    <div
+      id="report-cashflow-content"
+      className="mx-auto min-h-full max-w-4xl bg-bg px-4 pb-24 pt-[calc(1rem+env(safe-area-inset-top))] text-text sm:px-6"
+      aria-busy={loading}
+    >
+      <header className="mb-4 flex min-h-11 items-center gap-2">
         <BackButton onClick={() => navigate(ROUTES.HOME)} ariaLabel={t('common.back')} />
         <div className="min-w-0 flex-1">
-          <h1 className="truncate text-2xl font-bold text-text">{t('reports.title')}</h1>
+          <h1 className="min-w-0 text-xl font-bold leading-6 text-text [overflow-wrap:anywhere]">
+            {t('reports.title')}
+          </h1>
         </div>
         <button
+          type="button"
           onClick={() => navigate(ROUTES.EXPORT)}
           aria-label={t('reports.export')}
-          title={t('reports.export')}
-          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-surface-muted text-muted transition-colors active:bg-border"
+          className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-border bg-surface text-text transition-colors active:bg-surface-muted ${focusRingClasses}`}
         >
-          <FileText size={19} />
+          <FileText size={20} aria-hidden="true" />
         </button>
-      </div>
+      </header>
 
       <ReportTypeTabs
         active="cashflow"
@@ -233,119 +302,181 @@ export const ReportsPage = () => {
         onGranularityChange={setGranularity}
         onCustomRangeChange={setCustomRange}
         onReset={resetFilters}
+        disabled={loading}
       />
 
-      {error && (
-        <div className="bg-red-50 text-red-600 p-4 rounded-lg mb-6 border border-red-200">
-          <p className="font-semibold">{t('reports.error_title')}</p>
-          <p className="text-sm">{error}</p>
-        </div>
-      )}
-
-      {loading ? (
-        <div className="mb-5 rounded-[18px] border border-border bg-surface p-5 text-sm text-muted shadow-sm">{t('reports.loading_summaries')}</div>
+      {error ? (
+        <section
+          className="rounded-2xl border border-[var(--danger)] bg-[var(--negative-soft)] p-4"
+          role="alert"
+          aria-labelledby="reports-error-title"
+        >
+          <div className="flex items-start gap-3">
+            <AlertTriangle className="mt-0.5 shrink-0 text-[var(--danger)]" size={20} aria-hidden="true" />
+            <div className="min-w-0">
+              <h2 id="reports-error-title" className="text-base font-bold leading-5 text-text">
+                {t('reports.error_title')}
+              </h2>
+              <p className="mt-2 break-words text-sm leading-5 text-text">{error}</p>
+            </div>
+          </div>
+        </section>
+      ) : loading ? (
+        <ReportsPageSkeleton label={t('reports.loading_report')} />
+      ) : !hasReportData ? (
+        <section
+          className="flex flex-col items-center rounded-2xl border border-dashed border-[var(--border-strong)] bg-surface px-5 py-10 text-center"
+          aria-labelledby="reports-empty-title"
+        >
+          <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-surface-muted text-primary">
+            <BarChart3 size={24} aria-hidden="true" />
+          </div>
+          <h2 id="reports-empty-title" className="text-base font-bold leading-6 text-text">
+            {preset === 'custom'
+              ? t('reports.empty_custom_title')
+              : t('reports.empty_title')}
+          </h2>
+          <p className="mt-2 max-w-sm text-base leading-6 text-muted">
+            {preset === 'custom'
+              ? t('reports.empty_custom_hint')
+              : t('reports.empty_hint')}
+          </p>
+          <button
+            type="button"
+            onClick={() => navigate(ROUTES.TRANSACTIONS_NEW)}
+            aria-label={t('transactions.add_title')}
+            className={`mt-5 inline-flex min-h-12 items-center justify-center gap-2 whitespace-nowrap rounded-xl bg-[var(--action-primary-bg)] px-5 text-sm font-semibold text-[var(--action-primary-text)] transition-transform active:translate-y-px ${focusRingClasses}`}
+          >
+            <PlusCircle size={18} aria-hidden="true" />
+            {t('transactions.add_title')}
+          </button>
+        </section>
       ) : (
-        <div className="mb-4 rounded-[18px] bg-gray-900 p-5 text-white shadow-sm">
-          <div className="mb-2 flex items-center justify-between gap-3">
-            <div className="text-[12px] font-semibold uppercase text-gray-300">{t('reports.net_balance_this_period')}</div>
-            <div className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-[12px] font-bold ${netChange >= 0 ? 'bg-emerald-400/15 text-emerald-200' : 'bg-red-400/15 text-red-200'}`}>
-              {netChange >= 0 ? <TrendingUp size={14} /> : <TrendingDown size={14} />}
-              {formatPercent(netChange)}
+        <div className="space-y-6">
+          <section
+            className="overflow-hidden rounded-2xl border border-border bg-surface"
+            aria-labelledby="reports-overview-heading"
+          >
+            <div className="p-4">
+              <h2 id="reports-overview-heading" className="text-base font-bold leading-5 text-text">
+                {t('reports.overview_section')}
+              </h2>
+              <div className="mt-4 flex flex-wrap items-start justify-between gap-x-4 gap-y-2">
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-semibold text-muted">
+                    {t('reports.net_balance_this_period')}
+                  </p>
+                  <p className={`mt-2 break-words text-[clamp(1.75rem,8vw,2rem)] font-bold leading-[1.15] tabular-nums ${
+                    net > 0
+                      ? 'text-[var(--success)]'
+                      : net < 0
+                        ? 'text-[var(--danger)]'
+                        : 'text-text'
+                  }`}>
+                    {displayAmount(net)}
+                  </p>
+                </div>
+                <div className={`flex shrink-0 items-center gap-1.5 text-sm font-semibold ${
+                  netChange > 0
+                    ? 'text-[var(--success)]'
+                    : netChange < 0
+                      ? 'text-[var(--danger)]'
+                      : 'text-muted'
+                }`}>
+                  {netChange >= 0
+                    ? <TrendingUp size={17} aria-hidden="true" />
+                    : <TrendingDown size={17} aria-hidden="true" />}
+                  <span>{formatPercent(netChange)}</span>
+                  <span className="font-normal text-muted">
+                    {t('reports.compared_with_previous_period')}
+                  </span>
+                </div>
+              </div>
+              <p className="mt-3 max-w-2xl text-sm leading-5 text-muted">{mainInsight}</p>
             </div>
-          </div>
-          <div className="break-words text-3xl font-bold leading-tight tabular-nums">
-            {displayAmount(cashflow ? net : 0)}
-          </div>
-          <div className="mt-3 text-sm leading-5 text-gray-200">{mainInsight}</div>
+
+            <ReportSummaryCards data={cashflow} previousData={previousCashflow} loading={false} />
+          </section>
+
+          <CashflowTrendChart data={periodData} />
+
+          <section aria-labelledby="reports-breakdown-heading">
+            <h2 id="reports-breakdown-heading" className="mb-3 text-base font-bold leading-5 text-text">
+              {t('reports.breakdown_section')}
+            </h2>
+            <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:items-start">
+              <ReportDonutCard
+                title={t('reports.expense_by_category')}
+                totalLabel={t('reports.total_expense')}
+                emptyMessage={t('reports.no_expense_data')}
+                items={expenses.map(item => ({
+                  id: item.category_id,
+                  label: item.category_name,
+                  amount: item.amount,
+                }))}
+                palette={EXPENSE_DONUT_COLORS}
+                ariaLabel={t('reports.expense_by_category')}
+                allowExclusion
+              />
+
+              <ReportDonutCard
+                title={t('reports.income_by_source')}
+                totalLabel={t('reports.total_income')}
+                emptyMessage={t('reports.no_income_data')}
+                items={incomes.map(item => ({
+                  id: item.category_id,
+                  label: item.category_name,
+                  amount: item.amount,
+                }))}
+                palette={INCOME_DONUT_COLORS}
+                ariaLabel={t('reports.income_by_source')}
+              />
+            </div>
+          </section>
+
+          <section
+            className="rounded-2xl border border-border bg-surface p-4"
+            aria-labelledby="reports-insights-heading"
+          >
+            <h2 id="reports-insights-heading" className="text-base font-bold leading-5 text-text">
+              {t('reports.insights_section')}
+            </h2>
+            <dl className="mt-3 grid grid-cols-1 gap-x-6 md:grid-cols-2">
+              {insightItems.map(item => {
+                const Icon = item.icon;
+                const valueMayTruncate =
+                  item.label === t('reports.insight_top_category')
+                  || item.label === t('reports.insight_top_wallet');
+
+                return (
+                  <div key={item.label} className="grid grid-cols-[auto_minmax(0,1fr)] gap-3 border-t border-border py-3">
+                    <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full ${
+                      item.label === t('reports.insight_unusual_day')
+                        ? 'bg-[var(--warning-soft)] text-[var(--warning)]'
+                        : 'bg-surface-muted text-muted'
+                    }`}>
+                      <Icon size={17} aria-hidden="true" />
+                    </div>
+                    <div className="min-w-0">
+                      <dt className="text-xs font-semibold leading-4 text-muted">{item.label}</dt>
+                      <dd className={`mt-1 text-sm font-bold leading-5 text-text ${
+                        valueMayTruncate ? 'truncate' : 'break-words tabular-nums'
+                      }`}>
+                        {item.value}
+                      </dd>
+                      {item.detail && (
+                        <dd className="mt-1 break-words text-xs font-semibold leading-4 text-muted tabular-nums">
+                          {item.detail}
+                        </dd>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </dl>
+          </section>
         </div>
       )}
-
-      <ReportSummaryCards data={cashflow} previousData={previousCashflow} loading={loading} />
-
-      <div className="space-y-6">
-        {!loading && !error && !hasReportData && (
-          <div className="flex flex-col items-center rounded-[16px] border border-dashed border-gray-200 bg-white px-5 py-9 text-center shadow-sm">
-            <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-indigo-50 text-indigo-500">
-              <BarChart3 size={28} />
-            </div>
-            <h3 className="text-[17px] font-bold text-gray-900">
-              {preset === 'custom'
-                ? t('reports.empty_custom_title')
-                : t('reports.empty_title')}
-            </h3>
-            <p className="mt-2 max-w-[330px] text-[13px] leading-5 text-gray-500">
-              {preset === 'custom'
-                ? t('reports.empty_custom_hint')
-                : t('reports.empty_hint')}
-            </p>
-            <button
-              type="button"
-              onClick={() => navigate(ROUTES.TRANSACTIONS_NEW)}
-              className="mt-5 inline-flex h-11 items-center gap-2 rounded-[12px] bg-indigo-500 px-5 text-[14px] font-semibold text-white shadow-lg shadow-indigo-500/20 active:scale-95"
-            >
-              <PlusCircle size={17} />
-              {t('transactions.add_title')}
-            </button>
-          </div>
-        )}
-
-        {!loading && !error && hasReportData && <CashflowTrendChart data={periodData} />}
-
-        {(loading || hasReportData) && (
-          <ReportDonutCard
-            title={t('reports.expense_by_category')}
-            totalLabel={t('reports.total_expense')}
-            emptyMessage={t('reports.no_expense_data')}
-            items={expenses.map(item => ({
-              id: item.category_id,
-              label: item.category_name,
-              amount: item.amount,
-            }))}
-            palette={EXPENSE_DONUT_COLORS}
-            loading={loading}
-            error={error}
-            ariaLabel={t('reports.expense_by_category')}
-            allowExclusion
-          />
-        )}
-
-        {(loading || hasReportData) && (
-          <ReportDonutCard
-            title={t('reports.income_by_source')}
-            totalLabel={t('reports.total_income')}
-            emptyMessage={t('reports.no_income_data')}
-            items={incomes.map(item => ({
-              id: item.category_id,
-              label: item.category_name,
-              amount: item.amount,
-            }))}
-            palette={INCOME_DONUT_COLORS}
-            loading={loading}
-            error={error}
-            ariaLabel={t('reports.income_by_source')}
-          />
-        )}
-
-        {!loading && !error && hasReportData && (
-          <div className="space-y-2">
-            {insightItems.map(item => {
-              const Icon = item.icon;
-              return (
-                <div key={item.label} className="flex items-center gap-3 rounded-[14px] border border-border bg-surface p-3 shadow-sm">
-                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-surface-muted text-muted">
-                    <Icon size={17} />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <div className="truncate text-[12px] font-semibold uppercase text-gray-400">{item.label}</div>
-                    <div className="truncate text-[14px] font-bold text-text">{item.value}</div>
-                  </div>
-                  {item.detail && <div className="max-w-[38%] text-right text-[12px] font-semibold text-muted">{item.detail}</div>}
-                </div>
-              );
-            })}
-          </div>
-        )}
-      </div>
     </div>
   );
 };

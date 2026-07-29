@@ -29,12 +29,12 @@ export const formatPercentLabel = (percent: number) => {
 
 export function normalizeDonutData(
   rawItems: RawDonutItem[],
-  { colors }: NormalizeDonutDataOptions,
+  { colors, otherLabel }: NormalizeDonutDataOptions,
 ): DonutItem[] {
   const sortedItems = rawItems
     .map(item => ({
       id: item.id,
-      label: item.label.trim() || 'Uncategorized',
+      label: item.label.trim() || otherLabel,
       amount: Number.isFinite(item.amount) ? Math.max(0, item.amount) : 0,
     }))
     .filter(item => item.amount > 0)
@@ -49,7 +49,7 @@ export function normalizeDonutData(
     amount: item.amount,
     percent: (item.amount / total) * 100,
     percentLabel: formatPercentLabel((item.amount / total) * 100),
-    color: colors[index % colors.length],
+    color: colors[index % colors.length] ?? 'var(--chart-net)',
     isOther: false,
   }));
 }

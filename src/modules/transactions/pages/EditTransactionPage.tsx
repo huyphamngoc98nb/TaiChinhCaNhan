@@ -20,18 +20,86 @@ export function EditTransactionPage() {
   const toast = useToast();
   const [transaction, setTransaction] = useState<Transaction | null>(null);
   const [loading, setLoading] = useState(true);
+  const [loadFailed, setLoadFailed] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
-    if (id) {
-      appRepositories.transaction.getById(id).then((tx) => {
+    let cancelled = false;
+
+    if (!id) {
+      setLoading(false);
+      return () => {
+        cancelled = true;
+      };
+    }
+
+    setLoading(true);
+    setLoadFailed(false);
+    appRepositories.transaction.getById(id)
+      .then((tx) => {
+        if (cancelled) return;
         setTransaction(tx);
         setLoading(false);
+      })
+      .catch((error) => {
+        console.error('Failed to load transaction detail', error);
+        if (cancelled) return;
+        setLoadFailed(true);
+        setLoading(false);
       });
-    }
+
+    return () => {
+      cancelled = true;
+    };
   }, [id]);
 
-  if (loading) return <div style={{ padding: '16px' }}>{t('transactions.loading_detail')}</div>;
-  if (!transaction) return <div style={{ padding: '16px' }}>{t('transactions.not_found')}</div>;
+  const backToHistory = () => navigate(ROUTES.TRANSACTIONS);
+
+  if (loading) {
+    return (
+      <main className="transaction-form-state" aria-busy="true">
+        <header className="transaction-form-state__header">
+          <BackButton onClick={backToHistory} ariaLabel={t('common.back')} />
+          <h1 className="transaction-form-title">{t('transactions.edit')}</h1>
+        </header>
+        <div className="transaction-form-state__content" role="status">
+          <h2>{t('transactions.loading_detail')}</h2>
+          <div className="transaction-form-state__skeleton" aria-hidden="true" />
+          <div className="transaction-form-state__skeleton" aria-hidden="true" />
+        </div>
+      </main>
+    );
+  }
+
+  if (!transaction) {
+    return (
+      <main className="transaction-form-state">
+        <header className="transaction-form-state__header">
+          <BackButton onClick={backToHistory} ariaLabel={t('common.back')} />
+          <h1 className="transaction-form-title">{t('transactions.edit')}</h1>
+        </header>
+        <div className="transaction-form-state__content" role="alert">
+          <h2>
+            {loadFailed
+              ? t('transactions.load_error_title')
+              : t('transactions.not_found_title')}
+          </h2>
+          <p>
+            {loadFailed
+              ? t('transactions.load_error_hint')
+              : t('transactions.not_found_hint')}
+          </p>
+          <button
+            type="button"
+            className="transaction-form-state__action"
+            onClick={backToHistory}
+          >
+            {t('transactions.back_to_history')}
+          </button>
+        </div>
+      </main>
+    );
+  }
 
   const handleDelete = async () => {
     const ok = await confirm({
@@ -43,6 +111,7 @@ export function EditTransactionPage() {
 
     if (!ok) return;
 
+    setDeleting(true);
     try {
       await deleteTransactionUseCase.execute(transaction.id);
       void triggerWarningHaptic();
@@ -50,6 +119,8 @@ export function EditTransactionPage() {
       navigate(ROUTES.TRANSACTIONS);
     } catch (err) {
       toast.error(localizeTransactionError(err, t));
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -59,12 +130,13 @@ export function EditTransactionPage() {
       header={
         <>
           <BackButton onClick={() => navigate(ROUTES.TRANSACTIONS)} ariaLabel={t('common.back')} />
-          <h2 className="transaction-form-title">{t('transactions.edit')}</h2>
+          <h1 className="transaction-form-title">{t('transactions.edit')}</h1>
         </>
       }
       pinTypeSelector
       onSuccess={() => navigate(ROUTES.TRANSACTIONS)}
       onDelete={handleDelete}
+      deleting={deleting}
     />
   );
 }

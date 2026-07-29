@@ -51,7 +51,7 @@ describe('normalizeDonutData', () => {
     expect(result.reduce((sum, item) => sum + item.percent, 0)).toBeCloseTo(100);
   });
 
-  it('filters non-positive amounts and falls back blank labels to Uncategorized', () => {
+  it('filters non-positive amounts and uses the translated fallback for blank labels', () => {
     const result = normalizeDonutData(
       [
         { id: 'blank', label: '  ', amount: 25 },
@@ -62,7 +62,7 @@ describe('normalizeDonutData', () => {
       { colors, otherLabel: 'Other' },
     );
 
-    expect(result.map(item => item.label)).toEqual(['Uncategorized']);
+    expect(result.map(item => item.label)).toEqual(['Other']);
     expect(result[0].percent).toBe(100);
     expect(result[0].isOther).toBe(false);
   });
@@ -99,5 +99,26 @@ describe('normalizeDonutData', () => {
 
     expect(result).toHaveLength(2);
     expect(result.map(item => item.id)).toEqual(['category-1', 'category-2']);
+  });
+
+  it('uses the semantic muted chart token when no palette color is available', () => {
+    const result = normalizeDonutData(
+      [{ id: 'food', label: 'Food', amount: 100 }],
+      { colors: [], otherLabel: 'Other' },
+    );
+
+    expect(result[0].color).toBe('var(--chart-net)');
+  });
+
+  it('does not mutate source data while normalizing and sorting', () => {
+    const source = [
+      { id: 'small', label: ' Small ', amount: 10 },
+      { id: 'large', label: 'Large', amount: 20 },
+    ];
+    const snapshot = structuredClone(source);
+
+    normalizeDonutData(source, { colors, otherLabel: 'Other' });
+
+    expect(source).toEqual(snapshot);
   });
 });
