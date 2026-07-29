@@ -1,4 +1,5 @@
 export interface RawDonutItem {
+  id: string;
   label: string;
   amount: number;
 }
@@ -21,9 +22,7 @@ interface NormalizeDonutDataOptions {
   minPercent?: number;
 }
 
-const makeId = (label: string, index: number) => `${label.trim().toLowerCase()}-${index}`;
-
-const formatPercentLabel = (percent: number) => {
+export const formatPercentLabel = (percent: number) => {
   if (percent >= 10 || Number.isInteger(percent)) return `${percent.toFixed(0)}%`;
   return `${percent.toFixed(1)}%`;
 };
@@ -34,6 +33,7 @@ export function normalizeDonutData(
 ): DonutItem[] {
   const sortedItems = rawItems
     .map(item => ({
+      id: item.id,
       label: item.label.trim() || 'Uncategorized',
       amount: Number.isFinite(item.amount) ? Math.max(0, item.amount) : 0,
     }))
@@ -44,7 +44,7 @@ export function normalizeDonutData(
   if (total <= 0) return [];
 
   return sortedItems.map((item, index) => ({
-    id: makeId(item.label, index),
+    id: item.id,
     label: item.label,
     amount: item.amount,
     percent: (item.amount / total) * 100,

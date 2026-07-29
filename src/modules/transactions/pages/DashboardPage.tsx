@@ -1,4 +1,3 @@
-import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronRight, Bell, Eye, EyeOff, WalletCards, AlertTriangle, ShieldCheck, TrendingDown } from 'lucide-react';
 import { ROUTES } from '@/shared/constants/routes';
@@ -18,8 +17,6 @@ import { buildDateRange } from '@/modules/reports/services/build-date-range';
 import { resolveBudgetTransactionFilter } from '@/modules/reports/services/financial-calculations';
 import type { BudgetProgress } from '@/modules/budgets/domain/budget.model';
 import { useLoans } from '@/modules/loans/hooks/useLoans';
-import { buildDebtDashboardSummary } from '@/modules/debts/services/debt-status';
-import { getCreditCardStatementPeriod } from '@/modules/wallets/services/credit-card.service';
 import { useDisplayFormatSettings } from '@/shared/hooks/useDisplayFormatSettings';
 
 // ── helpers ────────────────────────────────────────────────────────────────────
@@ -116,23 +113,6 @@ function DashboardPage() {
             accent: 'text-[color:var(--warning)]',
             ring: 'ring-amber-500/15',
           };
-  const debtSummary = useMemo(() => buildDebtDashboardSummary({
-    creditCards: wallets
-      .filter((wallet) => wallet.account_type === 'credit_card' && wallet.is_active === 1)
-      .map((wallet) => ({
-        wallet,
-        outstandingBalance: Math.max(0, -Number(wallet.balance || 0)),
-        period: getCreditCardStatementPeriod(wallet),
-      })),
-    loans: loans.filter((loan) => loan.deleted_at == null && loan.status !== 'cancelled'),
-  }), [wallets, loans]);
-  const debtSummaryLoading = walletLoading || loansLoading;
-  const hasDebtSummary =
-    debtSummary.totalCurrentDebt > 0 ||
-    debtSummary.totalCreditCardDebt > 0 ||
-    debtSummary.dueWithinSevenDays > 0 ||
-    debtSummary.overdueCount > 0 ||
-    debtSummary.highUtilizationCount > 0;
 
   function toggleShowAmounts() {
     setShowAmounts(!showAmounts);
@@ -355,72 +335,6 @@ function DashboardPage() {
             </p>
           </div>
           <ChevronRight size={16} className="text-muted" />
-        </div>
-      )}
-
-      {(debtSummaryLoading || hasDebtSummary) && (
-        <div
-          className="mx-4 mt-4 rounded-[18px] border border-border bg-surface p-4 shadow-sm transition-transform active:scale-[0.99]"
-          onClick={() => navigate(ROUTES.LOANS)}
-          role="button"
-          tabIndex={0}
-          onKeyDown={(event) => event.key === 'Enter' && navigate(ROUTES.LOANS)}
-        >
-          <div className="mb-3 flex items-center justify-between gap-3">
-            <div className="flex min-w-0 items-center gap-2">
-              <AlertTriangle size={18} className="shrink-0 text-muted" />
-              <h3 className="truncate text-[15px] font-bold text-text">
-                {t('dashboard.debt_summary_title')}
-              </h3>
-            </div>
-            {!debtSummaryLoading && debtSummary.alertCount > 0 && (
-              <span className="shrink-0 rounded-full border border-rose-500/20 bg-rose-500/10 px-2 py-1 text-[11px] font-bold text-text">
-                {debtSummary.alertCount}
-              </span>
-            )}
-          </div>
-
-          {debtSummaryLoading ? (
-            <div className="grid grid-cols-2 gap-2">
-              {[1, 2, 3, 4].map((item) => (
-                <div key={item} className="h-[58px] animate-pulse rounded-[12px] bg-surface-muted" />
-              ))}
-            </div>
-          ) : (
-            <>
-              <div className="grid grid-cols-2 gap-2">
-                <div className="rounded-[12px] bg-surface-muted px-3 py-2">
-                  <p className="text-[10px] font-semibold uppercase text-text">{t('dashboard.total_current_debt')}</p>
-                  <p className="mt-1 text-[13px] font-bold text-text tabular-nums">
-                    {displayAmount(debtSummary.totalCurrentDebt)}
-                  </p>
-                </div>
-                <div className="rounded-[12px] border-l-2 border-l-[color:var(--warning)] bg-surface-muted px-3 py-2">
-                  <p className="text-[10px] font-semibold uppercase text-text">{t('dashboard.due_next_7_days')}</p>
-                  <p className="mt-1 text-[13px] font-bold text-text tabular-nums">
-                    {debtSummary.dueWithinSevenDays > 0
-                      ? displayAmount(debtSummary.dueWithinSevenDays)
-                      : t('dashboard.no_debt_due')}
-                  </p>
-                </div>
-                <div className="rounded-[12px] border-l-2 border-l-[color:var(--danger)] bg-surface-muted px-3 py-2">
-                  <p className="text-[10px] font-semibold uppercase text-text">{t('dashboard.overdue_items')}</p>
-                  <p className="mt-1 text-[13px] font-bold text-text">
-                    {debtSummary.overdueCount}
-                  </p>
-                </div>
-                <div className="rounded-[12px] border-l-2 border-l-[color:var(--warning)] bg-surface-muted px-3 py-2">
-                  <p className="text-[10px] font-semibold uppercase text-text">{t('dashboard.high_utilization_cards')}</p>
-                  <p className="mt-1 text-[13px] font-bold text-text">
-                    {debtSummary.highUtilizationCount}
-                  </p>
-                </div>
-              </div>
-              <p className="mt-3 text-[11px] font-semibold text-muted">
-                {t('dashboard.credit_card_liability')}: {displayAmount(debtSummary.totalCreditCardDebt)}
-              </p>
-            </>
-          )}
         </div>
       )}
 

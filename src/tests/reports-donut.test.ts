@@ -7,10 +7,10 @@ describe('normalizeDonutData', () => {
   it('keeps all positive items sorted by amount and ignores grouping options', () => {
     const result = normalizeDonutData(
       [
-        { label: 'Small', amount: 10 },
-        { label: 'Largest', amount: 50 },
-        { label: 'Medium', amount: 30 },
-        { label: 'Tiny', amount: 5 },
+        { id: 'small', label: 'Small', amount: 10 },
+        { id: 'largest', label: 'Largest', amount: 50 },
+        { id: 'medium', label: 'Medium', amount: 30 },
+        { id: 'tiny', label: 'Tiny', amount: 5 },
       ],
       { colors, otherLabel: 'Other', topN: 2, minPercent: 0 },
     );
@@ -24,9 +24,9 @@ describe('normalizeDonutData', () => {
   it('does not group slices below the minimum percent into Other', () => {
     const result = normalizeDonutData(
       [
-        { label: 'Salary', amount: 920 },
-        { label: 'Bonus', amount: 40 },
-        { label: 'Refund', amount: 40 },
+        { id: 'salary', label: 'Salary', amount: 920 },
+        { id: 'bonus', label: 'Bonus', amount: 40 },
+        { id: 'refund', label: 'Refund', amount: 40 },
       ],
       { colors, otherLabel: 'Other', topN: 5, minPercent: 5 },
     );
@@ -39,6 +39,7 @@ describe('normalizeDonutData', () => {
   it('keeps more than the previous five item limit', () => {
     const result = normalizeDonutData(
       Array.from({ length: 10 }, (_, index) => ({
+        id: `category-${index + 1}`,
         label: `Category ${index + 1}`,
         amount: 100 - index,
       })),
@@ -53,9 +54,10 @@ describe('normalizeDonutData', () => {
   it('filters non-positive amounts and falls back blank labels to Uncategorized', () => {
     const result = normalizeDonutData(
       [
-        { label: '  ', amount: 25 },
-        { label: 'Food', amount: 0 },
-        { label: 'Bills', amount: -10 },
+        { id: 'blank', label: '  ', amount: 25 },
+        { id: 'food', label: 'Food', amount: 0 },
+        { id: 'bills', label: 'Bills', amount: -10 },
+        { id: 'invalid', label: 'Invalid', amount: Number.NaN },
       ],
       { colors, otherLabel: 'Other' },
     );
@@ -68,12 +70,34 @@ describe('normalizeDonutData', () => {
   it('returns an empty array when total is zero', () => {
     const result = normalizeDonutData(
       [
-        { label: 'Food', amount: 0 },
-        { label: 'Bills', amount: -10 },
+        { id: 'food', label: 'Food', amount: 0 },
+        { id: 'bills', label: 'Bills', amount: -10 },
       ],
       { colors, otherLabel: 'Other' },
     );
 
     expect(result).toEqual([]);
+  });
+
+  it('preserves the input category ID', () => {
+    const result = normalizeDonutData(
+      [{ id: 'food-id', label: 'Ăn uống', amount: 3_000_000 }],
+      { colors, otherLabel: 'Other' },
+    );
+
+    expect(result[0].id).toBe('food-id');
+  });
+
+  it('keeps categories with the same label distinct by category ID', () => {
+    const result = normalizeDonutData(
+      [
+        { id: 'category-1', label: 'Khác', amount: 1_000_000 },
+        { id: 'category-2', label: 'Khác', amount: 500_000 },
+      ],
+      { colors, otherLabel: 'Other' },
+    );
+
+    expect(result).toHaveLength(2);
+    expect(result.map(item => item.id)).toEqual(['category-1', 'category-2']);
   });
 });

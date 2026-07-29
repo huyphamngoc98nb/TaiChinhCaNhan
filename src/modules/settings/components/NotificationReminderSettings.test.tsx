@@ -105,6 +105,28 @@ describe('NotificationReminderSettings', () => {
       dataEntryReminderEnabled: false,
     });
     mocks.setReminderEnabled.mockResolvedValue(settings);
+    mocks.addReminder.mockResolvedValue({
+      ...settings,
+      reminders: [
+        ...settings.reminders,
+        {
+          id: 'new-reminder',
+          hour: 8,
+          minute: 0,
+          enabled: true,
+          createdAt: 3,
+          updatedAt: 3,
+        },
+      ],
+    });
+    mocks.updateReminder.mockResolvedValue({
+      ...settings,
+      reminders: settings.reminders.map((reminder) =>
+        reminder.id === 'morning'
+          ? { ...reminder, hour: 9, minute: 15, updatedAt: 3 }
+          : reminder,
+      ),
+    });
     mocks.deleteReminder.mockResolvedValue({
       ...settings,
       reminders: settings.reminders.slice(1),
@@ -152,5 +174,89 @@ describe('NotificationReminderSettings', () => {
     expect(mocks.confirm).toHaveBeenCalledWith(
       expect.objectContaining({ title: 'settings.notification_delete_title' }),
     );
+  });
+
+  it('adds a reminder with one pointer down and click sequence', async () => {
+    mocks.getSettings.mockResolvedValue({
+      ...settings,
+      reminders: settings.reminders.slice(1),
+    });
+    render(<NotificationReminderSettings />);
+
+    fireEvent.click(
+      await screen.findByRole('button', {
+        name: 'settings.notification_add_time',
+      }),
+    );
+    const saveButton = screen.getByRole('button', { name: 'common.save' });
+
+    fireEvent.pointerDown(saveButton);
+    fireEvent.click(saveButton);
+
+    await waitFor(() =>
+      expect(mocks.addReminder).toHaveBeenCalledWith(8, 0),
+    );
+    expect(mocks.addReminder).toHaveBeenCalledTimes(1);
+    expect(mocks.updateReminder).not.toHaveBeenCalled();
+  });
+
+  it('closes the add reminder sheet with one cancel pointer sequence', async () => {
+    render(<NotificationReminderSettings />);
+
+    fireEvent.click(
+      await screen.findByRole('button', {
+        name: 'settings.notification_add_time',
+      }),
+    );
+    const cancelButton = screen.getByRole('button', { name: 'common.cancel' });
+
+    fireEvent.pointerDown(cancelButton);
+    fireEvent.click(cancelButton);
+
+    await waitFor(() =>
+      expect(
+        screen.queryByRole('button', { name: 'common.cancel' }),
+      ).toBeNull(),
+    );
+    expect(mocks.addReminder).not.toHaveBeenCalled();
+    expect(mocks.updateReminder).not.toHaveBeenCalled();
+  });
+
+  it('updates a reminder with one pointer down and click sequence', async () => {
+    render(<NotificationReminderSettings />);
+
+    fireEvent.click((await screen.findAllByLabelText('common.edit'))[0]);
+    fireEvent.change(
+      screen.getByLabelText('settings.notification_reminder_time'),
+      { target: { value: '09:15' } },
+    );
+    const saveButton = screen.getByRole('button', { name: 'common.save' });
+
+    fireEvent.pointerDown(saveButton);
+    fireEvent.click(saveButton);
+
+    await waitFor(() =>
+      expect(mocks.updateReminder).toHaveBeenCalledWith('morning', 9, 15),
+    );
+    expect(mocks.updateReminder).toHaveBeenCalledTimes(1);
+    expect(mocks.addReminder).not.toHaveBeenCalled();
+  });
+
+  it('disables saving a duplicate reminder time without service calls', async () => {
+    render(<NotificationReminderSettings />);
+
+    fireEvent.click(
+      await screen.findByRole('button', {
+        name: 'settings.notification_add_time',
+      }),
+    );
+    const saveButton = screen.getByRole('button', { name: 'common.save' });
+
+    expect((saveButton as HTMLButtonElement).disabled).toBe(true);
+    fireEvent.pointerDown(saveButton);
+    fireEvent.click(saveButton);
+
+    expect(mocks.addReminder).not.toHaveBeenCalled();
+    expect(mocks.updateReminder).not.toHaveBeenCalled();
   });
 });

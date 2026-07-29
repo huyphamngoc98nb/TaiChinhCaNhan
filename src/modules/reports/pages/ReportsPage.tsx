@@ -296,11 +296,16 @@ export const ReportsPage = () => {
             title={t('reports.expense_by_category')}
             totalLabel={t('reports.total_expense')}
             emptyMessage={t('reports.no_expense_data')}
-            items={expenses.map(item => ({ label: item.category_name, amount: item.amount }))}
+            items={expenses.map(item => ({
+              id: item.category_id,
+              label: item.category_name,
+              amount: item.amount,
+            }))}
             palette={EXPENSE_DONUT_COLORS}
             loading={loading}
             error={error}
             ariaLabel={t('reports.expense_by_category')}
+            allowExclusion
           />
         )}
 
@@ -309,7 +314,11 @@ export const ReportsPage = () => {
             title={t('reports.income_by_source')}
             totalLabel={t('reports.total_income')}
             emptyMessage={t('reports.no_income_data')}
-            items={incomes.map(item => ({ label: item.category_name, amount: item.amount }))}
+            items={incomes.map(item => ({
+              id: item.category_id,
+              label: item.category_name,
+              amount: item.amount,
+            }))}
             palette={INCOME_DONUT_COLORS}
             loading={loading}
             error={error}

@@ -35,8 +35,8 @@
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\version.config.json": {
-    "mtime": 1785291708.111903,
-    "ast_hash": "3c80d87f87236be9d6ba859b09fc1942",
+    "mtime": 1785307352.3258078,
+    "ast_hash": "062756f53939ec83651f9a1ec07a19e0",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\vite.config.ts": {
@@ -960,13 +960,13 @@
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\modules\\reports\\components\\normalize-donut-data.ts": {
-    "mtime": 1781257304.108177,
-    "ast_hash": "c7463ba31c057ff3030a5734ae33d812",
+    "mtime": 1785302935.8740804,
+    "ast_hash": "80b59a41339741383cf6c450eee9eef9",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\modules\\reports\\components\\ReportDonutCard.tsx": {
-    "mtime": 1781497817.7210822,
-    "ast_hash": "45665b1982e4055eb902f5b92f435dc0",
+    "mtime": 1785303043.6978378,
+    "ast_hash": "f91431623dba39212e6a53d982e6b148",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\modules\\reports\\components\\ReportSummaryCards.tsx": {
@@ -990,8 +990,8 @@
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\modules\\reports\\pages\\ReportsPage.tsx": {
-    "mtime": 1783323689.372301,
-    "ast_hash": "63ec7e1cfdcf6342c9ddc95059c2af6c",
+    "mtime": 1785302937.499425,
+    "ast_hash": "ede8ac436da3ed7252d9bd3687b1bf2b",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\modules\\reports\\repositories\\report.repository.ts": {
@@ -1205,8 +1205,8 @@
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\modules\\transactions\\pages\\DashboardPage.tsx": {
-    "mtime": 1782892033.2132237,
-    "ast_hash": "adb2a159de08f3070e19a11629e009f8",
+    "mtime": 1785298274.454326,
+    "ast_hash": "9ec44c49ce8d78b15284339c1a7c8b15",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\modules\\transactions\\pages\\EditTransactionPage.tsx": {
@@ -1555,8 +1555,8 @@
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\shared\\constants\\translations.ts": {
-    "mtime": 1785290735.2161417,
-    "ast_hash": "267a8ad3eae99c7d5e5b9e4cd08ea2a6",
+    "mtime": 1785302954.24391,
+    "ast_hash": "2dc09fbc94a67bea3b7cd9b67a92cf7c",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\shared\\context\\CurrencyContext.tsx": {
@@ -1815,8 +1815,8 @@
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\tests\\reports-donut.test.ts": {
-    "mtime": 1780885270.62201,
-    "ast_hash": "19e4219bb89c5cf5f92e38598bc03e20",
+    "mtime": 1785303031.0540318,
+    "ast_hash": "4cc38b526ca1ab7ee7e52f7ddae154b8",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\tests\\reports-ui.test.ts": {
@@ -1890,8 +1890,8 @@
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\AGENTS.md": {
-    "mtime": 1785117597.6083896,
-    "ast_hash": "aa8ccd78a13f931b8be29c6a3864f33c",
+    "mtime": 1785296312.015546,
+    "ast_hash": "8fac68d4fce39a51066511acf70f76bb",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\index.html": {
@@ -2420,8 +2420,8 @@
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\RELEASE_NOTES.md": {
-    "mtime": 1785291711.4651294,
-    "ast_hash": "7578afcd291cf050b22b4d07877c685a",
+    "mtime": 1785307769.358719,
+    "ast_hash": "fdebfc46e5892726c7664bb0a436b89a",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\app\\providers\\app-lock-state.ts": {
@@ -2585,13 +2585,13 @@
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\modules\\settings\\components\\NotificationReminderSettings.test.tsx": {
-    "mtime": 1785291049.5363846,
-    "ast_hash": "06aba0c33257b5b4298f5fbac7cdf24e",
+    "mtime": 1785297355.3809247,
+    "ast_hash": "098847058615aa89363e381d8f64155b",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\modules\\settings\\components\\NotificationReminderSettings.tsx": {
-    "mtime": 1785290932.9957473,
-    "ast_hash": "f79a3b6664a03a12b31e36c4d98592ed",
+    "mtime": 1785297320.5292952,
+    "ast_hash": "d8c325ad4417fa5a3da82c942d9ea675",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\modules\\settings\\services\\notification-reminders.test.ts": {
@@ -2602,6 +2602,11 @@
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\modules\\settings\\services\\notification-reminders.ts": {
     "mtime": 1785290906.9197838,
     "ast_hash": "fcd1b89641e298bf750a2853d2db99c8",
+    "semantic_hash": ""
+  },
+  "D:\\Personal Project\\TaiXiuCaNhan\\src\\modules\\reports\\components\\ReportDonutCard.test.tsx": {
+    "mtime": 1785303073.1003735,
+    "ast_hash": "1de4847e494be32d0fc7336a40190403",
     "semantic_hash": ""
   }
 }

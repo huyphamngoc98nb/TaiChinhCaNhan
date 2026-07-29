@@ -1,19 +1,17 @@
-# v2.0.0
+# v2.0.1
 
 ## Tóm tắt
-Bản phát hành lớn 2.0.0 bổ sung lịch nhắc nhập số liệu hằng ngày, hoàn thiện quản lý khoản vay/nợ và củng cố App Lock trên Android để bảo vệ dữ liệu tài chính xuyên suốt các luồng sử dụng.
+
+Bản cập nhật 2.0.1 cải thiện trải nghiệm báo cáo và màn hình chính, đồng thời sửa thao tác lưu/hủy giờ nhắc trên Android.
 
 ## Tính năng mới
-- Bổ sung cài đặt nhắc nhập số liệu hằng ngày, hỗ trợ nhiều khung giờ thông báo và quản lý riêng từng lịch nhắc.
-- Bổ sung sắp xếp khoản vay/nợ theo thời gian vay gần nhất hoặc xa nhất; mặc định hiển thị khoản mới nhất trước.
-- Đơn giản hóa thời gian trả: chỉ cần chọn ngày thay vì ngày và giờ, đồng thời giữ đúng ngày với dữ liệu cũ.
 
-## Bảo mật
-- Hoàn thiện App Lock qua kiểm thử tích hợp: loại bỏ đường mở khóa cưỡng bức và listener cũ, không tính system dialog/file picker là thời gian background, hủy xác thực thao tác nhạy cảm khi ứng dụng rời foreground và ngăn sinh trắc học bật lặp do render lại.
-- Có thể chọn thời gian tự động khóa trong phần Bảo mật: ngay lập tức, 30 giây, 1/2/5/15 phút hoặc không tự động khóa. Mặc định vẫn là 2 phút; khóa thiết bị luôn yêu cầu mở khóa lại bất kể lựa chọn này.
-- Thêm xác thực tăng cường trước khi xuất dữ liệu, khôi phục ghi đè, xóa toàn bộ dữ liệu và tắt mở khóa sinh trắc học. Xác thực ưu tiên sinh trắc học, cho phép dùng PIN dự phòng, chỉ được tái sử dụng trong 5 phút của cùng phiên foreground; khôi phục, xóa dữ liệu và đổi PIN luôn yêu cầu xác thực mới.
-- Chuẩn hóa trạng thái App Lock và sửa lỗi ứng dụng yêu cầu mở khóa chỉ vì mở Recent Apps, chuyển ứng dụng hoặc tạm mất focus. App Lock và đăng xuất tiếp tục là hai luồng độc lập; màn hình và dữ liệu đang nhập được giữ nguyên khi quay lại.
-- App Lock hiện chỉ yêu cầu mở khóa sau khi ứng dụng ở nền từ 2 phút trở lên. Quay lại sớm hơn tiếp tục đúng màn hình hiện tại; mở khóa sau timeout vẫn giữ nguyên route và dữ liệu form đang nhập.
-- Khóa hoặc tắt màn hình thiết bị Android giờ luôn yêu cầu mở khóa ứng dụng khi quay lại, kể cả chưa đủ 2 phút. Recent Apps, bảng thông báo, hộp thoại hệ thống và xác thực sinh trắc học không bị nhận nhầm là khóa thiết bị.
-- Recent Apps giờ chỉ hiển thị lớp che trung tính với biểu tượng ứng dụng, không để lộ số dư, giao dịch, báo cáo hay dữ liệu form. Quay lại ứng dụng vẫn giữ nguyên màn hình và dữ liệu đang thao tác.
-- Các màn hình PIN, cài đặt bảo mật và sao lưu/khôi phục được chặn chụp màn hình trên Android; các màn hình thông thường vẫn có thể dùng chức năng chụp/xuất báo cáo.
+- Có thể tạm loại trừ hoặc thêm lại danh mục trên biểu đồ tròn chi tiêu; biểu đồ, tổng chi đang hiển thị và tỷ lệ được tính lại mà không thay đổi dữ liệu giao dịch.
+
+## Cải thiện
+
+- Tinh gọn màn hình chính bằng cách loại bỏ thẻ Nợ & hạn thanh toán; các cảnh báo thẻ tín dụng và tính năng vay/nợ riêng vẫn được giữ nguyên.
+
+## Sửa lỗi
+
+- Sửa lỗi trên Android khiến nút Lưu và Hủy tại màn thêm/sửa giờ thông báo phải chạm hai lần mới hoạt động.

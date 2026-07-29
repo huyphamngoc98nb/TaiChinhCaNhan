@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import type { PointerEvent as ReactPointerEvent } from 'react';
 import { App as CapacitorApp } from '@capacitor/app';
 import { Capacitor } from '@capacitor/core';
 import {
@@ -85,7 +86,7 @@ function TimePickerSheet({
 
   useEffect(() => {
     if (!state) return;
-    window.setTimeout(() => {
+    const timer = window.setTimeout(() => {
       const input = inputRef.current;
       if (!input) return;
       input.focus();
@@ -95,7 +96,24 @@ function TimePickerSheet({
         // Some WebView versions require a second direct tap on the time field.
       }
     }, 250);
+    return () => window.clearTimeout(timer);
   }, [state]);
+
+  const preventButtonFocus = (
+    event: ReactPointerEvent<HTMLButtonElement>,
+  ) => {
+    event.preventDefault();
+  };
+
+  const handleClose = () => {
+    inputRef.current?.blur();
+    onClose();
+  };
+
+  const handleSave = () => {
+    inputRef.current?.blur();
+    onSave();
+  };
 
   return (
     <BottomSheet
@@ -145,7 +163,8 @@ function TimePickerSheet({
         <div className="flex gap-3">
           <button
             type="button"
-            onClick={onClose}
+            onPointerDown={preventButtonFocus}
+            onClick={handleClose}
             disabled={saving}
             className="h-11 flex-1 rounded-[12px] bg-surface-muted text-[14px] font-semibold text-muted"
           >
@@ -153,7 +172,8 @@ function TimePickerSheet({
           </button>
           <button
             type="button"
-            onClick={onSave}
+            onPointerDown={preventButtonFocus}
+            onClick={handleSave}
             disabled={saving || duplicate || !state?.value}
             className="h-11 flex-1 rounded-[12px] bg-primary text-[14px] font-semibold text-white disabled:opacity-50"
           >
