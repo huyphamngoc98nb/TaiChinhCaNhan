@@ -1,4 +1,8 @@
+/// <reference types="node" />
+
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import type { ReactNode } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { updateTransactionInputSettings } from '@/modules/settings/services/transaction-input-settings.service';
@@ -61,7 +65,13 @@ vi.mock('@/shared/components/DateTimePicker', () => ({
 }));
 
 vi.mock('@/shared/components/FormTransition', () => ({
-  FormTransition: ({ children }: { children: ReactNode }) => <div>{children}</div>,
+  FormTransition: ({
+    children,
+    className,
+  }: {
+    children: ReactNode;
+    className?: string;
+  }) => <div className={className}>{children}</div>,
 }));
 
 vi.mock('@/shared/components/DropdownList', () => ({
@@ -103,6 +113,7 @@ function mockTransactionFormState(
     wallets?: unknown[];
     categories?: unknown[];
     budgets?: unknown[];
+    submitting?: boolean;
   } = {},
 ) {
   mocks.save.mockResolvedValue(true);
@@ -120,7 +131,7 @@ function mockTransactionFormState(
     },
     setFormData: mocks.setFormData,
     save: mocks.save,
-    submitting: false,
+    submitting: optionOverrides.submitting ?? false,
     options: {
       wallets: optionOverrides.wallets ?? [],
       categories: optionOverrides.categories ?? [],
@@ -263,6 +274,140 @@ describe('TransactionForm input settings', () => {
     expect(mocks.findDuplicateTransaction).toHaveBeenCalledTimes(1);
     resolveDuplicate?.(null);
     await waitFor(() => expect(mocks.save).toHaveBeenCalledTimes(1));
+  });
+
+  it('keeps the save action inside the form content flow and outside the sticky header', () => {
+    const { container } = render(
+      <TransactionForm
+        header={<h1>Transaction header</h1>}
+        pinTypeSelector
+        onSuccess={vi.fn()}
+      />,
+    );
+
+    const content = container.querySelector('.transaction-form-content');
+    const actions = container.querySelector('.transaction-form__actions');
+    const stickyShell = container.querySelector('.transaction-form-sticky-shell');
+    const saveButton = screen.getByRole('button', { name: 'form.save' });
+
+    expect(content?.contains(saveButton)).toBe(true);
+    expect(actions?.contains(saveButton)).toBe(true);
+    expect(stickyShell?.contains(saveButton)).toBe(false);
+
+    const forbiddenClasses = ['sticky', 'fixed', 'bottom-0', 'inset-x-0'];
+    const actionClasses = actions?.className.split(/\s+/) ?? [];
+    const saveClasses = saveButton.className.split(/\s+/);
+    forbiddenClasses.forEach((className) => {
+      expect(actionClasses).not.toContain(className);
+      expect(saveClasses).not.toContain(className);
+    });
+  });
+
+  it('keeps fields, report options, save, and delete in DOM order in edit mode', () => {
+    mockTransactionFormState(existingTransaction);
+
+    const { container } = render(
+      <TransactionForm
+        existing={existingTransaction}
+        header={<h1>Transaction header</h1>}
+        pinTypeSelector
+        onSuccess={vi.fn()}
+        onDelete={vi.fn().mockResolvedValue(undefined)}
+      />,
+    );
+
+    const content = container.querySelector('.transaction-form-content') as HTMLElement;
+    const primaryFields = content.querySelector('#transaction-primary-heading') as HTMLElement;
+    const reportOptions = content.querySelector('#transaction-report-heading') as HTMLElement;
+    const saveButton = screen.getByRole('button', { name: 'form.save' });
+    const deleteButton = screen.getByRole('button', {
+      name: 'transactions.delete_confirm_btn',
+    });
+    const stickyShell = container.querySelector('.transaction-form-sticky-shell');
+
+    expect(primaryFields.compareDocumentPosition(reportOptions)
+      & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(reportOptions.compareDocumentPosition(saveButton)
+      & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(saveButton.compareDocumentPosition(deleteButton)
+      & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(content.contains(saveButton)).toBe(true);
+    expect(content.contains(deleteButton)).toBe(true);
+    expect(content.querySelector('.transaction-form__actions')?.contains(deleteButton)).toBe(true);
+    expect(stickyShell?.contains(deleteButton)).toBe(false);
+  });
+
+  it('blurs the focused note and submits exactly once from one save click', async () => {
+    updateTransactionInputSettings({ duplicateWarningEnabled: false });
+    const onSuccess = vi.fn();
+
+    render(<TransactionForm onSuccess={onSuccess} />);
+
+    const noteInput = screen.getByRole('textbox', { name: 'note' });
+    const blurSpy = vi.spyOn(noteInput, 'blur');
+    noteInput.focus();
+
+    fireEvent.click(screen.getByRole('button', { name: 'form.save' }));
+
+    await waitFor(() => expect(mocks.save).toHaveBeenCalledTimes(1));
+    expect(blurSpy).toHaveBeenCalledTimes(1);
+    expect(onSuccess).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not trigger delete when save is clicked in edit mode', async () => {
+    mockTransactionFormState(existingTransaction);
+    const onDelete = vi.fn().mockResolvedValue(undefined);
+
+    render(
+      <TransactionForm
+        existing={existingTransaction}
+        onSuccess={vi.fn()}
+        onDelete={onDelete}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'form.save' }));
+
+    await waitFor(() => expect(mocks.save).toHaveBeenCalledTimes(1));
+    expect(onDelete).not.toHaveBeenCalled();
+  });
+
+  it('disables save and delete while the form is submitting', () => {
+    mockTransactionFormState(existingTransaction, { submitting: true });
+
+    render(
+      <TransactionForm
+        existing={existingTransaction}
+        onSuccess={vi.fn()}
+        onDelete={vi.fn().mockResolvedValue(undefined)}
+      />,
+    );
+
+    expect((screen.getByRole('button', {
+      name: 'form.saving',
+    }) as HTMLButtonElement).disabled).toBe(true);
+    expect((screen.getByRole('button', {
+      name: 'transactions.delete_confirm_btn',
+    }) as HTMLButtonElement).disabled).toBe(true);
+  });
+
+  it('keeps the action CSS in normal flow without floating declarations', () => {
+    const css = readFileSync(resolve(
+      process.cwd(),
+      'src/modules/transactions/components/TransactionForm.css',
+    ), 'utf8');
+    const globalCss = readFileSync(resolve(process.cwd(), 'src/index.css'), 'utf8');
+    const actionRule = css.match(/\.transaction-form__actions\s*\{([^}]*)\}/)?.[1];
+    const saveRule = css.match(/\.transaction-form__save\s*\{([^}]*)\}/)?.[1];
+
+    expect(actionRule).toBeDefined();
+    expect(actionRule).toContain('position: static');
+    expect(actionRule).not.toMatch(/position:\s*(?:sticky|fixed)/);
+    expect(actionRule).not.toMatch(
+      /^\s*(?:bottom|inset-block-end|left|right|z-index|transform|backdrop-filter)\s*:/m,
+    );
+    expect(saveRule).not.toMatch(/position:\s*(?:sticky|fixed)/);
+    expect(globalCss).not.toMatch(/\.transaction-form-content\s*\{/);
   });
 
   it('keeps debt workflow categories out of the manual category picker', () => {

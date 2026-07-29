@@ -18,6 +18,7 @@ Bản cập nhật 2.1.0 làm mới trải nghiệm Báo cáo, Lịch sử giao 
 
 ## Sửa lỗi
 
+- Sửa lỗi nút Lưu giao dịch hiển thị dạng floating khi cuộn form; nút Lưu và Xóa nay nằm trong luồng nội dung bình thường ở cuối form.
 - Ngăn thao tác chạm nhanh làm đổi loại giao dịch nhiều lần hoặc gửi biểu mẫu lặp, đồng thời giữ nguyên luồng cảnh báo và xác nhận khi phát hiện giao dịch có thể bị trùng.
 - Sửa trường hợp số tiền đã ẩn vẫn có thể xuất hiện trong nội dung hỗ trợ tiếp cận của biểu đồ hoặc phần tóm tắt.
 

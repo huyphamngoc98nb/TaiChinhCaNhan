@@ -128,6 +128,8 @@ export function TransactionForm({
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
+    blurActiveEditableElement();
+
     if (submitGuardRef.current || submitting || deleting) return;
 
     if (!formData.transaction_date) {
@@ -480,24 +482,24 @@ export function TransactionForm({
         >
           {isBusy && !deleting ? t('form.saving') : t('form.save')}
         </button>
-      </div>
 
-      {existing && onDelete && (
-        <section className="transaction-form__danger-zone" aria-labelledby="transaction-danger-heading">
-          <div>
-            <h2 id="transaction-danger-heading">{t('transactions.delete_section_title')}</h2>
-            <p>{t('transactions.delete_section_hint')}</p>
-          </div>
-          <button
-            type="button"
-            disabled={isBusy}
-            onClick={() => void onDelete()}
-            className="transaction-form__delete"
-          >
-            {t('transactions.delete_confirm_btn')}
-          </button>
-        </section>
-      )}
+        {existing && onDelete && (
+          <section className="transaction-form__danger-zone" aria-labelledby="transaction-danger-heading">
+            <div>
+              <h2 id="transaction-danger-heading">{t('transactions.delete_section_title')}</h2>
+              <p>{t('transactions.delete_section_hint')}</p>
+            </div>
+            <button
+              type="button"
+              disabled={isBusy}
+              onClick={() => void onDelete()}
+              className="transaction-form__delete"
+            >
+              {t('transactions.delete_confirm_btn')}
+            </button>
+          </section>
+        )}
+      </div>
     </>
   );
 

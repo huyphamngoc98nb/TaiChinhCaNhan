@@ -473,10 +473,6 @@ body.body-scroll-locked .main-content {
   z-index: 1;
 }
 
-.transaction-form-content {
-  padding: 20px 16px 24px;
-}
-
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
