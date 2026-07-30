@@ -1,3 +1,4 @@
+import { useId } from 'react';
 import { X } from 'lucide-react';
 import { useLanguage } from '@/shared/context/LanguageContext';
 import { useConfirm } from '@/shared/components/ConfirmDialog/ConfirmContext';
@@ -46,10 +47,14 @@ export function BudgetEditForm({
   const { t } = useLanguage();
   const { confirm } = useConfirm();
   const { currency } = useCurrency();
+  const amountMessageId = useId();
   void isNew;
 
   return (
-    <div className="flex h-full min-h-0 flex-col overflow-hidden">
+    <div
+      className="flex h-full min-h-0 flex-col overflow-hidden"
+      data-budget-form="true"
+    >
       {/* Header */}
       <div className="mb-6 flex shrink-0 items-center justify-between pt-4">
         <div className="flex items-center space-x-3">
@@ -81,82 +86,89 @@ export function BudgetEditForm({
         className="form-scroll-container min-h-0 max-h-full flex-1 pr-1"
       >
         <div className="space-y-6 pb-[calc(1rem+env(safe-area-inset-bottom))]">
-        {/* Error banner — same pattern as TransactionForm */}
-        {error && (
-          <div className="px-4 py-3 bg-red-50 border border-red-200 rounded-[12px] text-[13px] text-red-600 font-medium">
-            {error}
+          {/* Period Toggle */}
+          <div className="space-y-1.5">
+            <p className="text-[13px] font-semibold text-gray-700">{t('budgets.budget_period')}</p>
+            <div className="flex bg-gray-100 p-1 rounded-[12px] h-[48px] w-full">
+              <button
+                onClick={() => setPeriod('monthly')}
+                className={`flex-1 flex items-center justify-center rounded-[9px] text-[14px] font-semibold transition-all ${
+                  period === 'monthly' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'
+                }`}
+              >
+                {t('budgets.monthly')}
+              </button>
+              <button
+                onClick={() => setPeriod('weekly')}
+                className={`flex-1 flex items-center justify-center rounded-[9px] text-[14px] font-semibold transition-all ${
+                  period === 'weekly' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'
+                }`}
+              >
+                {t('budgets.weekly')}
+              </button>
+            </div>
           </div>
-        )}
 
-        {/* Period Toggle */}
-        <div className="space-y-1.5">
-          <p className="text-[13px] font-semibold text-gray-700">{t('budgets.budget_period')}</p>
-          <div className="flex bg-gray-100 p-1 rounded-[12px] h-[48px] w-full">
-            <button
-              onClick={() => setPeriod('monthly')}
-              className={`flex-1 flex items-center justify-center rounded-[9px] text-[14px] font-semibold transition-all ${
-                period === 'monthly' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'
-              }`}
-            >
-              {t('budgets.monthly')}
-            </button>
-            <button
-              onClick={() => setPeriod('weekly')}
-              className={`flex-1 flex items-center justify-center rounded-[9px] text-[14px] font-semibold transition-all ${
-                period === 'weekly' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'
-              }`}
-            >
-              {t('budgets.weekly')}
-            </button>
+          {/* Amount Input */}
+          <div className="space-y-1.5" data-keyboard-scroll-target="true">
+            <p className="text-[13px] font-semibold text-gray-700">{t('budgets.amount')}</p>
+            <CurrencyAmountInput
+              currency={currency}
+              value={amount}
+              onValueChange={setAmount}
+              className={error ? 'border-red-300' : 'border-gray-200'}
+              ariaLabel={t('budgets.amount')}
+              ariaInvalid={Boolean(error)}
+              ariaDescribedBy={amountMessageId}
+            />
+            {error ? (
+              <p
+                id={amountMessageId}
+                role="alert"
+                className="ml-1 text-[12px] font-medium text-red-600"
+              >
+                {error}
+              </p>
+            ) : (
+              <p id={amountMessageId} className="text-[12px] text-gray-400 ml-1 italic">
+                {period === 'monthly'
+                  ? t('budgets.amount_hint_month')
+                  : t('budgets.amount_hint_week')}
+              </p>
+            )}
           </div>
-        </div>
 
-        {/* Scope Picker */}
-        <BudgetScopePicker
-          scopeType={scopeType}
-          onScopeChange={setScopeType}
-          accountTypeScope={accountTypeScope}
-          onAccountTypeChange={setAccountTypeScope}
-        />
+          {/* Scope Picker */}
+          <div data-keyboard-hide-on-open="true">
+            <BudgetScopePicker
+              scopeType={scopeType}
+              onScopeChange={setScopeType}
+              accountTypeScope={accountTypeScope}
+              onAccountTypeChange={setAccountTypeScope}
+            />
+          </div>
 
-        {/* Amount Input */}
-        <div className="space-y-1.5" data-keyboard-scroll-target="true">
-          <p className="text-[13px] font-semibold text-gray-700">{t('budgets.amount')}</p>
-          <CurrencyAmountInput
-            currency={currency}
-            value={amount}
-            onValueChange={setAmount}
-            className={error ? 'border-red-300' : 'border-gray-200'}
-            autoFocus
-          />
-          {!error && (
-            <p className="text-[12px] text-gray-400 ml-1 italic">
-              {period === 'monthly'
-                ? t('budgets.amount_hint_month')
-                : t('budgets.amount_hint_week')}
-            </p>
+          {/* Remove Link */}
+          {category.budget_amount !== null && category.budget_amount > 0 && (
+            <button
+              data-keyboard-hide-on-open="true"
+              onClick={async () => {
+                const ok = await confirm({
+                  title: t('budgets.remove_budget'),
+                  message: t('budgets.remove_confirm'),
+                  confirmText: t('common.yes'),
+                  cancelText: t('common.cancel'),
+                });
+                if (ok) onRemove();
+              }}
+              className="text-[13px] text-red-500 font-semibold h-11 flex items-center px-1"
+            >
+              {t('budgets.remove_budget')}
+            </button>
           )}
-        </div>
 
-        {/* Remove Link */}
-        {category.budget_amount !== null && category.budget_amount > 0 && (
-          <button
-            onClick={async () => {
-              const ok = await confirm({
-                title: t('budgets.remove_budget'),
-                message: t('budgets.remove_confirm'),
-                confirmText: t('common.yes'),
-                cancelText: t('common.cancel'),
-              });
-              if (ok) onRemove();
-            }}
-            className="text-[13px] text-red-500 font-semibold h-11 flex items-center px-1"
-          >
-            {t('budgets.remove_budget')}
-          </button>
-        )}
           {/* Footer stays in the scroll flow so it remains reachable above the keyboard. */}
-          <div className="border-t border-gray-100 pt-4">
+          <div className="border-t border-gray-100 pt-4" data-keyboard-hide-on-open="true">
             <button
               onClick={onSave}
               disabled={isSaving}

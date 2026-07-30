@@ -207,12 +207,18 @@ export function TransactionsPage() {
             </button>
           )}
         </div>
+      </header>
 
-        {!isDayDetail && (
-          <>
+      {!isDayDetail && (
+        <section className="transactions-history-controls">
+          <div
+            className="transactions-history-controls__row"
+            data-custom-period={Boolean(customPeriodLabel)}
+          >
             <nav
               className="transactions-period"
               aria-label={t('transactions.period_navigation')}
+              data-custom-period={Boolean(customPeriodLabel)}
             >
               <button
                 className="transactions-period__button"
@@ -245,21 +251,6 @@ export function TransactionsPage() {
               </button>
             </nav>
 
-            {hasAdvancedFilter && (
-              <div className="transactions-active-filters" role="status">
-                <div className="transactions-active-filters__summary">
-                  {t('transactions.active_filters')}: {activeFilterLabels.join(' · ')}
-                </div>
-                <button
-                  type="button"
-                  className="transactions-active-filters__clear"
-                  onClick={handleResetFilters}
-                >
-                  {t('transactions.clear_filters')}
-                </button>
-              </div>
-            )}
-
             <div className="transactions-view-switcher" aria-label={t('transactions.view_selector')}>
               {(['day', 'month', 'year'] as ViewType[]).map((type) => (
                 <button
@@ -273,9 +264,24 @@ export function TransactionsPage() {
                 </button>
               ))}
             </div>
-          </>
-        )}
-      </header>
+          </div>
+
+          {hasAdvancedFilter && (
+            <div className="transactions-active-filters" role="status">
+              <div className="transactions-active-filters__summary">
+                {t('transactions.active_filters')}: {activeFilterLabels.join(' · ')}
+              </div>
+              <button
+                type="button"
+                className="transactions-active-filters__clear"
+                onClick={handleResetFilters}
+              >
+                {t('transactions.clear_filters')}
+              </button>
+            </div>
+          )}
+        </section>
+      )}
 
       <AdvancedTransactionFilterSheet
         id={ADVANCED_FILTER_SHEET_ID}

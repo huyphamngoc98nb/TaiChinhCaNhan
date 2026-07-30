@@ -43,11 +43,15 @@ export function MoneyKeyboard({
   return (
     <div
       className={`w-full rounded-t-[24px] border-t border-border bg-surface px-4 pb-4 pt-3 shadow-2xl ${className}`}
+      data-money-keyboard-panel="true"
       aria-label={t('money_keyboard.title')}
     >
       <p className="sr-only">{t('money_keyboard.hint')}</p>
       <p className="sr-only" role="status" aria-live="polite">{statusText}</p>
-      <div className="mx-auto mb-4 h-1 w-9 rounded-full bg-border" />
+      <div
+        className="mx-auto mb-4 h-1 w-9 rounded-full bg-border"
+        data-money-keyboard-handle="true"
+      />
 
       {mode === 'calculator' ? (
         <MoneyCalculatorPanel
@@ -57,8 +61,11 @@ export function MoneyKeyboard({
           onBack={() => setMode('number')}
         />
       ) : (
-        <div className="space-y-3">
-          <div className="grid grid-cols-3 gap-2.5">
+        <div className="space-y-3" data-money-keyboard-number-pad="true">
+          <div
+            className="grid grid-cols-3 gap-2.5"
+            data-money-keyboard-number-grid="true"
+          >
             {numberKeys.map(key => (
               <MoneyKeyboardButton
                 key={key}
@@ -93,6 +100,7 @@ export function MoneyKeyboard({
             <MoneyKeyboardButton
               className="h-12 text-[15px]"
               variant="primary"
+              aria-label={t('money_keyboard.done')}
               onClick={() => {
                 void triggerLightHaptic();
                 onDone();

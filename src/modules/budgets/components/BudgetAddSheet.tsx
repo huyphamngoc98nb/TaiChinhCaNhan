@@ -1,3 +1,4 @@
+import { useId } from 'react';
 import { X } from 'lucide-react';
 import { useLanguage } from '@/shared/context/LanguageContext';
 import { BackButton } from '@/shared/components/BackButton';
@@ -44,6 +45,7 @@ export function BudgetAddSheet({
 }: Props) {
   const { t } = useLanguage();
   const { currency } = useCurrency();
+  const amountHintId = useId();
 
   function handleSelect(categoryId: string) {
     const category = categories.find((item) => item.category_id === categoryId);
@@ -54,7 +56,10 @@ export function BudgetAddSheet({
   }
 
   return (
-    <div className="flex h-full min-h-0 flex-col overflow-hidden">
+    <div
+      className="flex h-full min-h-0 flex-col overflow-hidden"
+      data-budget-form="true"
+    >
       {/* Header */}
       <div className="mb-6 flex shrink-0 items-center justify-between gap-3 pt-4">
         <div className="flex min-w-0 items-center gap-3">
@@ -137,14 +142,6 @@ export function BudgetAddSheet({
             </div>
           </div>
 
-          {/* Scope Picker */}
-          <BudgetScopePicker
-            scopeType={scopeType}
-            onScopeChange={setScopeType}
-            accountTypeScope={accountTypeScope}
-            onAccountTypeChange={setAccountTypeScope}
-          />
-
           {/* Amount Input */}
           <div className="space-y-1.5" data-keyboard-scroll-target="true">
             <p className="text-[13px] font-semibold text-gray-700">{t('budgets.amount')}</p>
@@ -153,12 +150,24 @@ export function BudgetAddSheet({
               value={amount}
               onValueChange={setAmount}
               className="border-gray-200"
+              ariaLabel={t('budgets.amount')}
+              ariaDescribedBy={amountHintId}
             />
-            <p className="text-[12px] text-gray-400 ml-1 italic">
+            <p id={amountHintId} className="text-[12px] text-gray-400 ml-1 italic">
               {period === 'monthly'
                 ? t('budgets.amount_hint_month')
                 : t('budgets.amount_hint_week')}
             </p>
+          </div>
+
+          {/* Scope Picker */}
+          <div data-keyboard-hide-on-open="true">
+            <BudgetScopePicker
+              scopeType={scopeType}
+              onScopeChange={setScopeType}
+              accountTypeScope={accountTypeScope}
+              onAccountTypeChange={setAccountTypeScope}
+            />
           </div>
 
           {/* Footer */}

@@ -201,6 +201,42 @@ body.keyboard-open [data-keyboard-hide-on-open="true"] {
   display: none;
 }
 
+[data-budget-form="true"][data-money-keyboard-active="true"]
+  [data-keyboard-hide-on-open="true"] {
+  display: none;
+}
+
+.keyboard-safe-bottom-sheet[data-money-keyboard-active="true"] {
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
+@media (max-height: 31.25rem) and (orientation: landscape) {
+  [data-money-keyboard-panel="true"] {
+    padding: 6px 12px calc(6px + env(safe-area-inset-bottom));
+  }
+
+  [data-money-keyboard-handle="true"] {
+    margin-bottom: 6px;
+  }
+
+  [data-money-keyboard-number-pad="true"] {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  [data-money-keyboard-number-grid="true"] {
+    gap: 6px;
+  }
+
+  [data-money-keyboard-key="true"] {
+    height: 36px;
+    border-radius: 10px;
+    font-size: 16px;
+  }
+}
+
 body.keyboard-open [data-category-icon-picker="true"],
 body.keyboard-focus-active [data-category-icon-picker="true"] {
   max-height: calc(var(--visual-viewport-height) - 48px);

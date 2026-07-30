@@ -45,6 +45,7 @@ When the user explicitly requests a version update, version bump, or release-ver
 4. Rebuild `RELEASE_NOTES.md` from that inspection with a concise, user-facing overview of the application's changes. Describe observable features, improvements, fixes, security changes, data changes, limitations, and required user actions when applicable; omit internal implementation details and unchanged areas.
 5. Follow the repository's existing release-note template, language, headings, and validation requirements. Include only sections supported by the changes, but always provide the required summary and at least one concrete change item.
 6. Confirm that the release-note heading, version source, and intended release tag all match before finishing.
+7. Do not run tests for a version update unless the user explicitly requests them; use static consistency checks for version sources and release metadata instead.
 
 Clearing and rebuilding `RELEASE_NOTES.md` is mandatory only for an explicit version-update request. For ordinary feature or fix tasks without a version change, update the current release notes incrementally under the general policy above.
 

@@ -1,11 +1,14 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { useState } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { CurrencyCode } from '@/shared/context/CurrencyContext';
+import { consumeAppBackButton } from '@/shared/utils/app-back-stack';
 import {
+  alignMoneyKeyboardTarget,
   CurrencyAmountInput,
   findNearestFormattedOffset,
   formattedOffsetToRawOffset,
+  getMoneyKeyboardScrollContainer,
   rawOffsetToFormattedOffset,
 } from './CurrencyAmountInput';
 
@@ -43,7 +46,10 @@ function selectFormattedRange(input: HTMLInputElement, start: number, end = star
 
 describe('CurrencyAmountInput custom keyboard editing', () => {
   beforeEach(() => {
-    HTMLElement.prototype.scrollIntoView = vi.fn();
+    HTMLElement.prototype.scrollBy = vi.fn();
+    document.body.classList.remove('money-keyboard-open');
+    delete document.body.dataset.moneyKeyboardOwner;
+    document.documentElement.style.removeProperty('--money-keyboard-height');
   });
 
   it('maps caret offsets between the formatted VND display and raw numeric value', () => {
@@ -142,4 +148,142 @@ describe('CurrencyAmountInput custom keyboard editing', () => {
     expect(screen.queryByLabelText('money_keyboard.title')).toBeNull();
     expect(document.querySelector('[data-money-input-selection-overlay="true"]')).toBeNull();
   });
+
+  it('aligns the amount against the measured keyboard edge with an exact scroll delta', () => {
+    const scrollContainer = document.createElement('div');
+    const target = document.createElement('div');
+    scrollContainer.scrollBy = vi.fn();
+    vi.spyOn(scrollContainer, 'getBoundingClientRect').mockReturnValue({
+      top: 0,
+      bottom: 640,
+      left: 0,
+      right: 320,
+      width: 320,
+      height: 640,
+      x: 0,
+      y: 0,
+      toJSON: () => ({}),
+    });
+    vi.spyOn(target, 'getBoundingClientRect').mockReturnValue({
+      top: 320,
+      bottom: 430,
+      left: 16,
+      right: 304,
+      width: 288,
+      height: 110,
+      x: 16,
+      y: 320,
+      toJSON: () => ({}),
+    });
+
+    expect(alignMoneyKeyboardTarget({
+      target,
+      scrollContainer,
+      keyboardTop: 400,
+      reducedMotion: false,
+    })).toBe(54);
+    expect(scrollContainer.scrollBy).toHaveBeenCalledWith({
+      top: 54,
+      behavior: 'smooth',
+    });
+  });
+
+  it('prefers the explicit modal body over a nested overflow ancestor', () => {
+    render(
+      <div data-modal-scroll-container="true" data-testid="modal-scroll">
+        <div style={{ overflowY: 'auto' }}>
+          <CurrencyHarness initialValue="1000" />
+        </div>
+      </div>,
+    );
+
+    const input = screen.getByRole('textbox');
+    expect(getMoneyKeyboardScrollContainer(input)).toBe(screen.getByTestId('modal-scroll'));
+  });
+
+  it('adds keyboard-safe padding to the budget form body and restores it after Done', async () => {
+    render(
+      <div data-budget-form="true" data-testid="budget-form">
+        <div
+          data-modal-scroll-container="true"
+          data-testid="modal-scroll"
+          style={{ paddingBottom: '12px' }}
+        >
+          <div data-keyboard-scroll-target="true">
+            <CurrencyHarness initialValue="1000" />
+          </div>
+          <div data-keyboard-hide-on-open="true">save footer</div>
+        </div>
+      </div>,
+    );
+
+    const input = screen.getByRole('textbox') as HTMLInputElement;
+    const form = screen.getByTestId('budget-form');
+    const scrollContainer = screen.getByTestId('modal-scroll');
+    fireEvent.focus(input);
+
+    await waitFor(() => {
+      expect(form.getAttribute('data-money-keyboard-active')).toBe('true');
+      expect(scrollContainer.style.paddingBottom).toContain('396px');
+      expect(scrollContainer.style.paddingBottom).toContain('env(safe-area-inset-bottom)');
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: 'money_keyboard.done' }));
+
+    await waitFor(() => {
+      expect(form.hasAttribute('data-money-keyboard-active')).toBe(false);
+      expect(scrollContainer.style.paddingBottom).toBe('12px');
+      expect(scrollContainer.style.scrollPaddingBottom).toBe('');
+      expect(document.body.classList.contains('money-keyboard-open')).toBe(false);
+    });
+  });
+
+  it('consumes Android Back by closing the money keyboard before the sheet handler', () => {
+    render(<CurrencyHarness initialValue="1000" />);
+    const input = screen.getByRole('textbox') as HTMLInputElement;
+    fireEvent.focus(input);
+
+    expect(screen.getByLabelText('money_keyboard.title')).toBeTruthy();
+    expect(document.activeElement).toBe(input);
+
+    let consumed = false;
+    act(() => {
+      consumed = consumeAppBackButton();
+    });
+
+    expect(consumed).toBe(true);
+    expect(screen.queryByLabelText('money_keyboard.title')).toBeNull();
+    expect(document.activeElement).toBe(input);
+  });
+
+  it.each([320, 360, 375, 414])(
+    'restores and reopens the custom keyboard at a %ipx compact viewport',
+    (viewportWidth) => {
+      Object.defineProperty(window, 'innerWidth', {
+        configurable: true,
+        value: viewportWidth,
+      });
+
+      render(
+        <div data-budget-form="true">
+          <div data-modal-scroll-container="true">
+            <div data-keyboard-scroll-target="true">
+              <CurrencyHarness initialValue="999999999999999" />
+            </div>
+          </div>
+        </div>,
+      );
+      const input = screen.getByRole('textbox') as HTMLInputElement;
+
+      fireEvent.focus(input);
+      expect(screen.getByLabelText('money_keyboard.title')).toBeTruthy();
+      expect(input.value).toBe('999.999.999.999.999');
+
+      fireEvent.click(screen.getByRole('button', { name: 'money_keyboard.done' }));
+      expect(screen.queryByLabelText('money_keyboard.title')).toBeNull();
+
+      fireEvent.click(input);
+      expect(screen.getByLabelText('money_keyboard.title')).toBeTruthy();
+    },
+  );
 });

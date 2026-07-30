@@ -20,11 +20,17 @@ export function MoneyKeyboardButton({
   variant = 'default',
   className = '',
   type = 'button',
+  onPointerDown,
   ...buttonProps
 }: MoneyKeyboardButtonProps) {
   return (
     <button
       type={type}
+      data-money-keyboard-key="true"
+      onPointerDown={(event) => {
+        event.preventDefault();
+        onPointerDown?.(event);
+      }}
       className={`flex h-14 min-w-0 items-center justify-center rounded-[14px] border text-[20px] font-bold tabular-nums transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${variantClasses[variant]} ${className}`}
       {...buttonProps}
     >

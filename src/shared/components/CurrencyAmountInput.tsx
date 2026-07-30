@@ -4,6 +4,7 @@ import { CurrencyCode } from '@/shared/context/CurrencyContext';
 import { formatAmountInput, getFractionDigits, normalizeAmountInput } from '@/shared/components/MoneyInput/money-input-utils';
 import { MoneyKeyboard } from '@/shared/components/MoneyInput/MoneyKeyboard';
 import { useImeSafeInputValue } from '@/shared/hooks/useImeSafeInputValue';
+import { registerAppBackHandler } from '@/shared/utils/app-back-stack';
 
 interface CurrencyAmountInputProps {
   value: string | number | null | undefined;
@@ -15,12 +16,16 @@ interface CurrencyAmountInputProps {
   autoFocus?: boolean;
   placeholder?: string;
   enableMoneyKeyboard?: boolean;
+  ariaLabel?: string;
+  ariaInvalid?: boolean;
+  ariaDescribedBy?: string;
 }
 
 const MONEY_KEYBOARD_OPEN_EVENT = 'money-keyboard-open';
 const DEFAULT_MONEY_KEYBOARD_HEIGHT = 360;
 const MONEY_KEYBOARD_SCROLL_GAP = 24;
 const MONEY_KEYBOARD_HEIGHT_VARIABLE = '--money-keyboard-height';
+const MONEY_KEYBOARD_ALIGNMENT_DELAYS = [120, 300, 520];
 
 interface MoneyKeyboardScrollState {
   element: HTMLElement;
@@ -104,7 +109,14 @@ function getFormattedOffsetAtClientX(input: HTMLInputElement, formattedValue: st
   return findNearestFormattedOffset(formattedValue, relativeX, text => context.measureText(text).width);
 }
 
-function getMoneyKeyboardScrollContainer(element: HTMLElement): HTMLElement | null {
+export function getMoneyKeyboardScrollContainer(element: HTMLElement): HTMLElement | null {
+  const modalScrollContainer = element.closest<HTMLElement>(
+    '[data-modal-scroll-container="true"]',
+  );
+  if (modalScrollContainer) {
+    return modalScrollContainer;
+  }
+
   let current = element.parentElement;
 
   while (current && current !== document.body) {
@@ -116,6 +128,40 @@ function getMoneyKeyboardScrollContainer(element: HTMLElement): HTMLElement | nu
   }
 
   return element.closest<HTMLElement>('.keyboard-safe-bottom-sheet, form, .main-content');
+}
+
+export function alignMoneyKeyboardTarget({
+  target,
+  scrollContainer,
+  keyboardTop,
+  reducedMotion,
+}: {
+  target: HTMLElement;
+  scrollContainer: HTMLElement;
+  keyboardTop: number;
+  reducedMotion: boolean;
+}): number {
+  const targetRect = target.getBoundingClientRect();
+  const scrollContainerRect = scrollContainer.getBoundingClientRect();
+  const visibleTop = Math.max(0, scrollContainerRect.top) + MONEY_KEYBOARD_SCROLL_GAP;
+  const visibleBottom = keyboardTop - MONEY_KEYBOARD_SCROLL_GAP;
+
+  if (visibleBottom <= visibleTop) return 0;
+
+  let delta = 0;
+  if (targetRect.bottom > visibleBottom) {
+    delta = targetRect.bottom - visibleBottom;
+  } else if (targetRect.top < visibleTop) {
+    delta = targetRect.top - visibleTop;
+  }
+
+  if (Math.abs(delta) < 1) return 0;
+
+  scrollContainer.scrollBy({
+    top: delta,
+    behavior: reducedMotion ? 'auto' : 'smooth',
+  });
+  return delta;
 }
 
 function restoreMoneyKeyboardScrollPadding(state: MoneyKeyboardScrollState) {
@@ -140,12 +186,17 @@ export function CurrencyAmountInput({
   autoFocus,
   placeholder = '0',
   enableMoneyKeyboard = true,
+  ariaLabel,
+  ariaInvalid,
+  ariaDescribedBy,
 }: CurrencyAmountInputProps) {
   const keyboardId = useId();
   const inputRef = useRef<HTMLInputElement>(null);
   const wrapperRef = useRef<HTMLDivElement>(null);
   const keyboardPanelRef = useRef<HTMLDivElement>(null);
   const scrollPaddingRef = useRef<MoneyKeyboardScrollState | null>(null);
+  const focusRestoreTimerRef = useRef<number>();
+  const suppressKeyboardOpenRef = useRef(false);
   const [isKeyboardOpen, setIsKeyboardOpen] = useState(false);
   const [keyboardHeight, setKeyboardHeight] = useState(DEFAULT_MONEY_KEYBOARD_HEIGHT);
   const fractionDigits = getFractionDigits(currency);
@@ -221,7 +272,7 @@ export function CurrencyAmountInput({
   }, [fractionDigits, onValueChange, updateSelection]);
 
   const openKeyboard = useCallback(() => {
-    if (!enableMoneyKeyboard) return;
+    if (!enableMoneyKeyboard || suppressKeyboardOpenRef.current) return;
 
     window.dispatchEvent(new CustomEvent(MONEY_KEYBOARD_OPEN_EVENT, { detail: keyboardId }));
     if (inputRef.current && document.activeElement !== inputRef.current) {
@@ -232,7 +283,20 @@ export function CurrencyAmountInput({
 
   const closeKeyboard = useCallback(() => {
     setIsKeyboardOpen(false);
-    inputRef.current?.blur();
+
+    const input = inputRef.current;
+    if (!input || document.activeElement === input) return;
+
+    suppressKeyboardOpenRef.current = true;
+    window.clearTimeout(focusRestoreTimerRef.current);
+    focusRestoreTimerRef.current = window.setTimeout(() => {
+      input.focus({ preventScroll: true });
+      suppressKeyboardOpenRef.current = false;
+    }, 0);
+  }, []);
+
+  useEffect(() => () => {
+    window.clearTimeout(focusRestoreTimerRef.current);
   }, []);
 
   useEffect(() => {
@@ -334,7 +398,10 @@ export function CurrencyAmountInput({
 
     document.body.classList.add('money-keyboard-open');
     document.body.dataset.moneyKeyboardOwner = keyboardId;
-    document.documentElement.style.setProperty(MONEY_KEYBOARD_HEIGHT_VARIABLE, `${keyboardHeight}px`);
+    const budgetForm = wrapperRef.current?.closest<HTMLElement>('[data-budget-form="true"]');
+    const bottomSheet = budgetForm?.closest<HTMLElement>('.keyboard-safe-bottom-sheet');
+    budgetForm?.setAttribute('data-money-keyboard-active', 'true');
+    bottomSheet?.setAttribute('data-money-keyboard-active', 'true');
 
     return () => {
       if (document.body.dataset.moneyKeyboardOwner === keyboardId) {
@@ -342,8 +409,27 @@ export function CurrencyAmountInput({
         delete document.body.dataset.moneyKeyboardOwner;
         document.documentElement.style.setProperty(MONEY_KEYBOARD_HEIGHT_VARIABLE, '0px');
       }
+      budgetForm?.removeAttribute('data-money-keyboard-active');
+      bottomSheet?.removeAttribute('data-money-keyboard-active');
     };
+  }, [isKeyboardOpen, keyboardId]);
+
+  useEffect(() => {
+    if (!isKeyboardOpen || document.body.dataset.moneyKeyboardOwner !== keyboardId) {
+      return;
+    }
+
+    document.documentElement.style.setProperty(MONEY_KEYBOARD_HEIGHT_VARIABLE, `${keyboardHeight}px`);
   }, [isKeyboardOpen, keyboardHeight, keyboardId]);
+
+  useEffect(() => {
+    if (!isKeyboardOpen) return undefined;
+
+    return registerAppBackHandler(() => {
+      closeKeyboard();
+      return true;
+    });
+  }, [closeKeyboard, isKeyboardOpen]);
 
   useEffect(() => {
     if (!isKeyboardOpen) return undefined;
@@ -372,18 +458,61 @@ export function CurrencyAmountInput({
     }
 
     const safePadding = keyboardHeight + MONEY_KEYBOARD_SCROLL_GAP;
-    scrollContainer.style.paddingBottom = `${scrollPaddingRef.current.basePaddingBottom + safePadding}px`;
-    scrollContainer.style.scrollPaddingBottom = `${safePadding}px`;
+    scrollContainer.style.paddingBottom = `calc(${scrollPaddingRef.current.basePaddingBottom}px + ${safePadding}px + env(safe-area-inset-bottom))`;
+    scrollContainer.style.scrollPaddingBottom = `calc(${safePadding}px + env(safe-area-inset-bottom))`;
     scrollContainer.style.overflowY = 'auto';
     scrollContainer.style.setProperty('-webkit-overflow-scrolling', 'touch');
 
-    const scrollTimer = window.setTimeout(() => {
+    const alignTarget = () => {
+      const input = inputRef.current;
+      const keyboardPanel = keyboardPanelRef.current;
       const target = wrapper.closest<HTMLElement>('[data-keyboard-scroll-target="true"]') ?? wrapper;
-      target.scrollIntoView({ block: 'center', inline: 'nearest', behavior: 'smooth' });
-    }, 0);
+      const activeElement = document.activeElement;
+      const isEditingAmount = activeElement === input
+        || (activeElement instanceof Node && keyboardPanel?.contains(activeElement));
+
+      if (
+        !input
+        || !keyboardPanel
+        || !target.isConnected
+        || !scrollContainer.isConnected
+        || !isEditingAmount
+      ) {
+        return;
+      }
+
+      const panelRect = keyboardPanel.getBoundingClientRect();
+      const keyboardTop = panelRect.top > 0
+        ? panelRect.top
+        : window.innerHeight - keyboardHeight;
+      const reducedMotion = document.documentElement.dataset.reduceMotion === 'true'
+        || (
+          typeof window.matchMedia === 'function'
+          && window.matchMedia('(prefers-reduced-motion: reduce)').matches
+        );
+
+      alignMoneyKeyboardTarget({
+        target,
+        scrollContainer,
+        keyboardTop,
+        reducedMotion,
+      });
+    };
+
+    const alignmentTimers = MONEY_KEYBOARD_ALIGNMENT_DELAYS.map(delay => (
+      window.setTimeout(alignTarget, delay)
+    ));
+    const alignmentFrame = typeof window.requestAnimationFrame === 'function'
+      ? window.requestAnimationFrame(alignTarget)
+      : window.setTimeout(alignTarget, 0);
 
     return () => {
-      window.clearTimeout(scrollTimer);
+      alignmentTimers.forEach(timer => window.clearTimeout(timer));
+      if (typeof window.cancelAnimationFrame === 'function') {
+        window.cancelAnimationFrame(alignmentFrame);
+      } else {
+        window.clearTimeout(alignmentFrame);
+      }
       if (scrollPaddingRef.current) {
         restoreMoneyKeyboardScrollPadding(scrollPaddingRef.current);
         scrollPaddingRef.current = null;
@@ -429,6 +558,9 @@ export function CurrencyAmountInput({
             required={required}
             placeholder={placeholder}
             autoFocus={autoFocus}
+            aria-label={ariaLabel}
+            aria-invalid={ariaInvalid || undefined}
+            aria-describedby={ariaDescribedBy}
             onFocus={openKeyboard}
             onClick={openKeyboard}
             onPointerDown={(event) => {
