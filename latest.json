@@ -1,42 +1,24 @@
 {
   "platform": "android",
-  "versionName": "2.1.0",
-  "versionCode": 20100,
+  "versionName": "2.1.1",
+  "versionCode": 20101,
   "minSupportedVersionCode": 100,
   "mandatory": false,
-  "apkUrl": "https://github.com/huyphamngoc98nb/TaiChinhCaNhan/releases/download/v2.1.0/TaiChinhCaNhan-v2.1.0.apk",
-  "sha256": "47b6381120b911b0fdd7874bef4a124a51bd0e71ab6ec0091314787a1fd11768",
-  "releaseDate": "2026-07-29",
+  "apkUrl": "https://github.com/huyphamngoc98nb/TaiChinhCaNhan/releases/download/v2.1.1/TaiChinhCaNhan-v2.1.1.apk",
+  "sha256": "d8180bdd104bdc7b3a6caf5a8cb48c264bc88946a34520bb4c4beafe05674570",
+  "releaseDate": "2026-07-30",
   "releaseNotesVersion": 2,
-  "releaseSummary": "Bản cập nhật 2.1.0 làm mới trải nghiệm Báo cáo, Lịch sử giao dịch và màn Thêm/Sửa giao dịch, giúp đọc số liệu, điều hướng theo kỳ và lọc dữ liệu rõ ràng hơn mà không thay đổi dữ liệu tài chính hay quy tắc tính toán hiện có.",
+  "releaseSummary": "Bản cập nhật 2.1.1 hoàn thiện thao tác ở cuối màn Thêm/Sửa giao dịch, giúp nút Lưu và Xóa hiển thị đúng vị trí, không che nội dung và phản hồi tự nhiên hơn khi người dùng hoàn tất nhập liệu.",
   "releaseNoteSections": [
-    {
-      "type": "new_features",
-      "title": "Tính năng mới",
-      "items": [
-        {
-          "title": "Bổ sung chế độ xem lịch sử giao dịch theo ngày, tháng và năm. Chế độ tháng có thể mở rộng từng tuần để xem theo ngày; chế độ năm có thể mở rộng từng quý để xem theo tháng và đi sâu vào đúng khoảng thời gian cần kiểm tra."
-        },
-        {
-          "title": "Bộ lọc giao dịch nâng cao hỗ trợ ghi chú, khoảng ngày tùy chỉnh, ví, loại và danh mục theo cơ chế bản nháp; danh sách chỉ cập nhật khi người dùng nhấn Áp dụng, kể cả sau khi đặt lại bộ lọc."
-        }
-      ]
-    },
     {
       "type": "improvements",
       "title": "Cải thiện",
       "items": [
         {
-          "title": "Redesign màn Báo cáo với phân cấp tổng quan tài chính, so sánh kỳ trước, xu hướng dòng tiền, cơ cấu thu chi và insight rõ ràng hơn; đồng thời hoàn thiện trạng thái tải, trống, lỗi, dark mode, điều hướng bàn phím, trình đọc màn hình và chế độ ẩn số tiền."
+          "title": "Nút Lưu và vùng Xóa giao dịch nay nằm theo đúng thứ tự ở cuối nội dung biểu mẫu, với khoảng cách và vùng an toàn phù hợp trên thiết bị di động."
         },
         {
-          "title": "Cải thiện biểu đồ danh mục với số lượng mục đang hiển thị/đã loại trừ, thao tác xem thêm/thu gọn và mô tả hỗ trợ tiếp cận. Việc ẩn danh mục chỉ thay đổi biểu đồ đang xem, không làm thay đổi tổng báo cáo, xu hướng hoặc dữ liệu giao dịch."
-        },
-        {
-          "title": "Làm mới danh sách giao dịch với hướng tiền trực quan, nhãn trạng thái riêng, tổng hợp theo ngày/tuần/quý và các trạng thái tải hoặc không có kết quả rõ ràng hơn. Giao dịch bị loại trừ hoặc dùng để bù trừ ngân sách vẫn được đếm trong lịch sử nhưng không làm sai lệch các tổng thu chi."
-        },
-        {
-          "title": "Sắp xếp lại màn Thêm/Sửa giao dịch theo luồng ưu tiên số tiền, tách thông tin chính, thời gian và ghi chú, tùy chọn báo cáo cùng vùng xóa nguy hiểm; màn sửa cũng phân biệt rõ trạng thái đang tải, không tìm thấy và lỗi tải."
+          "title": "Khi nhấn Lưu, trường đang nhập được bỏ focus để đóng bàn phím trước khi ứng dụng kiểm tra và lưu giao dịch."
         }
       ]
     },
@@ -45,10 +27,7 @@
       "title": "Sửa lỗi",
       "items": [
         {
-          "title": "Ngăn thao tác chạm nhanh làm đổi loại giao dịch nhiều lần hoặc gửi biểu mẫu lặp, đồng thời giữ nguyên luồng cảnh báo và xác nhận khi phát hiện giao dịch có thể bị trùng."
-        },
-        {
-          "title": "Sửa trường hợp số tiền đã ẩn vẫn có thể xuất hiện trong nội dung hỗ trợ tiếp cận của biểu đồ hoặc phần tóm tắt."
+          "title": "Sửa lỗi nút Lưu giao dịch có thể hiển thị dạng nổi khi cuộn và che một phần nội dung biểu mẫu."
         }
       ]
     },
@@ -63,14 +42,9 @@
     }
   ],
   "releaseNotes": [
-    "Tính năng mới: Bổ sung chế độ xem lịch sử giao dịch theo ngày, tháng và năm. Chế độ tháng có thể mở rộng từng tuần để xem theo ngày; chế độ năm có thể mở rộng từng quý để xem theo tháng và đi sâu vào đúng khoảng thời gian cần kiểm tra.",
-    "Tính năng mới: Bộ lọc giao dịch nâng cao hỗ trợ ghi chú, khoảng ngày tùy chỉnh, ví, loại và danh mục theo cơ chế bản nháp; danh sách chỉ cập nhật khi người dùng nhấn Áp dụng, kể cả sau khi đặt lại bộ lọc.",
-    "Cải thiện: Redesign màn Báo cáo với phân cấp tổng quan tài chính, so sánh kỳ trước, xu hướng dòng tiền, cơ cấu thu chi và insight rõ ràng hơn; đồng thời hoàn thiện trạng thái tải, trống, lỗi, dark mode, điều hướng bàn phím, trình đọc màn hình và chế độ ẩn số tiền.",
-    "Cải thiện: Cải thiện biểu đồ danh mục với số lượng mục đang hiển thị/đã loại trừ, thao tác xem thêm/thu gọn và mô tả hỗ trợ tiếp cận. Việc ẩn danh mục chỉ thay đổi biểu đồ đang xem, không làm thay đổi tổng báo cáo, xu hướng hoặc dữ liệu giao dịch.",
-    "Cải thiện: Làm mới danh sách giao dịch với hướng tiền trực quan, nhãn trạng thái riêng, tổng hợp theo ngày/tuần/quý và các trạng thái tải hoặc không có kết quả rõ ràng hơn. Giao dịch bị loại trừ hoặc dùng để bù trừ ngân sách vẫn được đếm trong lịch sử nhưng không làm sai lệch các tổng thu chi.",
-    "Cải thiện: Sắp xếp lại màn Thêm/Sửa giao dịch theo luồng ưu tiên số tiền, tách thông tin chính, thời gian và ghi chú, tùy chọn báo cáo cùng vùng xóa nguy hiểm; màn sửa cũng phân biệt rõ trạng thái đang tải, không tìm thấy và lỗi tải.",
-    "Sửa lỗi: Ngăn thao tác chạm nhanh làm đổi loại giao dịch nhiều lần hoặc gửi biểu mẫu lặp, đồng thời giữ nguyên luồng cảnh báo và xác nhận khi phát hiện giao dịch có thể bị trùng.",
-    "Sửa lỗi: Sửa trường hợp số tiền đã ẩn vẫn có thể xuất hiện trong nội dung hỗ trợ tiếp cận của biểu đồ hoặc phần tóm tắt.",
+    "Cải thiện: Nút Lưu và vùng Xóa giao dịch nay nằm theo đúng thứ tự ở cuối nội dung biểu mẫu, với khoảng cách và vùng an toàn phù hợp trên thiết bị di động.",
+    "Cải thiện: Khi nhấn Lưu, trường đang nhập được bỏ focus để đóng bàn phím trước khi ứng dụng kiểm tra và lưu giao dịch.",
+    "Sửa lỗi: Sửa lỗi nút Lưu giao dịch có thể hiển thị dạng nổi khi cuộn và che một phần nội dung biểu mẫu.",
     "Thay đổi dữ liệu: Không có migration, thay đổi định dạng sao lưu/khôi phục hoặc thao tác dữ liệu bắt buộc sau khi cập nhật."
   ]
 }
