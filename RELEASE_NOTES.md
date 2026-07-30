@@ -8,10 +8,12 @@ Bản cập nhật 2.1.1 hoàn thiện thao tác ở cuối màn Thêm/Sửa gia
 
 - Nút Lưu và vùng Xóa giao dịch nay nằm theo đúng thứ tự ở cuối nội dung biểu mẫu, với khoảng cách và vùng an toàn phù hợp trên thiết bị di động.
 - Khi nhấn Lưu, trường đang nhập được bỏ focus để đóng bàn phím trước khi ứng dụng kiểm tra và lưu giao dịch.
+- Thu gọn bộ chọn chế độ Ngày, Tháng và Năm trong Lịch sử giao dịch, đồng thời giữ vùng chạm phù hợp trên màn hình Android nhỏ.
 
 ## Sửa lỗi
 
 - Sửa lỗi nút Lưu giao dịch có thể hiển thị dạng nổi khi cuộn và che một phần nội dung biểu mẫu.
+- Căn lại Tổng thu, Tổng chi và số dư trong phần tổng hợp giao dịch để các giá trị bám đúng hai cạnh màn hình trên Android.
 
 ## Thay đổi dữ liệu
 

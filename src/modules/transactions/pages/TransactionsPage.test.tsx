@@ -1,4 +1,8 @@
+/// <reference types="node" />
+
 import { fireEvent, render, screen } from '@testing-library/react';
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import type { ReactNode } from 'react';
 import { useState } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -161,6 +165,47 @@ describe('TransactionsPage', () => {
     fireEvent.click(screen.getByText('transactions.view_year'));
     expect(screen.getByTestId('view-type').textContent).toBe('year');
     expect(mocks.setFilter).not.toHaveBeenCalled();
+  });
+
+  it('keeps the view switcher compact and aligns financial summaries on mobile', () => {
+    const css = readFileSync(resolve(
+      process.cwd(),
+      'src/modules/transactions/pages/TransactionsPage.css',
+    ), 'utf8');
+    const switcherRule = css.match(/\.transactions-view-switcher\s*\{([^}]*)\}/)?.[1];
+    const buttonRule = css.match(/\.transactions-view-switcher__button\s*\{([^}]*)\}/)?.[1];
+    const incomeRule = css.match(
+      /\.transaction-summary-metrics__item--income\s*\{([^}]*)\}/,
+    )?.[1];
+    const expenseRule = css.match(
+      /\.transaction-summary-metrics__item--expense\s*\{([^}]*)\}/,
+    )?.[1];
+    const balanceRule = css.match(
+      /\.transaction-summary-metrics__item--balance\s*\{([^}]*)\}/,
+    )?.[1];
+
+    expect(switcherRule).toContain('width: fit-content');
+    expect(switcherRule).toContain('max-width: 100%');
+    expect(switcherRule).toContain('grid-template-columns: repeat(3, minmax(0, auto))');
+    expect(switcherRule).toContain('justify-self: center');
+    expect(switcherRule).toContain('margin-inline: auto');
+    expect(switcherRule).toContain('gap: 0');
+    expect(switcherRule).toContain('padding-block: 0');
+    expect(switcherRule).toContain('padding-inline: 4px');
+
+    expect(buttonRule).toContain('min-width: 64px');
+    expect(buttonRule).toContain('min-height: 44px');
+    expect(buttonRule).toContain('padding-inline: 10px');
+    expect(buttonRule).toContain('font-size: 13px');
+    expect(buttonRule).toContain('white-space: nowrap');
+
+    expect(incomeRule).toContain('justify-self: start');
+    expect(incomeRule).toContain('text-align: start');
+    expect(expenseRule).toContain('justify-self: end');
+    expect(expenseRule).toContain('text-align: end');
+    expect(balanceRule).toContain('grid-column: 1 / -1');
+    expect(balanceRule).toContain('justify-self: end');
+    expect(balanceRule).toContain('text-align: end');
   });
 
   it('restores the previous list snapshot before navigating home from a drill-down', () => {

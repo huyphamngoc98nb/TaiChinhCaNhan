@@ -1,4 +1,4 @@
-/* Hallmark · pre-emit critique: P5 H5 E4 S5 R5 V4 */
+/* Hallmark · pre-emit critique: P5 H5 E5 S5 R5 V4 */
 /* Hallmark · genre: utilitarian · macrostructure: Workbench · design-system: design.md · designed-as-app */
 /* Hallmark · tone: operational · anchor: indigo · contrast/tokens/responsive/slop: pass */
 
@@ -184,24 +184,29 @@
 }
 
 .transactions-view-switcher {
+  width: fit-content;
+  max-width: 100%;
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 4px;
-  padding: 4px;
+  grid-template-columns: repeat(3, minmax(0, auto));
+  justify-self: center;
+  gap: 0;
+  margin-inline: auto;
+  padding-block: 0;
+  padding-inline: 4px;
   border: 1px solid var(--border);
   border-radius: 12px;
   background: var(--surface-muted);
 }
 
 .transactions-view-switcher__button {
-  min-width: 0;
+  min-width: 64px;
   min-height: 44px;
-  padding: 0 6px;
+  padding-inline: 10px;
   border: 1px solid transparent;
   border-radius: 10px;
   background: transparent;
   color: var(--text-muted);
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
   white-space: nowrap;
   cursor: pointer;
@@ -285,16 +290,22 @@
 
 .transaction-summary-metrics__item--balance {
   grid-column: 1 / -1;
+  justify-self: end;
   color: var(--text);
   font-weight: 700;
+  text-align: end;
 }
 
 .transaction-summary-metrics__item--income {
+  justify-self: start;
   color: var(--success);
+  text-align: start;
 }
 
 .transaction-summary-metrics__item--expense {
+  justify-self: end;
   color: var(--danger);
+  text-align: end;
 }
 
 .transaction-day-group__items,
@@ -892,7 +903,6 @@
 
   .transaction-summary-metrics__item--balance {
     grid-column: auto;
-    text-align: end;
   }
 }
 
