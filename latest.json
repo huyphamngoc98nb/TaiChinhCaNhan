@@ -1,24 +1,33 @@
 {
   "platform": "android",
-  "versionName": "2.1.1",
-  "versionCode": 20101,
+  "versionName": "2.1.2",
+  "versionCode": 20102,
   "minSupportedVersionCode": 100,
   "mandatory": false,
-  "apkUrl": "https://github.com/huyphamngoc98nb/TaiChinhCaNhan/releases/download/v2.1.1/TaiChinhCaNhan-v2.1.1.apk",
-  "sha256": "d8180bdd104bdc7b3a6caf5a8cb48c264bc88946a34520bb4c4beafe05674570",
+  "apkUrl": "https://github.com/huyphamngoc98nb/TaiChinhCaNhan/releases/download/v2.1.2/TaiChinhCaNhan-v2.1.2.apk",
+  "sha256": "34f9701ab4f21bc58a825adb1a9d6850070ddb112efcc95c8a73d8620dec8471",
   "releaseDate": "2026-07-30",
   "releaseNotesVersion": 2,
-  "releaseSummary": "Bản cập nhật 2.1.1 hoàn thiện thao tác ở cuối màn Thêm/Sửa giao dịch, giúp nút Lưu và Xóa hiển thị đúng vị trí, không che nội dung và phản hồi tự nhiên hơn khi người dùng hoàn tất nhập liệu.",
+  "releaseSummary": "Bản cập nhật 2.1.2 tối ưu trải nghiệm Android khi nhập ngân sách và chuẩn hóa hàng bộ lọc trên màn Lịch sử giao dịch, giúp các điều khiển gọn, cân đối và không bị bàn phím che khuất.",
   "releaseNoteSections": [
     {
       "type": "improvements",
       "title": "Cải thiện",
       "items": [
         {
-          "title": "Nút Lưu và vùng Xóa giao dịch nay nằm theo đúng thứ tự ở cuối nội dung biểu mẫu, với khoảng cách và vùng an toàn phù hợp trên thiết bị di động."
+          "title": "Tối ưu biểu mẫu thêm/sửa ngân sách để trường số tiền luôn nằm trong vùng nhìn thấy khi bàn phím số mở, đồng thời hỗ trợ vùng an toàn và bố cục ngang trên màn hình thấp."
         },
         {
-          "title": "Khi nhấn Lưu, trường đang nhập được bỏ focus để đóng bàn phím trước khi ứng dụng kiểm tra và lưu giao dịch."
+          "title": "Cho phép nút Quay lại đóng bàn phím nhập tiền trước, giữ focus ổn định và bổ sung mô tả trợ năng cho trường số tiền ngân sách."
+        },
+        {
+          "title": "Đồng bộ hai bộ lọc thời gian trên màn Lịch sử giao dịch theo tỷ lệ 50/50, cùng chiều cao 44 px và thẳng mép với danh sách giao dịch."
+        },
+        {
+          "title": "Cân đối hai nút điều hướng tháng, giữ vùng chạm 44 px và hiển thị trạng thái vô hiệu hóa mà không làm thay đổi hình học."
+        },
+        {
+          "title": "Chỉ giữ thanh tiêu đề Lịch sử giao dịch ở trạng thái sticky và căn lại các giá trị tổng hợp thu, chi, số dư trên màn hình nhỏ."
         }
       ]
     },
@@ -27,7 +36,10 @@
       "title": "Sửa lỗi",
       "items": [
         {
-          "title": "Sửa lỗi nút Lưu giao dịch có thể hiển thị dạng nổi khi cuộn và che một phần nội dung biểu mẫu."
+          "title": "Sửa lỗi bàn phím số có thể che trường số tiền hoặc làm biểu mẫu ngân sách cuộn sai vị trí."
+        },
+        {
+          "title": "Sửa lỗi bộ chọn Ngày, Tháng, Năm cao hơn bộ điều hướng tháng và trạng thái được chọn không giữ khoảng inset đồng đều."
         }
       ]
     },
@@ -36,15 +48,19 @@
       "title": "Thay đổi dữ liệu",
       "items": [
         {
-          "title": "Không có migration, thay đổi định dạng sao lưu/khôi phục hoặc thao tác dữ liệu bắt buộc sau khi cập nhật."
+          "title": "Không có migration, thay đổi schema hoặc thao tác dữ liệu bắt buộc sau khi cập nhật."
         }
       ]
     }
   ],
   "releaseNotes": [
-    "Cải thiện: Nút Lưu và vùng Xóa giao dịch nay nằm theo đúng thứ tự ở cuối nội dung biểu mẫu, với khoảng cách và vùng an toàn phù hợp trên thiết bị di động.",
-    "Cải thiện: Khi nhấn Lưu, trường đang nhập được bỏ focus để đóng bàn phím trước khi ứng dụng kiểm tra và lưu giao dịch.",
-    "Sửa lỗi: Sửa lỗi nút Lưu giao dịch có thể hiển thị dạng nổi khi cuộn và che một phần nội dung biểu mẫu.",
-    "Thay đổi dữ liệu: Không có migration, thay đổi định dạng sao lưu/khôi phục hoặc thao tác dữ liệu bắt buộc sau khi cập nhật."
+    "Cải thiện: Tối ưu biểu mẫu thêm/sửa ngân sách để trường số tiền luôn nằm trong vùng nhìn thấy khi bàn phím số mở, đồng thời hỗ trợ vùng an toàn và bố cục ngang trên màn hình thấp.",
+    "Cải thiện: Cho phép nút Quay lại đóng bàn phím nhập tiền trước, giữ focus ổn định và bổ sung mô tả trợ năng cho trường số tiền ngân sách.",
+    "Cải thiện: Đồng bộ hai bộ lọc thời gian trên màn Lịch sử giao dịch theo tỷ lệ 50/50, cùng chiều cao 44 px và thẳng mép với danh sách giao dịch.",
+    "Cải thiện: Cân đối hai nút điều hướng tháng, giữ vùng chạm 44 px và hiển thị trạng thái vô hiệu hóa mà không làm thay đổi hình học.",
+    "Cải thiện: Chỉ giữ thanh tiêu đề Lịch sử giao dịch ở trạng thái sticky và căn lại các giá trị tổng hợp thu, chi, số dư trên màn hình nhỏ.",
+    "Sửa lỗi: Sửa lỗi bàn phím số có thể che trường số tiền hoặc làm biểu mẫu ngân sách cuộn sai vị trí.",
+    "Sửa lỗi: Sửa lỗi bộ chọn Ngày, Tháng, Năm cao hơn bộ điều hướng tháng và trạng thái được chọn không giữ khoảng inset đồng đều.",
+    "Thay đổi dữ liệu: Không có migration, thay đổi schema hoặc thao tác dữ liệu bắt buộc sau khi cập nhật."
   ]
 }
