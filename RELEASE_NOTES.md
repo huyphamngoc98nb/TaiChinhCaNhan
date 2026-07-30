@@ -1,26 +1,17 @@
-# v2.1.0
+# v2.1.1
 
 ## Tóm tắt
 
-Bản cập nhật 2.1.0 làm mới trải nghiệm Báo cáo, Lịch sử giao dịch và màn Thêm/Sửa giao dịch, giúp đọc số liệu, điều hướng theo kỳ và lọc dữ liệu rõ ràng hơn mà không thay đổi dữ liệu tài chính hay quy tắc tính toán hiện có.
-
-## Tính năng mới
-
-- Bổ sung chế độ xem lịch sử giao dịch theo ngày, tháng và năm. Chế độ tháng có thể mở rộng từng tuần để xem theo ngày; chế độ năm có thể mở rộng từng quý để xem theo tháng và đi sâu vào đúng khoảng thời gian cần kiểm tra.
-- Bộ lọc giao dịch nâng cao hỗ trợ ghi chú, khoảng ngày tùy chỉnh, ví, loại và danh mục theo cơ chế bản nháp; danh sách chỉ cập nhật khi người dùng nhấn Áp dụng, kể cả sau khi đặt lại bộ lọc.
+Bản cập nhật 2.1.1 hoàn thiện thao tác ở cuối màn Thêm/Sửa giao dịch, giúp nút Lưu và Xóa hiển thị đúng vị trí, không che nội dung và phản hồi tự nhiên hơn khi người dùng hoàn tất nhập liệu.
 
 ## Cải thiện
 
-- Redesign màn Báo cáo với phân cấp tổng quan tài chính, so sánh kỳ trước, xu hướng dòng tiền, cơ cấu thu chi và insight rõ ràng hơn; đồng thời hoàn thiện trạng thái tải, trống, lỗi, dark mode, điều hướng bàn phím, trình đọc màn hình và chế độ ẩn số tiền.
-- Cải thiện biểu đồ danh mục với số lượng mục đang hiển thị/đã loại trừ, thao tác xem thêm/thu gọn và mô tả hỗ trợ tiếp cận. Việc ẩn danh mục chỉ thay đổi biểu đồ đang xem, không làm thay đổi tổng báo cáo, xu hướng hoặc dữ liệu giao dịch.
-- Làm mới danh sách giao dịch với hướng tiền trực quan, nhãn trạng thái riêng, tổng hợp theo ngày/tuần/quý và các trạng thái tải hoặc không có kết quả rõ ràng hơn. Giao dịch bị loại trừ hoặc dùng để bù trừ ngân sách vẫn được đếm trong lịch sử nhưng không làm sai lệch các tổng thu chi.
-- Sắp xếp lại màn Thêm/Sửa giao dịch theo luồng ưu tiên số tiền, tách thông tin chính, thời gian và ghi chú, tùy chọn báo cáo cùng vùng xóa nguy hiểm; màn sửa cũng phân biệt rõ trạng thái đang tải, không tìm thấy và lỗi tải.
+- Nút Lưu và vùng Xóa giao dịch nay nằm theo đúng thứ tự ở cuối nội dung biểu mẫu, với khoảng cách và vùng an toàn phù hợp trên thiết bị di động.
+- Khi nhấn Lưu, trường đang nhập được bỏ focus để đóng bàn phím trước khi ứng dụng kiểm tra và lưu giao dịch.
 
 ## Sửa lỗi
 
-- Sửa lỗi nút Lưu giao dịch hiển thị dạng floating khi cuộn form; nút Lưu và Xóa nay nằm trong luồng nội dung bình thường ở cuối form.
-- Ngăn thao tác chạm nhanh làm đổi loại giao dịch nhiều lần hoặc gửi biểu mẫu lặp, đồng thời giữ nguyên luồng cảnh báo và xác nhận khi phát hiện giao dịch có thể bị trùng.
-- Sửa trường hợp số tiền đã ẩn vẫn có thể xuất hiện trong nội dung hỗ trợ tiếp cận của biểu đồ hoặc phần tóm tắt.
+- Sửa lỗi nút Lưu giao dịch có thể hiển thị dạng nổi khi cuộn và che một phần nội dung biểu mẫu.
 
 ## Thay đổi dữ liệu
 
