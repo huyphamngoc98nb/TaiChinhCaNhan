@@ -2619,19 +2619,9 @@
     "ast_hash": "386be9902766fdebc0e0b108ba96596c",
     "semantic_hash": ""
   },
-  "D:\\Personal Project\\TaiXiuCaNhan\\.hallmark\\log.json": {
-    "mtime": 1785318692.7291982,
-    "ast_hash": "27d520d114a7824740cd4d3effe4dce4",
-    "semantic_hash": ""
-  },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\tests\\report-summary-cards.test.tsx": {
     "mtime": 1785316391.1863768,
     "ast_hash": "99b873d29ba8d0e72726511b230e8c16",
-    "semantic_hash": ""
-  },
-  "D:\\Personal Project\\TaiXiuCaNhan\\.hallmark\\preflight.json": {
-    "mtime": 1785318694.1080017,
-    "ast_hash": "f2f344c6adad01dc36870061399505b3",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\modules\\transactions\\components\\AdvancedTransactionFilterSheet.test.tsx": {

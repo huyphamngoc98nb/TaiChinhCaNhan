@@ -1,8 +1,3 @@
-/* Hallmark · pre-emit critique: P5 H5 E5 S5 R5 V4 */
-/*
- * Hallmark · component: report donut card · genre: utilitarian · theme: locked design.md
- * states: default · active · focus · selected · excluded · loading · empty · error · all-excluded
- */
 import React, { useEffect, useId, useMemo, useState } from 'react';
 import { Cell, Pie, PieChart, ResponsiveContainer } from 'recharts';
 import { useCurrency } from '@/shared/context/CurrencyContext';

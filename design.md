@@ -2,9 +2,9 @@
 
 **Status:** Locked for Phase 2
 **Applies to:** React, TypeScript, Vite, Capacitor, Tailwind CSS, Recharts, and the existing SQLite-backed application
-**Authority:** This document is the design-system source of truth for future Hallmark audits and redesign work.
+**Authority:** This document is the design-system source of truth for future UI audits and redesign work.
 
-Future Hallmark work must read this file before proposing or implementing UI changes. Changes to this contract require an explicit design-system decision; individual screens must not invent local exceptions.
+Future UI work must read this file before proposing or implementing visual changes. Changes to this contract require an explicit design-system decision; individual screens must not invent local exceptions.
 
 ## 4.1 Product design direction
 
@@ -418,5 +418,3 @@ At every width, verify light and dark themes, the largest supported font scale, 
    - Migrate last because it composes summaries, chart cards, transaction rows, and quick actions from every earlier phase.
 
 Each stage must finish its shared-state and responsive acceptance checks before the next screen family introduces new variants.
-
-<!-- Hallmark pre-emit critique: purpose 5/5; hierarchy 5/5; evidence 5/5; systemization 5/5; restraint 5/5; validation pending implementation. -->

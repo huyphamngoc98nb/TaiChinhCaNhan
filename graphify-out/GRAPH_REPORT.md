@@ -1,11 +1,11 @@
 # Graph Report - TaiXiuCaNhan  (2026-09-07)
 
 ## Corpus Check
-- 499 files · ~219,992 words
+- 497 files · ~219,992 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 3958 nodes · 12394 edges · 207 communities (196 shown, 11 thin omitted)
+- 3943 nodes · 12381 edges · 205 communities (194 shown, 11 thin omitted)
 - Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 159 edges (avg confidence: 0.8)
 - Token cost: 0 input · 0 output
 
@@ -170,7 +170,6 @@
 - [[_COMMUNITY_Community 188|Community 188]]
 - [[_COMMUNITY_Community 189|Community 189]]
 - [[_COMMUNITY_Community 190|Community 190]]
-- [[_COMMUNITY_Community 191|Community 191]]
 - [[_COMMUNITY_Community 192|Community 192]]
 - [[_COMMUNITY_Community 193|Community 193]]
 - [[_COMMUNITY_Community 194|Community 194]]
@@ -803,10 +802,6 @@ Nodes (6): base, err, midnight, now, row, tx
 ### Community 190 - "Community 190"
 Cohesion: 0.13
 Nodes (18): buildErrorLogExportPayload(), ErrorLogExportItem, ErrorLogExportPayload, exportErrorLogsToJson(), parseMetadata(), escapeCsvCell(), exportToCsv(), formatCsvDate() (+10 more)
-
-### Community 191 - "Community 191"
-Cohesion: 0.14
-Nodes (13): date, designSystem, enrichment, genre, invariants, macrostructure, motionMode, phase (+5 more)
 
 ### Community 192 - "Community 192"
 Cohesion: 0.31

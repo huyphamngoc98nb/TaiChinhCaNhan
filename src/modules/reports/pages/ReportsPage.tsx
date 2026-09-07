@@ -1,8 +1,3 @@
-/* Hallmark · pre-emit critique: P5 H5 E4 S5 R5 V4 */
-/*
- * Hallmark · genre: utilitarian · macrostructure: Stat-Led
- * design-system: design.md · designed-as-app · enrichment: none
- */
 import { useState, useEffect } from 'react';
 import { GetCashflowSummaryUseCase } from '../services/get-cashflow-summary';
 import { GetCategorySummaryUseCase } from '../services/get-category-summary';
