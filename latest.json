@@ -1,45 +1,24 @@
 {
   "platform": "android",
-  "versionName": "2.1.2",
-  "versionCode": 20102,
+  "versionName": "2.1.3",
+  "versionCode": 20103,
   "minSupportedVersionCode": 100,
   "mandatory": false,
-  "apkUrl": "https://github.com/huyphamngoc98nb/TaiChinhCaNhan/releases/download/v2.1.2/TaiChinhCaNhan-v2.1.2.apk",
-  "sha256": "34f9701ab4f21bc58a825adb1a9d6850070ddb112efcc95c8a73d8620dec8471",
-  "releaseDate": "2026-07-30",
+  "apkUrl": "https://github.com/huyphamngoc98nb/TaiChinhCaNhan/releases/download/v2.1.3/TaiChinhCaNhan-v2.1.3.apk",
+  "sha256": "d6b0a28ff476d51cc129e9ad8ee822d9607fa9da610a5ab8c4b986ab291d32e7",
+  "releaseDate": "2026-09-07",
   "releaseNotesVersion": 2,
-  "releaseSummary": "Bản cập nhật 2.1.2 tối ưu trải nghiệm Android khi nhập ngân sách và chuẩn hóa hàng bộ lọc trên màn Lịch sử giao dịch, giúp các điều khiển gọn, cân đối và không bị bàn phím che khuất.",
+  "releaseSummary": "Bản cập nhật 2.1.3 tinh gọn các điều khiển trên màn Báo cáo và Cho vay / Vay nợ, giúp bố cục gọn hơn, đồng nhất hơn và dành thêm không gian cho nội dung chính.",
   "releaseNoteSections": [
     {
       "type": "improvements",
       "title": "Cải thiện",
       "items": [
         {
-          "title": "Tối ưu biểu mẫu thêm/sửa ngân sách để trường số tiền luôn nằm trong vùng nhìn thấy khi bàn phím số mở, đồng thời hỗ trợ vùng an toàn và bố cục ngang trên màn hình thấp."
+          "title": "Thu gọn các tab Dòng tiền / Ngân sách, bộ chọn kỳ báo cáo, khoảng ngày tùy chỉnh và nhóm Ngày / Tháng / Năm; bộ chọn kỳ báo cáo nay sử dụng danh sách thả xuống đồng nhất với các màn hình khác."
         },
         {
-          "title": "Cho phép nút Quay lại đóng bàn phím nhập tiền trước, giữ focus ổn định và bổ sung mô tả trợ năng cho trường số tiền ngân sách."
-        },
-        {
-          "title": "Đồng bộ hai bộ lọc thời gian trên màn Lịch sử giao dịch theo tỷ lệ 50/50, cùng chiều cao 44 px và thẳng mép với danh sách giao dịch."
-        },
-        {
-          "title": "Cân đối hai nút điều hướng tháng, giữ vùng chạm 44 px và hiển thị trạng thái vô hiệu hóa mà không làm thay đổi hình học."
-        },
-        {
-          "title": "Chỉ giữ thanh tiêu đề Lịch sử giao dịch ở trạng thái sticky và căn lại các giá trị tổng hợp thu, chi, số dư trên màn hình nhỏ."
-        }
-      ]
-    },
-    {
-      "type": "bug_fixes",
-      "title": "Sửa lỗi",
-      "items": [
-        {
-          "title": "Sửa lỗi bàn phím số có thể che trường số tiền hoặc làm biểu mẫu ngân sách cuộn sai vị trí."
-        },
-        {
-          "title": "Sửa lỗi bộ chọn Ngày, Tháng, Năm cao hơn bộ điều hướng tháng và trạng thái được chọn không giữ khoảng inset đồng đều."
+          "title": "Tối ưu hàng sắp xếp trên màn Cho vay / Vay nợ: bỏ khung bao dư thừa, giảm chiều cao bộ chọn và cho điều khiển tự giãn theo phần không gian còn lại để thẳng hàng với bộ lọc và danh sách."
         }
       ]
     },
@@ -54,13 +33,8 @@
     }
   ],
   "releaseNotes": [
-    "Cải thiện: Tối ưu biểu mẫu thêm/sửa ngân sách để trường số tiền luôn nằm trong vùng nhìn thấy khi bàn phím số mở, đồng thời hỗ trợ vùng an toàn và bố cục ngang trên màn hình thấp.",
-    "Cải thiện: Cho phép nút Quay lại đóng bàn phím nhập tiền trước, giữ focus ổn định và bổ sung mô tả trợ năng cho trường số tiền ngân sách.",
-    "Cải thiện: Đồng bộ hai bộ lọc thời gian trên màn Lịch sử giao dịch theo tỷ lệ 50/50, cùng chiều cao 44 px và thẳng mép với danh sách giao dịch.",
-    "Cải thiện: Cân đối hai nút điều hướng tháng, giữ vùng chạm 44 px và hiển thị trạng thái vô hiệu hóa mà không làm thay đổi hình học.",
-    "Cải thiện: Chỉ giữ thanh tiêu đề Lịch sử giao dịch ở trạng thái sticky và căn lại các giá trị tổng hợp thu, chi, số dư trên màn hình nhỏ.",
-    "Sửa lỗi: Sửa lỗi bàn phím số có thể che trường số tiền hoặc làm biểu mẫu ngân sách cuộn sai vị trí.",
-    "Sửa lỗi: Sửa lỗi bộ chọn Ngày, Tháng, Năm cao hơn bộ điều hướng tháng và trạng thái được chọn không giữ khoảng inset đồng đều.",
+    "Cải thiện: Thu gọn các tab Dòng tiền / Ngân sách, bộ chọn kỳ báo cáo, khoảng ngày tùy chỉnh và nhóm Ngày / Tháng / Năm; bộ chọn kỳ báo cáo nay sử dụng danh sách thả xuống đồng nhất với các màn hình khác.",
+    "Cải thiện: Tối ưu hàng sắp xếp trên màn Cho vay / Vay nợ: bỏ khung bao dư thừa, giảm chiều cao bộ chọn và cho điều khiển tự giãn theo phần không gian còn lại để thẳng hàng với bộ lọc và danh sách.",
     "Thay đổi dữ liệu: Không có migration, thay đổi schema hoặc thao tác dữ liệu bắt buộc sau khi cập nhật."
   ]
 }
