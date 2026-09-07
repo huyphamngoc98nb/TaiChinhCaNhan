@@ -1,6 +1,6 @@
 {
-  "nativeVersionName": "2.1.2",
-  "nativeVersionCode": 20102,
+  "nativeVersionName": "2.1.3",
+  "nativeVersionCode": 20103,
   "bundleVersion": "2.0.0",
   "minNativeVersionCodeForBundle": 100,
   "_comment": "SOURCE OF TRUTH – Chỉ sửa file này khi bump version. Xem docs/versioning.md."

@@ -2394,7 +2394,7 @@
       "source_file": "android/app/src/main/java/com/taixiucanhan/app/MainActivity.java",
       "source_location": "L45",
       "id": "app_mainactivity_mainactivity_hideprivacyshield",
-      "community": 46,
+      "community": 25,
       "norm_label": ".hideprivacyshield()"
     },
     {
@@ -2790,7 +2790,7 @@
       "source_file": "android/app/src/main/java/com/taixiucanhan/app/NotificationReminderScheduler.java",
       "source_location": "L29",
       "id": "app_notificationreminderscheduler_notificationreminderscheduler_schedule",
-      "community": 84,
+      "community": 98,
       "norm_label": ".schedule()"
     },
     {
@@ -2799,7 +2799,7 @@
       "source_file": "android/app/src/main/java/com/taixiucanhan/app/NotificationReminderScheduler.java",
       "source_location": "L29",
       "id": "android_app_src_main_java_com_taixiucanhan_app_notificationreminderscheduler_java_reminder",
-      "community": 84,
+      "community": 98,
       "norm_label": "reminder"
     },
     {
@@ -2844,7 +2844,7 @@
       "source_file": "android/app/src/main/java/com/taixiucanhan/app/NotificationReminderScheduler.java",
       "source_location": "L112",
       "id": "app_notificationreminderscheduler_notificationreminderscheduler_canscheduleexactalarms",
-      "community": 84,
+      "community": 98,
       "norm_label": ".canscheduleexactalarms()"
     },
     {
@@ -2979,7 +2979,7 @@
       "source_file": "android/app/src/main/java/com/taixiucanhan/app/NotificationReminderStore.java",
       "source_location": "L81",
       "id": "app_notificationreminderstore_notificationreminderstore_isglobalenabled",
-      "community": 84,
+      "community": 98,
       "norm_label": ".isglobalenabled()"
     },
     {
@@ -3123,7 +3123,7 @@
       "source_file": "android/app/src/main/java/com/taixiucanhan/app/PrivacyShieldPlugin.java",
       "source_location": "L1",
       "id": "android_app_src_main_java_com_taixiucanhan_app_privacyshieldplugin_java",
-      "community": 46,
+      "community": 25,
       "norm_label": "privacyshieldplugin.java"
     },
     {
@@ -3132,7 +3132,7 @@
       "source_file": "android/app/src/main/java/com/taixiucanhan/app/PrivacyShieldPlugin.java",
       "source_location": "L8",
       "id": "app_privacyshieldplugin_privacyshieldplugin",
-      "community": 46,
+      "community": 25,
       "norm_label": "privacyshieldplugin"
     },
     {
@@ -3141,7 +3141,7 @@
       "source_file": "android/app/src/main/java/com/taixiucanhan/app/PrivacyShieldPlugin.java",
       "source_location": "L10",
       "id": "app_privacyshieldplugin_privacyshieldplugin_hide",
-      "community": 46,
+      "community": 25,
       "norm_label": ".hide()"
     },
     {
@@ -3150,7 +3150,7 @@
       "source_file": "android/app/src/main/java/com/taixiucanhan/app/PrivacyShieldPlugin.java",
       "source_location": "L10",
       "id": "android_app_src_main_java_com_taixiucanhan_app_privacyshieldplugin_java_plugincall",
-      "community": 46,
+      "community": 25,
       "norm_label": "plugincall"
     },
     {
@@ -3159,7 +3159,7 @@
       "source_file": "android/app/src/main/java/com/taixiucanhan/app/PrivacyShieldPlugin.java",
       "source_location": "L10",
       "id": "android_app_src_main_java_com_taixiucanhan_app_privacyshieldplugin_java_pluginmethod",
-      "community": 46,
+      "community": 25,
       "norm_label": "pluginmethod"
     },
     {
@@ -3618,7 +3618,7 @@
       "source_file": "scripts/check-translations.ts",
       "source_location": "L1",
       "id": "scripts_check_translations_ts",
-      "community": 184,
+      "community": 185,
       "norm_label": "check-translations.ts"
     },
     {
@@ -3627,7 +3627,7 @@
       "source_file": "scripts/check-translations.ts",
       "source_location": "L3",
       "id": "scripts_check_translations_getkeys",
-      "community": 184,
+      "community": 185,
       "norm_label": "getkeys()"
     },
     {
@@ -3636,7 +3636,7 @@
       "source_file": "scripts/check-translations.ts",
       "source_location": "L10",
       "id": "scripts_check_translations_enkeys",
-      "community": 184,
+      "community": 185,
       "norm_label": "enkeys"
     },
     {
@@ -3645,7 +3645,7 @@
       "source_file": "scripts/check-translations.ts",
       "source_location": "L11",
       "id": "scripts_check_translations_vikeys",
-      "community": 184,
+      "community": 185,
       "norm_label": "vikeys"
     },
     {
@@ -3654,7 +3654,7 @@
       "source_file": "scripts/check-translations.ts",
       "source_location": "L13",
       "id": "scripts_check_translations_missinginvi",
-      "community": 184,
+      "community": 185,
       "norm_label": "missinginvi"
     },
     {
@@ -3663,7 +3663,7 @@
       "source_file": "scripts/check-translations.ts",
       "source_location": "L14",
       "id": "scripts_check_translations_missinginen",
-      "community": 184,
+      "community": 185,
       "norm_label": "missinginen"
     },
     {
@@ -6039,7 +6039,7 @@
       "source_file": "src/core/telemetry/error-log.repository.ts",
       "source_location": "L6",
       "id": "telemetry_error_log_repository_errorlogrecord",
-      "community": 201,
+      "community": 190,
       "norm_label": "errorlogrecord"
     },
     {
@@ -8757,7 +8757,7 @@
       "source_file": "src/modules/budgets/components/BudgetByAccountTypeSummary.tsx",
       "source_location": "L1",
       "id": "src_modules_budgets_components_budgetbyaccounttypesummary_tsx",
-      "community": 29,
+      "community": 109,
       "norm_label": "budgetbyaccounttypesummary.tsx"
     },
     {
@@ -8766,7 +8766,7 @@
       "source_file": "src/modules/budgets/components/BudgetByAccountTypeSummary.tsx",
       "source_location": "L8",
       "id": "components_budgetbyaccounttypesummary_account_type_icons",
-      "community": 29,
+      "community": 109,
       "norm_label": "account_type_icons"
     },
     {
@@ -8775,7 +8775,7 @@
       "source_file": "src/modules/budgets/components/BudgetByAccountTypeSummary.tsx",
       "source_location": "L18",
       "id": "components_budgetbyaccounttypesummary_status_colors",
-      "community": 29,
+      "community": 109,
       "norm_label": "status_colors"
     },
     {
@@ -8784,7 +8784,7 @@
       "source_file": "src/modules/budgets/components/BudgetByAccountTypeSummary.tsx",
       "source_location": "L24",
       "id": "components_budgetbyaccounttypesummary_props",
-      "community": 29,
+      "community": 109,
       "norm_label": "props"
     },
     {
@@ -8793,7 +8793,7 @@
       "source_file": "src/modules/budgets/components/BudgetByAccountTypeSummary.tsx",
       "source_location": "L28",
       "id": "components_budgetbyaccounttypesummary_budgetbyaccounttypesummary",
-      "community": 29,
+      "community": 109,
       "norm_label": "budgetbyaccounttypesummary()"
     },
     {
@@ -9414,7 +9414,7 @@
       "source_file": "src/modules/budgets/hooks/useBudgets.ts",
       "source_location": "L1",
       "id": "src_modules_budgets_hooks_usebudgets_ts",
-      "community": 36,
+      "community": 4,
       "norm_label": "usebudgets.ts"
     },
     {
@@ -9423,7 +9423,7 @@
       "source_file": "src/modules/budgets/hooks/useBudgets.ts",
       "source_location": "L9",
       "id": "hooks_usebudgets_usebudgets",
-      "community": 36,
+      "community": 123,
       "norm_label": "usebudgets()"
     },
     {
@@ -9666,7 +9666,7 @@
       "source_file": "src/modules/budgets/services/get-budget-settings.ts",
       "source_location": "L1",
       "id": "src_modules_budgets_services_get_budget_settings_ts",
-      "community": 36,
+      "community": 4,
       "norm_label": "get-budget-settings.ts"
     },
     {
@@ -9675,7 +9675,7 @@
       "source_file": "src/modules/budgets/services/get-budget-settings.ts",
       "source_location": "L4",
       "id": "services_get_budget_settings_getbudgetsettingsusecase",
-      "community": 36,
+      "community": 4,
       "norm_label": "getbudgetsettingsusecase"
     },
     {
@@ -9684,7 +9684,7 @@
       "source_file": "src/modules/budgets/services/get-budget-settings.ts",
       "source_location": "L5",
       "id": "services_get_budget_settings_getbudgetsettingsusecase_constructor",
-      "community": 36,
+      "community": 4,
       "norm_label": ".constructor()"
     },
     {
@@ -9693,7 +9693,7 @@
       "source_file": "src/modules/budgets/services/get-budget-settings.ts",
       "source_location": "L7",
       "id": "services_get_budget_settings_getbudgetsettingsusecase_execute",
-      "community": 36,
+      "community": 4,
       "norm_label": ".execute()"
     },
     {
@@ -10593,7 +10593,7 @@
       "source_file": "src/modules/export/services/build-export-dataset.ts",
       "source_location": "L15",
       "id": "services_build_export_dataset_buildexportdatasetusecase",
-      "community": 190,
+      "community": 5,
       "norm_label": "buildexportdatasetusecase"
     },
     {
@@ -10602,7 +10602,7 @@
       "source_file": "src/modules/export/services/build-export-dataset.ts",
       "source_location": "L16",
       "id": "services_build_export_dataset_buildexportdatasetusecase_constructor",
-      "community": 190,
+      "community": 5,
       "norm_label": ".constructor()"
     },
     {
@@ -10611,7 +10611,7 @@
       "source_file": "src/modules/export/services/build-export-dataset.ts",
       "source_location": "L21",
       "id": "services_build_export_dataset_buildexportdatasetusecase_execute",
-      "community": 190,
+      "community": 5,
       "norm_label": ".execute()"
     },
     {
@@ -10620,7 +10620,7 @@
       "source_file": "src/modules/export/services/export-error-logs.ts",
       "source_location": "L1",
       "id": "src_modules_export_services_export_error_logs_ts",
-      "community": 201,
+      "community": 190,
       "norm_label": "export-error-logs.ts"
     },
     {
@@ -10629,7 +10629,7 @@
       "source_file": "src/modules/export/services/export-error-logs.ts",
       "source_location": "L3",
       "id": "services_export_error_logs_errorlogexportitem",
-      "community": 201,
+      "community": 190,
       "norm_label": "errorlogexportitem"
     },
     {
@@ -10638,7 +10638,7 @@
       "source_file": "src/modules/export/services/export-error-logs.ts",
       "source_location": "L14",
       "id": "services_export_error_logs_errorlogexportpayload",
-      "community": 201,
+      "community": 190,
       "norm_label": "errorlogexportpayload"
     },
     {
@@ -10647,7 +10647,7 @@
       "source_file": "src/modules/export/services/export-error-logs.ts",
       "source_location": "L21",
       "id": "services_export_error_logs_parsemetadata",
-      "community": 201,
+      "community": 190,
       "norm_label": "parsemetadata()"
     },
     {
@@ -10656,7 +10656,7 @@
       "source_file": "src/modules/export/services/export-error-logs.ts",
       "source_location": "L32",
       "id": "services_export_error_logs_builderrorlogexportpayload",
-      "community": 201,
+      "community": 190,
       "norm_label": "builderrorlogexportpayload()"
     },
     {
@@ -10665,7 +10665,7 @@
       "source_file": "src/modules/export/services/export-error-logs.ts",
       "source_location": "L53",
       "id": "services_export_error_logs_exporterrorlogstojson",
-      "community": 201,
+      "community": 190,
       "norm_label": "exporterrorlogstojson()"
     },
     {
@@ -10854,7 +10854,7 @@
       "source_file": "src/modules/loans/components/LoanCard.tsx",
       "source_location": "L1",
       "id": "src_modules_loans_components_loancard_tsx",
-      "community": 112,
+      "community": 89,
       "norm_label": "loancard.tsx"
     },
     {
@@ -10863,7 +10863,7 @@
       "source_file": "src/modules/loans/components/LoanCard.tsx",
       "source_location": "L11",
       "id": "components_loancard_loancardprops",
-      "community": 112,
+      "community": 89,
       "norm_label": "loancardprops"
     },
     {
@@ -10872,7 +10872,7 @@
       "source_file": "src/modules/loans/components/LoanCard.tsx",
       "source_location": "L16",
       "id": "components_loancard_loancard",
-      "community": 112,
+      "community": 89,
       "norm_label": "loancard()"
     },
     {
@@ -10881,7 +10881,7 @@
       "source_file": "src/modules/loans/components/LoanForm.tsx",
       "source_location": "L1",
       "id": "src_modules_loans_components_loanform_tsx",
-      "community": 110,
+      "community": 161,
       "norm_label": "loanform.tsx"
     },
     {
@@ -10890,7 +10890,7 @@
       "source_file": "src/modules/loans/components/LoanForm.tsx",
       "source_location": "L12",
       "id": "components_loanform_loanformprops",
-      "community": 110,
+      "community": 161,
       "norm_label": "loanformprops"
     },
     {
@@ -10899,7 +10899,7 @@
       "source_file": "src/modules/loans/components/LoanForm.tsx",
       "source_location": "L21",
       "id": "components_loanform_startoflocalday",
-      "community": 110,
+      "community": 161,
       "norm_label": "startoflocalday()"
     },
     {
@@ -10908,7 +10908,7 @@
       "source_file": "src/modules/loans/components/LoanForm.tsx",
       "source_location": "L26",
       "id": "components_loanform_datestringtotimestamp",
-      "community": 110,
+      "community": 161,
       "norm_label": "datestringtotimestamp()"
     },
     {
@@ -10917,7 +10917,7 @@
       "source_file": "src/modules/loans/components/LoanForm.tsx",
       "source_location": "L30",
       "id": "components_loanform_timestamptodatestring",
-      "community": 110,
+      "community": 161,
       "norm_label": "timestamptodatestring()"
     },
     {
@@ -10926,7 +10926,7 @@
       "source_file": "src/modules/loans/components/LoanForm.tsx",
       "source_location": "L35",
       "id": "components_loanform_loanform",
-      "community": 112,
+      "community": 161,
       "norm_label": "loanform()"
     },
     {
@@ -10935,7 +10935,7 @@
       "source_file": "src/modules/loans/components/PaymentForm.tsx",
       "source_location": "L1",
       "id": "src_modules_loans_components_paymentform_tsx",
-      "community": 126,
+      "community": 136,
       "norm_label": "paymentform.tsx"
     },
     {
@@ -10944,7 +10944,7 @@
       "source_file": "src/modules/loans/components/PaymentForm.tsx",
       "source_location": "L11",
       "id": "components_paymentform_paymentformprops",
-      "community": 126,
+      "community": 136,
       "norm_label": "paymentformprops"
     },
     {
@@ -10953,7 +10953,7 @@
       "source_file": "src/modules/loans/components/PaymentForm.tsx",
       "source_location": "L17",
       "id": "components_paymentform_startoflocalday",
-      "community": 126,
+      "community": 136,
       "norm_label": "startoflocalday()"
     },
     {
@@ -10962,7 +10962,7 @@
       "source_file": "src/modules/loans/components/PaymentForm.tsx",
       "source_location": "L22",
       "id": "components_paymentform_formatvnd",
-      "community": 126,
+      "community": 136,
       "norm_label": "formatvnd()"
     },
     {
@@ -10971,7 +10971,7 @@
       "source_file": "src/modules/loans/components/PaymentForm.tsx",
       "source_location": "L30",
       "id": "components_paymentform_paymentform",
-      "community": 126,
+      "community": 136,
       "norm_label": "paymentform()"
     },
     {
@@ -10980,7 +10980,7 @@
       "source_file": "src/modules/loans/domain/loan-date.test.ts",
       "source_location": "L1",
       "id": "src_modules_loans_domain_loan_date_test_ts",
-      "community": 110,
+      "community": 161,
       "norm_label": "loan-date.test.ts"
     },
     {
@@ -10989,7 +10989,7 @@
       "source_file": "src/modules/loans/domain/loan-date.test.ts",
       "source_location": "L16",
       "id": "domain_loan_date_test_timestamp",
-      "community": 110,
+      "community": 161,
       "norm_label": "timestamp"
     },
     {
@@ -10998,7 +10998,7 @@
       "source_file": "src/modules/loans/domain/loan-date.test.ts",
       "source_location": "L23",
       "id": "domain_loan_date_test_mapped",
-      "community": 110,
+      "community": 161,
       "norm_label": "mapped"
     },
     {
@@ -11007,7 +11007,7 @@
       "source_file": "src/modules/loans/domain/loan-date.ts",
       "source_location": "L1",
       "id": "src_modules_loans_domain_loan_date_ts",
-      "community": 110,
+      "community": 161,
       "norm_label": "loan-date.ts"
     },
     {
@@ -11016,7 +11016,7 @@
       "source_file": "src/modules/loans/domain/loan-date.ts",
       "source_location": "L4",
       "id": "domain_loan_date_isvalidcalendardate",
-      "community": 110,
+      "community": 161,
       "norm_label": "isvalidcalendardate()"
     },
     {
@@ -11025,7 +11025,7 @@
       "source_file": "src/modules/loans/domain/loan-date.ts",
       "source_location": "L16",
       "id": "domain_loan_date_normalizeloandate",
-      "community": 110,
+      "community": 161,
       "norm_label": "normalizeloandate()"
     },
     {
@@ -11034,7 +11034,7 @@
       "source_file": "src/modules/loans/domain/loan-date.ts",
       "source_location": "L39",
       "id": "domain_loan_date_isloandateonly",
-      "community": 88,
+      "community": 183,
       "norm_label": "isloandateonly()"
     },
     {
@@ -11043,7 +11043,7 @@
       "source_file": "src/modules/loans/domain/loan-date.ts",
       "source_location": "L43",
       "id": "domain_loan_date_loandatetolocaltimestamp",
-      "community": 110,
+      "community": 161,
       "norm_label": "loandatetolocaltimestamp()"
     },
     {
@@ -11052,7 +11052,7 @@
       "source_file": "src/modules/loans/domain/loan-date.ts",
       "source_location": "L52",
       "id": "domain_loan_date_timestamptoloandate",
-      "community": 110,
+      "community": 161,
       "norm_label": "timestamptoloandate()"
     },
     {
@@ -11106,7 +11106,7 @@
       "source_file": "src/modules/loans/domain/loan.model.ts",
       "source_location": "L1",
       "id": "src_modules_loans_domain_loan_model_ts",
-      "community": 161,
+      "community": 110,
       "norm_label": "loan.model.ts"
     },
     {
@@ -11115,7 +11115,7 @@
       "source_file": "src/modules/loans/domain/loan.model.ts",
       "source_location": "L1",
       "id": "domain_loan_model_loantype",
-      "community": 112,
+      "community": 89,
       "norm_label": "loantype"
     },
     {
@@ -11124,7 +11124,7 @@
       "source_file": "src/modules/loans/domain/loan.model.ts",
       "source_location": "L3",
       "id": "domain_loan_model_loanstatus",
-      "community": 161,
+      "community": 110,
       "norm_label": "loanstatus"
     },
     {
@@ -11160,7 +11160,7 @@
       "source_file": "src/modules/loans/domain/loan.model.ts",
       "source_location": "L36",
       "id": "domain_loan_model_loanwithsummary",
-      "community": 161,
+      "community": 110,
       "norm_label": "loanwithsummary"
     },
     {
@@ -11178,7 +11178,7 @@
       "source_file": "src/modules/loans/domain/loan.model.ts",
       "source_location": "L56",
       "id": "domain_loan_model_updateloaninput",
-      "community": 161,
+      "community": 110,
       "norm_label": "updateloaninput"
     },
     {
@@ -11187,7 +11187,7 @@
       "source_file": "src/modules/loans/domain/loan.model.ts",
       "source_location": "L58",
       "id": "domain_loan_model_createloanpaymentinput",
-      "community": 126,
+      "community": 110,
       "norm_label": "createloanpaymentinput"
     },
     {
@@ -11196,7 +11196,7 @@
       "source_file": "src/modules/loans/domain/loan.model.ts",
       "source_location": "L67",
       "id": "domain_loan_model_loanfilter",
-      "community": 161,
+      "community": 110,
       "norm_label": "loanfilter"
     },
     {
@@ -11205,7 +11205,7 @@
       "source_file": "src/modules/loans/domain/loan.schema.ts",
       "source_location": "L1",
       "id": "src_modules_loans_domain_loan_schema_ts",
-      "community": 88,
+      "community": 183,
       "norm_label": "loan.schema.ts"
     },
     {
@@ -11214,7 +11214,7 @@
       "source_file": "src/modules/loans/domain/loan.schema.ts",
       "source_location": "L4",
       "id": "domain_loan_schema_loan_types",
-      "community": 88,
+      "community": 183,
       "norm_label": "loan_types"
     },
     {
@@ -11223,7 +11223,7 @@
       "source_file": "src/modules/loans/domain/loan.schema.ts",
       "source_location": "L6",
       "id": "domain_loan_schema_loanvalidationerror",
-      "community": 88,
+      "community": 183,
       "norm_label": "loanvalidationerror"
     },
     {
@@ -11232,7 +11232,7 @@
       "source_file": "src/modules/loans/domain/loan.schema.ts",
       "source_location": "L7",
       "id": "domain_loan_schema_loanvalidationerror_constructor",
-      "community": 88,
+      "community": 183,
       "norm_label": ".constructor()"
     },
     {
@@ -11241,7 +11241,7 @@
       "source_file": "src/modules/loans/domain/loan.schema.ts",
       "source_location": "L13",
       "id": "domain_loan_schema_validateloanfields",
-      "community": 88,
+      "community": 183,
       "norm_label": "validateloanfields()"
     },
     {
@@ -11250,7 +11250,7 @@
       "source_file": "src/modules/loans/domain/loan.schema.ts",
       "source_location": "L37",
       "id": "domain_loan_schema_validatecreateloan",
-      "community": 88,
+      "community": 183,
       "norm_label": "validatecreateloan()"
     },
     {
@@ -11259,7 +11259,7 @@
       "source_file": "src/modules/loans/domain/loan.schema.ts",
       "source_location": "L41",
       "id": "domain_loan_schema_validateupdateloan",
-      "community": 88,
+      "community": 183,
       "norm_label": "validateupdateloan()"
     },
     {
@@ -11313,7 +11313,7 @@
       "source_file": "src/modules/loans/hooks/useLoans.ts",
       "source_location": "L1",
       "id": "src_modules_loans_hooks_useloans_ts",
-      "community": 161,
+      "community": 126,
       "norm_label": "useloans.ts"
     },
     {
@@ -11322,7 +11322,7 @@
       "source_file": "src/modules/loans/hooks/useLoans.ts",
       "source_location": "L6",
       "id": "hooks_useloans_empty_loan_filter",
-      "community": 161,
+      "community": 126,
       "norm_label": "empty_loan_filter"
     },
     {
@@ -11331,7 +11331,7 @@
       "source_file": "src/modules/loans/hooks/useLoans.ts",
       "source_location": "L8",
       "id": "hooks_useloans_useloans",
-      "community": 112,
+      "community": 126,
       "norm_label": "useloans()"
     },
     {
@@ -11376,7 +11376,7 @@
       "source_file": "src/modules/loans/pages/LoanListPage.tsx",
       "source_location": "L1",
       "id": "src_modules_loans_pages_loanlistpage_tsx",
-      "community": 112,
+      "community": 126,
       "norm_label": "loanlistpage.tsx"
     },
     {
@@ -11385,7 +11385,7 @@
       "source_file": "src/modules/loans/pages/LoanListPage.tsx",
       "source_location": "L24",
       "id": "pages_loanlistpage_filtertab",
-      "community": 112,
+      "community": 126,
       "norm_label": "filtertab"
     },
     {
@@ -11394,7 +11394,7 @@
       "source_file": "src/modules/loans/pages/LoanListPage.tsx",
       "source_location": "L26",
       "id": "pages_loanlistpage_filterfromtab",
-      "community": 112,
+      "community": 126,
       "norm_label": "filterfromtab()"
     },
     {
@@ -11403,7 +11403,7 @@
       "source_file": "src/modules/loans/pages/LoanListPage.tsx",
       "source_location": "L32",
       "id": "pages_loanlistpage_swipeableloanrowprops",
-      "community": 112,
+      "community": 126,
       "norm_label": "swipeableloanrowprops"
     },
     {
@@ -11412,7 +11412,7 @@
       "source_file": "src/modules/loans/pages/LoanListPage.tsx",
       "source_location": "L39",
       "id": "pages_loanlistpage_swipeableloanrow",
-      "community": 112,
+      "community": 126,
       "norm_label": "swipeableloanrow()"
     },
     {
@@ -11430,7 +11430,7 @@
       "source_file": "src/modules/loans/repositories/loan.repository.ts",
       "source_location": "L1",
       "id": "src_modules_loans_repositories_loan_repository_ts",
-      "community": 161,
+      "community": 110,
       "norm_label": "loan.repository.ts"
     },
     {
@@ -11439,7 +11439,7 @@
       "source_file": "src/modules/loans/repositories/loan.repository.ts",
       "source_location": "L12",
       "id": "repositories_loan_repository_iloanrepository",
-      "community": 161,
+      "community": 185,
       "norm_label": "iloanrepository"
     },
     {
@@ -11520,7 +11520,7 @@
       "source_file": "src/modules/loans/repositories/sqlite-loan.repository.ts",
       "source_location": "L172",
       "id": "repositories_sqlite_loan_repository_sqliteloanrepository_listloans",
-      "community": 161,
+      "community": 110,
       "norm_label": ".listloans()"
     },
     {
@@ -11763,7 +11763,7 @@
       "source_file": "src/modules/loans/services/add-loan-payment.ts",
       "source_location": "L31",
       "id": "services_add_loan_payment_addloanpaymentdeps",
-      "community": 183,
+      "community": 181,
       "norm_label": "addloanpaymentdeps"
     },
     {
@@ -11934,7 +11934,7 @@
       "source_file": "src/modules/loans/services/cancel-loan.ts",
       "source_location": "L1",
       "id": "src_modules_loans_services_cancel_loan_ts",
-      "community": 161,
+      "community": 185,
       "norm_label": "cancel-loan.ts"
     },
     {
@@ -11943,7 +11943,7 @@
       "source_file": "src/modules/loans/services/cancel-loan.ts",
       "source_location": "L5",
       "id": "services_cancel_loan_defaulttext",
-      "community": 161,
+      "community": 185,
       "norm_label": "defaulttext()"
     },
     {
@@ -11952,7 +11952,7 @@
       "source_file": "src/modules/loans/services/cancel-loan.ts",
       "source_location": "L15",
       "id": "services_cancel_loan_cancelloandeps",
-      "community": 161,
+      "community": 185,
       "norm_label": "cancelloandeps"
     },
     {
@@ -11961,7 +11961,7 @@
       "source_file": "src/modules/loans/services/cancel-loan.ts",
       "source_location": "L19",
       "id": "services_cancel_loan_cancelloan",
-      "community": 161,
+      "community": 185,
       "norm_label": "cancelloan()"
     },
     {
@@ -12267,7 +12267,7 @@
       "source_file": "src/modules/loans/services/delete-loan.ts",
       "source_location": "L19",
       "id": "services_delete_loan_deleteloanmode",
-      "community": 112,
+      "community": 126,
       "norm_label": "deleteloanmode"
     },
     {
@@ -12276,7 +12276,7 @@
       "source_file": "src/modules/loans/services/delete-loan.ts",
       "source_location": "L21",
       "id": "services_delete_loan_loanhaspaymentserror",
-      "community": 185,
+      "community": 126,
       "norm_label": "loanhaspaymentserror"
     },
     {
@@ -12285,7 +12285,7 @@
       "source_file": "src/modules/loans/services/delete-loan.ts",
       "source_location": "L22",
       "id": "services_delete_loan_loanhaspaymentserror_constructor",
-      "community": 185,
+      "community": 126,
       "norm_label": ".constructor()"
     },
     {
@@ -12411,7 +12411,7 @@
       "source_file": "src/modules/loans/services/list-loans.ts",
       "source_location": "L9",
       "id": "services_list_loans_comparableloandate",
-      "community": 110,
+      "community": 161,
       "norm_label": "comparableloandate()"
     },
     {
@@ -13221,7 +13221,7 @@
       "source_file": "src/modules/reports/components/BudgetCategoryBreakdown.tsx",
       "source_location": "L5",
       "id": "components_budgetcategorybreakdown_props",
-      "community": 5,
+      "community": 112,
       "norm_label": "props"
     },
     {
@@ -13383,7 +13383,7 @@
       "source_file": "src/modules/reports/components/BudgetSpendingTrend.tsx",
       "source_location": "L1",
       "id": "src_modules_reports_components_budgetspendingtrend_tsx",
-      "community": 5,
+      "community": 23,
       "norm_label": "budgetspendingtrend.tsx"
     },
     {
@@ -13392,7 +13392,7 @@
       "source_file": "src/modules/reports/components/BudgetSpendingTrend.tsx",
       "source_location": "L5",
       "id": "components_budgetspendingtrend_props",
-      "community": 5,
+      "community": 23,
       "norm_label": "props"
     },
     {
@@ -13401,7 +13401,7 @@
       "source_file": "src/modules/reports/components/BudgetSpendingTrend.tsx",
       "source_location": "L11",
       "id": "components_budgetspendingtrend_budgetspendingtrend",
-      "community": 5,
+      "community": 23,
       "norm_label": "budgetspendingtrend()"
     },
     {
@@ -13507,7 +13507,7 @@
       "label": "Props",
       "file_type": "code",
       "source_file": "src/modules/reports/components/DateRangePicker.tsx",
-      "source_location": "L7",
+      "source_location": "L8",
       "id": "components_daterangepicker_props",
       "community": 127,
       "norm_label": "props"
@@ -13516,7 +13516,7 @@
       "label": "dateInputValue()",
       "file_type": "code",
       "source_file": "src/modules/reports/components/DateRangePicker.tsx",
-      "source_location": "L18",
+      "source_location": "L19",
       "id": "components_daterangepicker_dateinputvalue",
       "community": 127,
       "norm_label": "dateinputvalue()"
@@ -13525,7 +13525,7 @@
       "label": "startOfInputDate()",
       "file_type": "code",
       "source_file": "src/modules/reports/components/DateRangePicker.tsx",
-      "source_location": "L20",
+      "source_location": "L21",
       "id": "components_daterangepicker_startofinputdate",
       "community": 127,
       "norm_label": "startofinputdate()"
@@ -13534,7 +13534,7 @@
       "label": "endOfInputDate()",
       "file_type": "code",
       "source_file": "src/modules/reports/components/DateRangePicker.tsx",
-      "source_location": "L25",
+      "source_location": "L26",
       "id": "components_daterangepicker_endofinputdate",
       "community": 127,
       "norm_label": "endofinputdate()"
@@ -13543,7 +13543,7 @@
       "label": "DateRangePicker()",
       "file_type": "code",
       "source_file": "src/modules/reports/components/DateRangePicker.tsx",
-      "source_location": "L30",
+      "source_location": "L31",
       "id": "components_daterangepicker_daterangepicker",
       "community": 127,
       "norm_label": "daterangepicker()"
@@ -14121,7 +14121,7 @@
       "source_file": "src/modules/reports/domain/report.model.ts",
       "source_location": "L54",
       "id": "domain_report_model_budgetreportbudgetsource",
-      "community": 5,
+      "community": 112,
       "norm_label": "budgetreportbudgetsource"
     },
     {
@@ -14166,7 +14166,7 @@
       "source_file": "src/modules/reports/domain/report.model.ts",
       "source_location": "L91",
       "id": "domain_report_model_budgetreportcategory",
-      "community": 5,
+      "community": 112,
       "norm_label": "budgetreportcategory"
     },
     {
@@ -14175,7 +14175,7 @@
       "source_file": "src/modules/reports/domain/report.model.ts",
       "source_location": "L102",
       "id": "domain_report_model_budgetreporttrendpoint",
-      "community": 5,
+      "community": 23,
       "norm_label": "budgetreporttrendpoint"
     },
     {
@@ -14184,7 +14184,7 @@
       "source_file": "src/modules/reports/domain/report.model.ts",
       "source_location": "L107",
       "id": "domain_report_model_budgetreport",
-      "community": 5,
+      "community": 23,
       "norm_label": "budgetreport"
     },
     {
@@ -14382,7 +14382,7 @@
       "source_file": "src/modules/reports/services/build-date-range.ts",
       "source_location": "L1",
       "id": "src_modules_reports_services_build_date_range_ts",
-      "community": 145,
+      "community": 127,
       "norm_label": "build-date-range.ts"
     },
     {
@@ -14409,7 +14409,7 @@
       "source_file": "src/modules/reports/services/calculate-budget-report.ts",
       "source_location": "L1",
       "id": "src_modules_reports_services_calculate_budget_report_ts",
-      "community": 5,
+      "community": 112,
       "norm_label": "calculate-budget-report.ts"
     },
     {
@@ -14418,7 +14418,7 @@
       "source_file": "src/modules/reports/services/calculate-budget-report.ts",
       "source_location": "L15",
       "id": "services_calculate_budget_report_startofday",
-      "community": 5,
+      "community": 112,
       "norm_label": "startofday()"
     },
     {
@@ -14427,7 +14427,7 @@
       "source_file": "src/modules/reports/services/calculate-budget-report.ts",
       "source_location": "L20",
       "id": "services_calculate_budget_report_endofday",
-      "community": 5,
+      "community": 112,
       "norm_label": "endofday()"
     },
     {
@@ -14436,7 +14436,7 @@
       "source_file": "src/modules/reports/services/calculate-budget-report.ts",
       "source_location": "L25",
       "id": "services_calculate_budget_report_todatekey",
-      "community": 5,
+      "community": 112,
       "norm_label": "todatekey()"
     },
     {
@@ -14445,7 +14445,7 @@
       "source_file": "src/modules/reports/services/calculate-budget-report.ts",
       "source_location": "L31",
       "id": "services_calculate_budget_report_parsedatekey",
-      "community": 5,
+      "community": 112,
       "norm_label": "parsedatekey()"
     },
     {
@@ -14454,7 +14454,7 @@
       "source_file": "src/modules/reports/services/calculate-budget-report.ts",
       "source_location": "L38",
       "id": "services_calculate_budget_report_classifybudgetreportstatus",
-      "community": 5,
+      "community": 112,
       "norm_label": "classifybudgetreportstatus()"
     },
     {
@@ -14463,7 +14463,7 @@
       "source_file": "src/modules/reports/services/calculate-budget-report.ts",
       "source_location": "L48",
       "id": "services_calculate_budget_report_calculatebudgetamountforrange",
-      "community": 5,
+      "community": 112,
       "norm_label": "calculatebudgetamountforrange()"
     },
     {
@@ -14472,7 +14472,7 @@
       "source_file": "src/modules/reports/services/calculate-budget-report.ts",
       "source_location": "L75",
       "id": "services_calculate_budget_report_calculateamounts",
-      "community": 5,
+      "community": 112,
       "norm_label": "calculateamounts()"
     },
     {
@@ -14481,7 +14481,7 @@
       "source_file": "src/modules/reports/services/calculate-budget-report.ts",
       "source_location": "L86",
       "id": "services_calculate_budget_report_countrangedays",
-      "community": 5,
+      "community": 112,
       "norm_label": "countrangedays()"
     },
     {
@@ -14490,7 +14490,7 @@
       "source_file": "src/modules/reports/services/calculate-budget-report.ts",
       "source_location": "L90",
       "id": "services_calculate_budget_report_choosetrendgranularity",
-      "community": 5,
+      "community": 112,
       "norm_label": "choosetrendgranularity()"
     },
     {
@@ -14499,7 +14499,7 @@
       "source_file": "src/modules/reports/services/calculate-budget-report.ts",
       "source_location": "L97",
       "id": "services_calculate_budget_report_trendkey",
-      "community": 5,
+      "community": 112,
       "norm_label": "trendkey()"
     },
     {
@@ -14508,7 +14508,7 @@
       "source_file": "src/modules/reports/services/calculate-budget-report.ts",
       "source_location": "L111",
       "id": "services_calculate_budget_report_buildtrend",
-      "community": 5,
+      "community": 112,
       "norm_label": "buildtrend()"
     },
     {
@@ -14517,7 +14517,7 @@
       "source_file": "src/modules/reports/services/calculate-budget-report.ts",
       "source_location": "L134",
       "id": "services_calculate_budget_report_calculatebudgetreport",
-      "community": 5,
+      "community": 112,
       "norm_label": "calculatebudgetreport()"
     },
     {
@@ -15543,7 +15543,7 @@
       "source_file": "src/modules/settings/services/display-format-settings.service.ts",
       "source_location": "L9",
       "id": "services_display_format_settings_service_displayformatsettings",
-      "community": 11,
+      "community": 118,
       "norm_label": "displayformatsettings"
     },
     {
@@ -17010,7 +17010,7 @@
       "source_file": "src/modules/transactions/components/TransactionItem.behavior.test.tsx",
       "source_location": "L1",
       "id": "src_modules_transactions_components_transactionitem_behavior_test_tsx",
-      "community": 205,
+      "community": 120,
       "norm_label": "transactionitem.behavior.test.tsx"
     },
     {
@@ -17019,7 +17019,7 @@
       "source_file": "src/modules/transactions/components/TransactionItem.behavior.test.tsx",
       "source_location": "L6",
       "id": "components_transactionitem_behavior_test_mocks",
-      "community": 205,
+      "community": 120,
       "norm_label": "mocks"
     },
     {
@@ -17028,7 +17028,7 @@
       "source_file": "src/modules/transactions/components/TransactionItem.behavior.test.tsx",
       "source_location": "L49",
       "id": "components_transactionitem_behavior_test_transaction",
-      "community": 205,
+      "community": 120,
       "norm_label": "transaction()"
     },
     {
@@ -17037,7 +17037,7 @@
       "source_file": "src/modules/transactions/components/TransactionItem.behavior.test.tsx",
       "source_location": "L77",
       "id": "components_transactionitem_behavior_test_rerender",
-      "community": 205,
+      "community": 120,
       "norm_label": "{ rerender }"
     },
     {
@@ -17046,7 +17046,7 @@
       "source_file": "src/modules/transactions/components/TransactionItem.behavior.test.tsx",
       "source_location": "L120",
       "id": "components_transactionitem_behavior_test_onselect",
-      "community": 205,
+      "community": 120,
       "norm_label": "onselect"
     },
     {
@@ -17055,7 +17055,7 @@
       "source_file": "src/modules/transactions/components/TransactionItem.behavior.test.tsx",
       "source_location": "L133",
       "id": "components_transactionitem_behavior_test_row",
-      "community": 205,
+      "community": 120,
       "norm_label": "row"
     },
     {
@@ -17451,7 +17451,7 @@
       "source_file": "src/modules/transactions/hooks/useBudgetAnalysis.ts",
       "source_location": "L1",
       "id": "src_modules_transactions_hooks_usebudgetanalysis_ts",
-      "community": 36,
+      "community": 123,
       "norm_label": "usebudgetanalysis.ts"
     },
     {
@@ -17460,7 +17460,7 @@
       "source_file": "src/modules/transactions/hooks/useBudgetAnalysis.ts",
       "source_location": "L5",
       "id": "hooks_usebudgetanalysis_usebudgetanalysis",
-      "community": 36,
+      "community": 123,
       "norm_label": "usebudgetanalysis()"
     },
     {
@@ -20034,7 +20034,7 @@
       "source_file": "src/shared/components/CurrencyAmountInput.test.tsx",
       "source_location": "L1",
       "id": "src_shared_components_currencyamountinput_test_tsx",
-      "community": 120,
+      "community": 28,
       "norm_label": "currencyamountinput.test.tsx"
     },
     {
@@ -20043,7 +20043,7 @@
       "source_file": "src/shared/components/CurrencyAmountInput.test.tsx",
       "source_location": "L21",
       "id": "components_currencyamountinput_test_currencyharness",
-      "community": 120,
+      "community": 28,
       "norm_label": "currencyharness()"
     },
     {
@@ -20052,7 +20052,7 @@
       "source_file": "src/shared/components/CurrencyAmountInput.test.tsx",
       "source_location": "L42",
       "id": "components_currencyamountinput_test_selectformattedrange",
-      "community": 120,
+      "community": 28,
       "norm_label": "selectformattedrange()"
     },
     {
@@ -20061,7 +20061,7 @@
       "source_file": "src/shared/components/CurrencyAmountInput.test.tsx",
       "source_location": "L63",
       "id": "components_currencyamountinput_test_measuretext",
-      "community": 120,
+      "community": 28,
       "norm_label": "measuretext()"
     },
     {
@@ -20070,7 +20070,7 @@
       "source_file": "src/shared/components/CurrencyAmountInput.test.tsx",
       "source_location": "L72",
       "id": "components_currencyamountinput_test_input",
-      "community": 120,
+      "community": 28,
       "norm_label": "input"
     },
     {
@@ -20079,7 +20079,7 @@
       "source_file": "src/shared/components/CurrencyAmountInput.test.tsx",
       "source_location": "L153",
       "id": "components_currencyamountinput_test_scrollcontainer",
-      "community": 120,
+      "community": 28,
       "norm_label": "scrollcontainer"
     },
     {
@@ -20088,7 +20088,7 @@
       "source_file": "src/shared/components/CurrencyAmountInput.test.tsx",
       "source_location": "L154",
       "id": "components_currencyamountinput_test_target",
-      "community": 120,
+      "community": 28,
       "norm_label": "target"
     },
     {
@@ -20097,7 +20097,7 @@
       "source_file": "src/shared/components/CurrencyAmountInput.test.tsx",
       "source_location": "L221",
       "id": "components_currencyamountinput_test_form",
-      "community": 120,
+      "community": 28,
       "norm_label": "form"
     },
     {
@@ -20160,7 +20160,7 @@
       "source_file": "src/shared/components/CurrencyAmountInput.tsx",
       "source_location": "L48",
       "id": "components_currencyamountinput_formattedoffsettorawoffset",
-      "community": 120,
+      "community": 28,
       "norm_label": "formattedoffsettorawoffset()"
     },
     {
@@ -20178,7 +20178,7 @@
       "source_file": "src/shared/components/CurrencyAmountInput.tsx",
       "source_location": "L78",
       "id": "components_currencyamountinput_findnearestformattedoffset",
-      "community": 120,
+      "community": 28,
       "norm_label": "findnearestformattedoffset()"
     },
     {
@@ -20187,7 +20187,7 @@
       "source_file": "src/shared/components/CurrencyAmountInput.tsx",
       "source_location": "L97",
       "id": "components_currencyamountinput_getformattedoffsetatclientx",
-      "community": 120,
+      "community": 28,
       "norm_label": "getformattedoffsetatclientx()"
     },
     {
@@ -20205,7 +20205,7 @@
       "source_file": "src/shared/components/CurrencyAmountInput.tsx",
       "source_location": "L133",
       "id": "components_currencyamountinput_alignmoneykeyboardtarget",
-      "community": 120,
+      "community": 28,
       "norm_label": "alignmoneykeyboardtarget()"
     },
     {
@@ -20232,7 +20232,7 @@
       "source_file": "src/shared/components/DropdownList.tsx",
       "source_location": "L1",
       "id": "src_shared_components_dropdownlist_tsx",
-      "community": 136,
+      "community": 85,
       "norm_label": "dropdownlist.tsx"
     },
     {
@@ -20241,7 +20241,7 @@
       "source_file": "src/shared/components/DropdownList.tsx",
       "source_location": "L6",
       "id": "components_dropdownlist_dropdownoption",
-      "community": 136,
+      "community": 85,
       "norm_label": "dropdownoption"
     },
     {
@@ -20250,7 +20250,7 @@
       "source_file": "src/shared/components/DropdownList.tsx",
       "source_location": "L13",
       "id": "components_dropdownlist_dropdownlistprops",
-      "community": 136,
+      "community": 85,
       "norm_label": "dropdownlistprops"
     },
     {
@@ -20259,7 +20259,7 @@
       "source_file": "src/shared/components/DropdownList.tsx",
       "source_location": "L27",
       "id": "components_dropdownlist_iseditableelement",
-      "community": 136,
+      "community": 85,
       "norm_label": "iseditableelement()"
     },
     {
@@ -20817,7 +20817,7 @@
       "source_file": "src/shared/components/MoneyInput/money-calculator.ts",
       "source_location": "L1",
       "id": "moneyinput_money_calculator_moneycalculatoroperator",
-      "community": 162,
+      "community": 115,
       "norm_label": "moneycalculatoroperator"
     },
     {
@@ -20826,7 +20826,7 @@
       "source_file": "src/shared/components/MoneyInput/money-calculator.ts",
       "source_location": "L3",
       "id": "moneyinput_money_calculator_moneycalculationerror",
-      "community": 162,
+      "community": 115,
       "norm_label": "moneycalculationerror"
     },
     {
@@ -21078,7 +21078,7 @@
       "source_file": "src/shared/components/MoneyInput/MoneyCalculatorPanel.tsx",
       "source_location": "L1",
       "id": "src_shared_components_moneyinput_moneycalculatorpanel_tsx",
-      "community": 162,
+      "community": 115,
       "norm_label": "moneycalculatorpanel.tsx"
     },
     {
@@ -21087,7 +21087,7 @@
       "source_file": "src/shared/components/MoneyInput/MoneyCalculatorPanel.tsx",
       "source_location": "L18",
       "id": "moneyinput_moneycalculatorpanel_moneycalculatorpanelprops",
-      "community": 162,
+      "community": 115,
       "norm_label": "moneycalculatorpanelprops"
     },
     {
@@ -21096,7 +21096,7 @@
       "source_file": "src/shared/components/MoneyInput/MoneyCalculatorPanel.tsx",
       "source_location": "L25",
       "id": "moneyinput_moneycalculatorpanel_calculatorrows",
-      "community": 162,
+      "community": 115,
       "norm_label": "calculatorrows"
     },
     {
@@ -21105,7 +21105,7 @@
       "source_file": "src/shared/components/MoneyInput/MoneyCalculatorPanel.tsx",
       "source_location": "L32",
       "id": "moneyinput_moneycalculatorpanel_geterrortext",
-      "community": 162,
+      "community": 115,
       "norm_label": "geterrortext()"
     },
     {
@@ -21114,7 +21114,7 @@
       "source_file": "src/shared/components/MoneyInput/MoneyCalculatorPanel.tsx",
       "source_location": "L38",
       "id": "moneyinput_moneycalculatorpanel_formatexpressionfordisplay",
-      "community": 162,
+      "community": 115,
       "norm_label": "formatexpressionfordisplay()"
     },
     {
@@ -21123,7 +21123,7 @@
       "source_file": "src/shared/components/MoneyInput/MoneyCalculatorPanel.tsx",
       "source_location": "L42",
       "id": "moneyinput_moneycalculatorpanel_getoperatorlabel",
-      "community": 162,
+      "community": 115,
       "norm_label": "getoperatorlabel()"
     },
     {
@@ -21132,7 +21132,7 @@
       "source_file": "src/shared/components/MoneyInput/MoneyCalculatorPanel.tsx",
       "source_location": "L46",
       "id": "moneyinput_moneycalculatorpanel_moneycalculatorpanel",
-      "community": 162,
+      "community": 115,
       "norm_label": "moneycalculatorpanel()"
     },
     {
@@ -21429,7 +21429,7 @@
       "source_file": "src/shared/constants/translations.ts",
       "source_location": "L1",
       "id": "src_shared_constants_translations_ts",
-      "community": 183,
+      "community": 185,
       "norm_label": "translations.ts"
     },
     {
@@ -21438,7 +21438,7 @@
       "source_file": "src/shared/constants/translations.ts",
       "source_location": "L1",
       "id": "constants_translations_translations",
-      "community": 183,
+      "community": 185,
       "norm_label": "translations"
     },
     {
@@ -21456,7 +21456,7 @@
       "source_file": "src/shared/constants/translations.ts",
       "source_location": "L2368",
       "id": "constants_translations_nestedkeyof",
-      "community": 183,
+      "community": 185,
       "norm_label": "nestedkeyof"
     },
     {
@@ -21465,7 +21465,7 @@
       "source_file": "src/shared/constants/translations.ts",
       "source_location": "L2378",
       "id": "constants_translations_translationpath",
-      "community": 183,
+      "community": 185,
       "norm_label": "translationpath"
     },
     {
@@ -21474,7 +21474,7 @@
       "source_file": "src/shared/constants/translations.ts",
       "source_location": "L2379",
       "id": "constants_translations_translationkey",
-      "community": 183,
+      "community": 185,
       "norm_label": "translationkey"
     },
     {
@@ -21708,7 +21708,7 @@
       "source_file": "src/shared/hooks/use-display-format-settings.test.tsx",
       "source_location": "L1",
       "id": "src_shared_hooks_use_display_format_settings_test_tsx",
-      "community": 11,
+      "community": 174,
       "norm_label": "use-display-format-settings.test.tsx"
     },
     {
@@ -21717,7 +21717,7 @@
       "source_file": "src/shared/hooks/use-display-format-settings.test.tsx",
       "source_location": "L17",
       "id": "hooks_use_display_format_settings_test_result",
-      "community": 11,
+      "community": 174,
       "norm_label": "{ result }"
     },
     {
@@ -21834,7 +21834,7 @@
       "source_file": "src/shared/hooks/useDisplayFormatSettings.ts",
       "source_location": "L1",
       "id": "src_shared_hooks_usedisplayformatsettings_ts",
-      "community": 11,
+      "community": 174,
       "norm_label": "usedisplayformatsettings.ts"
     },
     {
@@ -21843,7 +21843,7 @@
       "source_file": "src/shared/hooks/useDisplayFormatSettings.ts",
       "source_location": "L9",
       "id": "hooks_usedisplayformatsettings_isdisplayformatstoragekey",
-      "community": 11,
+      "community": 174,
       "norm_label": "isdisplayformatstoragekey()"
     },
     {
@@ -22293,7 +22293,7 @@
       "source_file": "src/shared/utils/date-range.ts",
       "source_location": "L12",
       "id": "utils_date_range_todatekey",
-      "community": 5,
+      "community": 174,
       "norm_label": "todatekey()"
     },
     {
@@ -22356,7 +22356,7 @@
       "source_file": "src/shared/utils/date-range.ts",
       "source_location": "L48",
       "id": "utils_date_range_getweekdaterange",
-      "community": 145,
+      "community": 5,
       "norm_label": "getweekdaterange()"
     },
     {
@@ -23535,7 +23535,7 @@
       "source_file": "src/tests/budget-report.test.ts",
       "source_location": "L1",
       "id": "src_tests_budget_report_test_ts",
-      "community": 5,
+      "community": 112,
       "norm_label": "budget-report.test.ts"
     },
     {
@@ -23544,7 +23544,7 @@
       "source_file": "src/tests/budget-report.test.ts",
       "source_location": "L19",
       "id": "tests_budget_report_test_january",
-      "community": 5,
+      "community": 112,
       "norm_label": "january"
     },
     {
@@ -23553,7 +23553,7 @@
       "source_file": "src/tests/budget-report.test.ts",
       "source_location": "L24",
       "id": "tests_budget_report_test_budget",
-      "community": 5,
+      "community": 112,
       "norm_label": "budget()"
     },
     {
@@ -23562,7 +23562,7 @@
       "source_file": "src/tests/budget-report.test.ts",
       "source_location": "L37",
       "id": "tests_budget_report_test_source",
-      "community": 5,
+      "community": 112,
       "norm_label": "source()"
     },
     {
@@ -23571,7 +23571,7 @@
       "source_file": "src/tests/budget-report.test.ts",
       "source_location": "L48",
       "id": "tests_budget_report_test_firsttendays",
-      "community": 5,
+      "community": 112,
       "norm_label": "firsttendays"
     },
     {
@@ -23580,7 +23580,7 @@
       "source_file": "src/tests/budget-report.test.ts",
       "source_location": "L57",
       "id": "tests_budget_report_test_report",
-      "community": 5,
+      "community": 112,
       "norm_label": "report"
     },
     {
@@ -23589,7 +23589,7 @@
       "source_file": "src/tests/budget-report.test.ts",
       "source_location": "L197",
       "id": "tests_budget_report_test_query",
-      "community": 5,
+      "community": 112,
       "norm_label": "query"
     },
     {
@@ -23598,7 +23598,7 @@
       "source_file": "src/tests/budget-report.test.ts",
       "source_location": "L202",
       "id": "tests_budget_report_test_spendingsql",
-      "community": 5,
+      "community": 112,
       "norm_label": "spendingsql"
     },
     {
@@ -23607,7 +23607,7 @@
       "source_file": "src/tests/budget-report.test.ts",
       "source_location": "L222",
       "id": "tests_budget_report_test_budgetsql",
-      "community": 5,
+      "community": 112,
       "norm_label": "budgetsql"
     },
     {
@@ -24390,7 +24390,7 @@
       "source_file": "src/tests/dropdown-list.test.tsx",
       "source_location": "L1",
       "id": "src_tests_dropdown_list_test_tsx",
-      "community": 136,
+      "community": 85,
       "norm_label": "dropdown-list.test.tsx"
     },
     {
@@ -24399,7 +24399,7 @@
       "source_file": "src/tests/dropdown-list.test.tsx",
       "source_location": "L7",
       "id": "tests_dropdown_list_test_onchange",
-      "community": 136,
+      "community": 85,
       "norm_label": "onchange"
     },
     {
@@ -24408,7 +24408,7 @@
       "source_file": "src/tests/dropdown-list.test.tsx",
       "source_location": "L26",
       "id": "tests_dropdown_list_test_amountinput",
-      "community": 136,
+      "community": 85,
       "norm_label": "amountinput"
     },
     {
@@ -24660,7 +24660,7 @@
       "source_file": "src/tests/loan-form.test.tsx",
       "source_location": "L1",
       "id": "src_tests_loan_form_test_tsx",
-      "community": 198,
+      "community": 161,
       "norm_label": "loan-form.test.tsx"
     },
     {
@@ -24669,7 +24669,7 @@
       "source_file": "src/tests/loan-form.test.tsx",
       "source_location": "L22",
       "id": "tests_loan_form_test_renderloanform",
-      "community": 198,
+      "community": 161,
       "norm_label": "renderloanform()"
     },
     {
@@ -24678,7 +24678,7 @@
       "source_file": "src/tests/loan-form.test.tsx",
       "source_location": "L26",
       "id": "tests_loan_form_test_fillrequiredfields",
-      "community": 198,
+      "community": 161,
       "norm_label": "fillrequiredfields()"
     },
     {
@@ -24687,7 +24687,7 @@
       "source_file": "src/tests/loan-form.test.tsx",
       "source_location": "L38",
       "id": "tests_loan_form_test_onsubmit",
-      "community": 198,
+      "community": 161,
       "norm_label": "onsubmit"
     },
     {
@@ -24696,7 +24696,7 @@
       "source_file": "src/tests/loan-form.test.tsx",
       "source_location": "L39",
       "id": "tests_loan_form_test_container",
-      "community": 198,
+      "community": 161,
       "norm_label": "{ container }"
     },
     {
@@ -24705,7 +24705,7 @@
       "source_file": "src/tests/loan-form.test.tsx",
       "source_location": "L43",
       "id": "tests_loan_form_test_skiptransaction",
-      "community": 198,
+      "community": 161,
       "norm_label": "skiptransaction"
     },
     {
@@ -24714,7 +24714,7 @@
       "source_file": "src/tests/loan-form.test.tsx",
       "source_location": "L63",
       "id": "tests_loan_form_test_excludefromtotal",
-      "community": 198,
+      "community": 161,
       "norm_label": "excludefromtotal"
     },
     {
@@ -24723,7 +24723,7 @@
       "source_file": "src/tests/loan-form.test.tsx",
       "source_location": "L99",
       "id": "tests_loan_form_test_dateinputs",
-      "community": 198,
+      "community": 161,
       "norm_label": "dateinputs"
     },
     {
@@ -24732,7 +24732,7 @@
       "source_file": "src/tests/loan-form.test.tsx",
       "source_location": "L100",
       "id": "tests_loan_form_test_timeinputs",
-      "community": 198,
+      "community": 161,
       "norm_label": "timeinputs"
     },
     {
@@ -24741,7 +24741,7 @@
       "source_file": "src/tests/loan-form.test.tsx",
       "source_location": "L114",
       "id": "tests_loan_form_test_existingloan",
-      "community": 198,
+      "community": 161,
       "norm_label": "existingloan"
     },
     {
@@ -25036,7 +25036,7 @@
       "label": "view",
       "file_type": "code",
       "source_file": "src/tests/reports-ui.test.tsx",
-      "source_location": "L179",
+      "source_location": "L180",
       "id": "tests_reports_ui_test_view",
       "community": 127,
       "norm_label": "view"
@@ -25045,7 +25045,7 @@
       "label": "granularityGroup",
       "file_type": "code",
       "source_file": "src/tests/reports-ui.test.tsx",
-      "source_location": "L251",
+      "source_location": "L252",
       "id": "tests_reports_ui_test_granularitygroup",
       "community": 127,
       "norm_label": "granularitygroup"
@@ -25054,7 +25054,7 @@
       "label": "mockReportData()",
       "file_type": "code",
       "source_file": "src/tests/reports-ui.test.tsx",
-      "source_location": "L278",
+      "source_location": "L279",
       "id": "tests_reports_ui_test_mockreportdata",
       "community": 127,
       "norm_label": "mockreportdata()"
@@ -25063,7 +25063,7 @@
       "label": "mockNetComparison()",
       "file_type": "code",
       "source_file": "src/tests/reports-ui.test.tsx",
-      "source_location": "L307",
+      "source_location": "L308",
       "id": "tests_reports_ui_test_mocknetcomparison",
       "community": 127,
       "norm_label": "mocknetcomparison()"
@@ -25072,7 +25072,7 @@
       "label": "renderPage()",
       "file_type": "code",
       "source_file": "src/tests/reports-ui.test.tsx",
-      "source_location": "L325",
+      "source_location": "L326",
       "id": "tests_reports_ui_test_renderpage",
       "community": 127,
       "norm_label": "renderpage()"
@@ -25081,7 +25081,7 @@
       "label": "pending",
       "file_type": "code",
       "source_file": "src/tests/reports-ui.test.tsx",
-      "source_location": "L385",
+      "source_location": "L386",
       "id": "tests_reports_ui_test_pending",
       "community": 127,
       "norm_label": "pending"
@@ -25146,7 +25146,7 @@
       "source_file": "src/tests/reports.test.ts",
       "source_location": "L1",
       "id": "src_tests_reports_test_ts",
-      "community": 145,
+      "community": 5,
       "norm_label": "reports.test.ts"
     },
     {
@@ -25155,7 +25155,7 @@
       "source_file": "src/tests/reports.test.ts",
       "source_location": "L26",
       "id": "tests_reports_test_range",
-      "community": 145,
+      "community": 5,
       "norm_label": "range"
     },
     {
@@ -25164,7 +25164,7 @@
       "source_file": "src/tests/reports.test.ts",
       "source_location": "L243",
       "id": "tests_reports_test_start",
-      "community": 145,
+      "community": 5,
       "norm_label": "start"
     },
     {
@@ -25173,7 +25173,7 @@
       "source_file": "src/tests/reports.test.ts",
       "source_location": "L254",
       "id": "tests_reports_test_end",
-      "community": 145,
+      "community": 5,
       "norm_label": "end"
     },
     {
@@ -25182,7 +25182,7 @@
       "source_file": "src/tests/reports.test.ts",
       "source_location": "L277",
       "id": "tests_reports_test_repo",
-      "community": 145,
+      "community": 5,
       "norm_label": "repo"
     },
     {
@@ -25632,7 +25632,7 @@
       "source_file": "src/tests/translations.test.ts",
       "source_location": "L1",
       "id": "src_tests_translations_test_ts",
-      "community": 183,
+      "community": 185,
       "norm_label": "translations.test.ts"
     },
     {
@@ -25641,7 +25641,7 @@
       "source_file": "src/tests/translations.test.ts",
       "source_location": "L4",
       "id": "tests_translations_test_getkeys",
-      "community": 183,
+      "community": 185,
       "norm_label": "getkeys()"
     },
     {
@@ -25650,7 +25650,7 @@
       "source_file": "src/tests/translations.test.ts",
       "source_location": "L13",
       "id": "tests_translations_test_enkeys",
-      "community": 183,
+      "community": 185,
       "norm_label": "enkeys"
     },
     {
@@ -25659,7 +25659,7 @@
       "source_file": "src/tests/translations.test.ts",
       "source_location": "L14",
       "id": "tests_translations_test_vikeys",
-      "community": 183,
+      "community": 185,
       "norm_label": "vikeys"
     },
     {
@@ -25668,7 +25668,7 @@
       "source_file": "src/tests/translations.test.ts",
       "source_location": "L16",
       "id": "tests_translations_test_missinginvi",
-      "community": 183,
+      "community": 185,
       "norm_label": "missinginvi"
     },
     {
@@ -25677,7 +25677,7 @@
       "source_file": "src/tests/translations.test.ts",
       "source_location": "L17",
       "id": "tests_translations_test_missinginen",
-      "community": 183,
+      "community": 185,
       "norm_label": "missinginen"
     },
     {
@@ -26782,7 +26782,7 @@
       "label": "S\u1eeda l\u1ed7i",
       "file_type": "document",
       "source_file": "RELEASE_NOTES.md",
-      "source_location": "L15",
+      "source_location": "L17",
       "id": "taixiucanhan_release_notes_s\u1eeda_l\u1ed7i",
       "community": 187,
       "norm_label": "sua loi"
@@ -26791,7 +26791,7 @@
       "label": "Thay \u0111\u1ed5i d\u1eef li\u1ec7u",
       "file_type": "document",
       "source_file": "RELEASE_NOTES.md",
-      "source_location": "L20",
+      "source_location": "L22",
       "id": "taixiucanhan_release_notes_thay_\u0111\u1ed5i_d\u1eef_li\u1ec7u",
       "community": 187,
       "norm_label": "thay \u0111oi du lieu"
@@ -29789,7 +29789,7 @@
       "file_type": "code",
       "source_file": "src/tests/budget-report.test.ts",
       "source_location": "L107",
-      "community": 5,
+      "community": 112,
       "norm_label": "travel",
       "id": "tests_budget_report_test_travel"
     },
@@ -31265,7 +31265,7 @@
       "file_type": "code",
       "source_file": "scripts/check-translations.ts",
       "source_location": "L1",
-      "community": 184,
+      "community": 185,
       "norm_label": "check-translations.ts",
       "id": "scripts_check_translations"
     },
@@ -31742,7 +31742,7 @@
       "file_type": "code",
       "source_file": "src/modules/budgets/components/BudgetByAccountTypeSummary.tsx",
       "source_location": "L1",
-      "community": 29,
+      "community": 109,
       "norm_label": "budgetbyaccounttypesummary.tsx",
       "id": "components_budgetbyaccounttypesummary"
     },
@@ -31877,7 +31877,7 @@
       "file_type": "code",
       "source_file": "src/modules/budgets/hooks/useBudgets.ts",
       "source_location": "L1",
-      "community": 36,
+      "community": 123,
       "norm_label": "usebudgets.ts",
       "id": "hooks_usebudgets"
     },
@@ -32093,7 +32093,7 @@
       "file_type": "code",
       "source_file": "src/modules/export/services/export-error-logs.ts",
       "source_location": "L1",
-      "community": 201,
+      "community": 190,
       "norm_label": "export-error-logs.ts",
       "id": "services_export_error_logs"
     },
@@ -32138,7 +32138,7 @@
       "file_type": "code",
       "source_file": "src/modules/loans/components/LoanCard.tsx",
       "source_location": "L1",
-      "community": 112,
+      "community": 89,
       "norm_label": "loancard.tsx",
       "id": "components_loancard"
     },
@@ -32147,7 +32147,7 @@
       "file_type": "code",
       "source_file": "src/modules/loans/components/LoanForm.tsx",
       "source_location": "L1",
-      "community": 110,
+      "community": 161,
       "norm_label": "loanform.tsx",
       "id": "components_loanform"
     },
@@ -32156,7 +32156,7 @@
       "file_type": "code",
       "source_file": "src/modules/loans/components/PaymentForm.tsx",
       "source_location": "L1",
-      "community": 126,
+      "community": 136,
       "norm_label": "paymentform.tsx",
       "id": "components_paymentform"
     },
@@ -32174,7 +32174,7 @@
       "file_type": "code",
       "source_file": "src/modules/loans/domain/loan.model.ts",
       "source_location": "L1",
-      "community": 161,
+      "community": 110,
       "norm_label": "loan.model.ts",
       "id": "domain_loan_model"
     },
@@ -32183,7 +32183,7 @@
       "file_type": "code",
       "source_file": "src/modules/loans/domain/loan.schema.ts",
       "source_location": "L1",
-      "community": 88,
+      "community": 183,
       "norm_label": "loan.schema.ts",
       "id": "domain_loan_schema"
     },
@@ -32201,7 +32201,7 @@
       "file_type": "code",
       "source_file": "src/modules/loans/hooks/useLoans.ts",
       "source_location": "L1",
-      "community": 161,
+      "community": 126,
       "norm_label": "useloans.ts",
       "id": "hooks_useloans"
     },
@@ -32219,7 +32219,7 @@
       "file_type": "code",
       "source_file": "src/modules/loans/pages/LoanListPage.tsx",
       "source_location": "L1",
-      "community": 112,
+      "community": 126,
       "norm_label": "loanlistpage.tsx",
       "id": "pages_loanlistpage"
     },
@@ -32228,7 +32228,7 @@
       "file_type": "code",
       "source_file": "src/modules/loans/repositories/loan.repository.ts",
       "source_location": "L1",
-      "community": 161,
+      "community": 110,
       "norm_label": "loan.repository.ts",
       "id": "repositories_loan_repository"
     },
@@ -32264,7 +32264,7 @@
       "file_type": "code",
       "source_file": "src/modules/loans/services/cancel-loan.ts",
       "source_location": "L1",
-      "community": 161,
+      "community": 185,
       "norm_label": "cancel-loan.ts",
       "id": "services_cancel_loan"
     },
@@ -32309,7 +32309,7 @@
       "file_type": "code",
       "source_file": "src/modules/loans/services/list-loans.ts",
       "source_location": "L1",
-      "community": 161,
+      "community": 110,
       "norm_label": "list-loans.ts",
       "id": "services_list_loans"
     },
@@ -32552,7 +32552,7 @@
       "file_type": "code",
       "source_file": "src/modules/reports/services/build-date-range.ts",
       "source_location": "L1",
-      "community": 127,
+      "community": 5,
       "norm_label": "build-date-range.ts",
       "id": "services_build_date_range"
     },
@@ -32849,7 +32849,7 @@
       "file_type": "code",
       "source_file": "src/modules/transactions/hooks/useBudgetAnalysis.ts",
       "source_location": "L1",
-      "community": 36,
+      "community": 123,
       "norm_label": "usebudgetanalysis.ts",
       "id": "hooks_usebudgetanalysis"
     },
@@ -33344,7 +33344,7 @@
       "file_type": "code",
       "source_file": "src/shared/components/DropdownList.tsx",
       "source_location": "L1",
-      "community": 136,
+      "community": 85,
       "norm_label": "dropdownlist.tsx",
       "id": "components_dropdownlist"
     },
@@ -33416,7 +33416,7 @@
       "file_type": "code",
       "source_file": "src/shared/components/MoneyInput/MoneyCalculatorPanel.tsx",
       "source_location": "L1",
-      "community": 162,
+      "community": 115,
       "norm_label": "moneycalculatorpanel.tsx",
       "id": "moneyinput_moneycalculatorpanel"
     },
@@ -33551,7 +33551,7 @@
       "file_type": "code",
       "source_file": "src/shared/constants/translations.ts",
       "source_location": "L1",
-      "community": 183,
+      "community": 185,
       "norm_label": "translations.ts",
       "id": "constants_translations"
     },
@@ -33587,7 +33587,7 @@
       "file_type": "code",
       "source_file": "src/shared/hooks/use-display-format-settings.test.tsx",
       "source_location": "L1",
-      "community": 174,
+      "community": 11,
       "norm_label": "use-display-format-settings.test.tsx",
       "id": "hooks_use_display_format_settings_test"
     },
@@ -33920,7 +33920,7 @@
       "file_type": "code",
       "source_file": "src/tests/dropdown-list.test.tsx",
       "source_location": "L1",
-      "community": 136,
+      "community": 85,
       "norm_label": "dropdown-list.test.tsx",
       "id": "tests_dropdown_list_test"
     },
@@ -33983,7 +33983,7 @@
       "file_type": "code",
       "source_file": "src/tests/loan-form.test.tsx",
       "source_location": "L1",
-      "community": 198,
+      "community": 161,
       "norm_label": "loan-form.test.tsx",
       "id": "tests_loan_form_test"
     },
@@ -34136,7 +34136,7 @@
       "file_type": "code",
       "source_file": "src/tests/translations.test.ts",
       "source_location": "L1",
-      "community": 183,
+      "community": 185,
       "norm_label": "translations.test.ts",
       "id": "tests_translations_test"
     },
@@ -34874,7 +34874,7 @@
       "file_type": "code",
       "source_file": "src/modules/loans/components/LoanCard.tsx",
       "source_location": "L11",
-      "community": 112,
+      "community": 89,
       "norm_label": "formatvnd()",
       "id": "components_loancard_formatvnd"
     },
@@ -34955,7 +34955,7 @@
       "file_type": "code",
       "source_file": "src/modules/loans/components/LoanCard.tsx",
       "source_location": "L17",
-      "community": 112,
+      "community": 89,
       "norm_label": "isoverdue()",
       "id": "components_loancard_isoverdue"
     },
@@ -35144,7 +35144,7 @@
       "file_type": "code",
       "source_file": "src/modules/loans/components/LoanCard.tsx",
       "source_location": "L8",
-      "community": 112,
+      "community": 89,
       "norm_label": "type_labels",
       "id": "components_loancard_type_labels"
     },
@@ -35153,7 +35153,7 @@
       "file_type": "code",
       "source_file": "src/modules/loans/components/LoanCard.tsx",
       "source_location": "L13",
-      "community": 112,
+      "community": 89,
       "norm_label": "status_labels",
       "id": "components_loancard_status_labels"
     },
@@ -35162,7 +35162,7 @@
       "file_type": "code",
       "source_file": "src/modules/loans/components/LoanCard.tsx",
       "source_location": "L27",
-      "community": 112,
+      "community": 89,
       "norm_label": "formatdate()",
       "id": "components_loancard_formatdate"
     },
@@ -35171,7 +35171,7 @@
       "file_type": "code",
       "source_file": "src/modules/loans/components/LoanForm.tsx",
       "source_location": "L17",
-      "community": 110,
+      "community": 161,
       "norm_label": "type_options",
       "id": "components_loanform_type_options"
     },
@@ -35216,7 +35216,7 @@
       "file_type": "code",
       "source_file": "src/modules/loans/pages/LoanListPage.tsx",
       "source_location": "L18",
-      "community": 112,
+      "community": 126,
       "norm_label": "filter_tabs",
       "id": "pages_loanlistpage_filter_tabs"
     },
@@ -35477,7 +35477,7 @@
       "file_type": "code",
       "source_file": "src/modules/loans/components/PaymentForm.tsx",
       "source_location": "L13",
-      "community": 126,
+      "community": 136,
       "norm_label": "todayinputvalue()",
       "id": "components_paymentform_todayinputvalue"
     },
@@ -35486,7 +35486,7 @@
       "file_type": "code",
       "source_file": "src/modules/loans/components/PaymentForm.tsx",
       "source_location": "L20",
-      "community": 126,
+      "community": 136,
       "norm_label": "dateinputtoms()",
       "id": "components_paymentform_dateinputtoms"
     },
@@ -99443,6 +99443,28 @@
       "target": "context_languagecontext_uselanguage"
     },
     {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/modules/reports/components/DateRangePicker.tsx",
+      "source_location": "L5",
+      "weight": 1.0,
+      "source": "src_modules_reports_components_daterangepicker_tsx",
+      "target": "src_shared_components_dropdownlist_tsx",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/modules/reports/components/DateRangePicker.tsx",
+      "source_location": "L5",
+      "weight": 1.0,
+      "source": "src_modules_reports_components_daterangepicker_tsx",
+      "target": "components_dropdownlist_dropdownlist",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/modules/reports/components/DateRangePicker.tsx",
@@ -148850,9 +148872,9 @@
       "source_file": "RELEASE_NOTES.md",
       "source_location": "L1",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "release_notes_md",
-      "target": "taixiucanhan_release_notes_v2_1_2",
-      "confidence_score": 1.0
+      "target": "taixiucanhan_release_notes_v2_1_2"
     },
     {
       "relation": "contains",
@@ -148940,9 +148962,9 @@
       "source_file": "RELEASE_NOTES.md",
       "source_location": "L3",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "taixiucanhan_release_notes_v2_1_2",
-      "target": "taixiucanhan_release_notes_t\u00f3m_t\u1eaft",
-      "confidence_score": 1.0
+      "target": "taixiucanhan_release_notes_t\u00f3m_t\u1eaft"
     },
     {
       "relation": "contains",
@@ -148950,9 +148972,9 @@
       "source_file": "RELEASE_NOTES.md",
       "source_location": "L7",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "taixiucanhan_release_notes_v2_1_2",
-      "target": "taixiucanhan_release_notes_c\u1ea3i_thi\u1ec7n",
-      "confidence_score": 1.0
+      "target": "taixiucanhan_release_notes_c\u1ea3i_thi\u1ec7n"
     },
     {
       "relation": "contains",
@@ -148960,9 +148982,9 @@
       "source_file": "RELEASE_NOTES.md",
       "source_location": "L15",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "taixiucanhan_release_notes_v2_1_2",
-      "target": "taixiucanhan_release_notes_s\u1eeda_l\u1ed7i",
-      "confidence_score": 1.0
+      "target": "taixiucanhan_release_notes_s\u1eeda_l\u1ed7i"
     },
     {
       "relation": "contains",
@@ -148970,9 +148992,9 @@
       "source_file": "RELEASE_NOTES.md",
       "source_location": "L20",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "taixiucanhan_release_notes_v2_1_2",
-      "target": "taixiucanhan_release_notes_thay_\u0111\u1ed5i_d\u1eef_li\u1ec7u",
-      "confidence_score": 1.0
+      "target": "taixiucanhan_release_notes_thay_\u0111\u1ed5i_d\u1eef_li\u1ec7u"
     },
     {
       "relation": "contains",
@@ -167619,5 +167641,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "df52b5bd4bf560ba2f9440c38d5aec924538ba24"
+  "built_at_commit": "1a2e7b7ef21145503cbb31ab7591ff2604e836dd"
 }

@@ -120,10 +120,10 @@ describe('Reports UI - DateRangePicker', () => {
       />
     );
 
-    fireEvent.change(
-      await screen.findByRole('combobox', { name: /Time Period/i }),
-      { target: { value: 'this_week' } },
-    );
+    fireEvent.click(await screen.findByRole('button', { name: /Time Period/i }));
+    const thisWeekOption = await screen.findByRole('option', { name: /This week/i });
+    expect(thisWeekOption.className).toContain('!min-h-[36px]');
+    fireEvent.click(thisWeekOption);
 
     expect(onPresetChange).toHaveBeenCalledWith('this_week');
   });
@@ -143,13 +143,14 @@ describe('Reports UI - DateRangePicker', () => {
       />
     );
 
-    const periodSelect = await screen.findByRole('combobox', { name: /Time Period/i });
+    const periodSelect = await screen.findByRole('button', { name: /Time Period/i });
 
-    expect((periodSelect as HTMLSelectElement).value).toBe('last_month');
+    expect(periodSelect.textContent).toMatch(/Last Month/i);
     expect(screen.queryByLabelText(/Start date/i)).toBeNull();
     expect(screen.queryByLabelText(/End date/i)).toBeNull();
 
-    fireEvent.change(periodSelect, { target: { value: 'this_week' } });
+    fireEvent.click(periodSelect);
+    fireEvent.click(await screen.findByRole('option', { name: /This week/i }));
     expect(onPresetChange).toHaveBeenCalledWith('this_week');
   });
 
@@ -246,8 +247,8 @@ describe('Reports UI - DateRangePicker', () => {
 
     fireEvent.click(resetButton);
 
-    expect((screen.getByRole('combobox', { name: /Time Period/i }) as HTMLSelectElement).value)
-      .toBe('this_month');
+    expect(screen.getByRole('button', { name: /Time Period/i }).textContent)
+      .toMatch(/This Month/i);
     const granularityGroup = screen.getByRole('group', { name: /Group By/i });
     expect(within(granularityGroup).getByRole('button', { name: /^Day$/i }).getAttribute('aria-pressed'))
       .toBe('true');
@@ -268,7 +269,7 @@ describe('Reports UI - DateRangePicker', () => {
       />,
     );
 
-    expect((await screen.findByRole('combobox', { name: /Time Period/i })).getAttribute('disabled'))
+    expect((await screen.findByRole('button', { name: /Time Period/i })).getAttribute('disabled'))
       .not.toBeNull();
     expect(screen.getByRole('button', { name: /^Day$/i }).getAttribute('disabled')).not.toBeNull();
   });
@@ -391,7 +392,7 @@ describe('Reports UI - page hierarchy and states', () => {
     renderPage();
 
     expect(await screen.findByRole('status', { name: 'Loading report' })).toBeTruthy();
-    expect(screen.getByRole('combobox', { name: 'Time Period' }).getAttribute('disabled')).not.toBeNull();
+    expect(screen.getByRole('button', { name: 'Time Period' }).getAttribute('disabled')).not.toBeNull();
     expect(screen.queryByTestId('report-trend-periods')).toBeNull();
     expect(screen.queryByRole('button', { name: /^Food,/ })).toBeNull();
   });
@@ -416,9 +417,8 @@ describe('Reports UI - page hierarchy and states', () => {
 
     expect(await screen.findByRole('heading', { name: 'Not enough data to create a report' })).toBeTruthy();
 
-    fireEvent.change(screen.getByRole('combobox', { name: 'Time Period' }), {
-      target: { value: 'custom' },
-    });
+    fireEvent.click(screen.getByRole('button', { name: 'Time Period' }));
+    fireEvent.click(await screen.findByRole('option', { name: /^Custom$/i }));
 
     expect(await screen.findByRole('heading', { name: 'No data in this time range' })).toBeTruthy();
     fireEvent.click(screen.getByRole('button', { name: 'Add Transaction' }));

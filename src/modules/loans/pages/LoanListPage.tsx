@@ -213,7 +213,7 @@ export function LoanListPage() {
           />
         </label>
 
-        <div className="mt-3 flex items-center gap-3 rounded-[12px] border border-border bg-surface px-3 py-2 shadow-sm">
+        <div className="mt-2 flex items-center gap-3">
           <span className="min-w-fit text-[12px] font-bold text-muted">
             {t('loans.pages.list.sortLabel')}
           </span>
@@ -223,7 +223,8 @@ export function LoanListPage() {
             ariaLabel={t('loans.pages.list.sortLabel')}
             options={sortOptions}
             className="min-w-0 flex-1"
-            buttonClassName="min-h-[40px] border-0 bg-transparent px-2 shadow-none"
+            buttonClassName="!min-h-[36px] !gap-2 !rounded-[10px] !px-3 !text-[12px]"
+            optionClassName="!min-h-[36px] !text-[12px]"
           />
         </div>
       </div>

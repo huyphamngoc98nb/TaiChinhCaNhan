@@ -1,21 +1,13 @@
-# v2.1.2
+# v2.1.3
 
 ## Tóm tắt
 
-Bản cập nhật 2.1.2 tối ưu trải nghiệm Android khi nhập ngân sách và chuẩn hóa hàng bộ lọc trên màn Lịch sử giao dịch, giúp các điều khiển gọn, cân đối và không bị bàn phím che khuất.
+Bản cập nhật 2.1.3 tinh gọn các điều khiển trên màn Báo cáo và Cho vay / Vay nợ, giúp bố cục gọn hơn, đồng nhất hơn và dành thêm không gian cho nội dung chính.
 
 ## Cải thiện
 
-- Tối ưu biểu mẫu thêm/sửa ngân sách để trường số tiền luôn nằm trong vùng nhìn thấy khi bàn phím số mở, đồng thời hỗ trợ vùng an toàn và bố cục ngang trên màn hình thấp.
-- Cho phép nút Quay lại đóng bàn phím nhập tiền trước, giữ focus ổn định và bổ sung mô tả trợ năng cho trường số tiền ngân sách.
-- Đồng bộ hai bộ lọc thời gian trên màn Lịch sử giao dịch theo tỷ lệ 50/50, cùng chiều cao 44 px và thẳng mép với danh sách giao dịch.
-- Cân đối hai nút điều hướng tháng, giữ vùng chạm 44 px và hiển thị trạng thái vô hiệu hóa mà không làm thay đổi hình học.
-- Chỉ giữ thanh tiêu đề Lịch sử giao dịch ở trạng thái sticky và căn lại các giá trị tổng hợp thu, chi, số dư trên màn hình nhỏ.
-
-## Sửa lỗi
-
-- Sửa lỗi bàn phím số có thể che trường số tiền hoặc làm biểu mẫu ngân sách cuộn sai vị trí.
-- Sửa lỗi bộ chọn Ngày, Tháng, Năm cao hơn bộ điều hướng tháng và trạng thái được chọn không giữ khoảng inset đồng đều.
+- Thu gọn các tab Dòng tiền / Ngân sách, bộ chọn kỳ báo cáo, khoảng ngày tùy chỉnh và nhóm Ngày / Tháng / Năm; bộ chọn kỳ báo cáo nay sử dụng danh sách thả xuống đồng nhất với các màn hình khác.
+- Tối ưu hàng sắp xếp trên màn Cho vay / Vay nợ: bỏ khung bao dư thừa, giảm chiều cao bộ chọn và cho điều khiển tự giãn theo phần không gian còn lại để thẳng hàng với bộ lọc và danh sách.
 
 ## Thay đổi dữ liệu
 

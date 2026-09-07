@@ -2,6 +2,7 @@ import React from 'react';
 import { DateRangePreset } from '../services/build-date-range';
 import { DateRange, ReportGranularity } from '../domain/report.model';
 import { useLanguage } from '@/shared/context/LanguageContext';
+import { DropdownList } from '@/shared/components/DropdownList';
 import { RotateCcw } from 'lucide-react';
 
 interface Props {
@@ -56,12 +57,12 @@ export const DateRangePicker: React.FC<Props> = ({
 
   return (
     <section
-      className="mb-5 rounded-2xl border border-border bg-surface p-4"
+      className="mb-4 rounded-[14px] border border-border bg-surface p-3"
       aria-labelledby="report-period-heading"
       aria-busy={disabled}
     >
-      <div className="flex min-h-11 items-center justify-between gap-3">
-        <h2 id="report-period-heading" className="text-base font-bold leading-5 text-text">
+      <div className="flex min-h-9 items-center justify-between gap-3">
+        <h2 id="report-period-heading" className="text-sm font-bold leading-5 text-text">
           {t('reports.period_label')}
         </h2>
         {!isDefault && (
@@ -69,59 +70,54 @@ export const DateRangePicker: React.FC<Props> = ({
             type="button"
             onClick={onReset}
             disabled={disabled}
-            className={`inline-flex min-h-11 shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-[10px] px-3 text-sm font-semibold text-muted transition-colors active:bg-surface-muted disabled:cursor-not-allowed disabled:text-subtle ${focusRingClasses}`}
+            className={`inline-flex min-h-11 shrink-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-[9px] px-2.5 text-xs font-semibold text-muted transition-colors active:bg-surface-muted disabled:cursor-not-allowed disabled:text-subtle ${focusRingClasses}`}
           >
-            <RotateCcw size={16} aria-hidden="true" />
+            <RotateCcw size={14} aria-hidden="true" />
             {t('reports.reset_filters')}
           </button>
         )}
       </div>
 
-      <label htmlFor="report-period-preset" className="mt-3 block text-sm font-semibold text-muted">
-        {t('reports.current_period')}
-      </label>
-      <select
-        id="report-period-preset"
-        aria-label={t('reports.period_label')}
+      <DropdownList
         value={preset}
+        options={presetOptions}
+        onChange={onPresetChange}
+        ariaLabel={t('reports.period_label')}
         disabled={disabled}
-        onChange={event => onPresetChange(event.target.value as DateRangePreset)}
-        className={`mt-2 min-h-12 w-full rounded-xl border border-[var(--border-strong)] bg-bg-subtle px-3 text-sm font-semibold text-text disabled:cursor-not-allowed disabled:bg-surface-muted disabled:text-subtle ${focusRingClasses}`}
-      >
-        {presetOptions.map(option => (
-          <option key={option.value} value={option.value}>{option.label}</option>
-        ))}
-      </select>
+        className="mt-2 w-full"
+        buttonClassName="!min-h-[36px] !gap-2 !rounded-[10px] !px-3 !text-[12px]"
+        optionClassName="!min-h-[36px] !text-[12px]"
+      />
 
       {preset === 'custom' && (
-        <div className="mt-3 grid grid-cols-1 gap-3 min-[400px]:grid-cols-2">
-          <label className="min-w-0 text-sm font-semibold text-muted">
-            <span className="mb-2 block">{t('reports.custom_start')}</span>
+        <div className="mt-2 grid grid-cols-1 gap-2 min-[400px]:grid-cols-2">
+          <label className="min-w-0 text-xs font-semibold text-muted">
+            <span className="mb-1 block">{t('reports.custom_start')}</span>
             <input
               type="date"
               value={dateInputValue(customRange.startDate)}
               disabled={disabled}
               onChange={event => onCustomRangeChange({ ...customRange, startDate: startOfInputDate(event.target.value) })}
-              className={`min-h-12 w-full min-w-0 rounded-xl border border-[var(--border-strong)] bg-bg-subtle px-3 text-sm font-semibold text-text disabled:cursor-not-allowed disabled:bg-surface-muted disabled:text-subtle ${focusRingClasses}`}
+              className={`min-h-10 w-full min-w-0 rounded-[10px] border border-[var(--border-strong)] bg-bg-subtle px-3 text-sm font-semibold text-text disabled:cursor-not-allowed disabled:bg-surface-muted disabled:text-subtle ${focusRingClasses}`}
             />
           </label>
-          <label className="min-w-0 text-sm font-semibold text-muted">
-            <span className="mb-2 block">{t('reports.custom_end')}</span>
+          <label className="min-w-0 text-xs font-semibold text-muted">
+            <span className="mb-1 block">{t('reports.custom_end')}</span>
             <input
               type="date"
               value={dateInputValue(customRange.endDate)}
               disabled={disabled}
               onChange={event => onCustomRangeChange({ ...customRange, endDate: endOfInputDate(event.target.value) })}
-              className={`min-h-12 w-full min-w-0 rounded-xl border border-[var(--border-strong)] bg-bg-subtle px-3 text-sm font-semibold text-text disabled:cursor-not-allowed disabled:bg-surface-muted disabled:text-subtle ${focusRingClasses}`}
+              className={`min-h-10 w-full min-w-0 rounded-[10px] border border-[var(--border-strong)] bg-bg-subtle px-3 text-sm font-semibold text-text disabled:cursor-not-allowed disabled:bg-surface-muted disabled:text-subtle ${focusRingClasses}`}
             />
           </label>
         </div>
       )}
 
-      <fieldset className="mt-4 min-w-0">
-        <legend className="text-sm font-semibold text-muted">{t('reports.granularity_label')}</legend>
+      <fieldset className="mt-3 min-w-0">
+        <legend className="text-xs font-semibold text-muted">{t('reports.granularity_label')}</legend>
         <div
-          className="mt-2 grid min-w-0 grid-cols-3 gap-1 rounded-xl border border-border bg-surface-muted p-1"
+          className="mt-1 grid min-w-0 grid-cols-3 gap-1 rounded-[10px] border border-border bg-surface-muted p-0.5"
         >
           {granularityOptions.map(option => (
             <button
@@ -130,7 +126,7 @@ export const DateRangePicker: React.FC<Props> = ({
               aria-pressed={granularity === option.value}
               disabled={disabled}
               onClick={() => onGranularityChange(option.value)}
-              className={`min-h-11 min-w-0 whitespace-nowrap rounded-[10px] border px-2 text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:text-subtle ${focusRingClasses} ${
+              className={`min-h-9 min-w-0 whitespace-nowrap rounded-[8px] border px-2 text-xs font-semibold transition-colors disabled:cursor-not-allowed disabled:text-subtle ${focusRingClasses} ${
                 granularity === option.value
                   ? 'border-[var(--selected-border)] bg-surface text-[var(--selected-text)]'
                   : 'border-transparent text-muted active:bg-surface'
