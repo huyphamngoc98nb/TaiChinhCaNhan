@@ -1,0 +1,20 @@
+# syntax=docker/dockerfile:1
+
+FROM node:24-bookworm-slim
+
+ENV NODE_ENV=development \
+    npm_config_update_notifier=false
+
+WORKDIR /workspace
+
+RUN chown node:node /workspace
+USER node
+
+COPY --chown=node:node package.json package-lock.json ./
+RUN npm ci
+
+COPY --chown=node:node . .
+
+EXPOSE 5173
+
+CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]

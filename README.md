@@ -70,6 +70,42 @@ npm run dev
 
 Trên Web, SQLite chạy qua `jeep-sqlite` và lưu vào IndexedDB. Web không có mức mã hóa SQLCipher tương đương bản native và một số chức năng camera, sinh trắc học, lưu/chia sẻ file cần được kiểm tra trên thiết bị thật.
 
+### Phát triển bằng Docker
+
+Docker chỉ đóng gói môi trường phát triển Web. Android release vẫn được build, ký và publish bằng GitHub Actions; `server/` không được khởi động vì ứng dụng local-first không phụ thuộc server này.
+
+Yêu cầu Docker Desktop có Docker Compose 2.22 trở lên để sử dụng Compose Watch. Khởi động môi trường:
+
+```bash
+docker compose -f compose.dev.yaml up --build --watch
+```
+
+Mở `http://localhost:5173`. Có thể đổi cổng phía PC bằng biến `DEV_PORT`, ví dụ trong PowerShell:
+
+```powershell
+$env:DEV_PORT = "5174"
+docker compose -f compose.dev.yaml up --build --watch
+```
+
+Source được đồng bộ vào container khi lưu file. Khi `package.json` hoặc `package-lock.json` thay đổi, Compose tự rebuild image để cập nhật dependency Linux trong container; không dùng chung `node_modules` của Windows. Compose đọc các biến `VITE_ANDROID_*` từ file `.env` trên PC và truyền riêng chúng vào container; file `.env` không được copy vào image.
+
+Chạy các kiểm tra trong container đang hoạt động:
+
+```bash
+docker compose -f compose.dev.yaml exec web npm run typecheck
+docker compose -f compose.dev.yaml exec web npm run lint
+docker compose -f compose.dev.yaml exec web npm test
+docker compose -f compose.dev.yaml exec web npm run build
+```
+
+Dừng môi trường:
+
+```bash
+docker compose -f compose.dev.yaml down
+```
+
+Node được pin tại `.nvmrc`; Dockerfile và Android release workflow cùng sử dụng phiên bản này. `.dockerignore` loại trừ dependency, output build, file môi trường và Android signing material khỏi Docker build context.
+
 ## Kiểm tra chất lượng
 
 ```bash

@@ -1,0 +1,40 @@
+name: tai-xiu-ca-nhan-dev
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    init: true
+    ports:
+      - '127.0.0.1:${DEV_PORT:-5173}:5173'
+    environment:
+      CHOKIDAR_USEPOLLING: 'true'
+      VITE_ANDROID_LATEST_JSON_URL: '${VITE_ANDROID_LATEST_JSON_URL:-}'
+      VITE_ANDROID_CURRENT_VERSION_NAME: '${VITE_ANDROID_CURRENT_VERSION_NAME:-}'
+      VITE_ANDROID_CURRENT_VERSION_CODE: '${VITE_ANDROID_CURRENT_VERSION_CODE:-}'
+    develop:
+      watch:
+        - action: sync
+          path: .
+          target: /workspace
+          ignore:
+            - node_modules/
+            - dist/
+            - dist-release/
+            - graphify-out/
+            - .git/
+            - .env
+            - .env.*
+            - android/.gradle/
+            - android/app/build/
+            - android/keystore.properties
+            - android/app/google-services.json
+            - '*.jks'
+            - '*.keystore'
+            - package.json
+            - package-lock.json
+        - action: rebuild
+          path: package.json
+        - action: rebuild
+          path: package-lock.json

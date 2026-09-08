@@ -35,8 +35,8 @@
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\version.config.json": {
-    "mtime": 1785403421.3106618,
-    "ast_hash": "b4c5254c51c6130d2bce0aed2eca3b1d",
+    "mtime": 1788754952.3082707,
+    "ast_hash": "3993193cc22091a0a44ee114dcd24109",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\vite.config.ts": {
@@ -965,8 +965,8 @@
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\modules\\reports\\components\\ReportDonutCard.tsx": {
-    "mtime": 1785314461.1745124,
-    "ast_hash": "9c83f122f8383e1a1368444c821a2e50",
+    "mtime": 1788765484.4973862,
+    "ast_hash": "9399708d3073b5eed09d3bf704f7e7ca",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\modules\\reports\\components\\ReportSummaryCards.tsx": {
@@ -990,8 +990,8 @@
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\modules\\reports\\pages\\ReportsPage.tsx": {
-    "mtime": 1785316159.5922785,
-    "ast_hash": "749f3a95f4f941a61f3ee8e5063a2959",
+    "mtime": 1788765482.939257,
+    "ast_hash": "a093ad35c622870d5ddd495b666b0b4c",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\modules\\reports\\repositories\\report.repository.ts": {
@@ -1900,8 +1900,8 @@
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\README.md": {
-    "mtime": 1782961272.211976,
-    "ast_hash": "79c2d63d7322c03e5178f9956e5f21a2",
+    "mtime": 1788838760.8953562,
+    "ast_hash": "b53dbbd4efcf5b5a0e853dca48acfd2b",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\.agents\\skills\\graphify\\SKILL.md": {
@@ -2115,8 +2115,8 @@
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\.github\\workflows\\android-release.yml": {
-    "mtime": 1784191215.5031614,
-    "ast_hash": "7e7692fa9de330485edc678d929aa94e",
+    "mtime": 1788837623.4531436,
+    "ast_hash": "ae874d363720f03f612fe28590f457ae",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\docs\\android-release.md": {
@@ -2420,8 +2420,8 @@
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\RELEASE_NOTES.md": {
-    "mtime": 1788750233.6456282,
-    "ast_hash": "b70d7c4b168c267755fd3c3700d93e54",
+    "mtime": 1788837560.2510946,
+    "ast_hash": "57a88b804070ae4f5133c2648bc50185",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\app\\providers\\app-lock-state.ts": {
@@ -2610,8 +2610,8 @@
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\design.md": {
-    "mtime": 1785312308.752256,
-    "ast_hash": "24856c6a23fe60a921eca294eeed3230",
+    "mtime": 1788765481.4153404,
+    "ast_hash": "e335d1beaad7b4644ee1156a5cab9a10",
     "semantic_hash": ""
   },
   "D:\\Personal Project\\TaiXiuCaNhan\\docs\\ui-redesign-plan.md": {
@@ -2667,6 +2667,16 @@
   "D:\\Personal Project\\TaiXiuCaNhan\\src\\shared\\components\\BottomSheet.test.tsx": {
     "mtime": 1785383632.6637733,
     "ast_hash": "197ce0d69ee0a1163608d90382858ac1",
+    "semantic_hash": ""
+  },
+  "D:\\Personal Project\\TaiXiuCaNhan\\scripts\\docker-development.test.mjs": {
+    "mtime": 1788838762.3794205,
+    "ast_hash": "ce0f612ca5bec9f6807dba1de92c98fd",
+    "semantic_hash": ""
+  },
+  "D:\\Personal Project\\TaiXiuCaNhan\\compose.dev.yaml": {
+    "mtime": 1788838759.345224,
+    "ast_hash": "59b21a072f3476af49cc32ec4d2e2be7",
     "semantic_hash": ""
   }
 }

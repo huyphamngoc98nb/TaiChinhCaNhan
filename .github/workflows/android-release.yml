@@ -82,10 +82,10 @@ jobs:
 
           exit "${missing}"
 
-      - name: Setup Node.js LTS
+      - name: Setup Node.js from .nvmrc
         uses: actions/setup-node@v4
         with:
-          node-version: 'lts/*'
+          node-version-file: '.nvmrc'
           cache: npm
 
       - name: Setup JDK 17
